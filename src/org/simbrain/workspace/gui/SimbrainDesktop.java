@@ -110,6 +110,8 @@ import org.simbrain.world.game.GameComponent;
 import org.simbrain.world.game.GameDesktopComponent;
 import org.simbrain.world.odorworld.OdorWorldComponent;
 import org.simbrain.world.odorworld.OdorWorldDesktopComponent;
+import org.simbrain.world.protoworld.ProtoWorldComponent;
+import org.simbrain.world.protoworld.ProtoWorldDesktopComponent;
 import org.simbrain.world.textworld.DisplayComponent;
 import org.simbrain.world.textworld.DisplayComponentDesktopGui;
 import org.simbrain.world.textworld.ReaderComponent;
@@ -392,6 +394,7 @@ public class SimbrainDesktop {
         registerComponent(NetworkComponent.class, NetworkDesktopComponent.class);
         registerComponent(OdorWorldComponent.class,
                 OdorWorldDesktopComponent.class);
+        registerComponent(ProtoWorldComponent.class, ProtoWorldDesktopComponent.class);
         registerComponent(PieChartComponent.class, PieChartGui.class);
         registerComponent(ProjectionComponent.class, ProjectionGui.class);
         registerComponent(ReaderComponent.class,

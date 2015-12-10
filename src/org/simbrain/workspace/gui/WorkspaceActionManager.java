@@ -42,6 +42,7 @@ import org.simbrain.workspace.actions.NewGameWorldAction;
 import org.simbrain.workspace.actions.NewMidiWorldAction;
 import org.simbrain.workspace.actions.NewNetworkAction;
 import org.simbrain.workspace.actions.NewOdorWorldAction;
+import org.simbrain.workspace.actions.NewProtoWorldAction;
 import org.simbrain.workspace.actions.NewReaderWorldAction;
 import org.simbrain.workspace.actions.NewVisionWorldAction;
 import org.simbrain.workspace.actions.OpenCouplingListAction;
@@ -90,6 +91,9 @@ public class WorkspaceActionManager {
 
     /** New odor world action. */
     private final Action newOdorWorldAction;
+    
+    /** New proto world action. */
+    private final Action newProtoWorldAction;
 
     /** New odor world action. */
     private final Action newGameWorldAction;
@@ -227,6 +231,7 @@ public class WorkspaceActionManager {
         newDataWorldAction = new NewDataWorldAction(workspace);
         newMidiWorldAction = new NewMidiWorldAction(workspace);
         newOdorWorldAction = new NewOdorWorldAction(workspace);
+        newProtoWorldAction = new NewProtoWorldAction(workspace);
         newGameWorldAction = new NewGameWorldAction(workspace);
         newDisplayWorldAction = new NewDisplayWorldAction(workspace);
         newReaderWorldAction = new NewReaderWorldAction(workspace);
@@ -283,7 +288,7 @@ public class WorkspaceActionManager {
         return Arrays.asList(new Action[] { newDataWorldAction,
                 newOdorWorldAction, newDisplayWorldAction,
                 newReaderWorldAction,
-                // newThreeDeeWorldAction,
+                newProtoWorldAction,
                 newVisionWorldAction });
     }
 
