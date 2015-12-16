@@ -16,7 +16,7 @@ public class ProtoWorldComponent extends WorkspaceComponent {
     public ProtoWorldComponent(String name) {
         super(name);
         world = new ProtoWorld();
-        world.getApplication().startCanvas();
+        world.startCanvas();
     }
     
     /**
@@ -43,11 +43,11 @@ public class ProtoWorldComponent extends WorkspaceComponent {
     
     @Override
     protected void closing() {
-        world.getApplication().stop();
+        world.stop();
     }
     
     @Override
     public void update() {
-        world.update(this.getWorkspace().getTime());
+        world.simpleUpdate(0f);
     }
 }

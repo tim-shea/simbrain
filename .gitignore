@@ -11,3 +11,6 @@
 ./bin/
 *.iml
 out/*
+.settings/
+*.log
+*.so

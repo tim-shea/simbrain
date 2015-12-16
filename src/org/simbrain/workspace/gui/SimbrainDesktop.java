@@ -1149,6 +1149,7 @@ public class SimbrainDesktop {
 
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
+                JPopupMenu.setDefaultLightWeightPopupEnabled(false);
                 new SimbrainDesktop(workspace).createAndShowGUI();
             }
         });
