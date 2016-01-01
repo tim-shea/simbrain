@@ -15,7 +15,7 @@ public class NewProtoWorldAction extends WorkspaceAction {
 	
 	public NewProtoWorldAction(Workspace workspace) {
 		super("Proto World", workspace);
-		putValue(SMALL_ICON, ResourceManager.getImageIcon("SwissIcon.png"));
+		putValue(SMALL_ICON, ResourceManager.getImageIcon("World.png"));
 	}
 	
 	@Override

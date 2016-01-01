@@ -28,7 +28,7 @@ public class EditEntityAction implements ActionListener {
     
     @Override
     public void actionPerformed(ActionEvent event) {
-        ReflectivePropertyEditor editor = new ReflectivePropertyEditor(testEntity);
+        ReflectivePropertyEditor editor = new ReflectivePropertyEditor(world.getSelectedEntity());
         JDialog dialog = editor.getDialog();
         dialog.pack();
         dialog.setLocationRelativeTo(null);

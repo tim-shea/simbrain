@@ -21,6 +21,8 @@ package org.simbrain.world.protoworld.actions;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JDialog;
@@ -28,40 +30,46 @@ import javax.swing.KeyStroke;
 
 import org.simbrain.resource.ResourceManager;
 import org.simbrain.util.propertyeditor.gui.ReflectivePropertyEditor;
-import org.simbrain.world.odorworld.OdorWorldPanel;
-import org.simbrain.world.protoworld.ProtoWorldComponent;
+import org.simbrain.world.protoworld.ProtoWorld;
 
 /**
  * Action for showing world preferences.
  */
-public final class ShowProtoWorldPrefsAction extends AbstractAction {
-
-    /** Plot GUI component. */
-    private final ProtoWorldComponent component;
-
+public final class ShowProtoWorldSettingsAction extends AbstractAction {
+    
+    /** The ProtoWorld on which this action is applied. */
+    private final ProtoWorld world;
+    
     /**
-     * Construct a show prefs action
+     * Construct a show settings action
      *
-     * @param component parent component
+     * @param world the world to which this action applies
      */
-    public ShowProtoWorldPrefsAction(final ProtoWorldComponent component) {
+    public ShowProtoWorldSettingsAction(final ProtoWorld world) {
         super("Proto World Preferences...");
-        if (component == null) {
+        if (world == null) {
             throw new IllegalArgumentException(
                     "Desktop component must not be null");
         }
-        this.component = component;
+        this.world = world;
         this.putValue(this.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_P,
                 Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         putValue(SMALL_ICON, ResourceManager.getImageIcon("Prefs.png"));
         putValue(SHORT_DESCRIPTION, "Proto world preferences...");
     }
-
+    
     /** {@inheritDoc} */
     public void actionPerformed(final ActionEvent event) {
-        ReflectivePropertyEditor editor = new ReflectivePropertyEditor(
-                component.getWorld());
+        ReflectivePropertyEditor editor = new ReflectivePropertyEditor(world);
         JDialog dialog = editor.getDialog();
+        dialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent event) {
+                world.applyEngineSettings();
+                world.restart();
+                world.applyCameraSettings();
+            }
+        });
         dialog.pack();
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);

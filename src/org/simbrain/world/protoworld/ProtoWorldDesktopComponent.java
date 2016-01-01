@@ -1,29 +1,63 @@
 package org.simbrain.world.protoworld;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.beans.PropertyChangeListener;
 
+import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
+import javax.swing.JToggleButton;
 
+import org.simbrain.resource.ResourceManager;
 import org.simbrain.util.genericframe.GenericFrame;
 import org.simbrain.workspace.component_actions.CloseAction;
 import org.simbrain.workspace.component_actions.OpenAction;
 import org.simbrain.workspace.component_actions.SaveAction;
 import org.simbrain.workspace.component_actions.SaveAsAction;
 import org.simbrain.workspace.gui.GuiComponent;
-import org.simbrain.world.protoworld.ProtoWorld.InputHandler;
+import org.simbrain.world.protoworld.ProtoWorld.ControlMode;
+import org.simbrain.world.protoworld.ProtoWorld.ProtoWorldListener;
 import org.simbrain.world.protoworld.actions.AddEntityAction;
 import org.simbrain.world.protoworld.actions.EditEntityAction;
-import org.simbrain.world.protoworld.actions.ShowProtoWorldPrefsAction;
+import org.simbrain.world.protoworld.actions.RemoveEntityAction;
+import org.simbrain.world.protoworld.actions.ShowProtoWorldSettingsAction;
+
+import com.jme3.input.InputManager;
+import com.jme3.math.Vector2f;
 
 public class ProtoWorldDesktopComponent extends GuiComponent<ProtoWorldComponent> {
+    
+	private class ShowContextMenuAction implements com.jme3.input.controls.ActionListener {
+	    private ProtoWorld world;
+	    
+	    public ShowContextMenuAction(ProtoWorld world) {
+	        this.world = world;
+	    }
+	    
+        public void onAction(String name, boolean isPressed, float tpf) {
+            if (isPressed) {
+                if (!popupMenu.isVisible()) {
+                    Vector2f cursorPosition = world.getInputManager().getCursorPosition();
+                    popupMenu.show(ProtoWorldDesktopComponent.this, (int)cursorPosition.x,
+                            (int)(world.getCanvas().getHeight() - cursorPosition.y));
+                }
+            }
+        }
+    }
 	
-	private JMenuBar menuBar;
+    private JMenuBar menuBar;
 	private JPopupMenu popupMenu;
 	
 	public ProtoWorldDesktopComponent(GenericFrame frame, ProtoWorldComponent workspaceComponent) {
@@ -39,7 +73,7 @@ public class ProtoWorldDesktopComponent extends GuiComponent<ProtoWorldComponent
         worldMenu.add(new SaveAction(this));
         worldMenu.add(new SaveAsAction(this));
         worldMenu.addSeparator();
-        worldMenu.add(new ShowProtoWorldPrefsAction(workspaceComponent));
+        worldMenu.add(new ShowProtoWorldSettingsAction(workspaceComponent.getWorld()));
         worldMenu.add(new CloseAction(workspaceComponent));
         menuBar.add(worldMenu);
         
@@ -55,7 +89,10 @@ public class ProtoWorldDesktopComponent extends GuiComponent<ProtoWorldComponent
         editEntityItem.addActionListener(editEntityAction);
         entitiesMenu.add(editEntityItem);
         
-        entitiesMenu.add(new JMenuItem("Remove Entity"));
+        JMenuItem removeEntityItem = new JMenuItem("Remove Entity");
+        ActionListener removeEntityAction = new RemoveEntityAction(world);
+        removeEntityItem.addActionListener(removeEntityAction);
+        entitiesMenu.add(removeEntityItem);
         
         menuBar.add(entitiesMenu);
         
@@ -67,6 +104,55 @@ public class ProtoWorldDesktopComponent extends GuiComponent<ProtoWorldComponent
         JMenu helpMenu = new JMenu("Help");
         menuBar.add(helpMenu);
         
+        JToggleButton selectWidget = new JToggleButton();
+        ImageIcon icon = ResourceManager.getImageIcon("Arrow.png");
+        selectWidget.setIcon(icon);
+        selectWidget.setMargin(new Insets(0, 0, 0, 0));
+        selectWidget.setRolloverEnabled(true);
+        menuBar.add(selectWidget);
+        
+        JToggleButton transformWidget = new JToggleButton();
+        icon = ResourceManager.getImageIcon("ArrowMove.png");
+        Image scaledImage = icon.getImage().getScaledInstance(18, 18, Image.SCALE_SMOOTH);
+        icon.setImage(scaledImage);
+        transformWidget.setIcon(icon);
+        transformWidget.setMargin(new Insets(0, 0, 0, 0));
+        transformWidget.setRolloverEnabled(true);
+        menuBar.add(transformWidget);
+        
+        JToggleButton snapWidget = new JToggleButton();
+        icon = ResourceManager.getImageIcon("grid.png");
+        snapWidget.setIcon(icon);
+        snapWidget.setMargin(new Insets(0, 0, 0, 0));
+        snapWidget.setSelected(true);
+        snapWidget.setRolloverEnabled(true);
+        menuBar.add(snapWidget);
+        
+        selectWidget.addActionListener((event) -> {
+            if (selectWidget.isSelected()) {
+                world.setControlMode(ControlMode.Select);
+                transformWidget.setSelected(false);
+                snapWidget.setEnabled(false);
+            } else {
+                world.setControlMode(ControlMode.None);
+            }
+        });
+        
+        transformWidget.addActionListener((event) -> {
+            if (transformWidget.isSelected()) {
+                world.setControlMode(ControlMode.Transform);
+                selectWidget.setSelected(false);
+                snapWidget.setEnabled(true);
+            } else {
+                world.setControlMode(ControlMode.None);
+                snapWidget.setEnabled(false);
+            }
+        });
+        
+        snapWidget.addActionListener((event) -> {
+            world.setSnapped(snapWidget.isSelected()); 
+        });
+        
         getParentFrame().setJMenuBar(menuBar);
         
         addComponentListener(new ComponentListener() {
@@ -77,25 +163,21 @@ public class ProtoWorldDesktopComponent extends GuiComponent<ProtoWorldComponent
         });
         
         popupMenu = new JPopupMenu();
-        addEntityItem = new JMenuItem("Add Entity");
-        addEntityItem.addActionListener(addEntityAction);
-        popupMenu.add(addEntityItem);
-        
-        editEntityItem = new JMenuItem("Edit Entity");
-        editEntityItem.addActionListener(editEntityAction);
-        popupMenu.add(editEntityItem);
-        
-        popupMenu.add(new JMenuItem("Remove Entity"));
+        JMenuItem fillerItem = new JMenuItem("Filler");
+        popupMenu.add(fillerItem);
         popupMenu.setInvoker(this);
         
-        workspaceComponent.getWorld().setInputHandler(new InputHandler() {
-            @Override
-            public void selectClick(float xGui, float yGui, Object target) {}
-            
-            @Override
-            public void contextClick(float xGui, float yGui, Object target) {
-                popupMenu.show(ProtoWorldDesktopComponent.this, (int)xGui, (int)yGui);
+        workspaceComponent.getWorld().addListener(new ProtoWorldListener() {
+            public void onInit(ProtoWorld world) {
+                ShowContextMenuAction action = new ShowContextMenuAction(world);
+                world.getInputManager().addListener(action, "Context Click");
+                selectWidget.doClick(1);
+                world.enqueue(() -> {
+                    world.removeListener(this);
+                    return null;
+                });
             }
+            public void onUpdate(ProtoWorld world, float tpf) {}
         });
 	}
 	
