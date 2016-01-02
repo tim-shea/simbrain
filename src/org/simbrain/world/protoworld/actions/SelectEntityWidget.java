@@ -24,11 +24,13 @@ public class SelectEntityWidget extends CursorWidget {
     public SelectEntityWidget(ProtoWorld world) {
         super(world);
         selectionWire = new WireBox();
+        selectionWire.setLineWidth(2);
         selectionBox = new Geometry("SelectionBox", selectionWire);
         selectionBox.setQueueBucket(Bucket.Transparent);
         Material selectionMaterial = new Material(world.getAssetManager(),
                 "Common/MatDefs/Misc/Unshaded.j3md");
         selectionMaterial.setColor("Color", ColorRGBA.Green);
+        selectionMaterial.getAdditionalRenderState().setDepthTest(false);
         selectionBox.setMaterial(selectionMaterial);
     }
     

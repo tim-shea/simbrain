@@ -263,13 +263,11 @@ public class ReflectivePropertyEditor extends JPanel {
                                     selectedColor.put(propertyName, theColor);
                                 }
                             });
-                            itemPanel
-                                    .addItem(formattedPropertyName, colorPanel);
+                            itemPanel.addItem(formattedPropertyName, colorPanel);
                         } else if (method.getReturnType() == String.class) {
                             JTextField theTextField = getInitializedTextField(method);
                             componentMap.put(propertyName, theTextField);
-                            itemPanel.addItem(formattedPropertyName,
-                                    theTextField);
+                            itemPanel.addItem(formattedPropertyName, theTextField);
                         }
 
                         else if (method.getReturnType() == double[].class) {

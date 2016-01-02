@@ -108,7 +108,6 @@ public class ProtoWorldDesktopComponent extends GuiComponent<ProtoWorldComponent
         ImageIcon icon = ResourceManager.getImageIcon("Arrow.png");
         selectWidget.setIcon(icon);
         selectWidget.setMargin(new Insets(0, 0, 0, 0));
-        selectWidget.setRolloverEnabled(true);
         menuBar.add(selectWidget);
         
         JToggleButton transformWidget = new JToggleButton();
@@ -117,7 +116,6 @@ public class ProtoWorldDesktopComponent extends GuiComponent<ProtoWorldComponent
         icon.setImage(scaledImage);
         transformWidget.setIcon(icon);
         transformWidget.setMargin(new Insets(0, 0, 0, 0));
-        transformWidget.setRolloverEnabled(true);
         menuBar.add(transformWidget);
         
         JToggleButton snapWidget = new JToggleButton();
@@ -125,8 +123,14 @@ public class ProtoWorldDesktopComponent extends GuiComponent<ProtoWorldComponent
         snapWidget.setIcon(icon);
         snapWidget.setMargin(new Insets(0, 0, 0, 0));
         snapWidget.setSelected(true);
-        snapWidget.setRolloverEnabled(true);
         menuBar.add(snapWidget);
+        
+        JToggleButton debugPhysicsWidget = new JToggleButton();
+        icon = ResourceManager.getImageIcon("Prefs.png");
+        debugPhysicsWidget.setIcon(icon);
+        debugPhysicsWidget.setMargin(new Insets(0, 0, 0, 0));
+        debugPhysicsWidget.setSelected(false);
+        menuBar.add(debugPhysicsWidget);
         
         selectWidget.addActionListener((event) -> {
             if (selectWidget.isSelected()) {
@@ -135,6 +139,7 @@ public class ProtoWorldDesktopComponent extends GuiComponent<ProtoWorldComponent
                 snapWidget.setEnabled(false);
             } else {
                 world.setControlMode(ControlMode.None);
+                snapWidget.setEnabled(false);
             }
         });
         
@@ -151,6 +156,10 @@ public class ProtoWorldDesktopComponent extends GuiComponent<ProtoWorldComponent
         
         snapWidget.addActionListener((event) -> {
             world.setSnapped(snapWidget.isSelected()); 
+        });
+        
+        debugPhysicsWidget.addActionListener((event) -> {
+            world.setDebugPhysics(debugPhysicsWidget.isSelected());
         });
         
         getParentFrame().setJMenuBar(menuBar);

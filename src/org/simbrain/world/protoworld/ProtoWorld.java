@@ -93,7 +93,6 @@ public class ProtoWorld extends SimpleApplication {
         
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
-        //bulletAppState.getPhysicsSpace().enableDebug(getAssetManager());
         
         Node starterWorld = (Node)getAssetManager().loadModel("Scenes/StarterWorld.j3o");
         bulletAppState.getPhysicsSpace().addAll(starterWorld);
@@ -192,6 +191,14 @@ public class ProtoWorld extends SimpleApplication {
     
     public PhysicsSpace getPhysicsSpace() {
         return bulletAppState.getPhysicsSpace();
+    }
+    
+    public boolean isDebugPhysics() {
+        return bulletAppState.isDebugEnabled();
+    }
+    
+    public void setDebugPhysics(boolean value) {
+        bulletAppState.setDebugEnabled(value);
     }
     
     public List<ProtoEntity> getEntities() {
