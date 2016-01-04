@@ -43,7 +43,7 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.JmeCanvasContext;
 import com.sun.naming.internal.ResourceManager;
 
-public class ProtoWorld extends SimpleApplication {
+public class ProtoWorld extends ProtoApplication {
     public interface ProtoWorldListener {
         void onInit(ProtoWorld world);
         void onUpdate(ProtoWorld world, float tpf);
@@ -95,8 +95,8 @@ public class ProtoWorld extends SimpleApplication {
         stateManager.attach(bulletAppState);
         
         Node starterWorld = (Node)getAssetManager().loadModel("Scenes/StarterWorld.j3o");
+        setRootNode(starterWorld);
         bulletAppState.getPhysicsSpace().addAll(starterWorld);
-        getRootNode().attachChild(starterWorld);
         
         getInputManager().addMapping("Select Click", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         getInputManager().addMapping("Context Click", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
