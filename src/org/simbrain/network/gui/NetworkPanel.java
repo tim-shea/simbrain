@@ -1539,8 +1539,7 @@ public class NetworkPanel extends JPanel {
         CustomToolBar runTools = new CustomToolBar();
 
         runTools.add(actionManager.getIterateNetworkAction());
-        runTools
-            .add(new ToggleButton(actionManager.getNetworkControlActions()));
+        runTools.add(new ToggleButton(actionManager.getNetworkControlActions()));
 
         return runTools;
     }

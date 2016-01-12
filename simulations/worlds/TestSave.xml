@@ -1,0 +1,23 @@
+<org.simbrain.world.threedworld.ThreeDWorld>
+  <preferences>
+    <sceneName>Scenes/TestSave.j3o</sceneName>
+    <guiName>Interface/TestSave.j3o</guiName>
+    <width>640</width>
+    <height>480</height>
+    <realTimeMode>true</realTimeMode>
+    <frameRate>30</frameRate>
+    <ambientLight>-1</ambientLight>
+    <directionalLight>-1</directionalLight>
+    <fieldOfView>80.0</fieldOfView>
+    <nearClip>0.1</nearClip>
+    <farClip>100.0</farClip>
+    <moveSpeed>5.0</moveSpeed>
+    <rotateSpeed>10.0</rotateSpeed>
+    <zoomSpeed>1.0</zoomSpeed>
+  </preferences>
+  <entities>
+    <org.simbrain.world.threedworld.entities.Agent>
+      <name>Mouse</name>
+    </org.simbrain.world.threedworld.entities.Agent>
+  </entities>
+</org.simbrain.world.threedworld.ThreeDWorld>

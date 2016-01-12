@@ -129,7 +129,7 @@ public class SFileChooser {
      * @param extension the extension to add
      */
     public void addExtension(final String extension) {
-        addExtension("*." + extension, extension);
+        addExtension(extension, extension);
     }
 
     /**

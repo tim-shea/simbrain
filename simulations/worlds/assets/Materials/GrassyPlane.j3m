@@ -1,0 +1,15 @@
+Material GrassyPlane : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {
+        HighQuality : true
+        UseMaterialColors : true
+        WardIso : true
+        DiffuseMap : Textures/grass_d.png
+        NormalMap : Textures/grass_n.png
+        Specular : 1.0 1.0 1.0 1.0
+        Diffuse : 1.0 1.0 1.0 1.0
+        Ambient : 1.0 1.0 1.0 1.0
+        Shininess : 0.01
+     }
+    AdditionalRenderState {
+    }
+}

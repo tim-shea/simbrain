@@ -41,7 +41,7 @@ public final class CustomToolBar extends JToolBar {
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
                 KeyStroke.getKeyStroke("pressed DOWN"), "none");
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
-                KeyStroke.getKeyStroke("pressed LET"), "none");
+                KeyStroke.getKeyStroke("pressed LEFT"), "none");
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
                 KeyStroke.getKeyStroke("pressed RIGHT"), "none");
     }
