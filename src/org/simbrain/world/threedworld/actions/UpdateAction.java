@@ -5,9 +5,9 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import org.simbrain.resource.ResourceManager;
-import org.simbrain.world.threedworld.ThreeDEngine;
 import org.simbrain.world.threedworld.ThreeDWorld;
 import org.simbrain.world.threedworld.ThreeDWorldComponent;
+import org.simbrain.world.threedworld.engine.ThreeDEngine;
 
 public class UpdateAction extends AbstractAction {
     private ThreeDWorld world;

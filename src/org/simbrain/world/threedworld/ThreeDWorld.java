@@ -3,13 +3,18 @@ package org.simbrain.world.threedworld;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.swing.AbstractAction;
 
 import org.simbrain.world.threedworld.actions.ActionManager;
-import org.simbrain.world.threedworld.actions.CameraController;
+import org.simbrain.world.threedworld.controllers.AgentController;
+import org.simbrain.world.threedworld.controllers.CameraController;
+import org.simbrain.world.threedworld.controllers.SelectionController;
+import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.entities.Agent;
-import org.simbrain.world.threedworld.entities.AgentController;
 import org.simbrain.world.threedworld.entities.Entity;
-import org.simbrain.world.threedworld.entities.SelectionController;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AppState;
@@ -126,7 +131,7 @@ public class ThreeDWorld {
     
     public static ThreeDWorld deserialize(InputStream input, String name, String format) {
         ThreeDWorld world = (ThreeDWorld)ThreeDWorld.getXStream().fromXML(input);
-        world.actionManager = new ActionManager(world);
+        world.actions = ActionManager.createActions(world);
         world.engine = new ThreeDEngine(world.preferences);
         world.engine.getStateManager().attach(world.new StateListener());
         world.cameraController = new CameraController(world);
@@ -136,16 +141,17 @@ public class ThreeDWorld {
     }
     
     private Preferences preferences;
-    private ActionManager actionManager;
+    private Map<String, AbstractAction> actions;
     private ThreeDEngine engine;
     private CameraController cameraController;
     private SelectionController selectionController;
     private AgentController agentController;
     private List<Entity> entities;
+    private AtomicInteger idCounter = new AtomicInteger();
     
     public ThreeDWorld() {
         preferences = new Preferences();
-        actionManager = new ActionManager(this);
+        actions = ActionManager.createActions(this);
         engine = new ThreeDEngine(preferences);
         engine.getStateManager().attach(new StateListener());
         cameraController = new CameraController(this);
@@ -158,8 +164,8 @@ public class ThreeDWorld {
         return preferences;
     }
     
-    public ActionManager getActionManager() {
-        return actionManager;
+    public AbstractAction getAction(String name) {
+        return actions.get(name);
     }
     
     public ThreeDEngine getEngine() {
@@ -184,5 +190,9 @@ public class ThreeDWorld {
     
     public void setEntities(List<Entity> value) {
         entities = value;
+    }
+    
+    public String createId() {
+        return String.valueOf(idCounter.getAndIncrement());
     }
 }

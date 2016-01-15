@@ -115,7 +115,7 @@ import org.simbrain.world.textworld.DisplayComponentDesktopGui;
 import org.simbrain.world.textworld.ReaderComponent;
 import org.simbrain.world.textworld.ReaderComponentDesktopGui;
 import org.simbrain.world.threedworld.ThreeDWorldComponent;
-import org.simbrain.world.threedworld.ThreeDWorldDesktopComponent;
+import org.simbrain.world.threedworld.ThreeDDesktopComponent;
 import org.simbrain.world.visionworld.VisionWorldComponent;
 import org.simbrain.world.visionworld.VisionWorldDesktopComponent;
 
@@ -394,7 +394,7 @@ public class SimbrainDesktop {
         registerComponent(NetworkComponent.class, NetworkDesktopComponent.class);
         registerComponent(OdorWorldComponent.class,
                 OdorWorldDesktopComponent.class);
-        registerComponent(ThreeDWorldComponent.class, ThreeDWorldDesktopComponent.class);
+        registerComponent(ThreeDWorldComponent.class, ThreeDDesktopComponent.class);
         registerComponent(PieChartComponent.class, PieChartGui.class);
         registerComponent(ProjectionComponent.class, ProjectionGui.class);
         registerComponent(ReaderComponent.class,

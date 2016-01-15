@@ -13,10 +13,11 @@ import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.PotentialProducer;
 import org.simbrain.workspace.WorkspaceComponent;
 import org.simbrain.world.threedworld.actions.ActionManager;
-import org.simbrain.world.threedworld.actions.CameraController;
+import org.simbrain.world.threedworld.controllers.CameraController;
+import org.simbrain.world.threedworld.controllers.SelectionController;
+import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.entities.Agent;
 import org.simbrain.world.threedworld.entities.Entity;
-import org.simbrain.world.threedworld.entities.SelectionController;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AppState;

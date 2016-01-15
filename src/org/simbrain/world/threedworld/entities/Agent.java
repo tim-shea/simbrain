@@ -2,7 +2,9 @@ package org.simbrain.world.threedworld.entities;
 
 import java.awt.Dimension;
 
-import org.simbrain.world.threedworld.ThreeDEngine;
+import org.simbrain.world.threedworld.engine.ThreeDContext;
+import org.simbrain.world.threedworld.engine.ThreeDEngine;
+import org.simbrain.world.threedworld.engine.ThreeDPanel;
 
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
@@ -21,7 +23,7 @@ public class Agent extends Entity {
         private Vector3f headOffset = Vector3f.UNIT_Z;
         private Camera camera;
         private ViewPort viewPort;
-        private AwtPanel panel;
+        private ThreeDPanel panel;
         
         public VisionSensor() {
             camera = new Camera(640, 480);
@@ -31,8 +33,8 @@ public class Agent extends Entity {
             viewPort = getEngine().getRenderManager().createMainView(getName() + "ViewPort", camera);
             viewPort.setClearFlags(true, true, true);
             viewPort.attachScene(getEngine().getRootNode());
-            AwtPanelsContext context = (AwtPanelsContext)getEngine().getContext();
-            panel = context.createPanel(PaintMode.Accelerated);
+            ThreeDContext context = (ThreeDContext)getEngine().getContext();
+            panel = context.createPanel();
             Dimension size = new Dimension(640, 480);
             panel.setPreferredSize(size);
             panel.attachTo(false, viewPort);
@@ -63,7 +65,7 @@ public class Agent extends Entity {
             return viewPort;
         }
         
-        public AwtPanel getPanel() {
+        public ThreeDPanel getPanel() {
             return panel;
         }
         
@@ -165,8 +167,8 @@ public class Agent extends Entity {
         effector = new WalkingEffector();
     }
     
-    public Agent(ThreeDEngine engine, String name, Node node) {
-        super(engine, name, node);
+    public Agent(ThreeDEngine engine, Node node) {
+        super(engine, node);
         sensor = new VisionSensor();
         effector = new WalkingEffector();
     }

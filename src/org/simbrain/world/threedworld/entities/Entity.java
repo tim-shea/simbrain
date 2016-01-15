@@ -1,6 +1,6 @@
 package org.simbrain.world.threedworld.entities;
 
-import org.simbrain.world.threedworld.ThreeDEngine;
+import org.simbrain.world.threedworld.engine.ThreeDEngine;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.bounding.BoundingBox;
@@ -41,16 +41,17 @@ public class Entity {
         geometry.updateModelBound();
         
         Node node = new Node(name);
-        Entity entity = new Entity(engine, name, node);
+        Entity entity = new Entity(engine, node);
         node.attachChild(geometry);
         node.addControl(body);
         
         return entity;
     }
     
-    public static Node loadModel(ThreeDEngine engine, String name, String model) {
-        Node scene = (Node)engine.getAssetManager().loadModel(model);
-        Node modelNode = (Node)scene.getChild(name);
+    public static Node loadModel(ThreeDEngine engine, String modelName, String fileName) {
+        Node scene = (Node)engine.getAssetManager().loadModel(fileName);
+        Node modelNode = (Node)scene.getChild(modelName);
+        scene.detachChild(modelNode);
         modelNode.setModelBound(new BoundingBox());
         modelNode.updateModelBound();
         CollisionShape shape = CollisionShapeFactory.createDynamicMeshShape(modelNode);
@@ -65,9 +66,9 @@ public class Entity {
     
     public Entity() {}
     
-    public Entity(ThreeDEngine engine, String name, Node node) {
+    public Entity(ThreeDEngine engine, Node node) {
         this.engine = engine;
-        this.name = name;
+        this.name = node.getName();
         this.node = node;
     }
     
@@ -85,6 +86,8 @@ public class Entity {
     
     public void setName(String value) {
         name = value;
+        if (node != null)
+            node.setName(name);
     }
     
     public Node getNode() {
@@ -93,6 +96,7 @@ public class Entity {
     
     public void setNode(Node value) {
         node = value;
+        node.setName(name);
     }
     
     public RigidBodyControl getBody() {
@@ -130,7 +134,7 @@ public class Entity {
     }
     
     public Vector3f getLocation() {
-        return getBody().getPhysicsLocation();
+        return getNode().getWorldTranslation();
     }
     
     public void setLocation(float x, float y, float z) {
@@ -139,8 +143,12 @@ public class Entity {
     
     public void setLocation(final Vector3f location) {
         engine.enqueue(() -> {
-            getBody().setPhysicsLocation(location);
-            getBody().activate();
+            if (getBody().isKinematic())
+                getNode().setLocalTranslation(location);
+            else {
+                getBody().setPhysicsLocation(location);
+                getBody().activate();
+            }
             return null;
         });
     }
@@ -186,7 +194,7 @@ public class Entity {
     }
     
     public Quaternion getOrientation() {
-        return getBody().getPhysicsRotation();
+        return getNode().getWorldRotation();
     }
     
     public void setOrientation(float w, float x, float y, float z) {
@@ -195,14 +203,18 @@ public class Entity {
     
     public void setOrientation(final Quaternion orientation) {
         engine.enqueue(() -> {
-            getBody().setPhysicsRotation(orientation);
-            getBody().activate();
+            if (getBody().isKinematic()) {
+                getNode().setLocalRotation(orientation);
+            } else {
+                getBody().setPhysicsRotation(orientation);
+                getBody().activate();
+            }
             return null;
         });
     }
     
     public float getScale() {
-        return node.getLocalScale().x;
+        return getNode().getWorldScale().x;
     }
     
     public void setScale(final float scalar) {

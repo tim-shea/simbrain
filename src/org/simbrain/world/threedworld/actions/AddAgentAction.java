@@ -24,13 +24,17 @@ public class AddAgentAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent event) {
         world.getEngine().enqueue(() -> {
-            Node node = Entity.loadModel(world.getEngine(), "Mouse", "Models/Mouse.j3o");
-            node.getControl(RigidBodyControl.class).setKinematic(true);
-            Agent agent = new Agent(world.getEngine(), "Mouse", node);
+            String fileName = "Models/Mouse.j3o";
+            String modelNode = "Mouse";
+            Node node = Entity.loadModel(world.getEngine(), modelNode, fileName);
+            Agent agent = new Agent(world.getEngine(), node);
+            agent.setName("Mouse" + world.createId());
             agent.getVisionSensor().setHeadOffset(new Vector3f(0, 1.25f, 2.25f));
             world.getEngine().getRootNode().attachChild(node);
             world.getEntities().add(agent);
             world.getEngine().getPhysicsSpace().add(agent.getBody());
+            world.getSelectionController().select(agent);
+            world.getSelectionController().translateToCursor();
             return null;
         });
     }

@@ -10,9 +10,10 @@ import org.simbrain.world.threedworld.ThreeDWorldComponent;
 public class DeleteEntityAction extends AbstractAction {
     private ThreeDWorld world;
     
-    public DeleteEntityAction(ThreeDWorld world) {
+    public DeleteEntityAction(ThreeDWorld world, boolean enabled) {
         super("Delete Entity");
         this.world = world;
+        setEnabled(enabled);
     }
     
     @Override

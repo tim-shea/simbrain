@@ -32,9 +32,9 @@ import javax.swing.KeyStroke;
 import org.simbrain.resource.ResourceManager;
 import org.simbrain.util.propertyeditor.gui.ReflectivePropertyEditor;
 import org.simbrain.world.threedworld.Preferences;
-import org.simbrain.world.threedworld.ThreeDEngine;
 import org.simbrain.world.threedworld.ThreeDWorld;
 import org.simbrain.world.threedworld.ThreeDWorldComponent;
+import org.simbrain.world.threedworld.engine.ThreeDEngine;
 
 /**
  * Action for showing world preferences.

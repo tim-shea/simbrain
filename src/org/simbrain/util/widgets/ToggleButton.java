@@ -53,7 +53,7 @@ public final class ToggleButton extends JButton {
         if (actions.size() == 0) {
             throw new IllegalArgumentException("actions must not be empty");
         }
-
+        
         index = 0;
         this.actions = new ArrayList(actions);
         updateAction();
