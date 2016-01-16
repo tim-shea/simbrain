@@ -20,7 +20,7 @@ import com.jme3.system.awt.PaintMode;
 
 public class Agent extends Entity {
     public class VisionSensor {
-        private Vector3f headOffset = Vector3f.UNIT_Z;
+        private Vector3f headOffset = Vector3f.UNIT_Z.clone();
         private Camera camera;
         private ViewPort viewPort;
         private ThreeDPanel panel;
@@ -29,7 +29,7 @@ public class Agent extends Entity {
             camera = new Camera(640, 480);
             camera.setFrustumPerspective(45f, (float)camera.getWidth() / camera.getHeight(), 1f, 1000f);
             camera.setLocation(new Vector3f(0f, 0f, 10f));
-            camera.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
+            camera.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y.clone());
             viewPort = getEngine().getRenderManager().createMainView(getName() + "ViewPort", camera);
             viewPort.setClearFlags(true, true, true);
             viewPort.attachScene(getEngine().getRootNode());

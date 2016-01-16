@@ -46,7 +46,7 @@ public class CameraController implements AnalogListener, ActionListener {
     private Vector3f homeLocation = Vector3f.UNIT_Y.mult(2.5f);
     private float[] homeRotation = new float[] {0, 0, 0};
     private float homeZoom = 80;
-    private Vector3f yawAxis = Vector3f.UNIT_Y; 
+    private Vector3f yawAxis = Vector3f.UNIT_Y.clone(); 
     
     public CameraController(ThreeDWorld world) {
         this.world = world;

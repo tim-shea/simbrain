@@ -26,7 +26,14 @@ public class AddEntityAction extends AbstractAction {
             world.getEntities().add(entity);
             world.getEngine().getPhysicsSpace().add(entity.getBody());
             world.getSelectionController().select(entity);
-            world.getSelectionController().translateToCursor();
+            if (world.getSelectionController().getCursorContact(null) != null)
+                world.getSelectionController().translateToCursor();
+            else {
+                Vector3f location = Vector3f.ZERO.clone();
+                Vector3f offset = Vector3f.UNIT_Y.clone();
+                world.getSelectionController().offsetBoundingVolume(location, offset);
+                world.getSelectionController().translateSelection(location);
+            }
             return null;
         });
     }

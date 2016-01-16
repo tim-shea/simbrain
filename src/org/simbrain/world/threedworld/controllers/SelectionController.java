@@ -72,7 +72,7 @@ public class SelectionController implements ActionListener, AnalogListener {
     private boolean scaleActive = false;
     private boolean snapTransformations = true;
     private long selectReleaseTime = 0;
-    private Vector3f rotationAxis = Vector3f.UNIT_Y;
+    private Vector3f rotationAxis = Vector3f.UNIT_Y.clone();
     private float scaleDivisor = 1;
     private EntityEditor entityEditor;
     private ContextMenu contextMenu;
@@ -149,7 +149,6 @@ public class SelectionController implements ActionListener, AnalogListener {
     
     public void addEntityToSelection(Entity entity) {
         selection.add(entity);
-        // TODO: This should be the geometry model bound and the box is centered incorrectly
         BoundingBox bounds = (BoundingBox)entity.getNode().getWorldBound();
         WireBox selectionWire = new WireBox();
         selectionWire.fromBoundingBox(bounds);
@@ -174,14 +173,14 @@ public class SelectionController implements ActionListener, AnalogListener {
         if (hasSelection())
             return getSelectedEntity().getLocation();
         else
-            return Vector3f.ZERO;
+            return Vector3f.ZERO.clone();
     }
     
     public Quaternion getSelectionOrientation() {
         if (hasSelection())
             return getSelectedEntity().getOrientation();
         else
-            return Quaternion.IDENTITY;
+            return Quaternion.IDENTITY.clone();
     }
     
     public float getSelectionScale() {
@@ -373,18 +372,22 @@ public class SelectionController implements ActionListener, AnalogListener {
             Vector3f location = contact.getContactPoint();
             if (getSnapTransformations())
                 location = snapToGrid(location, 1);
-            float overlap = 1;
-            BoundingVolume bounds = getSelectionBounds();
-            CollisionResults results = new CollisionResults();
-            new Ray(bounds.getCenter(), contact.getContactNormal()).collideWith(bounds, results);
-            CollisionResult result = results.getCollision(1);
-            if (result != null)
-                overlap = result.getDistance();
-            location.addLocal(contact.getContactNormal().mult(overlap));
-            Vector3f boundsOffset = bounds.getCenter().subtract(getSelectionLocation());
-            location.subtractLocal(boundsOffset);
+            offsetBoundingVolume(location, contact.getContactNormal());
             translateSelection(location);
         }
+    }
+    
+    public void offsetBoundingVolume(Vector3f location, Vector3f offsetDirection) {
+        BoundingVolume bounds = getSelectionBounds();
+        CollisionResults results = new CollisionResults();
+        new Ray(bounds.getCenter(), offsetDirection).collideWith(bounds, results);
+        CollisionResult result = results.getCollision(1);
+        if (result != null) {
+            Vector3f offset = offsetDirection.mult(result.getDistance());
+            location.addLocal(offset);
+        }
+        Vector3f boundsOffset = bounds.getCenter().subtract(getSelectionLocation());
+        location.subtractLocal(boundsOffset);
     }
     
     public void lookAtCursor() {

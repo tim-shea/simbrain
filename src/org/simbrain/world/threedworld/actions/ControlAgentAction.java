@@ -26,7 +26,7 @@ public class ControlAgentAction extends AbstractAction {
     }
     
     @Override public void actionPerformed(ActionEvent event) {
-        if (!world.getSelectionController().hasSelection()) {
+        if (world.getSelectionController().hasSelection()) {
             Entity entity = world.getSelectionController().getSelectedEntity();
             if (entity instanceof Agent)
                 world.getAgentController().control((Agent)entity);
