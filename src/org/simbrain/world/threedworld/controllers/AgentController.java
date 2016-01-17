@@ -66,6 +66,11 @@ public class AgentController implements ActionListener {
         world.getCameraController().setEnabled(false);
         world.getAction("Control Agent").setEnabled(false);
         world.getAction("Release Agent").setEnabled(true);
+        ThreeDEngine engine = world.getEngine();
+        engine.enqueue(() -> {
+            engine.getPanel().setView(agent.getVisionSensor().getView());
+            return null;
+        });
     }
     
     public void release() {
@@ -73,6 +78,13 @@ public class AgentController implements ActionListener {
         setEnabled(false);
         world.getSelectionController().setEnabled(true);
         world.getCameraController().setEnabled(true);
+        world.getAction("Control Agent").setEnabled(true);
+        world.getAction("Release Agent").setEnabled(false);
+        ThreeDEngine engine = world.getEngine();
+        engine.enqueue(() -> {
+            engine.getPanel().setView(engine.getMainView());
+            return null;
+        });
     }
     
     public boolean isEnabled() {
@@ -81,24 +93,6 @@ public class AgentController implements ActionListener {
     
     public void setEnabled(boolean value) {
         enabled = value;
-        if (agent == null)
-            return;
-        ThreeDEngine engine = world.getEngine();
-        /*if (enabled) {
-            engine.enqueue(() -> {
-                engine.getPanelContainer().remove(engine.getPanel());
-                engine.getPanelContainer().add(agent.getVisionSensor().getPanel());
-                ((AwtPanelsContext)engine.getContext()).setInputSource(agent.getVisionSensor().getPanel());
-                return null;
-            });
-        } else {
-            engine.enqueue(() -> {
-                engine.getPanelContainer().remove(agent.getVisionSensor().getPanel());
-                engine.getPanelContainer().add(engine.getPanel());
-                ((AwtPanelsContext)engine.getContext()).setInputSource(engine.getPanel());
-                return null;
-            });
-        }*/
     }
     
     @Override

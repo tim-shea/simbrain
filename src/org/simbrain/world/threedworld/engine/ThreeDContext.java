@@ -1,7 +1,7 @@
 package org.simbrain.world.threedworld.engine;
 
+import java.awt.Component;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
@@ -9,7 +9,6 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.awt.AwtMouseInput;
-import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.renderer.Renderer;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
@@ -18,13 +17,45 @@ import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 
 public class ThreeDContext implements JmeContext {
-    protected JmeContext actualContext;
-    protected AppSettings settings = new AppSettings(true);
-    protected SystemListener listener;
-    protected ArrayList<ThreeDPanel> panels = new ArrayList<ThreeDPanel>();
-    protected ThreeDPanel inputSource;
+    private class Listener implements SystemListener {
+        public void initialize() {
+            initInThread();
+        }
+        
+        public void reshape(int width, int height) {
+            throw new IllegalStateException();
+        }
+        
+        public void update() {
+            updateInThread();
+        }
+        
+        public void requestClose(boolean escapeIsPressed) {
+            throw new IllegalStateException();
+        }
+        
+        public void gainFocus() {
+            throw new IllegalStateException();
+        }
+        
+        public void loseFocus() {
+            throw new IllegalStateException();
+        }
+        
+        public void handleError(String message, Throwable throwable) {
+            listener.handleError(message, throwable);
+        }
+        
+        public void destroy() {
+            destroyInThread();
+        }
+    }
     
-    protected AwtMouseInput mouseInput = new AwtMouseInput() {
+    private JmeContext actualContext;
+    private AppSettings settings = new AppSettings(true);
+    private SystemListener listener;
+    private ThreeDPanel panel;
+    private AwtMouseInput mouseInput = new AwtMouseInput() {
         @Override
         public void mousePressed(MouseEvent event) {
             MouseEvent flippedEvent = new MouseEvent(
@@ -41,105 +72,73 @@ public class ThreeDContext implements JmeContext {
             super.mouseReleased(flippedEvent);
         }
     };
-    protected AwtKeyInput keyInput = new AwtKeyInput();
+    private AwtKeyInput keyInput = new AwtKeyInput();
+    private boolean lastThrottleState = false;
     
-    protected boolean lastThrottleState = false;
+    public ThreeDContext() {}
     
-    private class Listener implements SystemListener {
-        public void initialize() {
-            initInThread();
-        }
-        
-        public void reshape(int width, int height) {
-            throw new IllegalStateException();
-        }
-        
-        public void update() {
-            updateInThread();
-        }
-        
-        public void requestClose(boolean esc) {
-            // shouldn't happen
-            throw new IllegalStateException();
-        }
-        
-        public void gainFocus() {
-            // shouldn't happen
-            throw new IllegalStateException();
-        }
-        
-        public void loseFocus() {
-            // shouldn't happen
-            throw new IllegalStateException();
-        }
-        
-        public void handleError(String errorMsg, Throwable t) {
-            listener.handleError(errorMsg, t);
-        }
-        
-        public void destroy() {
-            destroyInThread();
-        }
+    public void setInputSource(Component component) {
+        mouseInput.setInputSource(component);
+        keyInput.setInputSource(component);
     }
     
-    public void setInputSource(ThreeDPanel panel) {
-        if (!panels.contains(panel))
-            throw new IllegalArgumentException();
-        inputSource = panel;
-        mouseInput.setInputSource(panel);
-        keyInput.setInputSource(panel);
-    }
-    
+    @Override
     public Type getType() {
         return Type.OffscreenSurface;
     }
     
+    @Override
     public void setSystemListener(SystemListener listener) {
         this.listener = listener;
     }
     
+    @Override
     public AppSettings getSettings() {
         return settings;
     }
     
+    @Override
     public Renderer getRenderer() {
         return actualContext.getRenderer();
     }
     
+    @Override
     public MouseInput getMouseInput() {
         return mouseInput;
     }
     
+    @Override
     public KeyInput getKeyInput() {
         return keyInput;
     }
     
+    @Override
     public JoyInput getJoyInput() {
         return null;
     }
     
+    @Override
     public TouchInput getTouchInput() {
         return null;
     }
     
+    @Override
     public Timer getTimer() {
         return actualContext.getTimer();
     }
     
+    @Override
     public boolean isCreated() {
         return actualContext != null && actualContext.isCreated();
     }
     
+    @Override
     public boolean isRenderable() {
         return actualContext != null && actualContext.isRenderable();
     }
     
-    public ThreeDContext() {
-    }
-    
-    public ThreeDPanel createPanel() {
-        ThreeDPanel panel = new ThreeDPanel();
-        panels.add(panel);
+    public ThreeDPanel createPanel(int width, int height) {
+        panel = new ThreeDPanel(width, height);
         return panel;
     }
     
@@ -148,16 +147,7 @@ public class ThreeDContext implements JmeContext {
     }
     
     private void updateInThread() {
-        // Check if throttle required
-        boolean needThrottle = true;
-        
-        for (ThreeDPanel panel : panels) {
-            if (panel.isActiveDrawing()) {
-                needThrottle = false;
-                break;
-            }
-        }
-        
+        boolean needThrottle = !panel.isActiveDrawing();
         if (lastThrottleState != needThrottle) {
             lastThrottleState = needThrottle;
             if (lastThrottleState) {
@@ -166,14 +156,12 @@ public class ThreeDContext implements JmeContext {
                 System.out.println("OGL: Ceased throttling update loop.");
             }
         }
-        
         if (needThrottle) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ex) {
             }
         }
-        
         listener.update();
     }
     
@@ -193,7 +181,6 @@ public class ThreeDContext implements JmeContext {
         if (actualContext != null) {
             throw new IllegalStateException("Already created");
         }
-        
         actualContext = JmeSystem.newContext(settings, Type.OffscreenSurface);
         actualContext.setSystemListener(new Listener());
         actualContext.create(waitFor);
@@ -202,20 +189,12 @@ public class ThreeDContext implements JmeContext {
     public void destroy(boolean waitFor) {
         if (actualContext == null)
             throw new IllegalStateException("Not created");
-        
-        // destroy parent context
         actualContext.destroy(waitFor);
     }
     
-    public void setTitle(String title) {
-        // not relevant, ignore
-    }
+    public void setTitle(String title) {}
     
-    public void setAutoFlushFrames(boolean enabled) {
-        // not relevant, ignore
-    }
+    public void setAutoFlushFrames(boolean enabled) {}
     
-    public void restart() {
-        // only relevant if changing pixel format.
-    }
+    public void restart() {}
 }

@@ -1,10 +1,36 @@
 package org.simbrain.world.threedworld.entities;
 
-import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.color.ColorSpace;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
+import java.awt.image.DataBufferFloat;
+import java.awt.image.DataBufferInt;
+import java.awt.image.ImageFilter;
+import java.awt.image.ImageProducer;
+import java.util.Arrays;
 
-import org.simbrain.world.threedworld.engine.ThreeDContext;
+
+
+
+
+
+
+
+
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
-import org.simbrain.world.threedworld.engine.ThreeDPanel;
+import org.simbrain.world.threedworld.engine.ThreeDView;
+
+
+
+
+
+
+
+
 
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
@@ -14,16 +40,16 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
-import com.jme3.system.awt.AwtPanel;
-import com.jme3.system.awt.AwtPanelsContext;
-import com.jme3.system.awt.PaintMode;
 
 public class Agent extends Entity {
     public class VisionSensor {
         private Vector3f headOffset = Vector3f.UNIT_Z.clone();
         private Camera camera;
         private ViewPort viewPort;
-        private ThreeDPanel panel;
+        private ThreeDView view;
+        private double[] viewData;
+        private ColorConvertOp colorConvertOp;
+        private AffineTransformOp scaleOp;
         
         public VisionSensor() {
             camera = new Camera(640, 480);
@@ -33,11 +59,31 @@ public class Agent extends Entity {
             viewPort = getEngine().getRenderManager().createMainView(getName() + "ViewPort", camera);
             viewPort.setClearFlags(true, true, true);
             viewPort.attachScene(getEngine().getRootNode());
-            ThreeDContext context = (ThreeDContext)getEngine().getContext();
-            panel = context.createPanel();
-            Dimension size = new Dimension(640, 480);
-            panel.setPreferredSize(size);
-            panel.attachTo(false, viewPort);
+            view = new ThreeDView(640, 480);
+            view.attach(false, viewPort);
+            viewData = new double[100];
+            
+            // NOTE: This could be done in the engine to improve performance
+            ColorSpace colorSpace = ColorSpace.getInstance(ColorSpace.CS_GRAY);
+            colorConvertOp = new ColorConvertOp(colorSpace, null); 
+            AffineTransform transform = AffineTransform.getScaleInstance(10f / 640, -10f / 480);
+            transform.translate(0, -480);
+            scaleOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BICUBIC);
+            
+            view.addListener((image) -> {
+                if (view.isInitialized()) {
+                    BufferedImage grayImage = colorConvertOp.filter(image, null);
+                    BufferedImage scaledGrayImage = scaleOp.filter(grayImage, null);
+                    int width = scaledGrayImage.getWidth();
+                    int height = scaledGrayImage.getHeight();
+                    for (int x = 0; x < width; ++x) {
+                        for (int y = 0; y < height; ++y) {
+                            int gray = scaledGrayImage.getRGB(x, y) & 0xFF;
+                            viewData[y * width + x] = gray / 255.0;
+                        }
+                    }
+                }
+            });
         }
         
         public Vector3f getHeadOffset() {
@@ -65,13 +111,12 @@ public class Agent extends Entity {
             return viewPort;
         }
         
-        public ThreeDPanel getPanel() {
-            return panel;
+        public ThreeDView getView() {
+            return view;
         }
         
-        public double[] getImage() {
-            // TODO: Reimplement AwtPanels :(
-            return new double[] {0, 0, 0, 0, 0};
+        public double[] getViewData() {
+            return viewData;
         }
         
         public void update(float tpf) {

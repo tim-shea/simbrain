@@ -60,7 +60,7 @@ public class ThreeDWorldComponent extends WorkspaceComponent {
         addProducerType(new AttributeType(this, "Orientation", "getOrientationX", double.class, true));
         addProducerType(new AttributeType(this, "Orientation", "getOrientationY", double.class, true));
         addProducerType(new AttributeType(this, "Orientation", "getOrientationZ", double.class, true));
-        addProducerType(new AttributeType(this, "Sensor:Vision", "getImage", double[].class, true));
+        addProducerType(new AttributeType(this, "Sensor:Vision", "getViewData", double[].class, true));
         addConsumerType(new AttributeType(this, "Location", "setLocationX", double.class, true));
         addConsumerType(new AttributeType(this, "Location", "setLocationY", double.class, true));
         addConsumerType(new AttributeType(this, "Location", "setLocationZ", double.class, true));
@@ -100,7 +100,7 @@ public class ThreeDWorldComponent extends WorkspaceComponent {
             if (entity instanceof Agent) {
                 Agent agent = (Agent)entity;
                 potentialProducers.add(getAttributeManager().createPotentialProducer(
-                        agent.getVisionSensor(), "getImage", double[].class));
+                        agent.getVisionSensor(), "getViewData", double[].class));
             }
             for (AttributeType type : getVisibleProducerTypes()) {
                 if (!type.getTypeName().contains("Sensor")) {

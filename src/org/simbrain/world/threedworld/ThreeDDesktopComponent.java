@@ -79,7 +79,9 @@ public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
         
         JToolBar editToolbar = new JToolBar();
         
-        editToolbar.add(createToggleButton(component.getWorld().getAction("Control Agent")));
+        editToolbar.add(new ToggleButton(Arrays.asList(
+                component.getWorld().getAction("Control Agent"),
+                component.getWorld().getAction("Release Agent"))));
         editToolbar.add(component.getWorld().getAction("Camera Home"));
         editToolbar.add(createToggleButton(component.getWorld().getAction("Snap Transforms")));
         editToolbar.add(createToggleButton(component.getWorld().getAction("Debug Physics")));

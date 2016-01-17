@@ -1,10 +1,7 @@
 package org.simbrain.world.threedworld.engine;
 
-import java.awt.Canvas;
 import java.awt.Dimension;
 import java.util.concurrent.Future;
-
-import javax.swing.JPanel;
 
 import org.simbrain.world.threedworld.Preferences;
 
@@ -22,10 +19,6 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.system.AppSettings;
-import com.jme3.system.JmeCanvasContext;
-import com.jme3.system.awt.AwtPanel;
-import com.jme3.system.awt.AwtPanelsContext;
-import com.jme3.system.awt.PaintMode;
 
 /**
  * <code>ProtoApplication</code> is a modification of jme3 SimpleApplication to
@@ -41,7 +34,9 @@ public class ThreeDEngine extends Application {
     }
     
     private Preferences preferences;
+    private ThreeDContext context;
     private ThreeDPanel panel;
+    private ThreeDView view;
     private BulletAppState bulletAppState;
     private Node rootNode;
     private Node guiNode;
@@ -62,11 +57,10 @@ public class ThreeDEngine extends Application {
         setSettings(settings);
         start();
         
-        ThreeDContext context = (ThreeDContext)getContext();
-        panel = context.createPanel();
+        context = (ThreeDContext)getContext();
+        panel = context.createPanel(settings.getWidth(), settings.getHeight());
+        panel.setPreferredSize(new Dimension(settings.getWidth(), settings.getHeight()));
         context.setInputSource(panel);
-        Dimension size = new Dimension(settings.getWidth(), settings.getHeight());
-        panel.setPreferredSize(size);
         setPauseOnLostFocus(false);
         
         bulletAppState = new BulletAppState();
@@ -76,6 +70,10 @@ public class ThreeDEngine extends Application {
     
     public ThreeDPanel getPanel() {
         return panel;
+    }
+    
+    public ThreeDView getMainView() {
+        return view;
     }
     
     public Node getRootNode() {
@@ -171,6 +169,7 @@ public class ThreeDEngine extends Application {
     @Override
     public void initialize() {
         super.initialize();
+        
         getAssetManager().registerLocator("simulations/worlds/assets/", FileLocator.class);
         
         if (!preferences.getSceneName().trim().isEmpty())
@@ -208,7 +207,10 @@ public class ThreeDEngine extends Application {
             getRootNode().addLight(directionalLight);
         }
         
-        panel.attachTo(true, getViewPort());
+        view = new ThreeDView(getViewPort().getCamera().getWidth(),
+                getViewPort().getCamera().getHeight());
+        view.attach(true, getViewPort());
+        panel.setView(view);
     }
     
     @Override
