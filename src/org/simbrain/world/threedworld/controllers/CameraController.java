@@ -5,6 +5,7 @@ import org.simbrain.world.threedworld.ThreeDWorld;
 import org.simbrain.world.threedworld.ThreeDWorldComponent;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
 
+import com.jme3.bounding.BoundingBox;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
@@ -47,6 +48,8 @@ public class CameraController implements AnalogListener, ActionListener {
     private float[] homeRotation = new float[] {0, 0, 0};
     private float homeZoom = 80;
     private Vector3f yawAxis = Vector3f.UNIT_Y.clone(); 
+    private BoundingBox cameraBounds = new BoundingBox(
+                new Vector3f(0, 17, 0), 64, 16, 64);
     
     public CameraController(ThreeDWorld world) {
         this.world = world;
@@ -185,7 +188,17 @@ public class CameraController implements AnalogListener, ActionListener {
         Vector3f location = camera.getLocation().clone();
         velocity.multLocal(value * getMoveSpeed());
         location.addLocal(velocity);
+        if (!cameraBounds.contains(location))
+            clampLocation(location);
         camera.setLocation(location);
+    }
+    
+    private void clampLocation(Vector3f location) {
+        Vector3f center = cameraBounds.getCenter();
+        Vector3f extent = cameraBounds.getExtent(null);
+        location.x = FastMath.clamp(location.x, center.x - extent.x, center.x + extent.x);
+        location.y = FastMath.clamp(location.y, center.y - extent.y, center.y + extent.y);
+        location.z = FastMath.clamp(location.z, center.z - extent.z, center.z + extent.z);
     }
     
     protected void rotateCamera(float value, Vector3f axis) {
@@ -205,6 +218,14 @@ public class CameraController implements AnalogListener, ActionListener {
         camera.setAxes(orientation);
     }
     
+    private void clampCameraPitch() {
+        Quaternion rotation = camera.getRotation();
+        float[] angles = rotation.toAngles(null);
+        angles[0] = FastMath.clamp(angles[0], -FastMath.PI / 2, FastMath.PI / 2);
+        rotation.fromAngles(angles);
+        camera.setRotation(rotation);
+    }
+    
     protected void zoomCamera(float value) {
         float fov = preferences.getFieldOfView() + value * getZoomSpeed();
         fov = FastMath.clamp(fov, 10, 100);
@@ -222,8 +243,10 @@ public class CameraController implements AnalogListener, ActionListener {
             rotateCamera(-value, yawAxis);
         } else if (PitchUp.isName(name)) {
             rotateCamera(-value, camera.getLeft());
+            clampCameraPitch();
         } else if (PitchDown.isName(name)) {
             rotateCamera(value, camera.getLeft());
+            clampCameraPitch();
         } else if (MoveForward.isName(name)) {
             moveCamera(value, camera.getDirection());
         } else if (MoveBackward.isName(name)) {
