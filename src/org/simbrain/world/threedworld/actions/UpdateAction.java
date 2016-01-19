@@ -21,6 +21,6 @@ public class UpdateAction extends AbstractAction {
     }
     
     @Override public void actionPerformed(ActionEvent event) {
-        world.getEngine().setState(ThreeDEngine.State.UpdateOnce, false);
+        world.getEngine().queueState(ThreeDEngine.State.UpdateOnce, false);
     }
 }

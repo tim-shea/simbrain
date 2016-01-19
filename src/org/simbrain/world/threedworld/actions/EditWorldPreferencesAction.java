@@ -53,16 +53,15 @@ public final class EditWorldPreferencesAction extends AbstractAction {
     
     /** {@inheritDoc} */
     public void actionPerformed(final ActionEvent event) {
-        world.getEngine().setState(ThreeDEngine.State.SystemPause, true);
-        //world.getPreferences().updateSettings();
+        world.getEngine().queueState(ThreeDEngine.State.SystemPause, true);
         ReflectivePropertyEditor editor = new ReflectivePropertyEditor(world.getPreferences());
         JDialog dialog = editor.getDialog();
         dialog.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent event) {
                 // TODO: Apply settings here
-                // Will calling restart unpause?
-                world.getEngine().restart();
+                //world.getEngine().restart();
+                world.getEngine().queueState(ThreeDEngine.State.Render, false);
             }
         });
         dialog.pack();

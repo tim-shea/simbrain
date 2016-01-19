@@ -47,7 +47,7 @@ public class CameraController implements AnalogListener, ActionListener {
     private Vector3f homeLocation = Vector3f.UNIT_Y.mult(2.5f);
     private float[] homeRotation = new float[] {0, 0, 0};
     private float homeZoom = 80;
-    private Vector3f yawAxis = Vector3f.UNIT_Y.clone(); 
+    private Vector3f yawAxis = Vector3f.UNIT_Y.clone();
     private BoundingBox cameraBounds = new BoundingBox(
                 new Vector3f(0, 17, 0), 64, 16, 64);
     
@@ -248,16 +248,22 @@ public class CameraController implements AnalogListener, ActionListener {
             rotateCamera(value, camera.getLeft());
             clampCameraPitch();
         } else if (MoveForward.isName(name)) {
+            value = tpf > 0 ? value : world.getEngine().getFixedTimeStep();
             moveCamera(value, camera.getDirection());
         } else if (MoveBackward.isName(name)) {
+            value = tpf > 0 ? value : world.getEngine().getFixedTimeStep();
             moveCamera(-value, camera.getDirection());
         } else if (MoveLeft.isName(name)) {
+            value = tpf > 0 ? value : world.getEngine().getFixedTimeStep();
             moveCamera(value, camera.getLeft());
         } else if (MoveRight.isName(name)) {
+            value = tpf > 0 ? value : world.getEngine().getFixedTimeStep();
             moveCamera(-value, camera.getLeft());
         } else if (MoveUp.isName(name)) {
+            value = tpf > 0 ? value : world.getEngine().getFixedTimeStep();
             moveCamera(value, camera.getUp());
         } else if (MoveDown.isName(name)) {
+            value = tpf > 0 ? value : world.getEngine().getFixedTimeStep();
             moveCamera(-value, camera.getUp());
         } else if (ZoomIn.isName(name)) {
             zoomCamera(-value);

@@ -68,7 +68,7 @@ public class AgentController implements ActionListener {
         world.getAction("Release Agent").setEnabled(true);
         ThreeDEngine engine = world.getEngine();
         engine.enqueue(() -> {
-            engine.getPanel().setView(agent.getVisionSensor().getView());
+            engine.getPanel().setView(agent.getVisionSensor().getView(), false);
             return null;
         });
     }
@@ -82,7 +82,7 @@ public class AgentController implements ActionListener {
         world.getAction("Release Agent").setEnabled(false);
         ThreeDEngine engine = world.getEngine();
         engine.enqueue(() -> {
-            engine.getPanel().setView(engine.getMainView());
+            engine.getPanel().setView(engine.getMainView(), true);
             return null;
         });
     }

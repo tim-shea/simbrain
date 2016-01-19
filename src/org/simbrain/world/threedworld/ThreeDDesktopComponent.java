@@ -1,12 +1,14 @@
 package org.simbrain.world.threedworld;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.Arrays;
 
 import javax.swing.AbstractAction;
+import javax.swing.BoxLayout;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
@@ -27,21 +29,26 @@ public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
 	public ThreeDDesktopComponent(GenericFrame frame, ThreeDWorldComponent component) {
 		super(frame, component);
 		setLayout(new BorderLayout());
-		add(component.getWorld().getEngine().getPanel());
 		
-        createMenus(component);
-        createToolBars(component);
+        frame.setJMenuBar(createMenus(component));
+        add(createToolBars(component), BorderLayout.NORTH);
+        Component panel = component.getWorld().getEngine().getPanel();
+        add(panel, BorderLayout.CENTER);
+        Preferences preferences = component.getWorld().getPreferences();
+        frame.setBounds(100, 100, preferences.getWidth(), preferences.getHeight());
         
-        // TODO: Figure out what to do here
         addComponentListener(new ComponentListener() {
-            public void componentHidden(ComponentEvent arg0) {}
-            public void componentMoved(ComponentEvent arg0) {}
-            public void componentResized(ComponentEvent arg0) {}
-            public void componentShown(ComponentEvent arg0) {}
+            public void componentHidden(ComponentEvent event) {}
+            public void componentMoved(ComponentEvent event) {}
+            public void componentResized(ComponentEvent event) {
+                preferences.setWidth(getWidth());
+                preferences.setHeight(getHeight());
+            }
+            public void componentShown(ComponentEvent event) {}
         });
 	}
 	
-	private void createMenus(ThreeDWorldComponent component) {
+	private JMenuBar createMenus(ThreeDWorldComponent component) {
 	    JMenuBar menuBar = new JMenuBar();
         
         JMenu worldMenu = new JMenu("World");
@@ -66,10 +73,10 @@ public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
         
         JMenu helpMenu = new JMenu("Help");
         menuBar.add(helpMenu);
-        getParentFrame().setJMenuBar(menuBar);
+        return menuBar;
 	}
 	
-	private void createToolBars(ThreeDWorldComponent component) {
+	private Component createToolBars(ThreeDWorldComponent component) {
 	    JPanel toolPanel = new JPanel(new BorderLayout());
         JToolBar runToolbar = new JToolBar();
         runToolbar.add(component.getWorld().getAction("Update"));
@@ -94,7 +101,7 @@ public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
         internalToolbar.add(editToolbar);
         
         toolPanel.add("Center", internalToolbar);
-        add("North", toolPanel);
+        return toolPanel;
 	}
     
     public JToggleButton createToggleButton(AbstractAction action) {

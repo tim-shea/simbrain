@@ -1,36 +1,10 @@
 package org.simbrain.world.threedworld.entities;
 
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.color.ColorSpace;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
-import java.awt.image.DataBufferFloat;
-import java.awt.image.DataBufferInt;
-import java.awt.image.ImageFilter;
-import java.awt.image.ImageProducer;
-import java.util.Arrays;
+import java.awt.image.BufferedImageOp;
 
-
-
-
-
-
-
-
-
+import org.simbrain.world.threedworld.engine.ImageFilters;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.engine.ThreeDView;
-
-
-
-
-
-
-
-
 
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
@@ -43,43 +17,38 @@ import com.jme3.scene.Node;
 
 public class Agent extends Entity {
     public class VisionSensor {
+        public static final int MODE_COLOR = 0;
+        public static final int MODE_GRAY = 1;
+        public static final int MODE_THRESHOLD = 2;
+        
         private Vector3f headOffset = Vector3f.UNIT_Z.clone();
         private Camera camera;
         private ViewPort viewPort;
         private ThreeDView view;
         private double[] viewData;
-        private ColorConvertOp colorConvertOp;
-        private AffineTransformOp scaleOp;
+        private int width = 10;
+        private int height = 10;
+        private int mode;
+        private BufferedImageOp colorFilter;
         
         public VisionSensor() {
-            camera = new Camera(640, 480);
+            camera = new Camera(width, height);
             camera.setFrustumPerspective(45f, (float)camera.getWidth() / camera.getHeight(), 1f, 1000f);
             camera.setLocation(new Vector3f(0f, 0f, 10f));
             camera.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y.clone());
             viewPort = getEngine().getRenderManager().createMainView(getName() + "ViewPort", camera);
             viewPort.setClearFlags(true, true, true);
             viewPort.attachScene(getEngine().getRootNode());
-            view = new ThreeDView(640, 480);
+            view = new ThreeDView(width, height);
             view.attach(false, viewPort);
+            setMode(MODE_GRAY);
             viewData = new double[100];
-            
-            // NOTE: This could be done in the engine to improve performance
-            ColorSpace colorSpace = ColorSpace.getInstance(ColorSpace.CS_GRAY);
-            colorConvertOp = new ColorConvertOp(colorSpace, null); 
-            AffineTransform transform = AffineTransform.getScaleInstance(10f / 640, -10f / 480);
-            transform.translate(0, -480);
-            scaleOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BICUBIC);
-            
             view.addListener((image) -> {
                 if (view.isInitialized()) {
-                    BufferedImage grayImage = colorConvertOp.filter(image, null);
-                    BufferedImage scaledGrayImage = scaleOp.filter(grayImage, null);
-                    int width = scaledGrayImage.getWidth();
-                    int height = scaledGrayImage.getHeight();
-                    for (int x = 0; x < width; ++x) {
-                        for (int y = 0; y < height; ++y) {
-                            int gray = scaledGrayImage.getRGB(x, y) & 0xFF;
-                            viewData[y * width + x] = gray / 255.0;
+                    for (int x = 0; x < image.getWidth(); ++x) {
+                        for (int y = 0; y < image.getHeight(); ++y) {
+                            int value = image.getRGB(x, y) & 0xFF;
+                            viewData[y * width + x] = value / 255.0;
                         }
                     }
                 }
@@ -113,6 +82,53 @@ public class Agent extends Entity {
         
         public ThreeDView getView() {
             return view;
+        }
+        
+        public int getMode() {
+            return mode;
+        }
+        
+        public void setMode(int value) {
+            if (mode != value) {
+                mode = value;
+                view.removeFilter(colorFilter);
+                switch (mode) {
+                case MODE_GRAY:
+                    colorFilter = ImageFilters.gray();
+                    break;
+                case MODE_THRESHOLD:
+                    colorFilter = ImageFilters.threshold(0.75f);
+                    break;
+                case MODE_COLOR:
+                default:
+                    colorFilter = ImageFilters.identity();
+                    break;
+                }
+                view.addFilter(colorFilter);
+            }
+        }
+        
+        public int getWidth() {
+            return width;
+        }
+        
+        public void setWidth(int value) {
+            resize(value, height);
+        }
+        
+        public int getHeight() {
+            return height;
+        }
+        
+        public void setHeight(int value) {
+            resize(width, value);
+        }
+        
+        public void resize(int width, int height) {
+            this.width = width;
+            this.height = height;
+            camera.resize(width, height, true);
+            view.resize(width, height);
         }
         
         public double[] getViewData() {

@@ -3,7 +3,6 @@ package org.simbrain.world.threedworld.engine;
 import java.awt.AWTException;
 import java.awt.BufferCapabilities;
 import java.awt.Canvas;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.ImageCapabilities;
 import java.awt.RenderingHints;
@@ -13,27 +12,11 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.simbrain.world.threedworld.engine.ThreeDView.ViewListener;
 
 public class ThreeDPanel extends Canvas {
-    private class ComponentListener extends ComponentAdapter {
-        @Override
-        public void componentResized(ComponentEvent event) {
-            synchronized (lock) {
-                int newWidth = Math.max(getWidth(), 1);
-                int newHeight = Math.max(getHeight(), 1);
-                if (width != newWidth || height != newHeight) {
-                    width = newWidth;
-                    height = newHeight;
-                    reshapeNeeded = true;
-                    System.out.println("EDT: componentResized " + width + ", " + height);
-                }
-            }
-        }
-    }
-    
+    private static final long serialVersionUID = 2582113543119990412L;
+
     private class PanelUpdater implements ViewListener {
         @Override
         public void postUpdate(BufferedImage image) {
@@ -42,13 +25,14 @@ public class ThreeDPanel extends Canvas {
                 currentView.removeListener(this);
                 currentView = nextView;
                 currentView.addListener(this);
-                // TODO: Check for resize
+                reshapeNeeded = true;
             }
             if (reshapeNeeded) {
-                reshapeInThread();
+                updateDimensions();
                 reshapeNeeded = false;
-            } else
+            } else {
                 drawImage(image);
+            }
         }
     }
     
@@ -56,39 +40,62 @@ public class ThreeDPanel extends Canvas {
     private ThreeDView currentView;
     private BufferStrategy strategy;
     private AffineTransformOp transformOp;
-    private AtomicBoolean hasNativePeer = new AtomicBoolean(false);
-    private AtomicBoolean showing = new AtomicBoolean(false);
-    private AtomicBoolean repaintRequest = new AtomicBoolean(false);
-    private int width;
-    private int height;
+    private boolean hasNativePeer = false;
     private boolean reshapeNeeded = true;
+    private boolean resizeView = false;
     private final Object lock = new Object();
     
-    public ThreeDPanel(int width, int height) {
-        this.width = width;
-        this.height = height;
+    public ThreeDPanel() {
+        super();
         setIgnoreRepaint(true);
-        addComponentListener(new ComponentListener());
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent event) {
+                setReshapeNeeded();
+            }
+        });
     }
     
     public ThreeDView getView() {
         return currentView;
     }
     
-    public void setView(ThreeDView value) {
+    public void setView(ThreeDView value, boolean resize) {
         if (currentView == null) {
             currentView = value;
             currentView.addListener(new PanelUpdater());
         }
+        resizeView = resize;
+        reshapeNeeded = true;
         nextView = value;
+    }
+    
+    public void setReshapeNeeded() {
+        synchronized (lock) {
+            reshapeNeeded = true;
+        }
+    }
+    
+    private void updateDimensions() {
+        synchronized (lock) {
+            AffineTransform transform;
+            if (resizeView) {
+                currentView.resize(getWidth(), getHeight());
+                transform = new AffineTransform();
+            } else {
+                transform = AffineTransform.getScaleInstance(
+                        (double)getWidth() / currentView.getWidth(),
+                        (double)getHeight() / currentView.getHeight());
+            }
+            transformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+        }
     }
     
     @Override
     public void addNotify() {
         super.addNotify();
         synchronized (lock) {
-            hasNativePeer.set(true);
-            System.out.println("EDT: addNotify");
+            hasNativePeer = true;
         }
         requestFocusInWindow();
     }
@@ -96,39 +103,19 @@ public class ThreeDPanel extends Canvas {
     @Override
     public void removeNotify() {
         synchronized (lock) {
-            hasNativePeer.set(false);
-            System.out.println("EDT: removeNotify");
+            hasNativePeer = false;
         }
         super.removeNotify();
     }
     
-    @Override
-    public void paint(Graphics graphics) {
-        /*
-        Graphics2D graphics2d = (Graphics2D)graphics;
-        synchronized (lock) {
-            graphics2d.drawImage(view.getImage(), transformOp, 0, 0);
-        }
-        */
-    }
-    
     public boolean checkVisibilityState() {
-        if (!hasNativePeer.get()) {
+        if (!hasNativePeer) {
             if (strategy != null) {
                 strategy = null;
-                System.out.println("OGL: Not visible. Destroy strategy.");
             }
             return false;
         }
-        boolean currentShowing = isShowing();
-        if (showing.getAndSet(currentShowing) != currentShowing) {
-            if (currentShowing) {
-                System.out.println("OGL: Enter showing state.");
-            } else {
-                System.out.println("OGL: Exit showing state.");
-            }
-        }
-        return currentShowing;
+        return isShowing();
     }
     
     public void drawImage(BufferedImage image) {
@@ -142,15 +129,12 @@ public class ThreeDPanel extends Canvas {
                     ex.printStackTrace();
                 }
                 strategy = getBufferStrategy();
-                System.out.println("OGL: Visible. Create strategy.");
             }
             do {
                 do {
                     Graphics2D graphics2d = (Graphics2D)strategy.getDrawGraphics();
-                    if (graphics2d == null) {
-                        System.out.println("OGL: DrawGraphics was null.");
+                    if (graphics2d == null)
                         return;
-                    }
                     graphics2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
                     graphics2d.drawImage(image, transformOp, 0, 0);
                     graphics2d.dispose();
@@ -158,21 +142,5 @@ public class ThreeDPanel extends Canvas {
                 } while (strategy.contentsRestored());
             } while (strategy.contentsLost());
         }
-    }
-    
-    public boolean isActiveDrawing() {
-        return showing.get();
-    }
-    
-    private void reshapeInThread() {
-        currentView.resize(width, height);
-        AffineTransform transform = AffineTransform.getScaleInstance(1, -1);
-        transform.translate(0, -height);
-        transformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-    }
-    
-    @Override
-    public void invalidate() {
-        repaintRequest.set(true);
     }
 }

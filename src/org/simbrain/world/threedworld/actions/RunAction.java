@@ -6,7 +6,6 @@ import javax.swing.AbstractAction;
 
 import org.simbrain.resource.ResourceManager;
 import org.simbrain.world.threedworld.ThreeDWorld;
-import org.simbrain.world.threedworld.ThreeDWorldComponent;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
 
 public class RunAction extends AbstractAction {
@@ -21,6 +20,9 @@ public class RunAction extends AbstractAction {
     }
     
     @Override public void actionPerformed(ActionEvent event) {
-        world.getEngine().setState(ThreeDEngine.State.Run, false);
+        if (world.getPreferences().isRealTime())
+            world.getEngine().queueState(ThreeDEngine.State.Run, false);
+        else
+            world.getEngine().queueState(ThreeDEngine.State.UpdateSync, false);
     }
 }

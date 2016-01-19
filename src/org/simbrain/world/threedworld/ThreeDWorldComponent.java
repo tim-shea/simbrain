@@ -114,7 +114,7 @@ public class ThreeDWorldComponent extends WorkspaceComponent {
     
     @Override
     public void save(OutputStream output, String format) {
-        world.getEngine().setState(ThreeDEngine.State.SystemPause, true);
+        world.getEngine().queueState(ThreeDEngine.State.SystemPause, true);
         if (world.getPreferences().getSceneName().isEmpty()) {
             SFileChooser chooser = new SFileChooser("simulations/worlds/assets/Scenes", "Save Scene");
             chooser.addExtension("JME3 Scene Graph", "j3o");
@@ -137,11 +137,16 @@ public class ThreeDWorldComponent extends WorkspaceComponent {
         } catch (IOException e) {
             throw new RuntimeException("Unable to save ThreeDWorld", e);
         }
-        world.getEngine().setState(ThreeDEngine.State.Render, false);
+        world.getEngine().queueState(ThreeDEngine.State.Render, false);
     }
     
     @Override
     protected void closing() {
         world.getEngine().stop(true);
+    }
+    
+    @Override
+    public void update() {
+        world.getEngine().updateSync();
     }
 }

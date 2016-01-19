@@ -18,34 +18,42 @@ import com.jme3.system.Timer;
 
 public class ThreeDContext implements JmeContext {
     private class Listener implements SystemListener {
+        @Override
         public void initialize() {
             initInThread();
         }
         
+        @Override
         public void reshape(int width, int height) {
             throw new IllegalStateException();
         }
         
+        @Override
         public void update() {
             updateInThread();
         }
         
+        @Override
         public void requestClose(boolean escapeIsPressed) {
             throw new IllegalStateException();
         }
         
+        @Override
         public void gainFocus() {
             throw new IllegalStateException();
         }
         
+        @Override
         public void loseFocus() {
             throw new IllegalStateException();
         }
         
+        @Override
         public void handleError(String message, Throwable throwable) {
             listener.handleError(message, throwable);
         }
         
+        @Override
         public void destroy() {
             destroyInThread();
         }
@@ -137,8 +145,8 @@ public class ThreeDContext implements JmeContext {
         return actualContext != null && actualContext.isRenderable();
     }
     
-    public ThreeDPanel createPanel(int width, int height) {
-        panel = new ThreeDPanel(width, height);
+    public ThreeDPanel createPanel() {
+        panel = new ThreeDPanel();
         return panel;
     }
     
@@ -147,14 +155,16 @@ public class ThreeDContext implements JmeContext {
     }
     
     private void updateInThread() {
-        boolean needThrottle = !panel.isActiveDrawing();
+        boolean needThrottle = !panel.isShowing() || !panel.getView().isActive();
         if (lastThrottleState != needThrottle) {
             lastThrottleState = needThrottle;
+            /*
             if (lastThrottleState) {
                 System.out.println("OGL: Throttling update loop.");
             } else {
                 System.out.println("OGL: Ceased throttling update loop.");
             }
+            */
         }
         if (needThrottle) {
             try {
@@ -169,6 +179,7 @@ public class ThreeDContext implements JmeContext {
         listener.destroy();
     }
     
+    @Override
     public void setSettings(AppSettings settings) {
         this.settings.copyFrom(settings);
         this.settings.setRenderer(AppSettings.LWJGL_OPENGL2);
@@ -177,24 +188,29 @@ public class ThreeDContext implements JmeContext {
         }
     }
     
-    public void create(boolean waitFor) {
+    @Override
+    public void create(boolean wait) {
         if (actualContext != null) {
-            throw new IllegalStateException("Already created");
+            throw new IllegalStateException("ThreeDContext cannot be recreated");
         }
         actualContext = JmeSystem.newContext(settings, Type.OffscreenSurface);
         actualContext.setSystemListener(new Listener());
-        actualContext.create(waitFor);
+        actualContext.create(wait);
     }
     
-    public void destroy(boolean waitFor) {
+    @Override
+    public void destroy(boolean wait) {
         if (actualContext == null)
-            throw new IllegalStateException("Not created");
-        actualContext.destroy(waitFor);
+            throw new IllegalStateException("ThreeDContext cannot be destroyed");
+        actualContext.destroy(wait);
     }
     
+    @Override
     public void setTitle(String title) {}
     
+    @Override
     public void setAutoFlushFrames(boolean enabled) {}
     
+    @Override
     public void restart() {}
 }

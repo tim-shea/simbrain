@@ -30,7 +30,8 @@ public class ThreeDEngine extends Application {
         Run,
         Render,
         SystemPause,
-        UpdateOnce
+        UpdateOnce,
+        UpdateSync
     }
     
     private Preferences preferences;
@@ -50,15 +51,13 @@ public class ThreeDEngine extends Application {
         this.preferences = preferences;
         
         AppSettings settings = new AppSettings(true);
-        settings.setWidth(preferences.getWidth());
-        settings.setHeight(preferences.getHeight());
         settings.setFrameRate(preferences.getFrameRate());
         settings.setCustomRenderer(ThreeDContext.class);
         setSettings(settings);
         start();
         
         context = (ThreeDContext)getContext();
-        panel = context.createPanel(settings.getWidth(), settings.getHeight());
+        panel = context.createPanel();
         panel.setPreferredSize(new Dimension(settings.getWidth(), settings.getHeight()));
         context.setInputSource(panel);
         setPauseOnLostFocus(false);
@@ -96,32 +95,42 @@ public class ThreeDEngine extends Application {
         return state;
     }
     
-    public void setState(State value, boolean wait) {
+    public void queueState(State value, boolean wait) {
         Future<Object> future = enqueue(() -> {
-            state = value;
-            switch (state) {
-            case Run:
-            case UpdateOnce:
-                paused = false;
-                bulletAppState.setEnabled(true);
-                break;
-            case Render:
-                paused = false;
-                bulletAppState.setEnabled(false);
-                break;
-            case SystemPause:
-                paused = true;
-                bulletAppState.setEnabled(false);
-                break;
-            }
+            setState(value);
             return null;
         });
         if (wait) {
             try {
                 future.get();
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(
+                        "An exception occurred while waiting for state change.", e);
             }
+        }
+    }
+    
+    protected void setState(State value) {
+        state = value;
+        switch (state) {
+        case Run:
+            timer.reset();
+        case UpdateOnce:
+            paused = false;
+            bulletAppState.setEnabled(true);
+            break;
+        case UpdateSync:
+            paused = true;
+            bulletAppState.setEnabled(true);
+            break;
+        case Render:
+            paused = false;
+            bulletAppState.setEnabled(false);
+            break;
+        case SystemPause:
+            paused = true;
+            bulletAppState.setEnabled(false);
+            break;
         }
     }
     
@@ -148,10 +157,6 @@ public class ThreeDEngine extends Application {
     @Override
     public void setSettings(AppSettings settings) {
     	super.setSettings(settings);
-    	if (panel != null) {
-    		Dimension size = new Dimension(settings.getWidth(), settings.getHeight());
-    		panel.setPreferredSize(size);
-    	}
     }
     
     private void loadScene(String fileName) {
@@ -207,10 +212,9 @@ public class ThreeDEngine extends Application {
             getRootNode().addLight(directionalLight);
         }
         
-        view = new ThreeDView(getViewPort().getCamera().getWidth(),
-                getViewPort().getCamera().getHeight());
+        view = new ThreeDView(getCamera().getWidth(), getCamera().getHeight());
         view.attach(true, getViewPort());
-        panel.setView(view);
+        panel.setView(view, true);
     }
     
     @Override
@@ -220,9 +224,11 @@ public class ThreeDEngine extends Application {
             return;
         
         float tpf;
-        if (state == State.UpdateOnce) {
+        if (state == State.UpdateOnce || state == State.UpdateSync) {
             // TODO: Fix weird single update physics shaking
             tpf = fixedTimeStep;
+        } else if (state == State.Render) {
+            tpf = 0;
         } else {
             timer.update();
             tpf = timer.getTimePerFrame();
@@ -249,9 +255,26 @@ public class ThreeDEngine extends Application {
         renderManager.render(tpf, context.isRenderable());
         stateManager.postRender();
         
-        if (state == State.UpdateOnce) {
-            state = State.Render;
+        if (state == State.UpdateOnce)
+            setState(State.Render);
+        if (state == State.UpdateSync)
             paused = true;
+    }
+    
+    public void updateSync() {
+        if (getState() != State.UpdateSync)
+            return;
+        while (!paused) {
+            Future<Object> future = enqueue(() -> {
+                return null;
+            });
+            try {
+                future.get();
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "An exception occurred while waiting for update sync.", e);
+            }
         }
+        paused = false;
     }
 }

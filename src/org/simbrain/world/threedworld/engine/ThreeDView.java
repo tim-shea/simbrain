@@ -10,6 +10,7 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.Screenshots;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -21,16 +22,19 @@ public class ThreeDView implements SceneProcessor {
     public interface ViewListener {
         public void postUpdate(BufferedImage image);
     }
-
+    
     private int width;
     private int height;
     private boolean active;
     private boolean attachAsMain = false;
-    private BufferedImage image;
     private FrameBuffer frameBuffer;
     private ByteBuffer byteBuffer;
     private IntBuffer intBuffer;
     private RenderManager renderManager;
+    private BufferedImage source;
+    private BufferedImage destination;
+    private BufferedImageOp flip;
+    private List<BufferedImageOp> imageOps = new ArrayList<BufferedImageOp>();
     private List<ViewPort> viewPorts = new ArrayList<ViewPort>();
     private List<ViewListener> listeners = new CopyOnWriteArrayList<ViewListener>();
     
@@ -61,7 +65,15 @@ public class ThreeDView implements SceneProcessor {
     }
     
     public BufferedImage getImage() {
-        return image;
+        return destination;
+    }
+    
+    public void addFilter(BufferedImageOp imageOp) {
+        imageOps.add(imageOp);
+    }
+    
+    public void removeFilter(BufferedImageOp imageOp) {
+        imageOps.remove(imageOp);
     }
     
     public void addListener(ViewListener listener) {
@@ -72,10 +84,14 @@ public class ThreeDView implements SceneProcessor {
         listeners.remove(listener);
     }
     
-    public void drawFrame() {
+    protected void drawFrame() {
         byteBuffer.clear();
         renderManager.getRenderer().readFrameBuffer(frameBuffer, byteBuffer);
-        Screenshots.convertScreenShot2(intBuffer, image);
+        Screenshots.convertScreenShot2(intBuffer, source);
+        destination = flip.filter(source, null);
+        for (BufferedImageOp imageOp : imageOps) {
+            destination = imageOp.filter(destination, null);
+        }
     }
     
     public void attach(boolean overrideMainFramebuffer, ViewPort... viewPorts) {
@@ -96,6 +112,8 @@ public class ThreeDView implements SceneProcessor {
     }
     
     public void resize(int width, int height) {
+        this.width = width;
+        this.height = height;
         byteBuffer = BufferUtils.ensureLargeEnough(byteBuffer, width * height * 4);
         intBuffer = byteBuffer.asIntBuffer();
         frameBuffer = new FrameBuffer(width, height, 1);
@@ -104,7 +122,8 @@ public class ThreeDView implements SceneProcessor {
         if (attachAsMain) {
             renderManager.getRenderer().setMainFrameBufferOverride(frameBuffer);
         }
-        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        source = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        flip = ImageFilters.flip(height);
         for (ViewPort viewPort : viewPorts) {
             if (!attachAsMain) {
                 viewPort.setOutputFrameBuffer(frameBuffer);
@@ -136,7 +155,7 @@ public class ThreeDView implements SceneProcessor {
         if (isActive())
             drawFrame();
         for (ViewListener listener : listeners)
-            listener.postUpdate(image);
+            listener.postUpdate(getImage());
     }
     
     @Override
