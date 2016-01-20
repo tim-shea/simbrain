@@ -7,6 +7,8 @@ import javax.swing.AbstractAction;
 import org.simbrain.world.threedworld.ThreeDWorld;
 import org.simbrain.world.threedworld.entities.Agent;
 import org.simbrain.world.threedworld.entities.Entity;
+import org.simbrain.world.threedworld.entities.VisionSensor;
+import org.simbrain.world.threedworld.entities.WalkingEffector;
 
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.math.Vector3f;
@@ -24,12 +26,16 @@ public class AddAgentAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent event) {
         world.getEngine().enqueue(() -> {
-            String fileName = "Models/Mouse.j3o";
+            String fileName = "Models/NewMouse.j3o";
             String modelNode = "Mouse";
             Node node = Entity.loadModel(world.getEngine(), modelNode, fileName);
             Agent agent = new Agent(world.getEngine(), node);
             agent.setName("Mouse" + world.createId());
-            agent.getVisionSensor().setHeadOffset(new Vector3f(0, 1.25f, 2.25f));
+            VisionSensor sensor = new VisionSensor(agent);
+            sensor.setHeadOffset(new Vector3f(0, 1.25f, 2.25f));
+            WalkingEffector effector = new WalkingEffector(agent);
+            effector.setWalkAnimSpeed(3);
+            agent.getBody().setKinematic(true);
             world.getEngine().getRootNode().attachChild(node);
             world.getEntities().add(agent);
             world.getEngine().getPhysicsSpace().add(agent.getBody());

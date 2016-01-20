@@ -11,9 +11,7 @@ import java.net.URI;
 import java.text.DecimalFormat;
 
 import javax.swing.BorderFactory;
-import javax.swing.InputVerifier;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -150,25 +148,6 @@ public class EntityEditor {
             constraints.gridwidth = 2;
             dialog.add(rotationTable, constraints);
             
-            constraints.gridx = 0;
-            constraints.gridy = 4;
-            dialog.add(new JLabel("Scale"), constraints);
-            JTextField scaleField = new JTextField();
-            scaleField.setText(format.format(entity.getScale()));
-            scaleField.setInputVerifier(new InputVerifier() {
-                @Override public boolean verify(JComponent input) {
-                    try {
-                        Float.parseFloat(scaleField.getText());
-                        return true;
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                }
-            });
-            constraints.gridx = 1;
-            constraints.gridwidth = 2;
-            dialog.add(scaleField, constraints);
-            
             JButton okButton = new JButton("Ok");
             okButton.addActionListener((okEvent) -> {
                 entity.setName(nameField.getText());
@@ -178,18 +157,17 @@ public class EntityEditor {
                     //entity.getGeometry().setMesh(mesh);
                 }
                 locationTable.clearSelection();
-                entity.setLocation(new Vector3f(locationModel.parseFloatAt(0, 0),
+                entity.queueLocation(new Vector3f(locationModel.parseFloatAt(0, 0),
                         locationModel.parseFloatAt(0, 1), locationModel.parseFloatAt(0, 2)));
                 Quaternion orientation = new Quaternion();
                 rotationTable.clearSelection();
                 orientation.fromAngles(degToRad(rotationModel.parseFloatAt(0, 0)),
                         degToRad(rotationModel.parseFloatAt(0, 1)), degToRad(rotationModel.parseFloatAt(0, 2)));
-                entity.setOrientation(orientation);
-                entity.setScale(Float.parseFloat(scaleField.getText()));
+                entity.queueOrientation(orientation);
                 dialog.dispose();
             });
             constraints.gridx = 1;
-            constraints.gridy = 5;
+            constraints.gridy = 4;
             constraints.gridwidth = 1;
             dialog.add(okButton, constraints);
             

@@ -1,5 +1,13 @@
 package org.simbrain.world.threedworld.entities;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.simbrain.workspace.AttributeType;
+import org.simbrain.workspace.PotentialConsumer;
+import org.simbrain.workspace.PotentialProducer;
+import org.simbrain.workspace.WorkspaceComponent;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
 
 import com.jme3.asset.AssetManager;
@@ -17,6 +25,16 @@ import com.jme3.scene.shape.Box;
 import com.jme3.util.TangentBinormalGenerator;
 
 public class Entity {
+    public static List<AttributeType> getProducerTypes(WorkspaceComponent component) {
+        return Arrays.asList(EntityLocationAdapter.getProducerType(component),
+                EntityOrientationAdapter.getProducerType(component));
+    }
+    
+    public static List<AttributeType> getConsumerTypes(WorkspaceComponent component) {
+        return Arrays.asList(EntityLocationAdapter.getConsumerType(component),
+                EntityOrientationAdapter.getConsumerType(component));
+    }
+    
     public static Entity createBox(ThreeDEngine engine, String name, float x, float y, float z) {
         Box box = new Box(x, y, z);
         TangentBinormalGenerator.generate(box);
@@ -103,94 +121,29 @@ public class Entity {
         return node.getControl(RigidBodyControl.class);
     }
     
-    public float getLocationX() {
-        return getBody().getPhysicsLocation().x;
-    }
-    
-    public void setLocationX(float value) {
-        Vector3f location = getBody().getPhysicsLocation();
-        location.x = value;
-        setLocation(location);
-    }
-    
-    public float getLocationY() {
-        return getBody().getPhysicsLocation().y;
-    }
-    
-    public void setLocationY(float value) {
-        Vector3f location = getBody().getPhysicsLocation();
-        location.y = value;
-        setLocation(location);
-    }
-    
-    public float getLocationZ() {
-        return getBody().getPhysicsLocation().z;
-    }
-    
-    public void setLocationZ(float value) {
-        Vector3f location = getBody().getPhysicsLocation();
-        location.z = value;
-        setLocation(location);
-    }
-    
     public Vector3f getLocation() {
         return getNode().getWorldTranslation();
     }
     
     public void setLocation(float x, float y, float z) {
-        setLocation(new Vector3f(x, y, z));
+        queueLocation(new Vector3f(x, y, z));
     }
     
-    public void setLocation(final Vector3f location) {
+    public void setLocation(Vector3f value) {
+        if (getBody().isKinematic())
+            getNode().setLocalTranslation(value);
+        else {
+            getBody().setPhysicsLocation(value);
+            getBody().activate();
+        }
+        update(0);
+    }
+    
+    public void queueLocation(Vector3f location) {
         engine.enqueue(() -> {
-            if (getBody().isKinematic())
-                getNode().setLocalTranslation(location);
-            else {
-                getBody().setPhysicsLocation(location);
-                getBody().activate();
-            }
+            setLocation(location);
             return null;
         });
-    }
-    
-    public float getOrientationW() {
-        return getBody().getPhysicsRotation().getW();
-    }
-    
-    public void setOrientationW(float value) {
-        Quaternion orientation = getBody().getPhysicsRotation();
-        orientation.set(orientation.getW(), value, orientation.getY(), orientation.getZ());
-        setOrientation(orientation);
-    }
-    
-    public float getOrientationX() {
-        return getBody().getPhysicsRotation().getX();
-    }
-    
-    public void setOrientationX(float value) {
-        Quaternion orientation = getBody().getPhysicsRotation();
-        orientation.set(value, orientation.getX(), orientation.getY(), orientation.getZ());
-        setOrientation(orientation);
-    }
-    
-    public float getOrientationY() {
-        return getBody().getPhysicsRotation().getY();
-    }
-    
-    public void setOrientationY(float value) {
-        Quaternion orientation = getBody().getPhysicsRotation();
-        orientation.set(orientation.getW(), orientation.getX(), value, orientation.getZ());
-        setOrientation(orientation);
-    }
-    
-    public float getOrientationZ() {
-        return getBody().getPhysicsRotation().getZ();
-    }
-    
-    public void setOrientationZ(float value) {
-        Quaternion orientation = getBody().getPhysicsRotation();
-        orientation.set(orientation.getW(), orientation.getX(), orientation.getY(), value);
-        setOrientation(orientation);
     }
     
     public Quaternion getOrientation() {
@@ -201,27 +154,36 @@ public class Entity {
         setOrientation(new Quaternion(x, y, z, w));
     }
     
-    public void setOrientation(final Quaternion orientation) {
-        engine.enqueue(() -> {
-            if (getBody().isKinematic()) {
-                getNode().setLocalRotation(orientation);
-            } else {
-                getBody().setPhysicsRotation(orientation);
-                getBody().activate();
-            }
-            return null;
-        });
-    }
-    
-    public float getScale() {
-        return getNode().getWorldScale().x;
-    }
-    
-    public void setScale(final float scalar) {
-        engine.enqueue(() -> {
-            node.setLocalScale(scalar);
+    public void setOrientation(Quaternion value) {
+        if (getBody().isKinematic()) {
+            getNode().setLocalRotation(value);
+        } else {
+            getBody().setPhysicsRotation(value);
             getBody().activate();
+        }
+        update(0);
+    }
+    
+    public void queueOrientation(Quaternion orientation) {
+        engine.enqueue(() -> {
+            setOrientation(orientation);
             return null;
         });
     }
+    
+    public List<PotentialProducer> getPotentialProducers() {
+        List<PotentialProducer> producers = new ArrayList<PotentialProducer>();
+        producers.addAll(new EntityLocationAdapter(this).getPotentialProducers());
+        producers.addAll(new EntityOrientationAdapter(this).getPotentialProducers());
+        return producers;
+    }
+    
+    public List<PotentialConsumer> getPotentialConsumers() {
+        List<PotentialConsumer> consumers = new ArrayList<PotentialConsumer>();
+        consumers.addAll(new EntityLocationAdapter(this).getPotentialConsumers());
+        consumers.addAll(new EntityOrientationAdapter(this).getPotentialConsumers());
+        return consumers;
+    }
+    
+    public void update(float tpf) {}
 }

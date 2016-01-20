@@ -24,5 +24,6 @@ public class RunAction extends AbstractAction {
             world.getEngine().queueState(ThreeDEngine.State.Run, false);
         else
             world.getEngine().queueState(ThreeDEngine.State.UpdateSync, false);
+        world.getAction("Update").setEnabled(false);
     }
 }

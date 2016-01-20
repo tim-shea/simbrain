@@ -7,6 +7,7 @@ import org.simbrain.world.threedworld.ContextMenu;
 import org.simbrain.world.threedworld.ThreeDWorld;
 import org.simbrain.world.threedworld.actions.EntityEditor;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
+import org.simbrain.world.threedworld.entities.Agent;
 import org.simbrain.world.threedworld.entities.Entity;
 
 import com.jme3.bounding.BoundingBox;
@@ -69,11 +70,9 @@ public class SelectionController implements ActionListener, AnalogListener {
     private boolean transformActive = false;
     private boolean translateActive = false;
     private boolean rotateActive = false;
-    private boolean scaleActive = false;
     private boolean snapTransformations = true;
     private long selectReleaseTime = 0;
     private Vector3f rotationAxis = Vector3f.UNIT_Y.clone();
-    private float scaleDivisor = 1;
     private EntityEditor entityEditor;
     private ContextMenu contextMenu;
     
@@ -135,6 +134,7 @@ public class SelectionController implements ActionListener, AnalogListener {
         selection.clear();
         world.getAction("Edit Entity").setEnabled(false);
         world.getAction("Delete Entity").setEnabled(false);
+        world.getAction("Control Agent").setEnabled(false);
     }
     
     public void select(Entity entity) {
@@ -144,6 +144,8 @@ public class SelectionController implements ActionListener, AnalogListener {
             addEntityToSelection(entity);
             world.getAction("Edit Entity").setEnabled(true);
             world.getAction("Delete Entity").setEnabled(true);
+            if (entity instanceof Agent)
+                world.getAction("Control Agent").setEnabled(true);
         }
     }
     
@@ -183,13 +185,6 @@ public class SelectionController implements ActionListener, AnalogListener {
             return Quaternion.IDENTITY.clone();
     }
     
-    public float getSelectionScale() {
-        if (hasSelection())
-            return getSelectedEntity().getScale();
-        else
-            return 1;
-    }
-    
     public BoundingVolume getSelectionBounds() {
         if (hasSelection()) {
             return getSelectedEntity().getNode().getWorldBound().clone();
@@ -199,17 +194,12 @@ public class SelectionController implements ActionListener, AnalogListener {
     
     public void translateSelection(Vector3f location) {
         if (hasSelection())
-            getSelectedEntity().setLocation(location);
+            getSelectedEntity().queueLocation(location);
     }
     
     public void rotateSelection(Quaternion orientation) {
         if (hasSelection())
-            getSelectedEntity().setOrientation(orientation);
-    }
-    
-    public void scaleSelection(float scalar) {
-        if (hasSelection())
-            getSelectedEntity().setScale(scalar);
+            getSelectedEntity().queueOrientation(orientation);
     }
     
     public void editSelection() {
@@ -250,7 +240,6 @@ public class SelectionController implements ActionListener, AnalogListener {
         transformActive = value;
         translateActive = translateActive && value;
         rotateActive = rotateActive && value;
-        scaleActive = scaleActive && value;
     }
     
     public boolean isTranslateActive() {
@@ -267,14 +256,6 @@ public class SelectionController implements ActionListener, AnalogListener {
     
     public void setRotateActive(boolean value) {
         rotateActive = value;
-    }
-    
-    public boolean isScaleActive() {
-        return scaleActive;
-    }
-    
-    public void setScaleActive(boolean value) {
-        scaleActive = value;
     }
     
     public boolean getSnapTransformations() {
@@ -307,9 +288,7 @@ public class SelectionController implements ActionListener, AnalogListener {
             onSelectAction(isPressed);
         else if (Context.isName(name))
             onContextAction(isPressed);
-        else if (Scroll.isName(name))
-            onScrollAction(isPressed);
-        if (isTransformActive() || isTranslateActive() || isRotateActive() || isScaleActive()) {
+        if (isTransformActive() || isTranslateActive() || isRotateActive()) {
             if (world.getCameraController() != null)
                 world.getCameraController().setMouseLookActive(false);
         }
@@ -342,14 +321,6 @@ public class SelectionController implements ActionListener, AnalogListener {
         }
     }
     
-    private void onScrollAction(boolean isPressed) {
-        if (isTransformActive()) {
-            if (isPressed)
-                updateScaleDivisor();
-            setScaleActive(isPressed);
-        }
-    }
-    
     @Override
     public void onAnalog(String name, float value, float tpf) {
         if (!enabled)
@@ -359,8 +330,6 @@ public class SelectionController implements ActionListener, AnalogListener {
                 translateToCursor();
             } else if (rotateActive)
                 lookAtCursor();
-            else if (scaleActive)
-                scaleToCursor();
         }
     }
     
@@ -411,29 +380,6 @@ public class SelectionController implements ActionListener, AnalogListener {
                 rotation.fromAngles(angles);
             }
             rotateSelection(rotation);
-        }
-    }
-    
-    public void scaleToCursor() {
-        if (!hasSelection())
-            return;
-        CollisionResult contact = getCursorContact(null);
-        if (contact != null) {
-            float distanceToEntity = contact.getContactPoint().distance(getSelectedEntity().getLocation());
-            float scalar = distanceToEntity / scaleDivisor;
-            if (getSnapTransformations())
-                scalar = snapToGrid(scalar, 0.1f);
-            scaleSelection(scalar);
-        }
-    }
-    
-    private void updateScaleDivisor() {
-        if (!hasSelection())
-            return;
-        CollisionResult contact = getCursorContact(null);
-        if (contact != null) {
-            float distance = contact.getContactPoint().distance(getSelectedEntity().getLocation());
-            scaleDivisor = distance / getSelectedEntity().getScale();
         }
     }
     

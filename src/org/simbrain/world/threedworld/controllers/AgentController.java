@@ -3,6 +3,8 @@ package org.simbrain.world.threedworld.controllers;
 import org.simbrain.world.threedworld.ThreeDWorld;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.entities.Agent;
+import org.simbrain.world.threedworld.entities.VisionSensor;
+import org.simbrain.world.threedworld.entities.WalkingEffector;
 
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
@@ -60,29 +62,31 @@ public class AgentController implements ActionListener {
     
     public void control(Agent agent) {
         this.agent = agent;
-        agent.getBody().setKinematic(true);
         setEnabled(true);
         world.getSelectionController().setEnabled(false);
         world.getCameraController().setEnabled(false);
         world.getAction("Control Agent").setEnabled(false);
-        world.getAction("Release Agent").setEnabled(true);
         ThreeDEngine engine = world.getEngine();
         engine.enqueue(() -> {
-            engine.getPanel().setView(agent.getVisionSensor().getView(), false);
+            VisionSensor sensor = agent.getSensor(VisionSensor.class);
+            if (sensor != null)
+                engine.getPanel().setView(sensor.getView(), false);
             return null;
         });
     }
     
     public void release() {
+        final Agent releasedAgent = agent;
         agent = null;
         setEnabled(false);
         world.getSelectionController().setEnabled(true);
         world.getCameraController().setEnabled(true);
         world.getAction("Control Agent").setEnabled(true);
-        world.getAction("Release Agent").setEnabled(false);
         ThreeDEngine engine = world.getEngine();
         engine.enqueue(() -> {
-            engine.getPanel().setView(engine.getMainView(), true);
+            VisionSensor sensor = releasedAgent.getSensor(VisionSensor.class);
+            if (sensor != null && engine.getPanel().getView().equals(sensor.getView()))
+                engine.getPanel().setView(engine.getMainView(), true);
             return null;
         });
     }
@@ -100,14 +104,15 @@ public class AgentController implements ActionListener {
         if (!enabled || agent == null)
             return;
         agent.getBody().activate();
+        WalkingEffector effector = agent.getEffector(WalkingEffector.class);
         if (TurnLeft.isName(name)) {
-            agent.getWalkingEffector().setTurning(isPressed ? 1 : 0);
+            effector.setTurning(isPressed ? 1 : 0);
         } else if (TurnRight.isName(name)) {
-            agent.getWalkingEffector().setTurning(isPressed ? -1 : 0);
+            effector.setTurning(isPressed ? -1 : 0);
         } else if (WalkForward.isName(name)) {
-            agent.getWalkingEffector().setWalking(isPressed ? 1 : 0);
+            effector.setWalking(isPressed ? 1 : 0);
         } else if (WalkBackward.isName(name)) {
-            agent.getWalkingEffector().setWalking(isPressed ? -1 : 0);
+            effector.setWalking(isPressed ? -1 : 0);
         }
     }
 }

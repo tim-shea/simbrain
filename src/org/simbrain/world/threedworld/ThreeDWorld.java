@@ -82,13 +82,8 @@ public class ThreeDWorld {
         public void update(float tpf) {
             if (engine.getState() == ThreeDEngine.State.Render)
                 return;
-            for (Entity entity : getEntities()) {
-                if (entity instanceof Agent) {
-                    Agent agent = (Agent)entity;
-                    agent.getVisionSensor().update(tpf);
-                    agent.getWalkingEffector().update(tpf);
-                }
-            }
+            for (Entity entity : getEntities())
+                entity.update(tpf);
         }
         
         @Override

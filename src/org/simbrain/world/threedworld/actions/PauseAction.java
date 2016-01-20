@@ -22,5 +22,6 @@ public class PauseAction extends AbstractAction {
     
     @Override public void actionPerformed(ActionEvent event) {
         world.getEngine().queueState(ThreeDEngine.State.Render, false);
+        world.getAction("Update").setEnabled(true);
     }
 }
