@@ -20,7 +20,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ThreeDView implements SceneProcessor {
     public interface ViewListener {
-        public void postUpdate(BufferedImage image);
+        public void onUpdate(BufferedImage image);
+        
+        public void onResize();
     }
     
     private int width;
@@ -135,6 +137,8 @@ public class ThreeDView implements SceneProcessor {
                 sceneProcessor.reshape(viewPort, width, height);
             }
         }
+        for (ViewListener listener : listeners)
+        	listener.onResize();
     }
     
     @Override
@@ -155,7 +159,7 @@ public class ThreeDView implements SceneProcessor {
         if (isActive())
             drawFrame();
         for (ViewListener listener : listeners)
-            listener.postUpdate(getImage());
+            listener.onUpdate(getImage());
     }
     
     @Override

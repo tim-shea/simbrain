@@ -10,6 +10,7 @@ import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.PotentialProducer;
 import org.simbrain.workspace.WorkspaceComponent;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
+import org.simbrain.world.threedworld.entities.EditorDialog.Editor;
 
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
@@ -55,6 +56,10 @@ public class Agent extends Entity {
         return null;
     }
     
+    public List<Sensor> getSensors() {
+        return sensors;
+    }
+    
     public void addEffector(Effector effector) {
         effectors.add(effector);
     }
@@ -68,6 +73,10 @@ public class Agent extends Entity {
             if (effectorType.isAssignableFrom(effector.getClass()))
                 return (T)effector;
         return null;
+    }
+    
+    public List<Effector> getEffectors() {
+        return effectors;
     }
     
     @Override
@@ -130,5 +139,10 @@ public class Agent extends Entity {
             sensor.update(tpf);
         for (Effector effector : effectors)
             effector.update(tpf);
+    }
+    
+    @Override
+    public Editor getEditor() {
+        return new AgentEditor(this);
     }
 }

@@ -9,6 +9,7 @@ import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.PotentialProducer;
 import org.simbrain.workspace.WorkspaceComponent;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
+import org.simbrain.world.threedworld.entities.EditorDialog.Editor;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.bounding.BoundingBox;
@@ -186,4 +187,8 @@ public class Entity {
     }
     
     public void update(float tpf) {}
+    
+    public Editor getEditor() {
+        return new EntityEditor(this);
+    }
 }

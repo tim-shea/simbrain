@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.simbrain.world.threedworld.ContextMenu;
 import org.simbrain.world.threedworld.ThreeDWorld;
-import org.simbrain.world.threedworld.actions.EntityEditor;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.entities.Agent;
 import org.simbrain.world.threedworld.entities.Entity;
+import org.simbrain.world.threedworld.entities.EditorDialog;
 
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
@@ -73,13 +73,13 @@ public class SelectionController implements ActionListener, AnalogListener {
     private boolean snapTransformations = true;
     private long selectReleaseTime = 0;
     private Vector3f rotationAxis = Vector3f.UNIT_Y.clone();
-    private EntityEditor entityEditor;
+    private EditorDialog editorDialog;
     private ContextMenu contextMenu;
     
     public SelectionController(ThreeDWorld world) {
         this.world = world;
         selection = new ArrayList<Entity>();
-        entityEditor = new EntityEditor();
+        editorDialog = new EditorDialog();
         contextMenu = new ContextMenu(world);
     }
     
@@ -88,7 +88,7 @@ public class SelectionController implements ActionListener, AnalogListener {
         input.addMapping(Select.toString(), new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         input.addMapping(Context.toString(), new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
         input.addMapping(Scroll.toString(), new MouseButtonTrigger(MouseInput.BUTTON_MIDDLE));
-        input.addMapping(Transform.toString(), new KeyTrigger(KeyInput.KEY_LCONTROL));
+        input.addMapping(Transform.toString(), new KeyTrigger(KeyInput.KEY_LMENU));
         input.addMapping(Append.toString(), new KeyTrigger(KeyInput.KEY_LSHIFT));
         input.addMapping(MoveCursor.toString(),
                 new MouseAxisTrigger(MouseInput.AXIS_X, false),
@@ -113,6 +113,8 @@ public class SelectionController implements ActionListener, AnalogListener {
             }
         }
         input.removeListener(this);
+        // HACK: This should be somewhere else
+        editorDialog.closeEditor();
     }
     
     public ThreeDWorld getWorld() {
@@ -194,17 +196,17 @@ public class SelectionController implements ActionListener, AnalogListener {
     
     public void translateSelection(Vector3f location) {
         if (hasSelection())
-            getSelectedEntity().queueLocation(location);
+            getSelectedEntity().setLocation(location);
     }
     
     public void rotateSelection(Quaternion orientation) {
         if (hasSelection())
-            getSelectedEntity().queueOrientation(orientation);
+            getSelectedEntity().setOrientation(orientation);
     }
     
     public void editSelection() {
         if (hasSelection())
-            entityEditor.showEditor(getSelectedEntity());
+            editorDialog.showEditor(getSelectedEntity());
     }
     
     public void deleteSelection() {
@@ -303,7 +305,7 @@ public class SelectionController implements ActionListener, AnalogListener {
                 if (!isPressed) {
                     long time = System.currentTimeMillis();
                     if (time - selectReleaseTime < DOUBLE_CLICK_MSEC)
-                        entityEditor.showEditor(entity);
+                        editorDialog.showEditor(entity);
                     selectReleaseTime = System.currentTimeMillis();
                 }
                 setTranslateActive(isPressed);
@@ -364,12 +366,9 @@ public class SelectionController implements ActionListener, AnalogListener {
             return;
         CollisionResult contact = getCursorContact(getSelectedEntity().getNode());
         if (contact != null) {
-            // Get the offset to the cursor contact
             Vector3f target = contact.getContactPoint().subtract(
                     getSelectedEntity().getLocation());
-            // Subtract the component of the target vector along the rotation axis
             target = target.subtract(rotationAxis.mult(target.dot(rotationAxis)));
-            // Generate the orientation
             Quaternion rotation = getSelectedEntity().getOrientation();
             rotation.lookAt(target, rotationAxis);
             if (getSnapTransformations()) {

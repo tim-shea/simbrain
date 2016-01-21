@@ -66,17 +66,23 @@ public class ThreeDContext implements JmeContext {
     private AwtMouseInput mouseInput = new AwtMouseInput() {
         @Override
         public void mousePressed(MouseEvent event) {
+            int button = event.getButton();
+            if (button == MouseEvent.BUTTON1 && event.isControlDown())
+                button = MouseEvent.BUTTON3;
             MouseEvent flippedEvent = new MouseEvent(
-                    event.getComponent(), event.getID(), event.getWhen(), event.getModifiers(),
-                    event.getX(), event.getComponent().getHeight() - event.getY(), 1, false, event.getButton());
+                    event.getComponent(), event.getID(), event.getWhen(), 0,
+                    event.getX(), event.getComponent().getHeight() - event.getY(), 1, false, button);
             super.mousePressed(flippedEvent);
         }
         
         @Override
         public void mouseReleased(MouseEvent event) {
+            int button = event.getButton();
+            if (button == MouseEvent.BUTTON1 && event.isControlDown())
+                button = MouseEvent.BUTTON3;
             MouseEvent flippedEvent = new MouseEvent(
-                    event.getComponent(), event.getID(), event.getWhen(), event.getModifiers(),
-                    event.getX(), event.getComponent().getHeight() - event.getY(), 1, false, event.getButton());
+                    event.getComponent(), event.getID(), event.getWhen(), 0,
+                    event.getX(), event.getComponent().getHeight() - event.getY(), 1, false, button);
             super.mouseReleased(flippedEvent);
         }
     };

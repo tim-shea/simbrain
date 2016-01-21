@@ -16,10 +16,14 @@ import org.simbrain.world.threedworld.engine.ThreeDView.ViewListener;
 
 public class ThreeDPanel extends Canvas {
     private static final long serialVersionUID = 2582113543119990412L;
-
+    
     private class PanelUpdater implements ViewListener {
         @Override
-        public void postUpdate(BufferedImage image) {
+        public void onUpdate(BufferedImage image) {
+            if (destroyNeeded) {
+                currentView.removeListener(this);
+                return;
+            }
             checkVisibilityState();
             if (nextView != currentView) {
                 currentView.removeListener(this);
@@ -34,6 +38,11 @@ public class ThreeDPanel extends Canvas {
                 drawImage(image);
             }
         }
+        
+        @Override
+        public void onResize() {
+        	setReshapeNeeded();
+        }
     }
     
     private ThreeDView nextView;
@@ -42,6 +51,7 @@ public class ThreeDPanel extends Canvas {
     private AffineTransformOp transformOp;
     private boolean hasNativePeer = false;
     private boolean reshapeNeeded = true;
+    private boolean destroyNeeded = false;
     private boolean resizeView = false;
     private final Object lock = new Object();
     
@@ -142,5 +152,12 @@ public class ThreeDPanel extends Canvas {
                 } while (strategy.contentsRestored());
             } while (strategy.contentsLost());
         }
+    }
+    
+    public void destroy() {
+        if (currentView == null)
+            return;
+        else 
+            destroyNeeded = true;
     }
 }

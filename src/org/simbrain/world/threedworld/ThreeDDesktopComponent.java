@@ -22,6 +22,7 @@ import org.simbrain.workspace.component_actions.OpenAction;
 import org.simbrain.workspace.component_actions.SaveAction;
 import org.simbrain.workspace.component_actions.SaveAsAction;
 import org.simbrain.workspace.gui.GuiComponent;
+import org.simbrain.world.threedworld.entities.EditorDialog;
 
 public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
     private static final long serialVersionUID = 8711925427252261845L;
@@ -36,6 +37,7 @@ public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
         add(panel, BorderLayout.CENTER);
         Preferences preferences = component.getWorld().getPreferences();
         frame.setBounds(100, 100, preferences.getWidth(), preferences.getHeight());
+        EditorDialog.setOwner(this);
         
         addComponentListener(new ComponentListener() {
             public void componentHidden(ComponentEvent event) {}

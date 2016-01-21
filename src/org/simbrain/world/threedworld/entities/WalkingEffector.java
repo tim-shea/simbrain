@@ -1,13 +1,22 @@
 package org.simbrain.world.threedworld.entities;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
 
 import org.simbrain.workspace.AttributeManager;
 import org.simbrain.workspace.AttributeType;
 import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.WorkspaceComponent;
+import org.simbrain.world.threedworld.engine.ThreeDPanel;
+import org.simbrain.world.threedworld.entities.EditorDialog.Editor;
 
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
@@ -140,6 +149,7 @@ public class WalkingEffector implements Effector {
         }
     }
     
+    @Override
     public void update(float tpf) {
         checkMoving();
         this.agent.getNode().rotate(0, getTurning() * turnSpeed * tpf, 0);
@@ -148,6 +158,7 @@ public class WalkingEffector implements Effector {
         this.agent.getNode().move(translation);
     }
     
+    @Override
     public List<PotentialConsumer> getPotentialConsumers() {
         List<PotentialConsumer> consumers = new ArrayList<PotentialConsumer>();
         if (walkAttribute.isVisible()) {
@@ -163,5 +174,55 @@ public class WalkingEffector implements Effector {
             consumers.add(consumer);
         }
         return consumers;
+    }
+    
+    @Override
+    public Editor getEditor() {
+        return new EffectorEditor(agent, this) {
+        	private JFormattedTextField walkSpeedField = new JFormattedTextField(EditorDialog.floatFormat);
+            private JFormattedTextField turnSpeedField = new JFormattedTextField(EditorDialog.floatFormat);
+            private JTextField walkAnimNameField = new JTextField(20);
+            private JTextField idleAnimNameField = new JTextField(20);
+            
+            {
+                walkSpeedField.setColumns(5);
+                turnSpeedField.setColumns(5);
+            }
+            
+            @Override
+            public JComponent layoutFields() {
+                JComponent effectorComponent = super.layoutFields();
+                
+                getPanel().add(new JLabel("Walk Speed"));
+                getPanel().add(walkSpeedField, "wrap");
+                
+                getPanel().add(new JLabel("Turn Speed"));
+                getPanel().add(turnSpeedField, "wrap");
+                
+                getPanel().add(new JLabel("Walk Animation"));
+                getPanel().add(walkAnimNameField, "wrap");
+                
+                getPanel().add(new JLabel("Idle Animation"));
+                getPanel().add(idleAnimNameField, "wrap");
+                
+                return effectorComponent;
+            }
+            
+            @Override
+            public void readValues() {
+                walkSpeedField.setValue(getWalkSpeed());
+                turnSpeedField.setValue(getTurnSpeed());
+                walkAnimNameField.setText(getWalkAnimName());
+                idleAnimNameField.setText(getIdleAnimName());
+            }
+            
+            @Override
+            public void writeValues() {
+                setWalkSpeed(((Number)walkSpeedField.getValue()).floatValue());
+                setTurnSpeed(((Number)turnSpeedField.getValue()).floatValue());
+                setWalkAnimName(walkAnimNameField.getText());
+                setIdleAnimName(idleAnimNameField.getText());
+            }
+        };
     }
 }
