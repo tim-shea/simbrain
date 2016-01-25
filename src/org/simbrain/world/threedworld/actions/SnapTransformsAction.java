@@ -15,7 +15,7 @@ public class SnapTransformsAction extends AbstractAction {
     public SnapTransformsAction(ThreeDWorld world) {
         super("Snap Transforms");
         this.world = world;
-        putValue(SMALL_ICON, ResourceManager.getImageIcon("Grid.png"));
+        putValue(SMALL_ICON, ResourceManager.getImageIcon("grid.png"));
         putValue(SHORT_DESCRIPTION, "Snap Transforms");
     }
     

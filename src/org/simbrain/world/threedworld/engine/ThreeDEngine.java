@@ -46,6 +46,10 @@ public class ThreeDEngine extends Application {
     private State state = State.Render;
     private float fixedTimeStep = 1 / 60f;
     
+    public ThreeDEngine() {
+        this(new Preferences());
+    }
+    
     public ThreeDEngine(Preferences preferences) {
         super();
         this.preferences = preferences;

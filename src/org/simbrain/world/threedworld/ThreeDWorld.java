@@ -13,8 +13,9 @@ import org.simbrain.world.threedworld.controllers.AgentController;
 import org.simbrain.world.threedworld.controllers.CameraController;
 import org.simbrain.world.threedworld.controllers.SelectionController;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
-import org.simbrain.world.threedworld.entities.Agent;
+import org.simbrain.world.threedworld.engine.ThreeDEngineConverter;
 import org.simbrain.world.threedworld.entities.Entity;
+import org.simbrain.world.threedworld.entities.EntityXmlConverter;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AppState;
@@ -39,13 +40,6 @@ public class ThreeDWorld {
             if (initialized)
                 throw new RuntimeException(
                         "ProtoWorldComponent.StateListener cannot be initialized twice");
-            for (Entity entity : entities) {
-                Node node = (Node)engine.getRootNode().getChild(entity.getName());
-                if (node == null)
-                    throw new RuntimeException("Failed to deserialize entity: " + entity.getName());
-                entity.setEngine(getEngine());
-                entity.setNode(node);
-            }
             setEnabled(true);
             // HACK: selection controller has to be registered before camera controller
             // to intercept the mouse look before it starts, should find a more robust option
@@ -102,36 +96,23 @@ public class ThreeDWorld {
     
     public static XStream getXStream() {
         XStream stream = new XStream(new DomDriver());
-        stream.omitField(ThreeDWorld.class, "actionManager");
-        stream.omitField(ThreeDWorld.class, "engine");
+        stream.registerConverter(new ThreeDEngineConverter());
+        stream.registerConverter(new EntityXmlConverter());
+        stream.omitField(ThreeDWorld.class, "actions");
         stream.omitField(ThreeDWorld.class, "cameraController");
         stream.omitField(ThreeDWorld.class, "selectionController");
         stream.omitField(ThreeDWorld.class, "agentController");
-        stream.omitField(Entity.class, "engine");
-        stream.omitField(Entity.class, "node");
-        stream.omitField(Entity.class, "locationX");
-        stream.omitField(Entity.class, "locationY");
-        stream.omitField(Entity.class, "locationZ");
-        stream.omitField(Entity.class, "location");
-        stream.omitField(Entity.class, "orientationW");
-        stream.omitField(Entity.class, "orientationX");
-        stream.omitField(Entity.class, "orientationY");
-        stream.omitField(Entity.class, "orientationZ");
-        stream.omitField(Entity.class, "orientation");
-        stream.omitField(Entity.class, "scale");
-        stream.omitField(Agent.class, "sensor");
-        stream.omitField(Agent.class, "effector");
         return stream;
     }
     
     public static ThreeDWorld deserialize(InputStream input, String name, String format) {
         ThreeDWorld world = (ThreeDWorld)ThreeDWorld.getXStream().fromXML(input);
         world.actions = ActionManager.createActions(world);
-        world.engine = new ThreeDEngine(world.preferences);
         world.engine.getStateManager().attach(world.new StateListener());
         world.cameraController = new CameraController(world);
         world.selectionController = new SelectionController(world);
         world.agentController = new AgentController(world);
+        world.getEngine().queueState(ThreeDEngine.State.Render, false);
         return world;
     }
     

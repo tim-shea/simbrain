@@ -116,6 +116,8 @@ public class Entity {
     public void setNode(Node value) {
         node = value;
         node.setName(name);
+        engine.getRootNode().attachChild(node);
+        engine.getPhysicsSpace().add(getBody());
     }
     
     public RigidBodyControl getBody() {
