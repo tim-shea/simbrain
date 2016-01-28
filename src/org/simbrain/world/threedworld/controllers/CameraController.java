@@ -42,7 +42,6 @@ public class CameraController implements AnalogListener, ActionListener {
     private ThreeDWorld world;
     private Preferences preferences;
     private Camera camera;
-    private boolean enabled = false;
     private boolean mouseLookActive = false;
     private Vector3f homeLocation = Vector3f.UNIT_Y.mult(2.5f);
     private float[] homeRotation = new float[] {0, 0, 0};
@@ -103,14 +102,6 @@ public class CameraController implements AnalogListener, ActionListener {
     
     public void setZoomSpeed(float value) {
         preferences.setZoomSpeed(value);
-    }
-    
-    public boolean isEnabled() {
-        return enabled;
-    }
-    
-    public void setEnabled(boolean value) {
-        enabled = value;
     }
     
     public boolean isMouseLookActive() {
@@ -235,8 +226,12 @@ public class CameraController implements AnalogListener, ActionListener {
     
     @Override
     public void onAnalog(String name, float value, float tpf) {
-        if (!enabled)
+        if (world.getSelectionController().isTransformActive() ||
+            world.getSelectionController().isMoveActive() ||
+            world.getSelectionController().isRotateActive() ||
+            world.getAgentController().isControlActive()) {
             return;
+        }
         if (YawLeft.isName(name)) {
             rotateCamera(value, yawAxis);
         } else if (YawRight.isName(name)) {
@@ -274,8 +269,12 @@ public class CameraController implements AnalogListener, ActionListener {
     
     @Override
     public void onAction(String name, boolean isPressed, float tpf) {
-        if (!enabled)
+        if (world.getSelectionController().isTransformActive() ||
+            world.getSelectionController().isMoveActive() ||
+            world.getSelectionController().isRotateActive() ||
+            world.getAgentController().isControlActive()) {
             return;
+        }
         if (MouseLook.isName(name)) {
             mouseLookActive = isPressed;
         }

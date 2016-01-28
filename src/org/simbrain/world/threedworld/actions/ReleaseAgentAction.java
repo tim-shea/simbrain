@@ -25,7 +25,7 @@ public class ReleaseAgentAction extends AbstractAction {
     }
     
     @Override public void actionPerformed(ActionEvent e) {
-        if (world.getAgentController().isEnabled())
+        if (world.getAgentController().isControlActive())
             world.getAgentController().release();
     }
 }

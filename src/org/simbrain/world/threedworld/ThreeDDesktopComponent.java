@@ -64,8 +64,9 @@ public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
         
         JMenu entitiesMenu = new JMenu("Entities");
         entitiesMenu.add(component.getWorld().getAction("Add Entity"));
+        entitiesMenu.add(component.getWorld().getAction("Add Block"));
         entitiesMenu.add(component.getWorld().getAction("Add Agent"));
-        entitiesMenu.add(component.getWorld().getAction("Add Wall"));
+        entitiesMenu.add(component.getWorld().getAction("Add Mouse"));
         entitiesMenu.addSeparator();
         entitiesMenu.add(component.getWorld().getAction("Control Agent"));
         entitiesMenu.add(component.getWorld().getAction("Release Agent"));

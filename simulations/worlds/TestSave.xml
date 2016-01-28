@@ -1,0 +1,46 @@
+<org.simbrain.world.threedworld.ThreeDWorld>
+  <preferences>
+    <sceneName></sceneName>
+    <guiName></guiName>
+    <width>630</width>
+    <height>458</height>
+    <realTimeMode>true</realTimeMode>
+    <frameRate>30</frameRate>
+    <ambientLight>-1</ambientLight>
+    <directionalLight>-1</directionalLight>
+    <fieldOfView>80.0</fieldOfView>
+    <nearClip>0.1</nearClip>
+    <farClip>100.0</farClip>
+    <moveSpeed>5.0</moveSpeed>
+    <rotateSpeed>10.0</rotateSpeed>
+    <zoomSpeed>1.0</zoomSpeed>
+  </preferences>
+  <engine/>
+  <entities>
+    <org.simbrain.world.threedworld.entities.BoxEntity>
+      <engine reference="../../../engine"/>
+      <name>Block0</name>
+      <size>
+        <x>1.0</x>
+        <y>1.0</y>
+        <z>1.0</z>
+      </size>
+      <mass>1.0</mass>
+      <material>Materials/BlueTile.j3m</material>
+      <position>
+        <x>3.0</x>
+        <y>1.0</y>
+        <z>6.0</z>
+      </position>
+      <rotation>
+        <x>0.0</x>
+        <y>0.0</y>
+        <z>0.0</z>
+        <w>1.0</w>
+      </rotation>
+    </org.simbrain.world.threedworld.entities.BoxEntity>
+  </entities>
+  <idCounter>
+    <value>1</value>
+  </idCounter>
+</org.simbrain.world.threedworld.ThreeDWorld>

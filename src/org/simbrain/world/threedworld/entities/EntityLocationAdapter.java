@@ -17,12 +17,12 @@ public class EntityLocationAdapter {
     public static AttributeType consumerAttribute;
     
     public static AttributeType getProducerType(WorkspaceComponent component) {
-        producerAttribute = new AttributeType(component, "Entity", "getLocation", double.class, true);
+        producerAttribute = new AttributeType(component, "Entity", "Position", double.class, true);
         return producerAttribute;
     }
     
     public static AttributeType getConsumerType(WorkspaceComponent component) {
-        consumerAttribute = new AttributeType(component, "Entity", "setLocation", double.class, true);
+        consumerAttribute = new AttributeType(component, "Entity", "Position", double.class, true);
         return consumerAttribute;
     }
     
@@ -33,33 +33,33 @@ public class EntityLocationAdapter {
     }
     
     public double getX() {
-        return entity.getLocation().x;
+        return entity.getPosition().x;
     }
     
     public void setX(double value) {
-        Vector3f location = entity.getLocation();
+        Vector3f location = entity.getPosition();
         location.x = (float)value;
-        entity.queueLocation(location);
+        entity.queuePosition(location);
     }
     
     public double getY() {
-        return entity.getLocation().y;
+        return entity.getPosition().y;
     }
     
     public void setY(double value) {
-        Vector3f location = entity.getLocation();
+        Vector3f location = entity.getPosition();
         location.y = (float)value;
-        entity.queueLocation(location);
+        entity.queuePosition(location);
     }
     
     public double getZ() {
-        return entity.getLocation().z;
+        return entity.getPosition().z;
     }
     
     public void setZ(double value) {
-        Vector3f location = entity.getLocation();
+        Vector3f location = entity.getPosition();
         location.z = (float)value;
-        entity.queueLocation(location);
+        entity.queuePosition(location);
     }
     
     public List<PotentialProducer> getPotentialProducers() {
@@ -75,7 +75,7 @@ public class EntityLocationAdapter {
     
     private PotentialProducer createPotentialProducer(AttributeManager attributeManager, String dimension) {
         PotentialProducer producer = attributeManager.createPotentialProducer(this, "get" + dimension, double.class);
-        producer.setCustomDescription("Entity:getLocation:" + dimension);
+        producer.setCustomDescription("Entity:Position:" + dimension);
         return producer;
     }
     
@@ -92,7 +92,7 @@ public class EntityLocationAdapter {
     
     private PotentialConsumer createPotentialConsumer(AttributeManager attributeManager, String dimension) {
         PotentialConsumer consumer = attributeManager.createPotentialConsumer(this, "set" + dimension, double.class);
-        consumer.setCustomDescription("Entity:setLocation:" + dimension);
+        consumer.setCustomDescription("Entity:Position:" + dimension);
         return consumer;
     }
 }

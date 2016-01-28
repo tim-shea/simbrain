@@ -1,44 +1,25 @@
 package org.simbrain.world.threedworld.entities;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.simbrain.workspace.AttributeManager;
-import org.simbrain.workspace.AttributeType;
 import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.PotentialProducer;
-import org.simbrain.workspace.WorkspaceComponent;
-import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.entities.EditorDialog.Editor;
 
-import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
+import com.jme3.bounding.BoundingVolume;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 
-public class Agent extends Entity {
-    public static AttributeType animationProducerAttribute;
-    public static AttributeType animationConsumerAttribute;
-    
-    public static List<AttributeType> getProducerTypes(WorkspaceComponent component) {
-        animationProducerAttribute = new AttributeType(component, "Agent", "getAnimation", String.class, true);
-        return Arrays.asList(animationProducerAttribute);
-    }
-    
-    public static List<AttributeType> getConsumerTypes(WorkspaceComponent component) {
-        animationConsumerAttribute = new AttributeType(component, "Agent", "setAnimation", String.class, true);
-        return Arrays.asList(animationConsumerAttribute);
-    }
-    
+public class Agent implements Entity {
+    private ModelEntity model;
     private List<Sensor> sensors = new ArrayList<Sensor>();
     private List<Effector> effectors = new ArrayList<Effector>();
     
-    public Agent() {
-        super();
-    }
-    
-    public Agent(ThreeDEngine engine, Node node) {
-        super(engine, node);
+    public Agent(ModelEntity model) {
+        this.model = model;
+        model.getBody().setKinematic(true);
     }
     
     public void addSensor(Sensor sensor) {
@@ -79,11 +60,78 @@ public class Agent extends Entity {
         return effectors;
     }
     
+    public ModelEntity getModel() {
+        return model;
+    }
+    
+    public void setModel(ModelEntity value) {
+        model = value;
+        model.getBody().setKinematic(true);
+    }
+    
+    @Override
+    public String getName() {
+        return model.getName();
+    }
+    
+    @Override
+    public void setName(String value) {
+        model.setName(value);
+    }
+    
+    @Override
+    public Node getNode() {
+        return model.getNode();
+    }
+    
+    @Override
+    public Vector3f getPosition() {
+        return model.getPosition();
+    }
+    
+    @Override
+    public void setPosition(Vector3f value) {
+        model.setPosition(value);
+    }
+    
+    @Override
+    public void queuePosition(Vector3f value) {
+        model.queuePosition(value);
+    }
+    
+    @Override
+    public void move(Vector3f offset) {
+        model.move(offset);
+    }
+    
+    @Override
+    public Quaternion getRotation() {
+        return model.getRotation();
+    }
+    
+    @Override
+    public void setRotation(Quaternion value) {
+        model.setRotation(value);
+    }
+    
+    @Override
+    public void queueRotation(Quaternion value) {
+        model.queueRotation(value);
+    }
+    
+    @Override
+    public void rotate(Quaternion rotation) {
+        model.rotate(rotation);
+    }
+    
+    @Override
+    public BoundingVolume getBounds() {
+        return model.getBounds();
+    }
+    
     @Override
     public List<PotentialProducer> getPotentialProducers() {
-        List<PotentialProducer> producers = super.getPotentialProducers();
-        AttributeManager attributeManager = animationProducerAttribute.getParentComponent().getAttributeManager();
-        producers.add(attributeManager.createPotentialProducer(this, "getAnimation", String.class));
+        List<PotentialProducer> producers = model.getPotentialProducers();
         for (Sensor sensor : sensors)
             producers.addAll(sensor.getPotentialProducers());
         return producers;
@@ -91,54 +139,24 @@ public class Agent extends Entity {
     
     @Override
     public List<PotentialConsumer> getPotentialConsumers() {
-        List<PotentialConsumer> consumers = super.getPotentialConsumers();
-        AttributeManager attributeManager = animationConsumerAttribute.getParentComponent().getAttributeManager();
-        consumers.add(attributeManager.createPotentialConsumer(this, "setAnimation", String.class));
+        List<PotentialConsumer> consumers = model.getPotentialConsumers();
         for (Effector effector : effectors)
             consumers.addAll(effector.getPotentialConsumers());
         return consumers;
     }
     
-    public AnimControl getAnimator() {
-        return getNode().getControl(AnimControl.class);
-    }
-    
-    public String getAnimation() {
-        AnimControl animator = getAnimator();
-        if (animator == null || animator.getNumChannels() == 0)
-            return null;
-        else {
-            AnimChannel animation = animator.getChannel(0);
-            return animation.getAnimationName();
-        }
-    }
-    
-    public void setAnimation(String name) {
-        setAnimation(name, 1);
-    }
-    
-    public void setAnimation(String name, float speed) {
-        AnimControl animator = getAnimator();
-        if (animator != null && animator.getAnimationNames().contains(name)) {
-            AnimChannel animation;
-            if (animator.getNumChannels() == 0)
-                animation = animator.createChannel();
-            else
-                animation = animator.getChannel(0);
-            if (animation.getAnimationName() != name)
-                animation.setAnim(name);
-            if (animation.getSpeed() != speed)
-                animation.setSpeed(speed);
-        }
+    @Override
+    public void update(float t) {
+        model.update(t);
+        for (Sensor sensor : sensors)
+            sensor.update(t);
+        for (Effector effector : effectors)
+            effector.update(t);
     }
     
     @Override
-    public void update(float tpf) {
-        super.update(tpf);
-        for (Sensor sensor : sensors)
-            sensor.update(tpf);
-        for (Effector effector : effectors)
-            effector.update(tpf);
+    public void delete() {
+        model.delete();
     }
     
     @Override

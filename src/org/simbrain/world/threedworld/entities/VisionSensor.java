@@ -11,14 +11,11 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
-
 import org.simbrain.workspace.AttributeManager;
 import org.simbrain.workspace.AttributeType;
 import org.simbrain.workspace.PotentialProducer;
 import org.simbrain.workspace.WorkspaceComponent;
 import org.simbrain.world.threedworld.engine.ImageFilters;
-import org.simbrain.world.threedworld.engine.ThreeDContext;
 import org.simbrain.world.threedworld.engine.ThreeDPanel;
 import org.simbrain.world.threedworld.engine.ThreeDView;
 import org.simbrain.world.threedworld.engine.ThreeDView.ViewListener;
@@ -34,11 +31,17 @@ public class VisionSensor implements Sensor {
     public static final int MODE_GRAY = 1;
     public static final int MODE_THRESHOLD = 2;
     
-    public static AttributeType viewDataAttribute;
+    public static AttributeType valueAttribute;
+    public static AttributeType redAttribute;
+    public static AttributeType greenAttribute;
+    public static AttributeType blueAttribute;
     
     public static List<AttributeType> getProducerTypes(WorkspaceComponent component) {
-        viewDataAttribute = new AttributeType(component, "VisionSensor", "ViewData", double[].class, true);
-        return Arrays.asList(viewDataAttribute);
+        valueAttribute = new AttributeType(component, "VisionSensor", "Value", double[].class, true);
+        redAttribute = new AttributeType(component, "VisionSensor", "Red", double[].class, true);
+        greenAttribute = new AttributeType(component, "VisionSensor", "Green", double[].class, true);
+        blueAttribute = new AttributeType(component, "VisionSensor", "Blue", double[].class, true);
+        return Arrays.asList(valueAttribute, redAttribute, greenAttribute, blueAttribute);
     }
     
     private Agent agent;
@@ -46,7 +49,9 @@ public class VisionSensor implements Sensor {
     private Camera camera;
     private ViewPort viewPort;
     private ThreeDView view;
-    private double[] viewData;
+    private double[] dataByte0;
+    private double[] dataByte1;
+    private double[] dataByte2;
     private int width = 10;
     private int height = 10;
     private int mode;
@@ -58,21 +63,29 @@ public class VisionSensor implements Sensor {
         camera = new Camera(width, height);
         camera.setFrustumPerspective(45f, (float)camera.getWidth() / camera.getHeight(), 1f, 1000f);
         transformCamera();
-        viewPort = this.agent.getEngine().getRenderManager().createMainView(this.agent.getName() + "ViewPort", camera);
+        viewPort = agent.getModel().getEngine().getRenderManager().createMainView(
+                agent.getName() + "ViewPort", camera);
         viewPort.setClearFlags(true, true, true);
-        viewPort.attachScene(this.agent.getEngine().getRootNode());
+        viewPort.attachScene(agent.getModel().getEngine().getRootNode());
         view = new ThreeDView(width, height);
         view.attach(false, viewPort);
         setMode(MODE_COLOR);
-        viewData = new double[width * height];
+        dataByte0 = new double[width * height];
+        dataByte1 = new double[width * height];
+        dataByte2 = new double[width * height];
         view.addListener(new ViewListener() {
         	@Override
         	public void onUpdate(BufferedImage image) {
 	            if (view.isInitialized()) {
 	                for (int x = 0; x < width; ++x) {
 	                    for (int y = 0; y < height; ++y) {
-	                        int value = image.getRGB(x, y) & 0xFF;
-	                        viewData[y * width + x] = value / 255.0;
+	                        int color = image.getRGB(x, y);
+	                        int red = (color >>> 16) & 0xFF;
+	                        int green = (color >>> 8) & 0xFF;
+	                        int blue = color & 0xFF;
+	                        dataByte0[y * width + x] = red / 255.0;
+	                        dataByte1[y * width + x] = green / 255.0;
+	                        dataByte2[y * width + x] = blue / 255.0;
 	                    }
 	                }
 	            }
@@ -93,12 +106,12 @@ public class VisionSensor implements Sensor {
     }
     
     public Vector3f getSensorLocation() {
-        Vector3f offset = getSensorOrientation().mult(headOffset);
-        return this.agent.getNode().getWorldTranslation().add(offset);
+        Vector3f offset = getSensorRotation().mult(headOffset);
+        return agent.getPosition().add(offset);
     }
     
-    public Quaternion getSensorOrientation() {
-        return this.agent.getNode().getWorldRotation();
+    public Quaternion getSensorRotation() {
+        return agent.getRotation();
     }
     
     public Camera getCamera() {
@@ -158,13 +171,27 @@ public class VisionSensor implements Sensor {
             return;
         this.width = width;
         this.height = height;
-        viewData = new double[width * height];
+        dataByte0 = new double[width * height];
+        dataByte1 = new double[width * height];
+        dataByte2 = new double[width * height];
         camera.resize(width, height, true);
         view.resize(width, height);
     }
     
-    public double[] getViewData() {
-        return viewData;
+    public double[] getValue() {
+        return dataByte0;
+    }
+    
+    public double[] getRed() {
+        return dataByte0;
+    }
+    
+    public double[] getGreen() {
+        return dataByte1;
+    }
+    
+    public double[] getBlue() {
+        return dataByte2;
     }
     
     public void update(float tpf) {
@@ -173,19 +200,30 @@ public class VisionSensor implements Sensor {
     
     private void transformCamera() {
         camera.setLocation(getSensorLocation());
-        camera.setRotation(getSensorOrientation());
+        camera.setRotation(getSensorRotation());
     }
     
     @Override
     public List<PotentialProducer> getPotentialProducers() {
         List<PotentialProducer> producers = new ArrayList<PotentialProducer>();
-        if (viewDataAttribute.isVisible()) {
-            AttributeManager attributeManager = viewDataAttribute.getParentComponent().getAttributeManager();
-            PotentialProducer producer = attributeManager.createPotentialProducer(this, "getViewData", double[].class);
-            producer.setCustomDescription("VisionSensor:ViewData");
-            producers.add(producer);
-        }
+        if (valueAttribute.isVisible())
+            producers.add(createProducer(valueAttribute));
+        if (redAttribute.isVisible())
+            producers.add(createProducer(redAttribute));
+        if (greenAttribute.isVisible())
+            producers.add(createProducer(greenAttribute));
+        if (blueAttribute.isVisible())
+            producers.add(createProducer(blueAttribute));
         return producers;
+    }
+    
+    private PotentialProducer createProducer(AttributeType attribute) {
+        AttributeManager attributeManager = attribute.getParentComponent().getAttributeManager();
+        PotentialProducer producer = attributeManager.createPotentialProducer(this,
+                "get" + attribute.getMethodName(), double[].class);
+        producer.setCustomDescription("VisionSensor:" +
+                attribute.getMethodName() + "[" + width + "x" + height + "]");
+        return producer;
     }
     
     @Override

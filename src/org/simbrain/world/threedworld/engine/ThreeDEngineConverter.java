@@ -8,12 +8,12 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 public class ThreeDEngineConverter implements Converter {
     @Override
-    public boolean canConvert(Class clazz) {
-        return clazz.equals(ThreeDEngine.class);
+    public boolean canConvert(Class type) {
+        return type.equals(ThreeDEngine.class);
     }
     
     @Override
-    public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
+    public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
     }
     
     @Override

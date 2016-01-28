@@ -14,3 +14,4 @@ out/*
 .settings/
 *.log
 *.so
+/src/org/simbrain/resource/ThreeDAssets/nbproject/private/

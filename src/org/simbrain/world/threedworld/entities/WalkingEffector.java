@@ -1,11 +1,9 @@
 package org.simbrain.world.threedworld.entities;
 
-import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -15,10 +13,10 @@ import org.simbrain.workspace.AttributeManager;
 import org.simbrain.workspace.AttributeType;
 import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.WorkspaceComponent;
-import org.simbrain.world.threedworld.engine.ThreeDPanel;
 import org.simbrain.world.threedworld.entities.EditorDialog.Editor;
 
 import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 
 public class WalkingEffector implements Effector {
@@ -45,7 +43,7 @@ public class WalkingEffector implements Effector {
     public WalkingEffector(Agent agent) {
         this.agent = agent;
         agent.addEffector(this);
-        agent.setAnimation(idleAnimName, idleAnimSpeed);
+        agent.getModel().setAnimation(idleAnimName, idleAnimSpeed);
     }
     
     public float getWalkSpeed() {
@@ -109,7 +107,7 @@ public class WalkingEffector implements Effector {
     }
     
     public void queueWalking(double value) {
-        agent.getEngine().enqueue(() -> {
+        agent.getModel().getEngine().enqueue(() -> {
             setWalking((float)value);
             return null;
         });
@@ -128,7 +126,7 @@ public class WalkingEffector implements Effector {
     }
     
     public void queueTurning(double value) {
-        agent.getEngine().enqueue(() -> {
+        agent.getModel().getEngine().enqueue(() -> {
             setTurning((float)value);
             return null;
         });
@@ -142,20 +140,22 @@ public class WalkingEffector implements Effector {
         boolean walkingOrTurning = isWalking() || isTurning();
         if (!isMoving() && walkingOrTurning) {
             moving = true;
-            this.agent.setAnimation(walkAnimName, walkAnimSpeed);
+            agent.getModel().setAnimation(walkAnimName, walkAnimSpeed);
         } else if (isMoving() && !walkingOrTurning) {
             moving = false;
-            this.agent.setAnimation(idleAnimName, idleAnimSpeed);
+            agent.getModel().setAnimation(idleAnimName, idleAnimSpeed);
         }
     }
     
     @Override
-    public void update(float tpf) {
+    public void update(float t) {
         checkMoving();
-        this.agent.getNode().rotate(0, getTurning() * turnSpeed * tpf, 0);
-        Vector3f direction = this.agent.getNode().getLocalRotation().mult(Vector3f.UNIT_Z);
-        Vector3f translation = direction.mult(getWalking() * walkSpeed * tpf);
-        this.agent.getNode().move(translation);
+        Quaternion rotation = new Quaternion();
+        rotation.fromAngles(0, getTurning() * getTurnSpeed() * t, 0);
+        agent.rotate(rotation);
+        Vector3f direction = agent.getRotation().mult(Vector3f.UNIT_Z);
+        Vector3f offset = direction.mult(getWalking() * getWalkSpeed() * t);
+        agent.move(offset);
     }
     
     @Override

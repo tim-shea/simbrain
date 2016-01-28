@@ -15,8 +15,9 @@ public class ContextMenu {
     public ContextMenu(ThreeDWorld world) {
         popupMenu = new JPopupMenu();
         popupMenu.add(world.getAction("Add Entity"));
+        popupMenu.add(world.getAction("Add Block"));
         popupMenu.add(world.getAction("Add Agent"));
-        popupMenu.add(world.getAction("Add Wall"));
+        popupMenu.add(world.getAction("Add Mouse"));
         popupMenu.addSeparator();
         popupMenu.add(world.getAction("Control Agent"));
         popupMenu.add(world.getAction("Release Agent"));

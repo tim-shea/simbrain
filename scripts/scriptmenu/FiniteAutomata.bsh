@@ -1,0 +1,113 @@
+import org.simbrain.network.NetworkComponent;
+import org.simbrain.network.connections.*;
+import org.simbrain.network.core.*;
+import org.simbrain.network.groups.*;
+import org.simbrain.network.layouts.*;
+import org.simbrain.network.networks.*;
+import org.simbrain.network.neuron_update_rules.*;
+import org.simbrain.network.neuron_update_rules.interfaces.*;
+import org.simbrain.workspace.*;
+import org.simbrain.network.connections.*;
+import org.simbrain.util.SimbrainConstants.Polarity;
+import org.simbrain.util.randomizer.*;
+import org.simbrain.util.math.*;
+import java.util.*;
+
+/* 
+ * This script creates a ThreeDWorld containing a simple agent which
+ * is controlled by a simple state machine for chasing a red object.
+ * 
+ * @author Tim Shea
+ * @author Jeff Yoshimi
+ * 
+ */
+{
+	// Define a new neuron update rule for states
+	class StateUpdateRule extends LinearRule {
+		public void update(Neuron neuron) {
+			double totalOutgoing = 0;
+			for (Synapse synapse : neuron.getFanOut().values()) {
+				totalOutgoing += synapse.calcWeightedSum();
+			}
+			double totalIncoming = 0;
+			for (Synapse synapse : neuron.getFanIn()) {
+				totalIncoming += synapse.calcWeightedSum();
+			}
+			neuron.setBuffer(neuron.getActivation() + totalIncoming - totalOutgoing);
+		}
+		
+		public String getDescription() {
+			return "State Update";
+		}
+	}
+	
+	Neuron createState(Network network, String name) {
+		Neuron neuron = new Neuron(network, new StateUpdateRule());
+		neuron.setIncrement(1);
+		neuron.setLowerBound(0);
+		neuron.setUpperBound(1);
+		neuron.setLabel(name);
+		return neuron;
+	}
+	
+	// Build Network
+	NetworkComponent networkComponent = new NetworkComponent("Finite Automata Network");
+	workspace.addWorkspaceComponent(networkComponent);
+	desktop.getDesktopComponent(networkComponent).getParentFrame().setBounds(50, 50, 600, 800);
+	Network network = networkComponent.getNetwork();
+	
+	// Create walk forward, turn left, and turn right states
+	List<Neuron> states = Arrays.asList(
+		createState(network, "TurnLeft"),
+		createState(network, "WalkForward"),
+		createState(network, "TurnRight"));
+	NeuronGroup stateGroup = new NeuronGroup(network, states);
+	stateGroup.setLabel("States");
+	stateGroup.setLayout(new LineLayout());
+	stateGroup.applyLayout();
+	network.addGroup(stateGroup);
+	
+	List<Synapse> transitions = Arrays.asList(
+		new Synapse(states.get(0), states.get(1), 0),
+		new Synapse(states.get(0), states.get(2), 0),
+		new Synapse(states.get(1), states.get(0), 0),
+		new Synapse(states.get(1), states.get(2), 0),
+		new Synapse(states.get(2), states.get(0), 0),
+		new Synapse(states.get(2), states.get(1), 0));
+	for (Synapse synapse : transitions)
+		network.addSynapse(synapse);
+	
+	NeuronGroup visionGroup = new NeuronGroup(network, new Point(100, 0), 100);
+	visionGroup.setLabel("Vision");
+	visionGroup.setLayout(new GridLayout());
+	visionGroup.applyLayout();
+	network.addGroup(visionGroup);
+	
+	NeuronGroup detectorGroup = new NeuronGroup(network, new Point(0, 200), 3);
+	detectors = detectorGroup.getNeuronList();
+	detectorGroup.setLabel("Detectors");
+	network.addGroup(detectorGroup);
+	
+	PotentialProducer detector0Producer = networkComponent.getAttributeManager().createPotentialProducer(detectors.get(0), "getActivation", double.class);
+	PotentialProducer detector1Producer = networkComponent.getAttributeManager().createPotentialProducer(detectors.get(1), "getActivation", double.class);
+	PotentialProducer detector2Producer = networkComponent.getAttributeManager().createPotentialProducer(detectors.get(2), "getActivation", double.class);
+	PotentialConsumer transition0Consumer = networkComponent.getAttributeManager().createPotentialConsumer(transitions.get(0), "setStrength", double.class);
+	PotentialConsumer transition1Consumer = networkComponent.getAttributeManager().createPotentialConsumer(transitions.get(1), "setStrength", double.class);
+	PotentialConsumer transition2Consumer = networkComponent.getAttributeManager().createPotentialConsumer(transitions.get(2), "setStrength", double.class);
+	PotentialConsumer transition3Consumer = networkComponent.getAttributeManager().createPotentialConsumer(transitions.get(3), "setStrength", double.class);
+	PotentialConsumer transition4Consumer = networkComponent.getAttributeManager().createPotentialConsumer(transitions.get(4), "setStrength", double.class);
+	PotentialConsumer transition5Consumer = networkComponent.getAttributeManager().createPotentialConsumer(transitions.get(5), "setStrength", double.class);
+	networkComponent.getWorkspace().coupleOneToMany(Arrays.asList(detector0Producer), Arrays.asList(transition2Consumer, transition4Consumer));
+	networkComponent.getWorkspace().coupleOneToMany(Arrays.asList(detector1Producer), Arrays.asList(transition0Consumer, transition5Consumer));
+	networkComponent.getWorkspace().coupleOneToMany(Arrays.asList(detector2Producer), Arrays.asList(transition1Consumer, transition3Consumer));
+	
+	for (Neuron pixel : visionGroup.getNeuronList()) {
+		if (pixel.getX() < visionGroup.getMinX() + visionGroup.getWidth() / 3.0) {
+			network.addSynapse(new Synapse(pixel, detectors.get(0), 1));
+		} else if (pixel.getX() > visionGroup.getMaxX() - visionGroup.getWidth() / 3.0) {
+			network.addSynapse(new Synapse(pixel, detectors.get(2), 1));
+		} else {
+			network.addSynapse(new Synapse(pixel, detectors.get(1), 1));
+		}
+	}
+}

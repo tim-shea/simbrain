@@ -95,10 +95,10 @@ public class EntityEditor implements Editor {
     @Override
     public void readValues() {
         nameField.setText(entity.getName());
-        xLocationField.setValue(entity.getLocation().x);
-        yLocationField.setValue(entity.getLocation().y);
-        zLocationField.setValue(entity.getLocation().z);
-        float[] angles = entity.getOrientation().toAngles(null);
+        xLocationField.setValue(entity.getPosition().x);
+        yLocationField.setValue(entity.getPosition().y);
+        zLocationField.setValue(entity.getPosition().z);
+        float[] angles = entity.getRotation().toAngles(null);
         yawRotationField.setValue(FastMath.RAD_TO_DEG * angles[1]);
         pitchRotationField.setValue(FastMath.RAD_TO_DEG * angles[0]);
         rollRotationField.setValue(FastMath.RAD_TO_DEG * angles[2]);
@@ -112,16 +112,16 @@ public class EntityEditor implements Editor {
             //Mesh mesh = ((Geometry) model).getMesh();
             //entity.getGeometry().setMesh(mesh);
         }
-        entity.queueLocation(new Vector3f(
+        entity.queuePosition(new Vector3f(
                 ((Number)xLocationField.getValue()).floatValue(),
                 ((Number)yLocationField.getValue()).floatValue(),
                 ((Number)zLocationField.getValue()).floatValue()));
-        Quaternion orientation = new Quaternion();
-        orientation.fromAngles(
+        Quaternion rotation = new Quaternion();
+        rotation.fromAngles(
                 FastMath.DEG_TO_RAD * ((Number)pitchRotationField.getValue()).floatValue(),
                 FastMath.DEG_TO_RAD * ((Number)yawRotationField.getValue()).floatValue(),
                 FastMath.DEG_TO_RAD * ((Number)rollRotationField.getValue()).floatValue());
-        entity.queueOrientation(orientation);
+        entity.queueRotation(rotation);
     }
     
     @Override

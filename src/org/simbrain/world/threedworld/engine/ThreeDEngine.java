@@ -179,7 +179,7 @@ public class ThreeDEngine extends Application {
     public void initialize() {
         super.initialize();
         
-        getAssetManager().registerLocator("simulations/worlds/assets/", FileLocator.class);
+        getAssetManager().registerLocator("bin/org/simbrain/resource/ThreeDAssets/assets/", FileLocator.class);
         
         if (!preferences.getSceneName().trim().isEmpty())
             loadScene(preferences.getSceneName());

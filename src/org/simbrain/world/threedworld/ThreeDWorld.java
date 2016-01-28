@@ -1,6 +1,8 @@
 package org.simbrain.world.threedworld;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +16,10 @@ import org.simbrain.world.threedworld.controllers.CameraController;
 import org.simbrain.world.threedworld.controllers.SelectionController;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.engine.ThreeDEngineConverter;
+import org.simbrain.world.threedworld.entities.AgentXmlConverter;
 import org.simbrain.world.threedworld.entities.Entity;
-import org.simbrain.world.threedworld.entities.EntityXmlConverter;
+import org.simbrain.world.threedworld.entities.BoxEntityXmlConverter;
+import org.simbrain.world.threedworld.entities.ModelEntityXmlConverter;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AppState;
@@ -23,6 +27,7 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Node;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public class ThreeDWorld {
@@ -44,20 +49,15 @@ public class ThreeDWorld {
             // HACK: selection controller has to be registered before camera controller
             // to intercept the mouse look before it starts, should find a more robust option
             selectionController.registerInput();
-            selectionController.setEnabled(true);
             cameraController.registerInput();
             cameraController.setCamera(application.getCamera());
             cameraController.moveCameraHome();
-            cameraController.setEnabled(true);
             agentController.registerInput();
-            agentController.setEnabled(false);
             initialized = true;
         }
         
         @Override
         public void setEnabled(boolean value) {
-            cameraController.setEnabled(value);
-            selectionController.setEnabled(value);
             enabled = value;
         }
         
@@ -94,36 +94,14 @@ public class ThreeDWorld {
         }
     }
     
-    public static XStream getXStream() {
-        XStream stream = new XStream(new DomDriver());
-        stream.registerConverter(new ThreeDEngineConverter());
-        stream.registerConverter(new EntityXmlConverter());
-        stream.omitField(ThreeDWorld.class, "actions");
-        stream.omitField(ThreeDWorld.class, "cameraController");
-        stream.omitField(ThreeDWorld.class, "selectionController");
-        stream.omitField(ThreeDWorld.class, "agentController");
-        return stream;
-    }
-    
-    public static ThreeDWorld deserialize(InputStream input, String name, String format) {
-        ThreeDWorld world = (ThreeDWorld)ThreeDWorld.getXStream().fromXML(input);
-        world.actions = ActionManager.createActions(world);
-        world.engine.getStateManager().attach(world.new StateListener());
-        world.cameraController = new CameraController(world);
-        world.selectionController = new SelectionController(world);
-        world.agentController = new AgentController(world);
-        world.getEngine().queueState(ThreeDEngine.State.Render, false);
-        return world;
-    }
-    
     private Preferences preferences;
-    private Map<String, AbstractAction> actions;
     private ThreeDEngine engine;
-    private CameraController cameraController;
-    private SelectionController selectionController;
-    private AgentController agentController;
     private List<Entity> entities;
-    private AtomicInteger idCounter = new AtomicInteger();
+    private transient Map<String, AbstractAction> actions;
+    private transient CameraController cameraController;
+    private transient SelectionController selectionController;
+    private transient AgentController agentController;
+    private AtomicInteger idCounter;
     
     public ThreeDWorld() {
         preferences = new Preferences();
@@ -134,6 +112,17 @@ public class ThreeDWorld {
         selectionController = new SelectionController(this);
         agentController = new AgentController(this);
         entities = new ArrayList<Entity>();
+        idCounter = new AtomicInteger();
+    }
+    
+    public Object readResolve() {
+        engine.getStateManager().attach(new StateListener());
+    	actions = ActionManager.createActions(this);
+        cameraController = new CameraController(this);
+        selectionController = new SelectionController(this);
+        agentController = new AgentController(this);
+        getEngine().queueState(ThreeDEngine.State.Render, false);
+        return this;
     }
     
     public Preferences getPreferences() {

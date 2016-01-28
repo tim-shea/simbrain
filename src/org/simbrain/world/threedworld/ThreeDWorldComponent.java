@@ -10,14 +10,31 @@ import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.PotentialProducer;
 import org.simbrain.workspace.WorkspaceComponent;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
+import org.simbrain.world.threedworld.engine.ThreeDEngineConverter;
 import org.simbrain.world.threedworld.entities.Agent;
+import org.simbrain.world.threedworld.entities.AgentXmlConverter;
 import org.simbrain.world.threedworld.entities.Entity;
+import org.simbrain.world.threedworld.entities.BoxEntityXmlConverter;
+import org.simbrain.world.threedworld.entities.ModelEntity;
+import org.simbrain.world.threedworld.entities.ModelEntityXmlConverter;
 import org.simbrain.world.threedworld.entities.VisionSensor;
 import org.simbrain.world.threedworld.entities.WalkingEffector;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
 public class ThreeDWorldComponent extends WorkspaceComponent {
+    private static XStream getXStream() {
+        XStream stream = new XStream(new DomDriver());
+        stream.registerConverter(new ThreeDEngineConverter());
+        stream.registerConverter(new BoxEntityXmlConverter());
+        stream.registerConverter(new ModelEntityXmlConverter());
+        stream.registerConverter(new AgentXmlConverter());
+        return stream;
+    }
+	
     public static ThreeDWorldComponent open(InputStream input, String name, String format) {
-        ThreeDWorld world = ThreeDWorld.deserialize(input, name, format);
+    	ThreeDWorld world = (ThreeDWorld)getXStream().fromXML(input);
         return new ThreeDWorldComponent(name, world);
     }
 	
@@ -42,13 +59,13 @@ public class ThreeDWorldComponent extends WorkspaceComponent {
     private void addAttributeTypes() {
         for (AttributeType type : Entity.getProducerTypes(this))
             addProducerType(type);
-        for (AttributeType type : Agent.getProducerTypes(this))
+        for (AttributeType type : ModelEntity.getProducerTypes(this))
             addProducerType(type);
         for (AttributeType type : VisionSensor.getProducerTypes(this))
             addProducerType(type);
         for (AttributeType type : Entity.getConsumerTypes(this))
             addConsumerType(type);
-        for (AttributeType type : Agent.getConsumerTypes(this))
+        for (AttributeType type : ModelEntity.getConsumerTypes(this))
             addConsumerType(type);
         for (AttributeType type : WalkingEffector.getConsumerTypes(this))
             addConsumerType(type);
@@ -73,7 +90,7 @@ public class ThreeDWorldComponent extends WorkspaceComponent {
     @Override
     public void save(OutputStream output, String format) {
         world.getEngine().queueState(ThreeDEngine.State.SystemPause, true);
-        ThreeDWorld.getXStream().toXML(world, output);
+        getXStream().toXML(world, output);
         world.getEngine().queueState(ThreeDEngine.State.Render, false);
     }
     

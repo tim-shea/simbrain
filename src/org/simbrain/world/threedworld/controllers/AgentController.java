@@ -26,7 +26,7 @@ public class AgentController implements ActionListener {
     
     private ThreeDWorld world;
     private Agent agent;
-    private boolean enabled;
+    private boolean controlActive = false;
     
     public AgentController(ThreeDWorld world) {
         this.world = world;
@@ -58,12 +58,13 @@ public class AgentController implements ActionListener {
         return agent;
     }
     
+    public boolean isControlActive() {
+        return controlActive;
+    }
+    
     public void control(Agent agent) {
         this.agent = agent;
-        setEnabled(true);
-        world.getSelectionController().setEnabled(false);
-        world.getCameraController().setEnabled(false);
-        world.getAction("Control Agent").setEnabled(false);
+        controlActive = true;
         ThreeDEngine engine = world.getEngine();
         engine.enqueue(() -> {
             VisionSensor sensor = agent.getSensor(VisionSensor.class);
@@ -76,10 +77,7 @@ public class AgentController implements ActionListener {
     public void release() {
         final Agent releasedAgent = agent;
         agent = null;
-        setEnabled(false);
-        world.getSelectionController().setEnabled(true);
-        world.getCameraController().setEnabled(true);
-        world.getAction("Control Agent").setEnabled(true);
+        controlActive = false;
         ThreeDEngine engine = world.getEngine();
         engine.enqueue(() -> {
             VisionSensor sensor = releasedAgent.getSensor(VisionSensor.class);
@@ -89,28 +87,19 @@ public class AgentController implements ActionListener {
         });
     }
     
-    public boolean isEnabled() {
-        return enabled;
-    }
-    
-    public void setEnabled(boolean value) {
-        enabled = value;
-    }
-    
     @Override
     public void onAction(String name, boolean isPressed, float tpf) {
-        if (!enabled || agent == null)
-            return;
-        agent.getBody().activate();
-        WalkingEffector effector = agent.getEffector(WalkingEffector.class);
-        if (TurnLeft.isName(name)) {
-            effector.setTurning(isPressed ? 1 : 0);
-        } else if (TurnRight.isName(name)) {
-            effector.setTurning(isPressed ? -1 : 0);
-        } else if (WalkForward.isName(name)) {
-            effector.setWalking(isPressed ? 1 : 0);
-        } else if (WalkBackward.isName(name)) {
-            effector.setWalking(isPressed ? -1 : 0);
+        if (controlActive) {
+            WalkingEffector effector = agent.getEffector(WalkingEffector.class);
+            if (TurnLeft.isName(name)) {
+                effector.setTurning(isPressed ? 1 : 0);
+            } else if (TurnRight.isName(name)) {
+                effector.setTurning(isPressed ? -1 : 0);
+            } else if (WalkForward.isName(name)) {
+                effector.setWalking(isPressed ? 1 : 0);
+            } else if (WalkBackward.isName(name)) {
+                effector.setWalking(isPressed ? -1 : 0);
+            }
         }
     }
 }

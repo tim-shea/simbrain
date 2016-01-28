@@ -9,6 +9,7 @@ import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.entities.Agent;
 import org.simbrain.world.threedworld.entities.Entity;
 import org.simbrain.world.threedworld.entities.EditorDialog;
+import org.simbrain.world.threedworld.entities.PhysicalEntity;
 
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
@@ -65,10 +66,9 @@ public class SelectionController implements ActionListener, AnalogListener {
     
     private ThreeDWorld world;
     private List<Entity> selection;
-    private boolean enabled = false;
     private boolean appendSelection = false;
     private boolean transformActive = false;
-    private boolean translateActive = false;
+    private boolean moveActive = false;
     private boolean rotateActive = false;
     private boolean snapTransformations = true;
     private long selectReleaseTime = 0;
@@ -153,12 +153,16 @@ public class SelectionController implements ActionListener, AnalogListener {
     
     public void addEntityToSelection(Entity entity) {
         selection.add(entity);
-        BoundingBox bounds = (BoundingBox)entity.getNode().getWorldBound();
+        attachSelectionBox(entity.getNode());
+    }
+    
+    private void attachSelectionBox(Node node) {
+        BoundingBox bounds = (BoundingBox)node.getWorldBound();
         WireBox selectionWire = new WireBox();
         selectionWire.fromBoundingBox(bounds);
         selectionWire.setLineWidth(2);
         Geometry selectionBox = new Geometry("SelectionBox", selectionWire);
-        Vector3f boundsOffset = bounds.getCenter().subtract(entity.getNode().getLocalTranslation());
+        Vector3f boundsOffset = bounds.getCenter().subtract(node.getLocalTranslation());
         selectionBox.setLocalTranslation(boundsOffset);
         selectionBox.setQueueBucket(Bucket.Transparent);
         Material selectionMaterial = new Material(world.getEngine().getAssetManager(),
@@ -166,7 +170,7 @@ public class SelectionController implements ActionListener, AnalogListener {
         selectionMaterial.setColor("Color", ColorRGBA.Green);
         selectionMaterial.getAdditionalRenderState().setDepthTest(false);
         selectionBox.setMaterial(selectionMaterial);
-        entity.getNode().attachChild(selectionBox);
+        node.attachChild(selectionBox);
     }
     
     public Entity getSelectedEntity() {
@@ -175,33 +179,33 @@ public class SelectionController implements ActionListener, AnalogListener {
     
     public Vector3f getSelectionLocation() {
         if (hasSelection())
-            return getSelectedEntity().getLocation();
+            return getSelectedEntity().getPosition();
         else
             return Vector3f.ZERO.clone();
     }
     
     public Quaternion getSelectionOrientation() {
         if (hasSelection())
-            return getSelectedEntity().getOrientation();
+            return getSelectedEntity().getRotation();
         else
             return Quaternion.IDENTITY.clone();
     }
     
     public BoundingVolume getSelectionBounds() {
         if (hasSelection()) {
-            return getSelectedEntity().getNode().getWorldBound().clone();
+            return getSelectedEntity().getBounds();
         } else
             return null;
     }
     
-    public void translateSelection(Vector3f location) {
+    public void translateSelection(Vector3f position) {
         if (hasSelection())
-            getSelectedEntity().setLocation(location);
+            getSelectedEntity().setPosition(position);
     }
     
-    public void rotateSelection(Quaternion orientation) {
+    public void rotateSelection(Quaternion rotation) {
         if (hasSelection())
-            getSelectedEntity().setOrientation(orientation);
+            getSelectedEntity().setRotation(rotation);
     }
     
     public void editSelection() {
@@ -210,20 +214,11 @@ public class SelectionController implements ActionListener, AnalogListener {
     }
     
     public void deleteSelection() {
-        if (hasSelection()) {
-            Entity entity = getSelectedEntity();
-            world.getEngine().getRootNode().detachChild(entity.getNode());
-            world.getEngine().getPhysicsSpace().removeAll(entity.getNode());
+        for (Entity entity : selection) {
             world.getEntities().remove(entity);
+            entity.delete();
         }
-    }
-    
-    public boolean isEnabled() {
-        return enabled;
-    }
-    
-    public void setEnabled(boolean value) {
-        enabled = value;
+        selection.clear();
     }
     
     public boolean isAppendSelection() {
@@ -240,16 +235,16 @@ public class SelectionController implements ActionListener, AnalogListener {
     
     public void setTransformActive(boolean value) {
         transformActive = value;
-        translateActive = translateActive && value;
+        moveActive = moveActive && value;
         rotateActive = rotateActive && value;
     }
     
-    public boolean isTranslateActive() {
-        return translateActive;
+    public boolean isMoveActive() {
+        return moveActive;
     }
     
-    public void setTranslateActive(boolean value) {
-        translateActive = value;
+    public void setMoveActive(boolean value) {
+        moveActive = value;
     }
     
     public boolean isRotateActive() {
@@ -277,8 +272,10 @@ public class SelectionController implements ActionListener, AnalogListener {
     }
     
     @Override public void onAction(String name, boolean isPressed, float tpf) {
-        if (!isEnabled())
+        if (world.getAgentController().isControlActive()) {
+            setTransformActive(false);
             return;
+        }
         if (isPressed && (Transform.isName(name) || Append.isName(name) ||
             Select.isName(name) || Context.isName(name) || Scroll.isName(name)))
             contextMenu.hide();
@@ -290,7 +287,7 @@ public class SelectionController implements ActionListener, AnalogListener {
             onSelectAction(isPressed);
         else if (Context.isName(name))
             onContextAction(isPressed);
-        if (isTransformActive() || isTranslateActive() || isRotateActive()) {
+        if (isTransformActive() || isMoveActive() || isRotateActive()) {
             if (world.getCameraController() != null)
                 world.getCameraController().setMouseLookActive(false);
         }
@@ -298,7 +295,7 @@ public class SelectionController implements ActionListener, AnalogListener {
     
     private void onSelectAction(boolean isPressed) {
         if (isTransformActive()) {
-            setTranslateActive(isPressed);
+            setMoveActive(isPressed);
         } else {
             Entity entity = getCursorEntity();
             if (getSelection().contains(entity)) {
@@ -308,7 +305,7 @@ public class SelectionController implements ActionListener, AnalogListener {
                         editorDialog.showEditor(entity);
                     selectReleaseTime = System.currentTimeMillis();
                 }
-                setTranslateActive(isPressed);
+                setMoveActive(isPressed);
             } else {
                 select(entity);
             }
@@ -325,10 +322,12 @@ public class SelectionController implements ActionListener, AnalogListener {
     
     @Override
     public void onAnalog(String name, float value, float tpf) {
-        if (!enabled)
+        if (world.getAgentController().isControlActive()) {
+            setTransformActive(false);
             return;
+        }
         if (MoveCursor.isName(name)) {
-            if (translateActive) {
+            if (moveActive) {
                 translateToCursor();
             } else if (rotateActive)
                 lookAtCursor();
@@ -338,7 +337,7 @@ public class SelectionController implements ActionListener, AnalogListener {
     public void translateToCursor() {
         if (!hasSelection())
             return;
-        CollisionResult contact = getCursorContact(getSelectedEntity().getNode());
+        CollisionResult contact = getCursorContact(true);
         if (contact != null) {
             Vector3f location = contact.getContactPoint();
             if (getSnapTransformations())
@@ -364,12 +363,12 @@ public class SelectionController implements ActionListener, AnalogListener {
     public void lookAtCursor() {
         if (!hasSelection())
             return;
-        CollisionResult contact = getCursorContact(getSelectedEntity().getNode());
+        CollisionResult contact = getCursorContact(true);
         if (contact != null) {
-            Vector3f target = contact.getContactPoint().subtract(
-                    getSelectedEntity().getLocation());
+            Entity entity = getSelectedEntity();
+            Vector3f target = contact.getContactPoint().subtract(entity.getPosition());
             target = target.subtract(rotationAxis.mult(target.dot(rotationAxis)));
-            Quaternion rotation = getSelectedEntity().getOrientation();
+            Quaternion rotation = entity.getRotation();
             rotation.lookAt(target, rotationAxis);
             if (getSnapTransformations()) {
                 float[] angles = rotation.toAngles(null);
@@ -383,7 +382,7 @@ public class SelectionController implements ActionListener, AnalogListener {
     }
     
     public Entity getCursorEntity() {
-        CollisionResult contact = getCursorContact(null);
+        CollisionResult contact = getCursorContact(false);
         Entity cursorEntity = null;
         if (contact != null) {
             String name = contact.getGeometry().getParent().getName();
@@ -394,7 +393,7 @@ public class SelectionController implements ActionListener, AnalogListener {
         return cursorEntity;
     }
     
-    public CollisionResult getCursorContact(Node exclude) {
+    public CollisionResult getCursorContact(boolean excludeSelected) {
         ThreeDEngine engine = world.getEngine();
         Vector2f click2d = engine.getInputManager().getCursorPosition();
         Vector3f click3d = engine.getCamera().getWorldCoordinates(click2d, 0f);
@@ -403,8 +402,12 @@ public class SelectionController implements ActionListener, AnalogListener {
         Ray ray = new Ray(click3d, direction);
         CollisionResults results = new CollisionResults();
         engine.getRootNode().collideWith(ray, results);
+        Node excludeNode = null;
+        if (excludeSelected && hasSelection()) {
+            excludeNode = getSelectedEntity().getNode();
+        }
         for (CollisionResult result : results) {
-            if (exclude == null || !exclude.hasChild(result.getGeometry()))
+            if (excludeNode == null || !excludeNode.hasChild(result.getGeometry()))
                 return result;
         }
         return null;
