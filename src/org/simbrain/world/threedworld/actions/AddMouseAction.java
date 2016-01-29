@@ -10,6 +10,9 @@ import org.simbrain.world.threedworld.entities.ModelEntity;
 import org.simbrain.world.threedworld.entities.VisionSensor;
 import org.simbrain.world.threedworld.entities.WalkingEffector;
 
+import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.math.Vector3f;
 
 public class AddMouseAction extends AbstractAction {
@@ -25,10 +28,11 @@ public class AddMouseAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent event) {
         world.getEngine().enqueue(() -> {
-            String fileName = "Models/NewMouse.j3o";
-            String modelNode = "Mouse";
+            String fileName = "Models/Mouse.j3o";
             String name = "Mouse" + world.createId();
-            ModelEntity model = ModelEntity.load(world.getEngine(), name, modelNode, fileName);
+            ModelEntity model = ModelEntity.load(world.getEngine(), name, fileName);
+            CollisionShape shape = CollisionShapeFactory.createBoxShape(model.getNode());
+            model.setBody(new RigidBodyControl(shape, 1));
             Agent agent = new Agent(model);
             VisionSensor sensor = new VisionSensor(agent);
             sensor.setHeadOffset(new Vector3f(0, 1.25f, 2.25f));
@@ -45,7 +49,6 @@ public class AddMouseAction extends AbstractAction {
                 world.getSelectionController().offsetBoundingVolume(location, offset);
                 world.getSelectionController().translateSelection(location);
             }
-            return null;
         });
     }
 }

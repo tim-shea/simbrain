@@ -1,14 +1,15 @@
-Material BlueTile : Common/MatDefs/Light/Lighting.j3md {
+Material BlueTile : MatDefs/Light/Lighting.j3md {
      MaterialParameters {
-        HighQuality : true
-        UseMaterialColors : true
-        WardIso : true
         DiffuseMap : Textures/seamless_tile_blue_d.png
         NormalMap : Textures/seamless_tile_n.png
         SpecularMap : Textures/seamless_tile_white_d.png
-        Specular : 1.0 1.0 1.0 1.0
-        Diffuse : 1.0 1.0 1.0 1.0
-        Ambient : 1.0 1.0 1.0 1.0
+        UseMaterialColors: true
+        HighQuality: true
+        WardIso: true
+        Specular : 1 1 1 1
+        Diffuse : 1 1 1 1
+        Ambient : 1 1 1 1
+        Shininess : 0.01
      }
     AdditionalRenderState {
     }

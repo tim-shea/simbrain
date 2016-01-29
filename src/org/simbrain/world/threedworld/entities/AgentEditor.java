@@ -2,7 +2,9 @@ package org.simbrain.world.threedworld.entities;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -15,34 +17,120 @@ import net.miginfocom.swing.MigLayout;
 
 import org.simbrain.world.threedworld.entities.EditorDialog.Editor;
 
-public class AgentEditor extends EntityEditor {
+public class AgentEditor extends ModelEditor {
+    private static Map<String, Class<? extends Sensor>> sensorTypes = new HashMap<String, Class<? extends Sensor>>();
+    private static Map<String, Class<? extends Effector>> effectorTypes = new HashMap<String, Class<? extends Effector>>();
+    
+    static {
+        sensorTypes.put("Vision", VisionSensor.class);
+        sensorTypes.put("Collision", CollisionSensor.class);
+        effectorTypes.put("Walking", WalkingEffector.class);
+    }
+    
+    private Agent agent;
     private JPanel sensorTab;
-    private JComboBox<String> addSensorComboBox = new JComboBox<String>();
+    private JComboBox<String> sensorTypesComboBox = new JComboBox<String>();
     private Action addSensorAction = new AbstractAction("Add") {
-        @Override public void actionPerformed(ActionEvent event) {}
+        @Override public void actionPerformed(ActionEvent event) {
+            addSensor((String)sensorTypesComboBox.getSelectedItem());
+        }
     };
     private JButton addSensorButton = new JButton(addSensorAction);
     private JPanel effectorTab;
-    private List<Editor> sensorEditors = new ArrayList<Editor>();
-    private List<Editor> effectorEditors = new ArrayList<Editor>();
-    private JComboBox<String> addEffectorComboBox = new JComboBox<String>();
+    private List<SensorEditor> sensorEditors = new ArrayList<SensorEditor>();
+    private List<EffectorEditor> effectorEditors = new ArrayList<EffectorEditor>();
+    private JComboBox<String> effectorTypesComboBox = new JComboBox<String>();
     private Action addEffectorAction = new AbstractAction("Add") {
-        @Override public void actionPerformed(ActionEvent event) {}
+        @Override public void actionPerformed(ActionEvent event) {
+            addEffector((String)effectorTypesComboBox.getSelectedItem());
+        }
     };
     private JButton addEffectorButton = new JButton(addEffectorAction);
     
-    public AgentEditor(Entity entity) {
-        super(entity);
-        addSensorComboBox.addItem("VisionSensor");
-        addSensorButton.setEnabled(false);
-        addEffectorComboBox.addItem("WalkingEffector");
-        addEffectorAction.setEnabled(false);
+    public AgentEditor(Agent agent) {
+        super(agent.getModel());
+        this.agent = agent;
+        filterSensorTypes();
+        filterEffectorTypes();
+    }
+    
+    private void filterSensorTypes() {
+        sensorTypesComboBox.removeAllItems();
+        for (String sensorName : sensorTypes.keySet()) {
+            if (agent.getSensor(sensorTypes.get(sensorName)) == null)
+                sensorTypesComboBox.addItem(sensorName);
+        }
+    }
+    
+    private void filterEffectorTypes() {
+        effectorTypesComboBox.removeAllItems();
+        for (String effectorName : effectorTypes.keySet()) {
+            if (agent.getEffector(effectorTypes.get(effectorName)) == null)
+                effectorTypesComboBox.addItem(effectorName);
+        }
+    }
+    
+    public Agent getAgent() {
+        return agent;
+    }
+    
+    public void addSensor(String sensorName) {
+        agent.getEngine().enqueue(() -> {
+            try {
+                Class<? extends Sensor> sensorType = sensorTypes.get(sensorName);
+                Sensor sensor = sensorType.getConstructor(Agent.class).newInstance(agent);
+                SensorEditor editor = sensor.getEditor();
+                sensorEditors.add(editor);
+                layoutSensorEditor(editor);
+                editor.readValues();
+                filterSensorTypes();
+            } catch (Exception e) {
+                throw new RuntimeException("Unable to add sensor", e);
+            }
+        });
+    }
+    
+    public void addEffector(String effectorName) {
+        agent.getEngine().enqueue(() -> {
+            try {
+                Class<? extends Effector> effectorType = effectorTypes.get(effectorName);
+                Effector effector = effectorType.getConstructor(Agent.class).newInstance(agent);
+                EffectorEditor editor = effector.getEditor();
+                effectorEditors.add(editor);
+                layoutEffectorEditor(editor);
+                editor.readValues();
+                filterEffectorTypes();
+            } catch (Exception e) {
+                throw new RuntimeException("Unable to add effector", e);
+            }
+        });
+    }
+    
+    public void deleteSensor(SensorEditor editor) {
+        agent.getEngine().enqueue(() -> {
+            sensorEditors.remove(editor);
+            Sensor sensor = editor.getSensor();
+            sensor.delete();
+            sensorTab.remove(editor.getPanel());
+            filterSensorTypes();
+            sensorTab.repaint();
+        });
+    }
+    
+    public void deleteEffector(EffectorEditor editor) {
+        agent.getEngine().enqueue(() -> {
+            effectorEditors.remove(editor);
+            Effector effector = editor.getEffector();
+            effector.delete();
+            effectorTab.remove(editor.getPanel());
+            filterEffectorTypes();
+            effectorTab.repaint();
+        });
     }
     
     @Override
     public JComponent layoutFields() {
-        JComponent entityComponent = super.layoutFields();
-        getTabbedPane().setTitleAt(0, "Agent");
+        JComponent modelLayout = super.layoutFields();
         
         sensorTab = new JPanel();
         sensorTab.setLayout(new MigLayout("", "[grow]", ""));
@@ -54,36 +142,57 @@ public class AgentEditor extends EntityEditor {
         getTabbedPane().addTab("Effectors", effectorTab);
         layoutEffectors();
         
-        return entityComponent;
+        return modelLayout;
     }
     
     private void layoutSensors() {
-        sensorTab.add(addSensorComboBox, "growx, split 2");
+        sensorTab.add(sensorTypesComboBox, "growx, split 2");
         sensorTab.add(addSensorButton, "wrap");
-        for (Editor editor : sensorEditors) {
-            sensorTab.add(editor.layoutFields(), "growx, wrap");
+        for (SensorEditor editor : sensorEditors) {
+            layoutSensorEditor(editor);
         }
     }
     
+    private void layoutSensorEditor(SensorEditor editor) {
+        sensorTab.add(editor.layoutFields(), "growx, wrap");
+        Action deleteAction = new AbstractAction("Delete") {
+            @Override public void actionPerformed(ActionEvent event) {
+                deleteSensor(editor);
+            }
+        };
+        JButton deleteButton = new JButton(deleteAction);
+        editor.getPanel().add(deleteButton, "wrap");
+    }
+    
     private void layoutEffectors() {
-    	effectorTab.add(addEffectorComboBox, "growx, split 2");
+    	effectorTab.add(effectorTypesComboBox, "growx, split 2");
     	effectorTab.add(addEffectorButton, "wrap");
-        for (Editor editor : effectorEditors) {
-            effectorTab.add(editor.layoutFields());
+        for (EffectorEditor editor : effectorEditors) {
+            layoutEffectorEditor(editor);
         }
+    }
+    
+    private void layoutEffectorEditor(EffectorEditor editor) {
+        effectorTab.add(editor.layoutFields());
+        Action deleteAction = new AbstractAction("Delete") {
+            @Override public void actionPerformed(ActionEvent event) {
+                deleteEffector(editor);
+            }
+        };
+        JButton deleteButton = new JButton(deleteAction);
+        editor.getPanel().add(deleteButton, "wrap");
     }
     
     @Override
     public void readValues() {
         super.readValues();
-        Agent agent = (Agent)getEntity();
         for (Sensor sensor : agent.getSensors()) {
-            Editor sensorEditor = sensor.getEditor();
+            SensorEditor sensorEditor = sensor.getEditor();
             sensorEditor.readValues();
             sensorEditors.add(sensorEditor);
         }
         for (Effector effector : agent.getEffectors()) {
-            Editor effectorEditor = effector.getEditor();
+            EffectorEditor effectorEditor = effector.getEditor();
             effectorEditor.readValues();
             effectorEditors.add(effectorEditor);
         }

@@ -62,6 +62,10 @@ public class ThreeDView implements SceneProcessor {
         active = value;
     }
     
+    public FrameBuffer getFrameBuffer() {
+        return frameBuffer;
+    }
+    
     public IntBuffer getBuffer() {
         return intBuffer;
     }
@@ -166,5 +170,15 @@ public class ThreeDView implements SceneProcessor {
     public void reshape(ViewPort viewPort, int width, int height) {}
     
     @Override
-    public void cleanup() {}
+    public void cleanup() {
+        active = false;
+        if (attachAsMain) {
+            renderManager.getRenderer().setMainFrameBufferOverride(null);
+        }
+        for (ViewPort viewPort : viewPorts) {
+            if (!attachAsMain)
+                viewPort.setOutputFrameBuffer(null);
+            viewPort.getProcessors().remove(this);
+        }
+    }
 }

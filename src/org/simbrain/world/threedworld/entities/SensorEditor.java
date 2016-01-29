@@ -17,17 +17,10 @@ public class SensorEditor implements Editor {
     private Agent agent;
     private Sensor sensor;
     private JPanel panel;
-    private Action deleteAction = new AbstractAction("Delete") {
-        @Override public void actionPerformed(ActionEvent event) {
-            agent.removeSensor(sensor);
-        }
-    };
-    private JButton deleteButton = new JButton(deleteAction);
     
     public SensorEditor(Agent agent, Sensor sensor) {
         this.agent = agent;
         this.sensor = sensor;
-        deleteButton.setEnabled(false);
     }
     
     public Agent getAgent() {
@@ -47,7 +40,6 @@ public class SensorEditor implements Editor {
         panel = new JPanel();
         panel.setLayout(new MigLayout());
         panel.setBorder(new TitledBorder(sensor.getClass().getSimpleName()));
-        panel.add(deleteButton, "south");
         return panel;
     }
     

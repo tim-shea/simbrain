@@ -1,6 +1,7 @@
 package org.simbrain.world.threedworld.engine;
 
 import java.awt.Dimension;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.simbrain.world.threedworld.Preferences;
@@ -100,18 +101,9 @@ public class ThreeDEngine extends Application {
     }
     
     public void queueState(State value, boolean wait) {
-        Future<Object> future = enqueue(() -> {
+        enqueue(() -> {
             setState(value);
-            return null;
-        });
-        if (wait) {
-            try {
-                future.get();
-            } catch (Exception e) {
-                throw new RuntimeException(
-                        "An exception occurred while waiting for state change.", e);
-            }
-        }
+        }, wait);
     }
     
     protected void setState(State value) {
@@ -135,6 +127,24 @@ public class ThreeDEngine extends Application {
             paused = true;
             bulletAppState.setEnabled(false);
             break;
+        }
+    }
+    
+    public void enqueue(Runnable runnable) {
+        enqueue(runnable, false);
+    }
+    
+    public void enqueue(Runnable runnable, boolean wait) {
+        Future<Object> future = enqueue(() -> {
+            runnable.run();
+            return null;
+        });
+        if (wait) {
+            try {
+                future.get();
+            } catch (Exception e) {
+                throw new RuntimeException("Unable to complete run in thread", e);
+            }
         }
     }
     
@@ -269,15 +279,7 @@ public class ThreeDEngine extends Application {
         if (getState() != State.UpdateSync)
             return;
         while (!paused) {
-            Future<Object> future = enqueue(() -> {
-                return null;
-            });
-            try {
-                future.get();
-            } catch (Exception e) {
-                throw new RuntimeException(
-                        "An exception occurred while waiting for update sync.", e);
-            }
+            enqueue(() -> {}, true);
         }
         paused = false;
     }

@@ -14,7 +14,7 @@ import org.simbrain.world.threedworld.ThreeDWorldComponent;
 public class ActionManager {
     public static Map<String, AbstractAction> createActions(ThreeDWorld world) {
         Map<String, AbstractAction> actions = new HashMap<String, AbstractAction>();
-        putAction(actions, new NotImplementedAction("Add Entity"));
+        putAction(actions, new AddEntityAction(world));
         putAction(actions, new AddBlockAction(world));
         putAction(actions, new NotImplementedAction("Add Agent"));
         putAction(actions, new AddMouseAction(world));

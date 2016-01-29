@@ -27,12 +27,8 @@ public class ModelEntityXmlConverter implements Converter {
         writer.setValue(model.getName());
         writer.endNode();
         
-        writer.startNode("nodeName");
-        writer.setValue(model.getNodeName());
-        writer.endNode();
-        
-        writer.startNode("modelName");
-        writer.setValue(model.getModelName());
+        writer.startNode("fileName");
+        writer.setValue(model.getFileName());
         writer.endNode();
         
         writer.startNode("position");
@@ -55,11 +51,7 @@ public class ModelEntityXmlConverter implements Converter {
         reader.moveUp();
         
         reader.moveDown();
-        String nodeName = reader.getValue();
-        reader.moveUp();
-        
-        reader.moveDown();
-        String modelName = reader.getValue();
+        String fileName = reader.getValue();
         reader.moveUp();
         
         reader.moveDown();
@@ -70,7 +62,7 @@ public class ModelEntityXmlConverter implements Converter {
         Quaternion rotation = (Quaternion)context.convertAnother(null, Quaternion.class);
         reader.moveUp();
         
-        ModelEntity model = ModelEntity.load(engine, name, nodeName, modelName);
+        ModelEntity model = ModelEntity.load(engine, name, fileName);
         model.setPosition(position);
         model.setRotation(rotation);
         return model;

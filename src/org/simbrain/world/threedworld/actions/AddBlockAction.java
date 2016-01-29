@@ -36,7 +36,6 @@ public class AddBlockAction extends AbstractAction {
                 world.getSelectionController().offsetBoundingVolume(location, offset);
                 world.getSelectionController().translateSelection(location);
             }
-            return null;
         });
     }
 }

@@ -29,6 +29,79 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 
 public class VisionSensor implements Sensor {
+    private class VisionSensorEditor extends SensorEditor {
+        private JFormattedTextField widthField = new JFormattedTextField(EditorDialog.integerFormat);
+        private JFormattedTextField heightField = new JFormattedTextField(EditorDialog.integerFormat);
+        private JFormattedTextField headOffsetXField = new JFormattedTextField(EditorDialog.floatFormat);
+        private JFormattedTextField headOffsetYField = new JFormattedTextField(EditorDialog.floatFormat);
+        private JFormattedTextField headOffsetZField = new JFormattedTextField(EditorDialog.floatFormat);
+        private JComboBox<String> modeComboBox = new JComboBox<String>();
+        private ThreeDPanel previewPanel = new ThreeDPanel();
+        
+        {
+            widthField.setColumns(5);
+            heightField.setColumns(5);
+            headOffsetXField.setColumns(6);
+            headOffsetYField.setColumns(6);
+            headOffsetZField.setColumns(6);
+            modeComboBox.addItem("Color");
+            modeComboBox.addItem("Gray");
+            modeComboBox.addItem("Threshold");
+            previewPanel.setPreferredSize(new Dimension(100, 100));
+            previewPanel.setView(getView(), false);
+        }
+        
+        private VisionSensorEditor() {
+            super(agent, VisionSensor.this);
+        }
+        
+        @Override
+        public JComponent layoutFields() {
+            JComponent sensorComponent = super.layoutFields();
+            
+            getPanel().add(new JLabel("Resolution"));
+            getPanel().add(widthField, "split 2");
+            getPanel().add(heightField, "wrap");
+            
+            getPanel().add(new JLabel("Head Offset"));
+            getPanel().add(headOffsetXField, "split 3");
+            getPanel().add(headOffsetYField);
+            getPanel().add(headOffsetZField, "wrap");
+            
+            getPanel().add(new JLabel("Mode"));
+            getPanel().add(modeComboBox, "wrap");
+            
+            getPanel().add(previewPanel, "east, gaptop 4px, gapright 4px, gapbottom 4px, gapleft 4px");
+            
+            return sensorComponent;
+        }
+        
+        @Override
+        public void readValues() {
+            widthField.setValue(getWidth());
+            heightField.setValue(getHeight());
+            headOffsetXField.setValue(getHeadOffset().x);
+            headOffsetYField.setValue(getHeadOffset().y);
+            headOffsetZField.setValue(getHeadOffset().z);
+            modeComboBox.setSelectedIndex(mode);
+        }
+        
+        @Override
+        public void writeValues() {
+            resize(((Number)widthField.getValue()).intValue(),
+                    ((Number)heightField.getValue()).intValue());
+            headOffset.x = ((Number)headOffsetXField.getValue()).floatValue();
+            headOffset.y = ((Number)headOffsetYField.getValue()).floatValue();
+            headOffset.z = ((Number)headOffsetZField.getValue()).floatValue();
+            setMode(modeComboBox.getSelectedIndex());
+        }
+        
+        @Override
+        public void close() {
+            previewPanel.destroy();
+        }
+    }
+    
     private class ImageListener implements ViewListener {
         @Override
         public void onUpdate(BufferedImage image) {
@@ -223,8 +296,17 @@ public class VisionSensor implements Sensor {
     }
     
     private void transformCamera() {
-        camera.setLocation(getSensorLocation());
-        camera.setRotation(getSensorRotation());
+        if (camera != null) {
+            camera.setLocation(getSensorLocation());
+            camera.setRotation(getSensorRotation());
+        }
+    }
+    
+    public void delete() {
+        view.cleanup();
+        viewPort.detachScene(agent.getEngine().getRootNode());
+        agent.getEngine().getRenderManager().removeMainView(viewPort);
+        agent.removeSensor(this);
     }
     
     @Override
@@ -251,74 +333,7 @@ public class VisionSensor implements Sensor {
     }
     
     @Override
-    public Editor getEditor() {
-        return new SensorEditor(agent, this) {
-            private JFormattedTextField widthField = new JFormattedTextField(EditorDialog.integerFormat);
-            private JFormattedTextField heightField = new JFormattedTextField(EditorDialog.integerFormat);
-            private JFormattedTextField headOffsetXField = new JFormattedTextField(EditorDialog.floatFormat);
-            private JFormattedTextField headOffsetYField = new JFormattedTextField(EditorDialog.floatFormat);
-            private JFormattedTextField headOffsetZField = new JFormattedTextField(EditorDialog.floatFormat);
-            private JComboBox<String> modeComboBox = new JComboBox<String>();
-            private ThreeDPanel previewPanel = new ThreeDPanel();
-            
-            {
-                widthField.setColumns(5);
-                heightField.setColumns(5);
-                headOffsetXField.setColumns(6);
-                headOffsetYField.setColumns(6);
-                headOffsetZField.setColumns(6);
-                modeComboBox.addItem("Color");
-                modeComboBox.addItem("Gray");
-                modeComboBox.addItem("Threshold");
-                previewPanel.setPreferredSize(new Dimension(100, 100));
-                previewPanel.setView(getView(), false);
-            }
-            
-            @Override
-            public JComponent layoutFields() {
-                JComponent sensorComponent = super.layoutFields();
-                
-                getPanel().add(new JLabel("Resolution"));
-                getPanel().add(widthField, "split 2");
-                getPanel().add(heightField, "wrap");
-                
-                getPanel().add(new JLabel("Head Offset"));
-                getPanel().add(headOffsetXField, "split 3");
-                getPanel().add(headOffsetYField);
-                getPanel().add(headOffsetZField, "wrap");
-                
-                getPanel().add(new JLabel("Mode"));
-                getPanel().add(modeComboBox, "wrap");
-                
-                getPanel().add(previewPanel, "east, gaptop 4px, gapright 4px, gapbottom 4px, gapleft 4px");
-                
-                return sensorComponent;
-            }
-            
-            @Override
-            public void readValues() {
-                widthField.setValue(getWidth());
-                heightField.setValue(getHeight());
-                headOffsetXField.setValue(getHeadOffset().x);
-                headOffsetYField.setValue(getHeadOffset().y);
-                headOffsetZField.setValue(getHeadOffset().z);
-                modeComboBox.setSelectedIndex(mode);
-            }
-            
-            @Override
-            public void writeValues() {
-                resize(((Number)widthField.getValue()).intValue(),
-                        ((Number)heightField.getValue()).intValue());
-                headOffset.x = ((Number)headOffsetXField.getValue()).floatValue();
-                headOffset.y = ((Number)headOffsetYField.getValue()).floatValue();
-                headOffset.z = ((Number)headOffsetZField.getValue()).floatValue();
-                setMode(modeComboBox.getSelectedIndex());
-            }
-            
-            @Override
-            public void close() {
-                previewPanel.destroy();
-            }
-        };
+    public SensorEditor getEditor() {
+        return new VisionSensorEditor();
     }
 }

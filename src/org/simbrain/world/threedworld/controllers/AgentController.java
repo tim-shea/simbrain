@@ -70,7 +70,6 @@ public class AgentController implements ActionListener {
             VisionSensor sensor = agent.getSensor(VisionSensor.class);
             if (sensor != null)
                 engine.getPanel().setView(sensor.getView(), false);
-            return null;
         });
     }
     
@@ -83,7 +82,6 @@ public class AgentController implements ActionListener {
             VisionSensor sensor = releasedAgent.getSensor(VisionSensor.class);
             if (sensor != null && engine.getPanel().getView().equals(sensor.getView()))
                 engine.getPanel().setView(engine.getMainView(), true);
-            return null;
         });
     }
     
@@ -91,6 +89,8 @@ public class AgentController implements ActionListener {
     public void onAction(String name, boolean isPressed, float tpf) {
         if (controlActive) {
             WalkingEffector effector = agent.getEffector(WalkingEffector.class);
+            if (effector == null)
+                return;
             if (TurnLeft.isName(name)) {
                 effector.setTurning(isPressed ? 1 : 0);
             } else if (TurnRight.isName(name)) {

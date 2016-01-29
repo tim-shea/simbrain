@@ -69,7 +69,11 @@ public class PhysicalEntity implements Entity {
 	}
 	
 	public void setBody(RigidBodyControl body) {
-	    getNode().removeControl(RigidBodyControl.class);
+	    if (getBody() != null) {
+	        getEngine().getPhysicsSpace().remove(getBody());
+            getNode().removeControl(RigidBodyControl.class);
+	    }
+        getEngine().getPhysicsSpace().add(body);
 	    getNode().addControl(body);
 	}
 	
@@ -110,7 +114,6 @@ public class PhysicalEntity implements Entity {
 	public void queuePosition(Vector3f value) {
 		engine.enqueue(() -> {
 			setPosition(value);
-			return null;
 		});
 	}
 	
@@ -139,7 +142,6 @@ public class PhysicalEntity implements Entity {
 	public void queueRotation(Quaternion value) {
 		engine.enqueue(() -> {
 			setRotation(value);
-			return null;
 		});
 	}
 	

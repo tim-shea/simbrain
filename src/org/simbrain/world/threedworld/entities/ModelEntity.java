@@ -1,6 +1,8 @@
 package org.simbrain.world.threedworld.entities;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.simbrain.workspace.AttributeManager;
@@ -9,6 +11,7 @@ import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.PotentialProducer;
 import org.simbrain.workspace.WorkspaceComponent;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
+import org.simbrain.world.threedworld.entities.EditorDialog.Editor;
 
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
@@ -33,35 +36,52 @@ public class ModelEntity extends PhysicalEntity {
         return Arrays.asList(animationConsumerAttribute);
     }
     
-    public static ModelEntity load(ThreeDEngine engine, String name, String nodeName, String modelName) {
-        Node rootNode = (Node)engine.getAssetManager().loadModel(modelName);
-        Node node = (Node)rootNode.getChild(nodeName);
-        rootNode.detachChild(node);
+    private static Node doLoad(ThreeDEngine engine, String fileName) {
+        Node rootNode = (Node)engine.getAssetManager().loadModel(fileName);
+        Node modelNode = (Node)rootNode.getChild("ModelNode");
+        modelNode.setModelBound(new BoundingBox());
+        modelNode.updateModelBound();
+        rootNode.detachChild(modelNode);
+        return modelNode;
+    }
+    
+    public static ModelEntity load(ThreeDEngine engine, String name, String fileName) {
+        Node node = doLoad(engine, fileName);
         node.setName(name);
-        node.setModelBound(new BoundingBox());
-        node.updateModelBound();
-        return new ModelEntity(engine, node, nodeName, modelName);
+        return new ModelEntity(engine, node, fileName);
     }
     
-    private String nodeName;
-    private String modelName;
+    private String fileName;
     
-    private ModelEntity(ThreeDEngine engine, Node node, String nodeName, String modelName) {
+    private ModelEntity(ThreeDEngine engine, Node node, String fileName) {
     	super(engine, node);
-    	this.nodeName = nodeName;
-    	this.modelName = modelName;
+    	this.fileName = fileName;
     }
     
-    public String getNodeName() {
-    	return nodeName;
+    public String getFileName() {
+    	return fileName;
     }
     
-    public String getModelName() {
-    	return modelName;
+    public void reload(String fileName) {
+        Node node = doLoad(getEngine(), fileName);
+        node.setName(getName());
+        setNode(node);
+        this.fileName = fileName;
     }
     
     public AnimControl getAnimator() {
         return getNode().getControl(AnimControl.class);
+    }
+    
+    public Collection<String> getAnimations() {
+        if (getAnimator() != null)
+            return getAnimator().getAnimationNames();
+        else
+            return Collections.emptyList();
+    }
+    
+    public boolean hasAnimation(String name) {
+        return getAnimations().contains(name);
     }
     
     public String getAnimation() {
@@ -79,13 +99,12 @@ public class ModelEntity extends PhysicalEntity {
     }
     
     public void setAnimation(String name, float speed) {
-        AnimControl animator = getAnimator();
-        if (animator != null && animator.getAnimationNames().contains(name)) {
+        if (hasAnimation(name)) {
             AnimChannel animation;
-            if (animator.getNumChannels() == 0)
-                animation = animator.createChannel();
+            if (getAnimator().getNumChannels() == 0)
+                animation = getAnimator().createChannel();
             else
-                animation = animator.getChannel(0);
+                animation = getAnimator().getChannel(0);
             if (animation.getAnimationName() != name)
                 animation.setAnim(name);
             if (animation.getSpeed() != speed)
@@ -111,5 +130,10 @@ public class ModelEntity extends PhysicalEntity {
         consumer.setCustomDescription("Entity:Animation");
         consumers.add(consumer);
         return consumers;
+    }
+    
+    @Override
+    public Editor getEditor() {
+        return new ModelEditor(this);
     }
 }

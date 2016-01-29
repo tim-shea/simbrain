@@ -29,7 +29,6 @@ public class CameraHomeAction extends AbstractAction {
     public void actionPerformed(ActionEvent event) {
         world.getEngine().enqueue(() -> {
             world.getCameraController().moveCameraHome();
-            return null;
         });
     }
 }

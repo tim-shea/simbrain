@@ -22,7 +22,6 @@ public class DeleteEntityAction extends AbstractAction {
     public void actionPerformed(ActionEvent event) {
         world.getEngine().enqueue(() -> {
             world.getSelectionController().deleteSelection();
-            return null;
         });
     }
 }

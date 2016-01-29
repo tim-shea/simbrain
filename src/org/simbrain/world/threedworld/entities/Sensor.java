@@ -8,7 +8,9 @@ import org.simbrain.world.threedworld.entities.EditorDialog.Editor;
 public interface Sensor {
     void update(float tpf);
     
+    void delete();
+    
     List<PotentialProducer> getPotentialProducers();
     
-    Editor getEditor();
+    SensorEditor getEditor();
 }

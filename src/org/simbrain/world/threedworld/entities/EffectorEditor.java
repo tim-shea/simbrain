@@ -17,17 +17,10 @@ public class EffectorEditor implements Editor {
     private Agent agent;
     private Effector effector;
     private JPanel panel;
-    private Action deleteAction = new AbstractAction("Delete") {
-        @Override public void actionPerformed(ActionEvent event) {
-            agent.removeEffector(effector);
-        }
-    };
-    private JButton deleteButton = new JButton(deleteAction);
     
     public EffectorEditor(Agent agent, Effector effector) {
         this.agent = agent;
         this.effector = effector;
-        deleteButton.setEnabled(false);
     }
     
     public Agent getAgent() {
@@ -47,7 +40,6 @@ public class EffectorEditor implements Editor {
         panel = new JPanel();
         panel.setLayout(new MigLayout());
         panel.setBorder(new TitledBorder(effector.getClass().getSimpleName()));
-        panel.add(deleteButton, "south");
         return panel;
     }
     

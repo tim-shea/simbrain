@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -20,6 +21,83 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 
 public class WalkingEffector implements Effector {
+    private class WalkingEffectorEditor extends EffectorEditor {
+        private JFormattedTextField walkSpeedField = new JFormattedTextField(EditorDialog.floatFormat);
+        private JFormattedTextField turnSpeedField = new JFormattedTextField(EditorDialog.floatFormat);
+        private JComboBox<String> idleAnimNameField = new JComboBox<String>();
+        private JComboBox<String> walkAnimNameField = new JComboBox<String>();
+        private JComboBox<String> turnAnimNameField = new JComboBox<String>();
+        private JFormattedTextField idleAnimSpeedField = new JFormattedTextField(EditorDialog.floatFormat);
+        private JFormattedTextField walkAnimSpeedField = new JFormattedTextField(EditorDialog.floatFormat);
+        private JFormattedTextField turnAnimSpeedField = new JFormattedTextField(EditorDialog.floatFormat);
+        
+        {
+            walkSpeedField.setColumns(5);
+            turnSpeedField.setColumns(5);
+            idleAnimSpeedField.setColumns(5);
+            walkAnimSpeedField.setColumns(5);
+            turnAnimSpeedField.setColumns(5);
+        }
+        
+        private WalkingEffectorEditor() {
+            super(agent, WalkingEffector.this);
+            for (String name : agent.getModel().getAnimations()) {
+                idleAnimNameField.addItem(name);
+                walkAnimNameField.addItem(name);
+                turnAnimNameField.addItem(name);
+            }
+        }
+        
+        @Override
+        public JComponent layoutFields() {
+            JComponent effectorComponent = super.layoutFields();
+            
+            getPanel().add(new JLabel("Speed"), "skip");
+            getPanel().add(new JLabel("Animation"));
+            getPanel().add(new JLabel("Anim. Speed"), "wrap");
+            
+            getPanel().add(new JLabel("Idle"));
+            getPanel().add(idleAnimNameField, "skip");
+            getPanel().add(idleAnimSpeedField, "wrap");
+            
+            getPanel().add(new JLabel("Walk"));
+            getPanel().add(walkSpeedField);
+            getPanel().add(walkAnimNameField);
+            getPanel().add(walkAnimSpeedField, "wrap");
+            
+            getPanel().add(new JLabel("Turn"));
+            getPanel().add(turnSpeedField);
+            getPanel().add(turnAnimNameField);
+            getPanel().add(turnAnimSpeedField, "wrap");
+            
+            return effectorComponent;
+        }
+        
+        @Override
+        public void readValues() {
+            walkSpeedField.setValue(getWalkSpeed());
+            turnSpeedField.setValue(getTurnSpeed());
+            idleAnimNameField.setSelectedItem(getIdleAnimName());
+            walkAnimNameField.setSelectedItem(getWalkAnimName());
+            turnAnimNameField.setSelectedItem(getTurnAnimName());
+            idleAnimSpeedField.setValue(getIdleAnimSpeed());
+            walkAnimSpeedField.setValue(getWalkAnimSpeed());
+            turnAnimSpeedField.setValue(getTurnAnimSpeed());
+        }
+        
+        @Override
+        public void writeValues() {
+            setWalkSpeed(((Number)walkSpeedField.getValue()).floatValue());
+            setTurnSpeed(((Number)turnSpeedField.getValue()).floatValue());
+            setIdleAnimName((String)idleAnimNameField.getSelectedItem());
+            setWalkAnimName((String)walkAnimNameField.getSelectedItem());
+            setTurnAnimName((String)turnAnimNameField.getSelectedItem());
+            setIdleAnimSpeed(((Number)idleAnimSpeedField.getValue()).floatValue());
+            setWalkAnimSpeed(((Number)walkAnimSpeedField.getValue()).floatValue());
+            setTurnAnimSpeed(((Number)turnAnimSpeedField.getValue()).floatValue());
+        }
+    }
+    
     public static AttributeType walkAttribute;
     public static AttributeType turnAttribute;
     
@@ -32,10 +110,12 @@ public class WalkingEffector implements Effector {
     private Agent agent;
     private float walkSpeed = 3;
     private float turnSpeed = 3;
-    private String walkAnimName = "Walk";
     private String idleAnimName = "Idle";
-    private float walkAnimSpeed = 1;
+    private String walkAnimName = "Walk";
+    private String turnAnimName = "Idle";
     private float idleAnimSpeed = 1;
+    private float walkAnimSpeed = 1;
+    private float turnAnimSpeed = 1;
     private float walking = 0;
     private float turning = 0;
     private boolean moving = false;
@@ -63,20 +143,36 @@ public class WalkingEffector implements Effector {
         turnSpeed = value;
     }
     
-    public String getWalkAnimName() {
-        return walkAnimName;
-    }
-    
-    public void setWalkAnimName(String value) {
-        walkAnimName = value;
-    }
-    
     public String getIdleAnimName() {
         return idleAnimName;
     }
     
     public void setIdleAnimName(String value) {
         idleAnimName = value;
+    }
+    
+    public String getWalkAnimName() {
+        return walkAnimName;
+    }
+    
+    public String getTurnAnimName() {
+        return turnAnimName;
+    }
+    
+    public void setTurnAnimName(String value) {
+        turnAnimName = value;
+    }
+    
+    public void setWalkAnimName(String value) {
+        walkAnimName = value;
+    }
+    
+    public float getIdleAnimSpeed() {
+        return idleAnimSpeed;
+    }
+    
+    public void setIdleAnimSpeed(float value) {
+        idleAnimSpeed = value;
     }
     
     public float getWalkAnimSpeed() {
@@ -87,12 +183,12 @@ public class WalkingEffector implements Effector {
         walkAnimSpeed = value;
     }
     
-    public float getIdleAnimSpeed() {
-        return idleAnimSpeed;
+    public float getTurnAnimSpeed() {
+        return turnAnimSpeed;
     }
     
-    public void setIdleAnimSpeed(float value) {
-        idleAnimSpeed = value;
+    public void setTurnAnimSpeed(float value) {
+        turnAnimSpeed = value;
     }
     
     public float getWalking() {
@@ -108,9 +204,8 @@ public class WalkingEffector implements Effector {
     }
     
     public void queueWalking(double value) {
-        agent.getModel().getEngine().enqueue(() -> {
+        agent.getEngine().enqueue(() -> {
             setWalking((float)value);
-            return null;
         });
     }
     
@@ -127,36 +222,44 @@ public class WalkingEffector implements Effector {
     }
     
     public void queueTurning(double value) {
-        agent.getModel().getEngine().enqueue(() -> {
+        agent.getEngine().enqueue(() -> {
             setTurning((float)value);
-            return null;
         });
     }
     
-    public boolean isMoving() {
-        return moving;
+    @Override
+    public void update(float tpf) {
+        updateAnimation();
+        applyMovement(tpf);
     }
     
-    private void checkMoving() {
-        boolean walkingOrTurning = isWalking() || isTurning();
-        if (!isMoving() && walkingOrTurning) {
-            moving = true;
-            agent.getModel().setAnimation(walkAnimName, walkAnimSpeed);
-        } else if (isMoving() && !walkingOrTurning) {
-            moving = false;
-            agent.getModel().setAnimation(idleAnimName, idleAnimSpeed);
+    private void updateAnimation() {
+        ModelEntity model = agent.getModel();
+        if (isWalking()) {
+            if (!model.getAnimation().equals(walkAnimName))
+                model.setAnimation(walkAnimName, walkAnimSpeed);
+        } else if (isTurning()) {
+            if (!model.getAnimation().equals(turnAnimName))
+                model.setAnimation(turnAnimName, turnAnimSpeed);
+        } else {
+            if (!model.getAnimation().equals(idleAnimName))
+                model.setAnimation(idleAnimName, idleAnimSpeed);
         }
     }
     
-    @Override
-    public void update(float t) {
-        checkMoving();
+    private void applyMovement(float tpf) {
         Quaternion rotation = new Quaternion();
-        rotation.fromAngles(0, getTurning() * getTurnSpeed() * t, 0);
+        rotation.fromAngles(0, getTurning() * getTurnSpeed() * tpf, 0);
         agent.rotate(rotation);
         Vector3f direction = agent.getRotation().mult(Vector3f.UNIT_Z);
-        Vector3f offset = direction.mult(getWalking() * getWalkSpeed() * t);
+        Vector3f offset = direction.mult(getWalking() * getWalkSpeed() * tpf);
         agent.move(offset);
+    }
+    
+    @Override
+    public void delete() {
+        agent.getModel().setKinematic(false);
+        agent.removeEffector(this);
     }
     
     @Override
@@ -178,52 +281,7 @@ public class WalkingEffector implements Effector {
     }
     
     @Override
-    public Editor getEditor() {
-        return new EffectorEditor(agent, this) {
-        	private JFormattedTextField walkSpeedField = new JFormattedTextField(EditorDialog.floatFormat);
-            private JFormattedTextField turnSpeedField = new JFormattedTextField(EditorDialog.floatFormat);
-            private JTextField walkAnimNameField = new JTextField(20);
-            private JTextField idleAnimNameField = new JTextField(20);
-            
-            {
-                walkSpeedField.setColumns(5);
-                turnSpeedField.setColumns(5);
-            }
-            
-            @Override
-            public JComponent layoutFields() {
-                JComponent effectorComponent = super.layoutFields();
-                
-                getPanel().add(new JLabel("Walk Speed"));
-                getPanel().add(walkSpeedField, "wrap");
-                
-                getPanel().add(new JLabel("Turn Speed"));
-                getPanel().add(turnSpeedField, "wrap");
-                
-                getPanel().add(new JLabel("Walk Animation"));
-                getPanel().add(walkAnimNameField, "wrap");
-                
-                getPanel().add(new JLabel("Idle Animation"));
-                getPanel().add(idleAnimNameField, "wrap");
-                
-                return effectorComponent;
-            }
-            
-            @Override
-            public void readValues() {
-                walkSpeedField.setValue(getWalkSpeed());
-                turnSpeedField.setValue(getTurnSpeed());
-                walkAnimNameField.setText(getWalkAnimName());
-                idleAnimNameField.setText(getIdleAnimName());
-            }
-            
-            @Override
-            public void writeValues() {
-                setWalkSpeed(((Number)walkSpeedField.getValue()).floatValue());
-                setTurnSpeed(((Number)turnSpeedField.getValue()).floatValue());
-                setWalkAnimName(walkAnimNameField.getText());
-                setIdleAnimName(idleAnimNameField.getText());
-            }
-        };
+    public EffectorEditor getEditor() {
+        return new WalkingEffectorEditor();
     }
 }
