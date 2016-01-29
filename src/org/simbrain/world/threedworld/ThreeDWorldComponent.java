@@ -11,8 +11,6 @@ import org.simbrain.workspace.PotentialProducer;
 import org.simbrain.workspace.WorkspaceComponent;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.engine.ThreeDEngineConverter;
-import org.simbrain.world.threedworld.entities.Agent;
-import org.simbrain.world.threedworld.entities.AgentXmlConverter;
 import org.simbrain.world.threedworld.entities.Entity;
 import org.simbrain.world.threedworld.entities.BoxEntityXmlConverter;
 import org.simbrain.world.threedworld.entities.ModelEntity;
@@ -29,7 +27,6 @@ public class ThreeDWorldComponent extends WorkspaceComponent {
         stream.registerConverter(new ThreeDEngineConverter());
         stream.registerConverter(new BoxEntityXmlConverter());
         stream.registerConverter(new ModelEntityXmlConverter());
-        stream.registerConverter(new AgentXmlConverter());
         return stream;
     }
 	

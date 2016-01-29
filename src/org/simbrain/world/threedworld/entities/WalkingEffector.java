@@ -43,6 +43,7 @@ public class WalkingEffector implements Effector {
     public WalkingEffector(Agent agent) {
         this.agent = agent;
         agent.addEffector(this);
+        agent.getModel().setKinematic(true);
         agent.getModel().setAnimation(idleAnimName, idleAnimSpeed);
     }
     

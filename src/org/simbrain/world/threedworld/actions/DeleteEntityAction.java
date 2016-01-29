@@ -8,6 +8,8 @@ import org.simbrain.world.threedworld.ThreeDWorld;
 import org.simbrain.world.threedworld.ThreeDWorldComponent;
 
 public class DeleteEntityAction extends AbstractAction {
+    private static final long serialVersionUID = -4679471843215287046L;
+    
     private ThreeDWorld world;
     
     public DeleteEntityAction(ThreeDWorld world, boolean enabled) {
@@ -18,6 +20,9 @@ public class DeleteEntityAction extends AbstractAction {
     
     @Override
     public void actionPerformed(ActionEvent event) {
-        world.getSelectionController().deleteSelection();
+        world.getEngine().enqueue(() -> {
+            world.getSelectionController().deleteSelection();
+            return null;
+        });
     }
 }

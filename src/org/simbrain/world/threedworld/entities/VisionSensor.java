@@ -3,6 +3,8 @@ package org.simbrain.world.threedworld.entities;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,9 +29,35 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 
 public class VisionSensor implements Sensor {
+    private class ImageListener implements ViewListener {
+        @Override
+        public void onUpdate(BufferedImage image) {
+            if (view.isInitialized()) {
+                for (int x = 0; x < width; ++x) {
+                    for (int y = 0; y < height; ++y) {
+                        int color = image.getRGB(x, y);
+                        int red = (color >>> 16) & 0xFF;
+                        int green = (color >>> 8) & 0xFF;
+                        int blue = color & 0xFF;
+                        dataByte0[y * width + x] = red / 255.0;
+                        dataByte1[y * width + x] = green / 255.0;
+                        dataByte2[y * width + x] = blue / 255.0;
+                    }
+                }
+            }
+        }
+        
+        @Override
+        public void onResize() {}
+    }
+    
     public static final int MODE_COLOR = 0;
     public static final int MODE_GRAY = 1;
     public static final int MODE_THRESHOLD = 2;
+    
+    public static final float FOV = 45;
+    public static final float NEAR_CLIP = 0.1f;
+    public static final float FAR_CLIP = 100;
     
     public static AttributeType valueAttribute;
     public static AttributeType redAttribute;
@@ -46,54 +74,45 @@ public class VisionSensor implements Sensor {
     
     private Agent agent;
     private Vector3f headOffset = Vector3f.UNIT_Z.clone();
-    private Camera camera;
-    private ViewPort viewPort;
-    private ThreeDView view;
-    private double[] dataByte0;
-    private double[] dataByte1;
-    private double[] dataByte2;
     private int width = 10;
     private int height = 10;
     private int mode;
-    private BufferedImageOp colorFilter;
+    private transient Camera camera;
+    private transient ViewPort viewPort;
+    private transient ThreeDView view;
+    private transient double[] dataByte0;
+    private transient double[] dataByte1;
+    private transient double[] dataByte2;
+    private transient BufferedImageOp colorFilter;
     
     public VisionSensor(Agent agent) {
         this.agent = agent;
         agent.addSensor(this);
+        initializeView();
+        setMode(MODE_COLOR);
+    }
+    
+    private Object readResolve() {
+        initializeView();
+        applyMode();
+        return this;
+    }
+    
+    private void initializeView() {
         camera = new Camera(width, height);
-        camera.setFrustumPerspective(45f, (float)camera.getWidth() / camera.getHeight(), 1f, 1000f);
+        float aspect = (float)camera.getWidth() / camera.getHeight();
+        camera.setFrustumPerspective(FOV, aspect, NEAR_CLIP, FAR_CLIP);
         transformCamera();
-        viewPort = agent.getModel().getEngine().getRenderManager().createMainView(
+        viewPort = agent.getEngine().getRenderManager().createMainView(
                 agent.getName() + "ViewPort", camera);
         viewPort.setClearFlags(true, true, true);
-        viewPort.attachScene(agent.getModel().getEngine().getRootNode());
+        viewPort.attachScene(agent.getEngine().getRootNode());
         view = new ThreeDView(width, height);
         view.attach(false, viewPort);
-        setMode(MODE_COLOR);
+        view.addListener(new ImageListener());
         dataByte0 = new double[width * height];
         dataByte1 = new double[width * height];
         dataByte2 = new double[width * height];
-        view.addListener(new ViewListener() {
-        	@Override
-        	public void onUpdate(BufferedImage image) {
-	            if (view.isInitialized()) {
-	                for (int x = 0; x < width; ++x) {
-	                    for (int y = 0; y < height; ++y) {
-	                        int color = image.getRGB(x, y);
-	                        int red = (color >>> 16) & 0xFF;
-	                        int green = (color >>> 8) & 0xFF;
-	                        int blue = color & 0xFF;
-	                        dataByte0[y * width + x] = red / 255.0;
-	                        dataByte1[y * width + x] = green / 255.0;
-	                        dataByte2[y * width + x] = blue / 255.0;
-	                    }
-	                }
-	            }
-        	}
-        	
-        	@Override
-        	public void onResize() {}
-        });
     }
     
     public Vector3f getHeadOffset() {
@@ -133,21 +152,26 @@ public class VisionSensor implements Sensor {
     public void setMode(int value) {
         if (mode != value) {
             mode = value;
-            view.removeFilter(colorFilter);
-            switch (mode) {
-            case MODE_GRAY:
-                colorFilter = ImageFilters.gray();
-                break;
-            case MODE_THRESHOLD:
-                colorFilter = ImageFilters.threshold(0.75f);
-                break;
-            case MODE_COLOR:
-            default:
-                colorFilter = ImageFilters.identity();
-                break;
-            }
-            view.addFilter(colorFilter);
+            applyMode();
         }
+    }
+    
+    private void applyMode() {
+        if (colorFilter != null)
+            view.removeFilter(colorFilter);
+        switch (mode) {
+        case MODE_GRAY:
+            colorFilter = ImageFilters.gray();
+            break;
+        case MODE_THRESHOLD:
+            colorFilter = ImageFilters.threshold(0.75f);
+            break;
+        case MODE_COLOR:
+        default:
+            colorFilter = ImageFilters.identity();
+            break;
+        }
+        view.addFilter(colorFilter);
     }
     
     public int getWidth() {

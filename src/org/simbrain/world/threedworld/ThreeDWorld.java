@@ -1,8 +1,5 @@
 package org.simbrain.world.threedworld;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,20 +12,11 @@ import org.simbrain.world.threedworld.controllers.AgentController;
 import org.simbrain.world.threedworld.controllers.CameraController;
 import org.simbrain.world.threedworld.controllers.SelectionController;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
-import org.simbrain.world.threedworld.engine.ThreeDEngineConverter;
-import org.simbrain.world.threedworld.entities.AgentXmlConverter;
 import org.simbrain.world.threedworld.entities.Entity;
-import org.simbrain.world.threedworld.entities.BoxEntityXmlConverter;
-import org.simbrain.world.threedworld.entities.ModelEntityXmlConverter;
-
 import com.jme3.app.Application;
 import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.renderer.RenderManager;
-import com.jme3.scene.Node;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
-import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public class ThreeDWorld {
     private class StateListener implements AppState {

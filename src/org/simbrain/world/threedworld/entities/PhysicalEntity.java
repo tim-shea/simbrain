@@ -15,6 +15,7 @@ import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
+import com.sun.xml.internal.ws.client.sei.ResponseBuilder.Body;
 
 public class PhysicalEntity implements Entity {
 	private ThreeDEngine engine;
@@ -70,6 +71,23 @@ public class PhysicalEntity implements Entity {
 	public void setBody(RigidBodyControl body) {
 	    getNode().removeControl(RigidBodyControl.class);
 	    getNode().addControl(body);
+	}
+	
+	public boolean isKinematic() {
+	    return getBody().isKinematic();
+	}
+	
+	public void setKinematic(boolean value) {
+	    RigidBodyControl body = getBody();
+	    if (value && !body.isKinematic()) {
+    	    Vector3f position = body.getPhysicsLocation();
+            Quaternion rotation = body.getPhysicsRotation();
+            body.setKinematic(true);
+            setPosition(position);
+            setRotation(rotation);
+	    } else if (!value && getBody().isKinematic()) {
+            body.setKinematic(false);
+	    }
 	}
 	
 	@Override

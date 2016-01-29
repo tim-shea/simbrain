@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.PotentialProducer;
+import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.entities.EditorDialog.Editor;
 
 import com.jme3.bounding.BoundingVolume;
@@ -19,7 +20,6 @@ public class Agent implements Entity {
     
     public Agent(ModelEntity model) {
         this.model = model;
-        model.getBody().setKinematic(true);
     }
     
     public void addSensor(Sensor sensor) {
@@ -58,6 +58,10 @@ public class Agent implements Entity {
     
     public List<Effector> getEffectors() {
         return effectors;
+    }
+    
+    public ThreeDEngine getEngine() {
+        return model.getEngine();
     }
     
     public ModelEntity getModel() {

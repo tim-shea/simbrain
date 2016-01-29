@@ -43,6 +43,7 @@ public class SelectionController implements ActionListener, AnalogListener {
         Scroll,
         Transform,
         Append,
+        Delete,
         MoveCursor;
         
         public boolean isName(String name) {
@@ -88,8 +89,9 @@ public class SelectionController implements ActionListener, AnalogListener {
         input.addMapping(Select.toString(), new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         input.addMapping(Context.toString(), new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
         input.addMapping(Scroll.toString(), new MouseButtonTrigger(MouseInput.BUTTON_MIDDLE));
-        input.addMapping(Transform.toString(), new KeyTrigger(KeyInput.KEY_LMENU));
+        input.addMapping(Transform.toString(), new KeyTrigger(KeyInput.KEY_SPACE));
         input.addMapping(Append.toString(), new KeyTrigger(KeyInput.KEY_LSHIFT));
+        input.addMapping(Delete.toString(), new KeyTrigger(KeyInput.KEY_DELETE));
         input.addMapping(MoveCursor.toString(),
                 new MouseAxisTrigger(MouseInput.AXIS_X, false),
                 new MouseAxisTrigger(MouseInput.AXIS_X, true),
@@ -100,6 +102,7 @@ public class SelectionController implements ActionListener, AnalogListener {
         input.addListener(this, Select.toString());
         input.addListener(this, Context.toString());
         input.addListener(this, Scroll.toString());
+        input.addListener(this, Delete.toString());
         input.addListener(this, MoveCursor.toString());
     }
     
@@ -287,6 +290,8 @@ public class SelectionController implements ActionListener, AnalogListener {
             onSelectAction(isPressed);
         else if (Context.isName(name))
             onContextAction(isPressed);
+        else if (Delete.isName(name))
+            onDeleteAction(isPressed);
         if (isTransformActive() || isMoveActive() || isRotateActive()) {
             if (world.getCameraController() != null)
                 world.getCameraController().setMouseLookActive(false);
@@ -317,6 +322,12 @@ public class SelectionController implements ActionListener, AnalogListener {
             setRotateActive(isPressed);
         } else if (!isPressed) {
             contextMenu.show(world.getEngine());
+        }
+    }
+    
+    private void onDeleteAction(boolean isPressed) {
+        if (hasSelection() && !isPressed) {
+            deleteSelection();
         }
     }
     
