@@ -28,11 +28,9 @@ import com.jme3.system.AppSettings;
  */
 public class ThreeDEngine extends Application {
     public enum State {
-        Run,
-        Render,
-        SystemPause,
-        UpdateOnce,
-        UpdateSync
+        RunAll,
+        RenderOnly,
+        SystemPause
     }
     
     private Preferences preferences;
@@ -44,7 +42,8 @@ public class ThreeDEngine extends Application {
     private Node guiNode;
     private AmbientLight ambientLight;
     private DirectionalLight directionalLight;
-    private State state = State.Render;
+    private State state;
+    private boolean updateSync;
     private float fixedTimeStep = 1 / 60f;
     
     public ThreeDEngine() {
@@ -109,17 +108,12 @@ public class ThreeDEngine extends Application {
     protected void setState(State value) {
         state = value;
         switch (state) {
-        case Run:
+        case RunAll:
             timer.reset();
-        case UpdateOnce:
             paused = false;
             bulletAppState.setEnabled(true);
             break;
-        case UpdateSync:
-            paused = true;
-            bulletAppState.setEnabled(true);
-            break;
-        case Render:
+        case RenderOnly:
             paused = false;
             bulletAppState.setEnabled(false);
             break;
@@ -128,6 +122,14 @@ public class ThreeDEngine extends Application {
             bulletAppState.setEnabled(false);
             break;
         }
+    }
+    
+    public boolean getUpdateSync() {
+        return updateSync;
+    }
+    
+    public void setUpdateSync(boolean value) {
+        updateSync = value;
     }
     
     public void enqueue(Runnable runnable) {
@@ -229,6 +231,9 @@ public class ThreeDEngine extends Application {
         view = new ThreeDView(getCamera().getWidth(), getCamera().getHeight());
         view.attach(true, getViewPort());
         panel.setView(view, true);
+        
+        updateSync = false;
+        setState(State.RunAll);
     }
     
     @Override
@@ -238,10 +243,9 @@ public class ThreeDEngine extends Application {
             return;
         
         float tpf;
-        if (state == State.UpdateOnce || state == State.UpdateSync) {
-            // TODO: Fix weird single update physics shaking
+        if (updateSync) {
             tpf = fixedTimeStep;
-        } else if (state == State.Render) {
+        } else if (state == State.RenderOnly) {
             tpf = 0;
         } else {
             timer.update();
@@ -269,14 +273,12 @@ public class ThreeDEngine extends Application {
         renderManager.render(tpf, context.isRenderable());
         stateManager.postRender();
         
-        if (state == State.UpdateOnce)
-            setState(State.Render);
-        if (state == State.UpdateSync)
+        if (updateSync)
             paused = true;
     }
     
     public void updateSync() {
-        if (getState() != State.UpdateSync)
+        if (!updateSync)
             return;
         while (!paused) {
             enqueue(() -> {}, true);

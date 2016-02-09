@@ -73,7 +73,8 @@ public class SelectionController implements ActionListener, AnalogListener {
     private boolean rotateActive = false;
     private boolean snapTransformations = true;
     private long selectReleaseTime = 0;
-    private Vector3f rotationAxis = Vector3f.UNIT_Y.clone();
+    private float gridSize = 1;
+    private String rotationAxis = "Y Axis";
     private EditorDialog editorDialog;
     private ContextMenu contextMenu;
     
@@ -266,11 +267,19 @@ public class SelectionController implements ActionListener, AnalogListener {
         snapTransformations = value;
     }
     
-    public Vector3f getRotationAxis() {
+    public float getGridSize() {
+        return gridSize;
+    }
+    
+    public void setGridSize(float value) {
+        gridSize = value;
+    }
+    
+    public String getRotationAxis() {
         return rotationAxis;
     }
     
-    public void setRotationAxis(Vector3f value) {
+    public void setRotationAxis(String value) {
         rotationAxis = value;
     }
     
@@ -352,7 +361,7 @@ public class SelectionController implements ActionListener, AnalogListener {
         if (contact != null) {
             Vector3f location = contact.getContactPoint();
             if (getSnapTransformations())
-                location = snapToGrid(location, 1);
+                location = snapToGrid(location, gridSize);
             offsetBoundingVolume(location, contact.getContactNormal());
             translateSelection(location);
         }
@@ -378,9 +387,23 @@ public class SelectionController implements ActionListener, AnalogListener {
         if (contact != null) {
             Entity entity = getSelectedEntity();
             Vector3f target = contact.getContactPoint().subtract(entity.getPosition());
-            target = target.subtract(rotationAxis.mult(target.dot(rotationAxis)));
+            Vector3f axis;
+            switch (rotationAxis) {
+            case "X Axis": axis = Vector3f.UNIT_X.clone(); break;
+            case "Y Axis": axis = Vector3f.UNIT_Y.clone(); break;
+            case "Z Axis": axis = Vector3f.UNIT_Z.clone(); break;
+            case "Camera":
+                Vector2f click2d = world.getEngine().getInputManager().getCursorPosition();
+                Vector3f origin = world.getEngine().getCamera().getWorldCoordinates(click2d, 0f);
+                axis = world.getEngine().getCamera().getWorldCoordinates(click2d, 1f);
+                axis.subtractLocal(origin);
+                axis.normalizeLocal();
+                break;
+            default: axis = Vector3f.UNIT_Y.clone(); break;
+            }
+            target = target.subtract(axis.mult(target.dot(axis)));
             Quaternion rotation = entity.getRotation();
-            rotation.lookAt(target, rotationAxis);
+            rotation.lookAt(target, axis);
             if (getSnapTransformations()) {
                 float[] angles = rotation.toAngles(null);
                 angles[0] = snapToGrid(angles[0], (float)Math.PI / 8);

@@ -31,15 +31,15 @@ import javax.swing.KeyStroke;
 
 import org.simbrain.resource.ResourceManager;
 import org.simbrain.util.propertyeditor.gui.ReflectivePropertyEditor;
-import org.simbrain.world.threedworld.Preferences;
 import org.simbrain.world.threedworld.ThreeDWorld;
-import org.simbrain.world.threedworld.ThreeDWorldComponent;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
 
 /**
  * Action for showing world preferences.
  */
 public final class EditWorldPreferencesAction extends AbstractAction {
+    private static final long serialVersionUID = 3353903249936368827L;
+    
     private ThreeDWorld world;
     
     public EditWorldPreferencesAction(ThreeDWorld world) {
@@ -53,15 +53,14 @@ public final class EditWorldPreferencesAction extends AbstractAction {
     
     /** {@inheritDoc} */
     public void actionPerformed(final ActionEvent event) {
+        ThreeDEngine.State previousState = world.getEngine().getState();
         world.getEngine().queueState(ThreeDEngine.State.SystemPause, true);
         ReflectivePropertyEditor editor = new ReflectivePropertyEditor(world.getPreferences());
         JDialog dialog = editor.getDialog();
         dialog.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent event) {
-                // TODO: Apply settings here
-                //world.getEngine().restart();
-                world.getEngine().queueState(ThreeDEngine.State.Render, false);
+                world.getEngine().queueState(previousState, false);
             }
         });
         dialog.pack();

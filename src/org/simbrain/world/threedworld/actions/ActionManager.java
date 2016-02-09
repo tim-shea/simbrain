@@ -24,11 +24,9 @@ public class ActionManager {
         putAction(actions, new DeleteEntityAction(world, false));
         putAction(actions, new NotImplementedAction("Edit Floor"));
         putAction(actions, new EditWorldPreferencesAction(world));
-        putAction(actions, new UpdateAction(world));
-        putAction(actions, new RunAction(world));
-        putAction(actions, new PauseAction(world));
+        putAction(actions, new ToggleUpdateSyncAction(world));
+        putAction(actions, new ToggleRunAction(world));
         putAction(actions, new SnapTransformsAction(world));
-        putAction(actions, new DebugPhysicsAction(world));
         putAction(actions, new CameraHomeAction(world));
         return actions;
     }

@@ -12,8 +12,11 @@ import javax.swing.BoxLayout;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SpinnerListModel;
+import javax.swing.SpinnerModel;
 
 import org.simbrain.util.genericframe.GenericFrame;
 import org.simbrain.util.widgets.ToggleButton;
@@ -82,10 +85,8 @@ public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
 	private Component createToolBars(ThreeDWorldComponent component) {
 	    JPanel toolPanel = new JPanel(new BorderLayout());
         JToolBar runToolbar = new JToolBar();
-        runToolbar.add(component.getWorld().getAction("Update"));
-        runToolbar.add(new ToggleButton(Arrays.asList(
-                component.getWorld().getAction("Run"),
-                component.getWorld().getAction("Pause"))));
+        runToolbar.add(createToggleButton(component.getWorld().getAction("Toggle Update Sync"), true));
+        runToolbar.add(createToggleButton(component.getWorld().getAction("Toggle Run"), true));
         
         JToolBar editToolbar = new JToolBar();
         
@@ -93,8 +94,23 @@ public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
                 component.getWorld().getAction("Control Agent"),
                 component.getWorld().getAction("Release Agent"))));
         editToolbar.add(component.getWorld().getAction("Camera Home"));
-        editToolbar.add(createToggleButton(component.getWorld().getAction("Snap Transforms")));
-        editToolbar.add(createToggleButton(component.getWorld().getAction("Debug Physics")));
+        editToolbar.add(createToggleButton(component.getWorld().getAction("Snap Transforms"), true));
+        SpinnerListModel gridSizeModel = new SpinnerListModel(Arrays.asList(1f, 2f, 4f, 8f, 16f));
+        gridSizeModel.setValue(component.getWorld().getSelectionController().getGridSize());
+        JSpinner gridSizeSpinner = new JSpinner(gridSizeModel);
+        ((JSpinner.DefaultEditor)gridSizeSpinner.getEditor()).getTextField().setColumns(2);;
+        gridSizeSpinner.addChangeListener((event) -> {
+            component.getWorld().getSelectionController().setGridSize((float)gridSizeModel.getValue());
+        });
+        editToolbar.add(gridSizeSpinner);
+        SpinnerListModel rotationAxisModel = new SpinnerListModel(Arrays.asList("X Axis", "Y Axis", "Z Axis", "Camera"));
+        rotationAxisModel.setValue(component.getWorld().getSelectionController().getRotationAxis());
+        JSpinner rotationAxisSpinner = new JSpinner(rotationAxisModel);
+        ((JSpinner.DefaultEditor)rotationAxisSpinner.getEditor()).getTextField().setColumns(4);;
+        rotationAxisSpinner.addChangeListener((event) -> {
+            component.getWorld().getSelectionController().setRotationAxis((String)rotationAxisModel.getValue());
+        });
+        editToolbar.add(rotationAxisSpinner);
         
         FlowLayout flow = new FlowLayout(FlowLayout.LEFT);
         flow.setHgap(0);
@@ -107,10 +123,11 @@ public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
         return toolPanel;
 	}
     
-    public JToggleButton createToggleButton(AbstractAction action) {
+    public JToggleButton createToggleButton(AbstractAction action, boolean selected) {
         JToggleButton button = new JToggleButton(action);
         button.setHideActionText(true);
         button.setFocusPainted(false);
+        button.setSelected(selected);
         return button;
     }
 	

@@ -132,15 +132,6 @@
 		</java>
 	</target>
 
-	<target name="test3d" description="Run 3d test">
-		<java classname="org.simbrain.world.threedee.Test">
-			<classpath>
-				<fileset dir="${lib}" includes="**/*.jar" />
-				<pathelement location="${bin}" />
-			</classpath>
-		</java>
-	</target>
-
 	<target name="jconsole" depends="jar" description="Run so jconsole can monitor the app">
 		<java jar="${jarfile}" fork="yes">
 			<jvmarg value="-Dcom.sun.management.jmxremote" />

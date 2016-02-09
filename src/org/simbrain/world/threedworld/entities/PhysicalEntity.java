@@ -15,7 +15,6 @@ import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
-import com.sun.xml.internal.ws.client.sei.ResponseBuilder.Body;
 
 public class PhysicalEntity implements Entity {
 	private ThreeDEngine engine;

@@ -86,9 +86,10 @@ public class ThreeDWorldComponent extends WorkspaceComponent {
     
     @Override
     public void save(OutputStream output, String format) {
+        ThreeDEngine.State previousState = world.getEngine().getState();
         world.getEngine().queueState(ThreeDEngine.State.SystemPause, true);
         getXStream().toXML(world, output);
-        world.getEngine().queueState(ThreeDEngine.State.Render, false);
+        world.getEngine().queueState(previousState, false);
     }
     
     @Override

@@ -62,10 +62,10 @@ public class ThreeDWorld {
         
         @Override
         public void update(float tpf) {
-            if (engine.getState() == ThreeDEngine.State.Render)
-                return;
-            for (Entity entity : getEntities())
-                entity.update(tpf);
+            if (engine.getState() == ThreeDEngine.State.RunAll) {
+                for (Entity entity : getEntities())
+                    entity.update(tpf);
+            }
         }
         
         @Override
@@ -109,7 +109,6 @@ public class ThreeDWorld {
         cameraController = new CameraController(this);
         selectionController = new SelectionController(this);
         agentController = new AgentController(this);
-        getEngine().queueState(ThreeDEngine.State.Render, false);
         return this;
     }
     
