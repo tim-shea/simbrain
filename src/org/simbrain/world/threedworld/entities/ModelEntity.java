@@ -36,7 +36,7 @@ public class ModelEntity extends PhysicalEntity {
         return Arrays.asList(animationConsumerAttribute);
     }
     
-    private static Node doLoad(ThreeDEngine engine, String fileName) {
+    private static Node loadModel(ThreeDEngine engine, String fileName) {
         Node rootNode = (Node)engine.getAssetManager().loadModel(fileName);
         Node modelNode = (Node)rootNode.getChild("ModelNode");
         modelNode.setModelBound(new BoundingBox());
@@ -46,7 +46,7 @@ public class ModelEntity extends PhysicalEntity {
     }
     
     public static ModelEntity load(ThreeDEngine engine, String name, String fileName) {
-        Node node = doLoad(engine, fileName);
+        Node node = loadModel(engine, fileName);
         node.setName(name);
         return new ModelEntity(engine, node, fileName);
     }
@@ -63,7 +63,7 @@ public class ModelEntity extends PhysicalEntity {
     }
     
     public void reload(String fileName) {
-        Node node = doLoad(getEngine(), fileName);
+        Node node = loadModel(getEngine(), fileName);
         node.setName(getName());
         setNode(node);
         this.fileName = fileName;
