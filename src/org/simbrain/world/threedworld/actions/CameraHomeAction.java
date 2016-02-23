@@ -8,12 +8,10 @@ import javax.swing.ImageIcon;
 
 import org.simbrain.resource.ResourceManager;
 import org.simbrain.world.threedworld.ThreeDWorld;
-import org.simbrain.world.threedworld.ThreeDWorldComponent;
-import org.simbrain.world.threedworld.entities.Entity;
-
-import com.jme3.math.Vector3f;
 
 public class CameraHomeAction extends AbstractAction {
+    private static final long serialVersionUID = 3114294781479510819L;
+    
     private ThreeDWorld world;
     
     public CameraHomeAction(ThreeDWorld world) {

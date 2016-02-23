@@ -22,7 +22,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public class ThreeDWorldComponent extends WorkspaceComponent {
-    private static XStream getXStream() {
+    public static XStream getXStream() {
         XStream stream = new XStream(new DomDriver());
         stream.registerConverter(new ThreeDEngineConverter());
         stream.registerConverter(new BoxEntityXmlConverter());

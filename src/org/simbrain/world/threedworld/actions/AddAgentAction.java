@@ -5,27 +5,34 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import org.simbrain.world.threedworld.ThreeDWorld;
+import org.simbrain.world.threedworld.entities.Agent;
 import org.simbrain.world.threedworld.entities.ModelEntity;
+import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.math.Vector3f;
 
-public class AddEntityAction extends AbstractAction {
-    private static final long serialVersionUID = 2605000029274172245L;
+public class AddAgentAction extends AbstractAction {
+    private static final long serialVersionUID = 5219992141265803787L;
     
     private ThreeDWorld world;
     
-    public AddEntityAction(ThreeDWorld world) {
-        super("Add Entity");
+    public AddAgentAction(ThreeDWorld world) {
+        super("Add Agent");
         this.world = world;
     }
     
     @Override
     public void actionPerformed(ActionEvent event) {
         world.getEngine().enqueue(() -> {
-            String fileName = "Models/UVSphere.j3o";
-            String name = "Model" + world.createId();
+            String fileName = "Models/Monkey.j3o";
+            String name = "Agent" + world.createId();
             ModelEntity model = ModelEntity.load(world.getEngine(), name, fileName);
-            world.getEntities().add(model);
-            world.getSelectionController().select(model);
+            CollisionShape shape = CollisionShapeFactory.createBoxShape(model.getNode());
+            model.setBody(new RigidBodyControl(shape, 1));
+            Agent agent = new Agent(model);
+            world.getEntities().add(agent);
+            world.getSelectionController().select(agent);
             if (world.getSelectionController().getCursorContact(false) != null)
                 world.getSelectionController().translateToCursor();
             else {

@@ -8,11 +8,12 @@ import javax.swing.ImageIcon;
 
 import org.simbrain.resource.ResourceManager;
 import org.simbrain.world.threedworld.ThreeDWorld;
-import org.simbrain.world.threedworld.ThreeDWorldComponent;
 import org.simbrain.world.threedworld.entities.Agent;
 import org.simbrain.world.threedworld.entities.Entity;
 
 public class ControlAgentAction extends AbstractAction {
+    private static final long serialVersionUID = 8726881360072302151L;
+    
     private ThreeDWorld world;
     
     public ControlAgentAction(ThreeDWorld world) {

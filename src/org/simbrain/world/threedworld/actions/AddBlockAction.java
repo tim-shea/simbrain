@@ -1,9 +1,6 @@
 package org.simbrain.world.threedworld.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 import javax.swing.AbstractAction;
 
 import org.simbrain.world.threedworld.ThreeDWorld;

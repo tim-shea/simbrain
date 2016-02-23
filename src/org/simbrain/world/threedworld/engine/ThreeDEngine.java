@@ -4,8 +4,6 @@ import java.awt.Dimension;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.simbrain.world.threedworld.Preferences;
-
 import com.jme3.app.Application;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.audio.AudioContext;
@@ -33,7 +31,6 @@ public class ThreeDEngine extends Application {
         SystemPause
     }
     
-    private Preferences preferences;
     private ThreeDContext context;
     private ThreeDPanel panel;
     private ThreeDView view;
@@ -45,17 +42,13 @@ public class ThreeDEngine extends Application {
     private State state;
     private boolean updateSync;
     private float fixedTimeStep = 1 / 60f;
+    private String sceneFileName;
     
     public ThreeDEngine() {
-        this(new Preferences());
-    }
-    
-    public ThreeDEngine(Preferences preferences) {
         super();
-        this.preferences = preferences;
         
         AppSettings settings = new AppSettings(true);
-        settings.setFrameRate(preferences.getFrameRate());
+        settings.setFrameRate(60);
         settings.setCustomRenderer(ThreeDContext.class);
         setSettings(settings);
         start();
@@ -69,6 +62,8 @@ public class ThreeDEngine extends Application {
         bulletAppState = new BulletAppState();
         bulletAppState.setEnabled(false);
         getStateManager().attach(bulletAppState);
+        
+        sceneFileName = "Scenes/GrassyPlane.j3o";
     }
     
     public ThreeDPanel getPanel() {
@@ -181,12 +176,6 @@ public class ThreeDEngine extends Application {
         rootNode = (Node)getAssetManager().loadModel(fileName);
     }
     
-    private void loadGui(String fileName) {
-        if (guiNode != null)
-            throw new RuntimeException("Load gui must be called before initialization.");
-        guiNode = (Node)getAssetManager().loadModel(fileName);
-    }
-    
     @Override
     public void initialize() {
         super.initialize();
@@ -194,17 +183,12 @@ public class ThreeDEngine extends Application {
         getAssetManager().registerLocator("/", FileLocator.class);
         getAssetManager().registerLocator("bin/org/simbrain/resource/ThreeDAssets/assets/", FileLocator.class);
         
-        if (!preferences.getSceneName().trim().isEmpty())
-            loadScene(preferences.getSceneName());
-        else
-            loadScene("Scenes/GrassyPlane.j3o");
+        if (!sceneFileName.trim().isEmpty())
+            loadScene(sceneFileName);
         bulletAppState.getPhysicsSpace().addAll(rootNode);
         viewPort.attachScene(rootNode);
         
-        if (!preferences.getGuiName().trim().isEmpty())
-            loadGui(preferences.getGuiName());
-        else
-            guiNode = new Node("Gui");
+        guiNode = new Node("Gui");
         guiNode.setQueueBucket(Bucket.Gui);
         guiNode.setCullHint(CullHint.Never);
         guiViewPort.attachScene(guiNode);

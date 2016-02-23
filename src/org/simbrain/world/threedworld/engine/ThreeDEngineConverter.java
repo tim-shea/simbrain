@@ -7,6 +7,14 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 public class ThreeDEngineConverter implements Converter {
+    private ThreeDEngine engine;
+    
+    public ThreeDEngineConverter() {}
+    
+    public ThreeDEngineConverter(ThreeDEngine engine) {
+        this.engine = engine;
+    }
+    
     @Override
     public boolean canConvert(Class type) {
         return type.equals(ThreeDEngine.class);
@@ -18,8 +26,10 @@ public class ThreeDEngineConverter implements Converter {
     
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        ThreeDEngine engine = new ThreeDEngine();
-        engine.queueState(ThreeDEngine.State.SystemPause, true);
+        if (engine == null) {
+            ThreeDEngine engine = new ThreeDEngine();
+            engine.queueState(ThreeDEngine.State.SystemPause, true);
+        }
         return engine;
     }
 }

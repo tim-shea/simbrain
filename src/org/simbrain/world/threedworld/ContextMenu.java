@@ -4,10 +4,7 @@ import java.awt.Point;
 
 import javax.swing.JPopupMenu;
 
-import org.simbrain.world.threedworld.actions.ActionManager;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
-
-import com.jme3.math.Vector2f;
 
 public class ContextMenu {
 	private JPopupMenu popupMenu;
@@ -19,10 +16,12 @@ public class ContextMenu {
         popupMenu.add(world.getAction("Add Agent"));
         popupMenu.add(world.getAction("Add Mouse"));
         popupMenu.addSeparator();
+        popupMenu.add(world.getAction("Copy Selection"));
+        popupMenu.add(world.getAction("Paste Selection"));
+        popupMenu.add(world.getAction("Delete Selection"));
+        popupMenu.add(world.getAction("Edit Entity"));
         popupMenu.add(world.getAction("Control Agent"));
         popupMenu.add(world.getAction("Release Agent"));
-        popupMenu.add(world.getAction("Edit Entity"));
-        popupMenu.add(world.getAction("Delete Entity"));
         popupMenu.addSeparator();
         popupMenu.add(world.getAction("Edit Floor Texture"));
         popupMenu.add(world.getAction("Edit World Preferences"));

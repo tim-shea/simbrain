@@ -7,9 +7,10 @@ import javax.swing.JToggleButton;
 
 import org.simbrain.resource.ResourceManager;
 import org.simbrain.world.threedworld.ThreeDWorld;
-import org.simbrain.world.threedworld.ThreeDWorldComponent;
 
 public class SnapTransformsAction extends AbstractAction {
+    private static final long serialVersionUID = 2391250770941926187L;
+    
     private ThreeDWorld world;
     
     public SnapTransformsAction(ThreeDWorld world) {

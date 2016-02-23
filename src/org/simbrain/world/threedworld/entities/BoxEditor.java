@@ -65,11 +65,13 @@ class BoxEditor extends EntityEditor {
     @Override
     public void writeValues() {
         super.writeValues();
-        box.setSize(new Vector3f(
-                ((Number)sizeXField.getValue()).floatValue(),
-                ((Number)sizeYField.getValue()).floatValue(),
-                ((Number)sizeZField.getValue()).floatValue()));
-        box.setMass(((Number)massField.getValue()).floatValue());
-        box.setMaterial(materialField.getText());
+        box.getEngine().enqueue(() -> {
+            box.setSize(new Vector3f(
+                    ((Number)sizeXField.getValue()).floatValue(),
+                    ((Number)sizeYField.getValue()).floatValue(),
+                    ((Number)sizeZField.getValue()).floatValue()));
+            box.setMass(((Number)massField.getValue()).floatValue());
+            box.setMaterial(materialField.getText());
+        });
     }
 }

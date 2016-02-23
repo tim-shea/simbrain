@@ -18,17 +18,11 @@
  */
 package org.simbrain.world.threedworld.actions;
 
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JDialog;
-import javax.swing.KeyStroke;
-
 import org.simbrain.resource.ResourceManager;
 import org.simbrain.util.propertyeditor.gui.ReflectivePropertyEditor;
 import org.simbrain.world.threedworld.ThreeDWorld;
@@ -37,25 +31,23 @@ import org.simbrain.world.threedworld.engine.ThreeDEngine;
 /**
  * Action for showing world preferences.
  */
-public final class EditWorldPreferencesAction extends AbstractAction {
+public final class EditCameraControllerAction extends AbstractAction {
     private static final long serialVersionUID = 3353903249936368827L;
     
     private ThreeDWorld world;
     
-    public EditWorldPreferencesAction(ThreeDWorld world) {
-        super("Edit World Preferences");
+    public EditCameraControllerAction(ThreeDWorld world) {
+        super("Edit Camera Controller");
         this.world = world;
-        this.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_P,
-                Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         putValue(SMALL_ICON, ResourceManager.getImageIcon("Prefs.png"));
-        putValue(SHORT_DESCRIPTION, "Edit World Preferences");
+        putValue(SHORT_DESCRIPTION, "Edit Camera Controller");
     }
     
     /** {@inheritDoc} */
     public void actionPerformed(final ActionEvent event) {
         ThreeDEngine.State previousState = world.getEngine().getState();
         world.getEngine().queueState(ThreeDEngine.State.SystemPause, true);
-        ReflectivePropertyEditor editor = new ReflectivePropertyEditor(world.getPreferences());
+        ReflectivePropertyEditor editor = new ReflectivePropertyEditor(world.getCameraController(), new String[] {"mouseLookActive"});
         JDialog dialog = editor.getDialog();
         dialog.addWindowListener(new WindowAdapter() {
             @Override

@@ -90,7 +90,13 @@ public class ReflectivePropertyEditor extends JPanel {
      * values.
      */
     HashMap<String, JComponent> componentMap = new HashMap<String, JComponent>();
-
+    
+    /**
+     * Use this constructor to make an editor, adjust its settings, and then
+     * initialize it with an object.
+     */
+    public ReflectivePropertyEditor() {}
+    
     /**
      * Construct a property editor panel only. It's up to the user to embed it
      * in a dialog or other GUI element
@@ -98,16 +104,17 @@ public class ReflectivePropertyEditor extends JPanel {
      * @param toEdit the object to edit
      */
     public ReflectivePropertyEditor(final Object toEdit) {
-        this.toEdit = toEdit;
-        this.add(itemPanel);
-        initPanel();
+        this(toEdit, new String[] {});
     }
-
+    
     /**
-     * Use this constructor to make an editor, adjust its settings, and then
-     * initialize it with an object.
+     * Construct a property editor panel without any of the items in excludeList.
      */
-    public ReflectivePropertyEditor() {
+    public ReflectivePropertyEditor(Object target, String[] excludeList) {
+        this.toEdit = target;
+        this.excludeList = excludeList;
+        add(itemPanel);
+        initPanel();
     }
 
     /**

@@ -1,10 +1,6 @@
 package org.simbrain.world.threedworld.controllers;
 
-import org.simbrain.world.threedworld.Preferences;
 import org.simbrain.world.threedworld.ThreeDWorld;
-import org.simbrain.world.threedworld.ThreeDWorldComponent;
-import org.simbrain.world.threedworld.engine.ThreeDEngine;
-
 import com.jme3.bounding.BoundingBox;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
@@ -40,19 +36,32 @@ public class CameraController implements AnalogListener, ActionListener {
     }
     
     private ThreeDWorld world;
-    private Preferences preferences;
-    private Camera camera;
-    private boolean mouseLookActive = false;
-    private Vector3f homeLocation = Vector3f.UNIT_Y.mult(2.5f);
+    private transient Camera camera;
+    private transient boolean mouseLookActive;
+    private Vector3f position;
+    private float[] rotation;
+    private float fieldOfView = 80;
+    private float nearClip = 0.1f;
+    private float farClip = 100f;
+    private float moveSpeed = 5f;
+    private float rotateSpeed = 10f;
+    private float zoomSpeed = 1f;
+    private Vector3f homePosition = Vector3f.UNIT_Y.mult(2.5f);
     private float[] homeRotation = new float[] {0, 0, 0};
     private float homeZoom = 80;
     private Vector3f yawAxis = Vector3f.UNIT_Y.clone();
-    private BoundingBox cameraBounds = new BoundingBox(
-                new Vector3f(0, 17, 0), 64, 16, 64);
+    private BoundingBox cameraBounds = new BoundingBox(new Vector3f(0, 17, 0), 64, 16, 64);
     
     public CameraController(ThreeDWorld world) {
         this.world = world;
-        preferences = world.getPreferences();
+        camera = null;
+        mouseLookActive = false;
+    }
+    
+    public Object readResolve() {
+        camera = null;
+        mouseLookActive = false;
+        return this;
     }
     
     public Camera getCamera() {
@@ -65,11 +74,27 @@ public class CameraController implements AnalogListener, ActionListener {
     }
     
     private void updateCameraFrustum() {
-        camera.setFrustumPerspective(
-                preferences.getFieldOfView(),
-                preferences.getAspectRatio(),
-                preferences.getNearClip(),
-                preferences.getFarClip());
+        camera.setFrustumPerspective(fieldOfView, camera.getWidth() / (float)camera.getHeight(), nearClip, farClip);
+    }
+    
+    public Vector3f getPosition() {
+        return position;
+    }
+    
+    public void setPosition(Vector3f value) {
+        position = value;
+        camera.setLocation(position);
+    }
+    
+    public float[] getRotation() {
+        return rotation;
+    }
+    
+    public void setRotation(float[] value) {
+        rotation = value;
+        Quaternion orientation = camera.getRotation();
+        orientation.fromAngles(rotation);
+        camera.setRotation(orientation);
     }
     
     public Vector3f getYawAxis() {
@@ -81,27 +106,27 @@ public class CameraController implements AnalogListener, ActionListener {
     }
     
     public float getMoveSpeed() {
-        return preferences.getMoveSpeed();
+        return moveSpeed;
     }
     
     public void setMoveSpeed(float value) {
-        preferences.setMoveSpeed(value);
+        moveSpeed = value;
     }
     
     public float getRotateSpeed() {
-        return preferences.getRotateSpeed();
+        return rotateSpeed;
     }
     
     public void setRotateSpeed(float value) {
-        preferences.setRotateSpeed(value);
+        rotateSpeed = value;
     }
     
     public float getZoomSpeed() {
-        return preferences.getZoomSpeed();
+        return zoomSpeed;
     }
     
     public void setZoomSpeed(float value) {
-        preferences.setZoomSpeed(value);
+        zoomSpeed = value;
     }
     
     public boolean isMouseLookActive() {
@@ -112,12 +137,12 @@ public class CameraController implements AnalogListener, ActionListener {
         mouseLookActive = value;
     }
     
-    public Vector3f getHomeLocation() {
-        return homeLocation;
+    public Vector3f getHomePosition() {
+        return homePosition;
     }
     
-    public void setHomeLocation(Vector3f value) {
-        homeLocation = value;
+    public void setHomePosition(Vector3f value) {
+        homePosition = value;
     }
     
     public float[] getHomeRotation() {
@@ -137,9 +162,9 @@ public class CameraController implements AnalogListener, ActionListener {
     }
     
     public void moveCameraHome() {
-        getCamera().setLocation(homeLocation);
+        getCamera().setLocation(homePosition);
         getCamera().setRotation(new Quaternion().fromAngles(homeRotation));
-        preferences.setFieldOfView(homeZoom);
+        fieldOfView = homeZoom;
         updateCameraFrustum();
     }
     
@@ -176,20 +201,20 @@ public class CameraController implements AnalogListener, ActionListener {
     
     protected void moveCamera(float value, Vector3f axis) {
         Vector3f velocity = axis;
-        Vector3f location = camera.getLocation().clone();
+        position = camera.getLocation().clone();
         velocity.multLocal(value * getMoveSpeed());
-        location.addLocal(velocity);
-        if (!cameraBounds.contains(location))
-            clampLocation(location);
-        camera.setLocation(location);
+        position.addLocal(velocity);
+        if (!cameraBounds.contains(position))
+            clampPosition();
+        camera.setLocation(position);
     }
     
-    private void clampLocation(Vector3f location) {
+    private void clampPosition() {
         Vector3f center = cameraBounds.getCenter();
         Vector3f extent = cameraBounds.getExtent(null);
-        location.x = FastMath.clamp(location.x, center.x - extent.x, center.x + extent.x);
-        location.y = FastMath.clamp(location.y, center.y - extent.y, center.y + extent.y);
-        location.z = FastMath.clamp(location.z, center.z - extent.z, center.z + extent.z);
+        position.x = FastMath.clamp(position.x, center.x - extent.x, center.x + extent.x);
+        position.y = FastMath.clamp(position.y, center.y - extent.y, center.y + extent.y);
+        position.z = FastMath.clamp(position.z, center.z - extent.z, center.z + extent.z);
     }
     
     protected void rotateCamera(float value, Vector3f axis) {
@@ -207,20 +232,21 @@ public class CameraController implements AnalogListener, ActionListener {
         orientation.fromAxes(left, up, direction);
         orientation.normalizeLocal();
         camera.setAxes(orientation);
+        orientation.toAngles(rotation);
     }
     
     private void clampCameraPitch() {
-        Quaternion rotation = camera.getRotation();
-        float[] angles = rotation.toAngles(null);
+        Quaternion orientation = camera.getRotation();
+        float[] angles = orientation.toAngles(null);
         angles[0] = FastMath.clamp(angles[0], -FastMath.PI / 2, FastMath.PI / 2);
-        rotation.fromAngles(angles);
-        camera.setRotation(rotation);
+        orientation.fromAngles(angles);
+        camera.setRotation(orientation);
+        orientation.toAngles(rotation);
     }
     
     protected void zoomCamera(float value) {
-        float fov = preferences.getFieldOfView() + value * getZoomSpeed();
-        fov = FastMath.clamp(fov, 10, 100);
-        preferences.setFieldOfView(fov);
+        fieldOfView += value * getZoomSpeed();
+        fieldOfView = FastMath.clamp(fieldOfView, 10, 100);
         updateCameraFrustum();
     }
     

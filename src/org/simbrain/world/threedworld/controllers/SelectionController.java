@@ -3,14 +3,11 @@ package org.simbrain.world.threedworld.controllers;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.simbrain.world.threedworld.ContextMenu;
 import org.simbrain.world.threedworld.ThreeDWorld;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.entities.Agent;
 import org.simbrain.world.threedworld.entities.Entity;
 import org.simbrain.world.threedworld.entities.EditorDialog;
-import org.simbrain.world.threedworld.entities.PhysicalEntity;
-
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.CollisionResult;
@@ -37,6 +34,10 @@ import com.jme3.scene.debug.WireBox;
 import static org.simbrain.world.threedworld.controllers.SelectionController.Mapping.*;
 
 public class SelectionController implements ActionListener, AnalogListener {
+    public interface SelectionListener {
+        void onSelectionChanged(SelectionController controller);
+    }
+    
     enum Mapping {
         Select,
         Context,
@@ -76,13 +77,13 @@ public class SelectionController implements ActionListener, AnalogListener {
     private float gridSize = 1;
     private String rotationAxis = "Y Axis";
     private EditorDialog editorDialog;
-    private ContextMenu contextMenu;
+    private List<SelectionListener> listeners;
     
     public SelectionController(ThreeDWorld world) {
         this.world = world;
         selection = new ArrayList<Entity>();
         editorDialog = new EditorDialog();
-        contextMenu = new ContextMenu(world);
+        listeners = new ArrayList<SelectionListener>();
     }
     
     public void registerInput() {
@@ -138,26 +139,26 @@ public class SelectionController implements ActionListener, AnalogListener {
             entity.getNode().detachChildNamed("SelectionBox");
         }
         selection.clear();
-        world.getAction("Edit Entity").setEnabled(false);
-        world.getAction("Delete Entity").setEnabled(false);
-        world.getAction("Control Agent").setEnabled(false);
+        selectionChanged();
     }
     
     public void select(Entity entity) {
         if (!appendSelection)
             clearSelection();
-        if (entity != null) {
+        if (entity != null)
             addEntityToSelection(entity);
-            world.getAction("Edit Entity").setEnabled(true);
-            world.getAction("Delete Entity").setEnabled(true);
-            if (entity instanceof Agent)
-                world.getAction("Control Agent").setEnabled(true);
-        }
+    }
+    
+    public void selectAll(List<Entity> entities) {
+        clearSelection();
+        for (Entity entity : entities)
+            addEntityToSelection(entity);
     }
     
     public void addEntityToSelection(Entity entity) {
         selection.add(entity);
         attachSelectionBox(entity.getNode());
+        selectionChanged();
     }
     
     private void attachSelectionBox(Node node) {
@@ -223,6 +224,7 @@ public class SelectionController implements ActionListener, AnalogListener {
             entity.delete();
         }
         selection.clear();
+        selectionChanged();
     }
     
     public boolean isAppendSelection() {
@@ -290,7 +292,7 @@ public class SelectionController implements ActionListener, AnalogListener {
         }
         if (isPressed && (Transform.isName(name) || Append.isName(name) ||
             Select.isName(name) || Context.isName(name) || Scroll.isName(name)))
-            contextMenu.hide();
+            world.getContextMenu().hide();
         if (Transform.isName(name))
             setTransformActive(isPressed);
         else if (Append.isName(name))
@@ -330,7 +332,7 @@ public class SelectionController implements ActionListener, AnalogListener {
         if (isTransformActive()) {
             setRotateActive(isPressed);
         } else if (!isPressed) {
-            contextMenu.show(world.getEngine());
+            world.getContextMenu().show(world.getEngine());
         }
     }
     
@@ -445,5 +447,18 @@ public class SelectionController implements ActionListener, AnalogListener {
                 return result;
         }
         return null;
+    }
+    
+    public void addListener(SelectionListener listener) {
+        listeners.add(listener);
+    }
+    
+    public void removeListener(SelectionListener listener) {
+        listeners.remove(listener);
+    }
+    
+    public void selectionChanged() {
+        for (SelectionListener listener : listeners)
+            listener.onSelectionChanged(this);
     }
 }

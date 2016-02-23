@@ -1,4 +1,4 @@
-Material NewMouse : Common/MatDefs/Light/Lighting.j3md {
+Material Mouse : Common/MatDefs/Light/Lighting.j3md {
      MaterialParameters {
         HighQuality : false
         UseMaterialColors : true

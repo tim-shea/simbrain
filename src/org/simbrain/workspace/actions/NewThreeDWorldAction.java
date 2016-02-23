@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 
 import org.simbrain.resource.ResourceManager;
 import org.simbrain.workspace.Workspace;
-import org.simbrain.world.threedworld.Preferences;
 import org.simbrain.world.threedworld.ThreeDWorldComponent;
 
 /**

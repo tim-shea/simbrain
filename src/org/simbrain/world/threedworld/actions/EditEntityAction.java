@@ -5,9 +5,10 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import org.simbrain.world.threedworld.ThreeDWorld;
-import org.simbrain.world.threedworld.ThreeDWorldComponent;
 
 public class EditEntityAction extends AbstractAction {
+    private static final long serialVersionUID = 4347451650539760125L;
+    
     private ThreeDWorld world;
     
     public EditEntityAction(ThreeDWorld world, boolean enabled) {

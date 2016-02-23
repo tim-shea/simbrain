@@ -4,13 +4,11 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import net.miginfocom.swing.MigLayout;
@@ -62,6 +60,7 @@ public class ModelEditor extends EntityEditor {
     @Override
     public void writeValues() {
         super.writeValues();
-        model.reload(fileNameField.getText());
+        if (!fileNameField.getText().equals(model.getFileName()))
+            model.reload(fileNameField.getText());
     }
 }

@@ -5,23 +5,21 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import org.simbrain.world.threedworld.ThreeDWorld;
-import org.simbrain.world.threedworld.ThreeDWorldComponent;
 
-public class DeleteEntityAction extends AbstractAction {
+public class SelectAllAction extends AbstractAction {
     private static final long serialVersionUID = -4679471843215287046L;
     
     private ThreeDWorld world;
     
-    public DeleteEntityAction(ThreeDWorld world, boolean enabled) {
-        super("Delete Entity");
+    public SelectAllAction(ThreeDWorld world) {
+        super("Select All");
         this.world = world;
-        setEnabled(enabled);
     }
     
     @Override
     public void actionPerformed(ActionEvent event) {
         world.getEngine().enqueue(() -> {
-            world.getSelectionController().deleteSelection();
+            world.getSelectionController().selectAll(world.getEntities());
         });
     }
 }
