@@ -1,11 +1,13 @@
 package org.simbrain.world.threedworld.engine;
 
 import java.awt.Dimension;
+import java.io.File;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import com.jme3.app.Application;
 import com.jme3.asset.plugins.FileLocator;
+import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.audio.AudioContext;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
@@ -180,8 +182,16 @@ public class ThreeDEngine extends Application {
     public void initialize() {
         super.initialize();
         
-        getAssetManager().registerLocator("/", FileLocator.class);
-        getAssetManager().registerLocator("bin/org/simbrain/resource/ThreeDAssets/assets/", FileLocator.class);
+        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+        	getAssetManager().registerLocator("C:/", FileLocator.class);
+        } else {
+        	getAssetManager().registerLocator("/", FileLocator.class);
+        }
+        if (new File("Simbrain.jar").exists()) {
+        	getAssetManager().registerLocator("Simbrain.jar", ZipLocator.class);
+        } else {
+        	getAssetManager().registerLocator("bin/org/simbrain/resource/ThreeDAssets/assets/", FileLocator.class);
+        }
         
         if (!sceneFileName.trim().isEmpty())
             loadScene(sceneFileName);
