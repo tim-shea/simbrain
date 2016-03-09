@@ -18,7 +18,7 @@ public class ToggleRunAction extends AbstractAction {
     public ToggleRunAction(ThreeDWorld world) {
         super("Toggle Run");
         this.world = world;
-        ImageIcon icon = ResourceManager.getImageIcon("Physics.png");
+        ImageIcon icon = ResourceManager.getImageIcon("physics.png");
         icon.setImage(icon.getImage().getScaledInstance(18, 18, Image.SCALE_SMOOTH));
         putValue(SMALL_ICON, icon);
         putValue(SHORT_DESCRIPTION, "Toggle Run");

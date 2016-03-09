@@ -1,4 +1,4 @@
-Material GrassyPlane : Common/MatDefs/Light/Lighting.j3md {
+Material Grass : Common/MatDefs/Light/Lighting.j3md {
      MaterialParameters {
         HighQuality : true
         UseMaterialColors : true

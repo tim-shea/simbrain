@@ -65,7 +65,7 @@ public class ThreeDEngine extends Application {
         bulletAppState.setEnabled(false);
         getStateManager().attach(bulletAppState);
         
-        sceneFileName = "Scenes/GrassyPlane.j3o";
+        sceneFileName = "Scenes/GrassyPlain.j3o";
     }
     
     public ThreeDPanel getPanel() {
@@ -188,13 +188,15 @@ public class ThreeDEngine extends Application {
         	getAssetManager().registerLocator("/", FileLocator.class);
         }
         if (new File("Simbrain.jar").exists()) {
-        	getAssetManager().registerLocator("Simbrain.jar", ZipLocator.class);
+        	getAssetManager().registerLocator("threedassets/assets", FileLocator.class);
         } else {
-        	getAssetManager().registerLocator("bin/org/simbrain/resource/ThreeDAssets/assets/", FileLocator.class);
+        	getAssetManager().registerLocator("src/org/simbrain/world/threedworld/threedassets/assets", FileLocator.class);
         }
         
-        if (!sceneFileName.trim().isEmpty())
-            loadScene(sceneFileName);
+        if (!sceneFileName.trim().isEmpty()) {
+            //loadScene(sceneFileName);
+        	rootNode = new Node("root");
+        }
         bulletAppState.getPhysicsSpace().addAll(rootNode);
         viewPort.attachScene(rootNode);
         
