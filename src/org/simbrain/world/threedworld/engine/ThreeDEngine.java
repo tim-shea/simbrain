@@ -194,8 +194,8 @@ public class ThreeDEngine extends Application {
         }
         
         if (!sceneFileName.trim().isEmpty()) {
-            //loadScene(sceneFileName);
-        	rootNode = new Node("root");
+            loadScene(sceneFileName);
+        	//rootNode = new Node("root");
         }
         bulletAppState.getPhysicsSpace().addAll(rootNode);
         viewPort.attachScene(rootNode);

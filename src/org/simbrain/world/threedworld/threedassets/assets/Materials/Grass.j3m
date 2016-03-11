@@ -3,12 +3,13 @@ Material Grass : Common/MatDefs/Light/Lighting.j3md {
         HighQuality : true
         UseMaterialColors : true
         WardIso : true
-        DiffuseMap : Textures/grass_d.png
-        NormalMap : Textures/grass_n.png
+        DiffuseMap : Repeat Textures/grass_d.png
+        NormalMap : Repeat Textures/grass_n.png
         Specular : 1.0 1.0 1.0 1.0
         Diffuse : 1.0 1.0 1.0 1.0
         Ambient : 1.0 1.0 1.0 1.0
         Shininess : 0.01
+        SpecularMap : Repeat Textures/grass_s.png
      }
     AdditionalRenderState {
     }
