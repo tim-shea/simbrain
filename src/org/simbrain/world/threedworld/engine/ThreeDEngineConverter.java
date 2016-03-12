@@ -27,7 +27,7 @@ public class ThreeDEngineConverter implements Converter {
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         if (engine == null) {
-            ThreeDEngine engine = new ThreeDEngine();
+            engine = new ThreeDEngine();
             engine.queueState(ThreeDEngine.State.SystemPause, true);
         }
         return engine;

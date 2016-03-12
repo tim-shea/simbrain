@@ -1,22 +1,70 @@
 <org.simbrain.world.threedworld.ThreeDWorld>
-  <preferences>
-    <sceneName></sceneName>
-    <guiName></guiName>
-    <width>630</width>
-    <height>461</height>
-    <realTimeMode>true</realTimeMode>
-    <frameRate>30</frameRate>
-    <ambientLight>-1</ambientLight>
-    <directionalLight>-1</directionalLight>
+  <engine/>
+  <entities>
+    <org.simbrain.world.threedworld.entities.BoxEntity>
+      <engine reference="../../../engine"/>
+      <name>Block0</name>
+      <size>
+        <x>1.0</x>
+        <y>1.0</y>
+        <z>1.0</z>
+      </size>
+      <mass>1.0</mass>
+      <material>Materials/BlueTile.j3m</material>
+      <position>
+        <x>1.9919696</x>
+        <y>0.99991673</y>
+        <z>6.0132933</z>
+      </position>
+      <rotation>
+        <x>1.1197829E-5</x>
+        <y>-0.016429009</y>
+        <z>8.837255E-5</z>
+        <w>0.99986506</w>
+      </rotation>
+    </org.simbrain.world.threedworld.entities.BoxEntity>
+  </entities>
+  <cameraController>
+    <world reference="../.."/>
+    <position>
+      <x>5.029545</x>
+      <y>4.7340603</y>
+      <z>-9.649195</z>
+    </position>
     <fieldOfView>80.0</fieldOfView>
     <nearClip>0.1</nearClip>
     <farClip>100.0</farClip>
     <moveSpeed>5.0</moveSpeed>
     <rotateSpeed>10.0</rotateSpeed>
     <zoomSpeed>1.0</zoomSpeed>
-  </preferences>
-  <engine/>
-  <entities/>
+    <homePosition>
+      <x>0.0</x>
+      <y>2.5</y>
+      <z>0.0</z>
+    </homePosition>
+    <homeRotation>
+      <float>0.0</float>
+      <float>0.0</float>
+      <float>0.0</float>
+    </homeRotation>
+    <homeZoom>80.0</homeZoom>
+    <yawAxis>
+      <x>0.0</x>
+      <y>1.0</y>
+      <z>0.0</z>
+    </yawAxis>
+    <cameraBounds>
+      <checkPlane>0</checkPlane>
+      <center>
+        <x>0.0</x>
+        <y>17.0</y>
+        <z>0.0</z>
+      </center>
+      <xExtent>64.0</xExtent>
+      <yExtent>16.0</yExtent>
+      <zExtent>64.0</zExtent>
+    </cameraBounds>
+  </cameraController>
   <idCounter>
     <value>1</value>
   </idCounter>

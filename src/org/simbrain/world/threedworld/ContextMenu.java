@@ -23,8 +23,8 @@ public class ContextMenu {
         popupMenu.add(world.getAction("Control Agent"));
         popupMenu.add(world.getAction("Release Agent"));
         popupMenu.addSeparator();
-        popupMenu.add(world.getAction("Edit Floor Texture"));
-        popupMenu.add(world.getAction("Edit World Preferences"));
+        popupMenu.add(world.getAction("Load Scene"));
+        popupMenu.add(world.getAction("Edit Camera Controller"));
     }
     
     public void show(ThreeDEngine engine) {

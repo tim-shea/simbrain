@@ -19,7 +19,7 @@ public class LoadSceneAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent event) {
         world.getEngine().enqueue(() -> {
-            // TODO: Show dialog for scene selection
+            
         });
     }
 }
