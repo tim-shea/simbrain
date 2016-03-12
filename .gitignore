@@ -15,9 +15,12 @@ out/*
 *.log
 *.so
 *.dll
+*.dylib
+*.DS_Store
 /src/org/simbrain/resource/ThreeDAssets/nbproject/private/
 /src/org/simbrain/resource/ThreeDAssets/build/
 /src/org/simbrain/resource/ThreeDAssets/dist/
 /src/org/simbrain/resource/ThreeDWorldAssets/nbproject/private/
 /src/org/simbrain/resource/ThreeDWorldAssets/build/
 /src/org/simbrain/resource/ThreeDWorldAssets/build
+/src/org/simbrain/world/threedworld/threedassets/nbproject/private/

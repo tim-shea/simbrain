@@ -20,11 +20,9 @@ public class ContextMenu {
         popupMenu.add(world.getAction("Paste Selection"));
         popupMenu.add(world.getAction("Delete Selection"));
         popupMenu.add(world.getAction("Edit Entity"));
+        popupMenu.addSeparator();
         popupMenu.add(world.getAction("Control Agent"));
         popupMenu.add(world.getAction("Release Agent"));
-        popupMenu.addSeparator();
-        popupMenu.add(world.getAction("Load Scene"));
-        popupMenu.add(world.getAction("Edit Camera Controller"));
     }
     
     public void show(ThreeDEngine engine) {
