@@ -22,23 +22,36 @@ import org.simbrain.workspace.component_actions.SaveAsAction;
 import org.simbrain.workspace.gui.GuiComponent;
 import org.simbrain.world.threedworld.entities.EditorDialog;
 
+/**
+ * ThreeDDesktopComponent is the GUI component for a ThreeDWorld.
+ */
 public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
     private static final long serialVersionUID = 8711925427252261845L;
 
-	public ThreeDDesktopComponent(GenericFrame frame, ThreeDWorldComponent component) {
-		super(frame, component);
-		setLayout(new BorderLayout());
+    /**
+     * Construct a new ThreeDDesktopComponent to hold a ThreeDWorldComponent in a Frame.
+     * @param frame The frame in which to create GUI elements.
+     * @param component The workspace component which hold the ThreeDWorld.
+     */
+    public ThreeDDesktopComponent(GenericFrame frame, ThreeDWorldComponent component) {
+        super(frame, component);
+        setLayout(new BorderLayout());
 
         frame.setJMenuBar(createMenus(component));
-        add(createToolBars(component), BorderLayout.NORTH);
+        add(createToolBar(component), BorderLayout.NORTH);
         Component panel = component.getWorld().getEngine().getPanel();
         add(panel, BorderLayout.CENTER);
         frame.setBounds(100, 100, 100, 100);
         EditorDialog.setOwner(this);
-	}
+    }
 
-	private JMenuBar createMenus(ThreeDWorldComponent component) {
-	    JMenuBar menuBar = new JMenuBar();
+    /**
+     * Create a JMenuBar to hold the World, Entities, and Help menu items.
+     * @param component The workspace component from which to build the menus.
+     * @return The instantiated JMenuBar.
+     */
+    private JMenuBar createMenus(ThreeDWorldComponent component) {
+        JMenuBar menuBar = new JMenuBar();
 
         JMenu worldMenu = new JMenu("World");
         worldMenu.add(new OpenAction(this));
@@ -69,10 +82,15 @@ public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
         JMenu helpMenu = new JMenu("Help");
         menuBar.add(helpMenu);
         return menuBar;
-	}
+    }
 
-	private Component createToolBars(ThreeDWorldComponent component) {
-	    JPanel toolPanel = new JPanel(new BorderLayout());
+    /**
+     * Create a toolbar to hold ThreeDWorld action buttons.
+     * @param component The workspace component from which to build the buttons.
+     * @return The instantiated toolbar.
+     */
+    private Component createToolBar(ThreeDWorldComponent component) {
+        JPanel toolPanel = new JPanel(new BorderLayout());
         JToolBar runToolbar = new JToolBar();
         runToolbar.add(createToggleButton(component.getWorld().getAction("Toggle Update Sync"), true));
         runToolbar.add(createToggleButton(component.getWorld().getAction("Toggle Run"), true));
@@ -84,12 +102,13 @@ public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
                 component.getWorld().getAction("Release Agent"))));
         editToolbar.add(component.getWorld().getAction("Camera Home"));
         editToolbar.add(createToggleButton(component.getWorld().getAction("Snap Transforms"), true));
-        SpinnerListModel rotationAxisModel = new SpinnerListModel(Arrays.asList("X Axis", "Y Axis", "Z Axis", "Camera"));
+        SpinnerListModel rotationAxisModel = new SpinnerListModel(
+                Arrays.asList("X Axis", "Y Axis", "Z Axis", "Camera"));
         rotationAxisModel.setValue(component.getWorld().getSelectionController().getRotationAxis());
         JSpinner rotationAxisSpinner = new JSpinner(rotationAxisModel);
-        ((JSpinner.DefaultEditor)rotationAxisSpinner.getEditor()).getTextField().setColumns(4);;
+        ((JSpinner.DefaultEditor) rotationAxisSpinner.getEditor()).getTextField().setColumns(4);
         rotationAxisSpinner.addChangeListener((event) -> {
-            component.getWorld().getSelectionController().setRotationAxis((String)rotationAxisModel.getValue());
+            component.getWorld().getSelectionController().setRotationAxis((String) rotationAxisModel.getValue());
         });
         editToolbar.add(rotationAxisSpinner);
 
@@ -102,8 +121,14 @@ public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
 
         toolPanel.add("Center", internalToolbar);
         return toolPanel;
-	}
+    }
 
+    /**
+     * Create a toggle button from a standard action.
+     * @param action The action to attach to the toggle button.
+     * @param selected Whether the initial state of the toggle button is selected.
+     * @return The instantiated toggle button.
+     */
     public JToggleButton createToggleButton(AbstractAction action, boolean selected) {
         JToggleButton button = new JToggleButton(action);
         button.setHideActionText(true);
@@ -112,7 +137,7 @@ public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
         return button;
     }
 
-	@Override
-	protected void closing() { }
+    @Override
+    protected void closing() { }
 
 }

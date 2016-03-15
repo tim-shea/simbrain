@@ -2,12 +2,10 @@ package org.simbrain.world.threedworld.engine;
 
 import java.awt.Dimension;
 import java.io.File;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import com.jme3.app.Application;
 import com.jme3.asset.plugins.FileLocator;
-import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.audio.AudioContext;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
@@ -78,7 +76,7 @@ public class ThreeDEngine extends Application {
         bulletAppState = new BulletAppState();
         bulletAppState.setEnabled(false);
         getStateManager().attach(bulletAppState);
-        
+
         sceneFileName = "Scenes/GrassyPlain.j3o";
     }
 
@@ -243,18 +241,14 @@ public class ThreeDEngine extends Application {
     @Override
     public void initialize() {
         super.initialize();
-        
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-        	getAssetManager().registerLocator("C:/", FileLocator.class);
-        } else {
-        	getAssetManager().registerLocator("/", FileLocator.class);
-        }
-        if (new File("Simbrain.jar").exists()) {
-        	getAssetManager().registerLocator("threedassets/assets", FileLocator.class);
-        } else {
-        	getAssetManager().registerLocator("src/org/simbrain/world/threedworld/threedassets/assets", FileLocator.class);
-        }
-        
+
+        String rootDirectory = (System.getProperty("os.name").toLowerCase().contains("windows") ? "C:/" : "/");
+        getAssetManager().registerLocator(rootDirectory, FileLocator.class);
+
+        String simbrainDirectory = (new File("Simbrain.jar").exists() ? "threedassets/assets"
+                : "src/org/simbrain/world/threedworld/threedassets/assets");
+        getAssetManager().registerLocator(simbrainDirectory, FileLocator.class);
+
         if (!sceneFileName.trim().isEmpty()) {
             loadScene(sceneFileName);
         }
