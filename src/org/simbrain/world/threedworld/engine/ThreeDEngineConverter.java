@@ -6,24 +6,35 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
+/**
+ * XStream XML Converter for the ThreeDEngine class. Used only to manage
+ * references without preserving any engine state during serialization.
+ */
 public class ThreeDEngineConverter implements Converter {
     private ThreeDEngine engine;
-    
-    public ThreeDEngineConverter() {}
-    
+
+    /**
+     * Construct a new converter.
+     */
+    public ThreeDEngineConverter() { }
+
+    /**
+     * Construct a new converter which will use an existing engine to deserialize
+     * references, rather than constructing an engine.
+     * @param engine The engine to assign to serialized references.
+     */
     public ThreeDEngineConverter(ThreeDEngine engine) {
         this.engine = engine;
     }
-    
-    @Override
+
+    @SuppressWarnings("rawtypes") @Override
     public boolean canConvert(Class type) {
         return type.equals(ThreeDEngine.class);
     }
-    
+
     @Override
-    public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
-    }
-    
+    public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) { }
+
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         if (engine == null) {

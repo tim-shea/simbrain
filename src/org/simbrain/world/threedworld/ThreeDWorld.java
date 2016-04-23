@@ -18,6 +18,7 @@ import com.jme3.app.Application;
 import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.renderer.RenderManager;
+import com.jme3.scene.Node;
 
 /**
  * ThreeDWorld is a container for the engine, entities, and controllers needed
@@ -36,6 +37,7 @@ public class ThreeDWorld implements AppState {
 
     private transient boolean initialized;
     private ThreeDEngine engine;
+    private String scene;
     private List<Entity> entities;
     private CameraController cameraController;
     private transient SelectionController selectionController;
@@ -58,6 +60,7 @@ public class ThreeDWorld implements AppState {
         agentController = new AgentController(this);
         clipboardController = new ClipboardController(this);
         listeners = new ArrayList<WorldListener>();
+        scene = "Scenes/GrassyPlain.j3o";
         entities = new ArrayList<Entity>();
         actions = ActionManager.createActions(this);
         contextMenu = new ContextMenu(this);
@@ -70,7 +73,7 @@ public class ThreeDWorld implements AppState {
     public Object readResolve() {
         initialized = false;
         engine.getStateManager().attach(this);
-        cameraController = new CameraController(this);
+        //cameraController = new CameraController(this);
         selectionController = new SelectionController(this);
         agentController = new AgentController(this);
         clipboardController = new ClipboardController(this);
@@ -80,51 +83,103 @@ public class ThreeDWorld implements AppState {
         return this;
     }
 
+    /**
+     * @param name The name of the action.
+     * @return An AWT action, if it exists.
+     */
     public AbstractAction getAction(String name) {
         return actions.get(name);
     }
 
+    /**
+     * @return The ThreeDEngine which is rendering this world.
+     */
     public ThreeDEngine getEngine() {
         return engine;
     }
 
+    /**
+     * @return The controller for the editor camera.
+     */
     public CameraController getCameraController() {
         return cameraController;
     }
 
+    /**
+     * @return The controller for selected entities.
+     */
     public SelectionController getSelectionController() {
         return selectionController;
     }
 
+    /**
+     * @return The controller for active agents.
+     */
     public AgentController getAgentController() {
         return agentController;
     }
 
+    /**
+     * @return The controller for the ThreeDWorld clipboard.
+     */
     public ClipboardController getClipboardController() {
         return clipboardController;
     }
 
+    /**
+     * Add a listener to this ThreeDWorld to receive initialize and update notifications.
+     * @param listener The listener to notify.
+     */
     public void addListener(WorldListener listener) {
         listeners.add(listener);
     }
 
+    /**
+     * Remove a listener from this ThreeDWorld.
+     * @param listener The listener to remove.
+     */
     public void removeListener(WorldListener listener) {
         listeners.remove(listener);
     }
 
+    /**
+     * @return The ContextMenu containing GUI actions for the world.
+     */
     public ContextMenu getContextMenu() {
         return contextMenu;
     }
 
+    /**
+     * @return The name of the current scene.
+     */
+    public String getScene() {
+        return scene;
+    }
+
+    /**
+     * @param value The name of the scene to load.
+     */
+    public void loadScene(String value) {
+        scene = value;
+        Node newRoot = (Node) engine.getAssetManager().loadModel(scene);
+        Node oldRoot = (Node) engine.getRootNode();
+        for (Entity entity : entities) {
+            oldRoot.detachChild(entity.getNode());
+            newRoot.attachChild(entity.getNode());
+        }
+        engine.setRootNode(newRoot);
+    }
+
+    /**
+     * @return The current list of entities in the world.
+     */
     public List<Entity> getEntities() {
         return entities;
     }
 
-    public void setEntities(List<Entity> value) {
-        entities = value;
-    }
-
-    /** Create and return a new, locally unique identifier for an entity. */
+    /**
+     * @return A new unique identifier for an entity.
+     */
     public String createId() {
         return String.valueOf(idCounter.getAndIncrement());
     }
@@ -146,6 +201,7 @@ public class ThreeDWorld implements AppState {
         cameraController.setCamera(application.getCamera());
         cameraController.moveCameraHome();
         agentController.registerInput();
+        engine.setRootNode((Node) engine.getAssetManager().loadModel(scene));
         for (WorldListener listener : listeners) {
             listener.onWorldInitialize(ThreeDWorld.this);
         }

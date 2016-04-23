@@ -215,7 +215,7 @@ public class SelectionController implements ActionListener, AnalogListener {
     
     public void editSelection() {
         if (hasSelection())
-            editorDialog.showEditor(getSelectedEntity());
+            editorDialog.showEditor(getSelectedEntity().getEditor());
     }
     
     public void deleteSelection() {
@@ -318,7 +318,7 @@ public class SelectionController implements ActionListener, AnalogListener {
                 if (!isPressed) {
                     long time = System.currentTimeMillis();
                     if (time - selectReleaseTime < DOUBLE_CLICK_MSEC)
-                        editorDialog.showEditor(entity);
+                        editorDialog.showEditor(entity.getEditor());
                     selectReleaseTime = System.currentTimeMillis();
                 }
                 setMoveActive(isPressed);
