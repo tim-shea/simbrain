@@ -50,11 +50,11 @@ public class Utils {
 
     /** File system separator. */
     private static final String FS = System.getProperty("file.separator");
-    
+
     /**
      * Helper method that returns the date and time in a format that can be used
      * to create filenames.
-     * 
+     *
      * @return the formatted time string
      */
     public static String getTimeString() {

@@ -14,6 +14,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SpinnerListModel;
 import org.simbrain.util.genericframe.GenericFrame;
+import org.simbrain.util.widgets.ShowHelpAction;
 import org.simbrain.util.widgets.ToggleButton;
 import org.simbrain.workspace.component_actions.CloseAction;
 import org.simbrain.workspace.component_actions.OpenAction;
@@ -80,6 +81,7 @@ public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
         menuBar.add(entitiesMenu);
 
         JMenu helpMenu = new JMenu("Help");
+        helpMenu.add(new ShowHelpAction("Pages/Worlds/ThreeDWorld/ThreeDWorld.html"));
         menuBar.add(helpMenu);
         return menuBar;
     }
