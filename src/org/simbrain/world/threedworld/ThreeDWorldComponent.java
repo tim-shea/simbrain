@@ -21,7 +21,14 @@ import org.simbrain.world.threedworld.entities.WalkingEffector;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
+/**
+ * ThreeDWorldComponent is a workspace component to extract some serialization and attribute
+ * management from the ThreeDWorld.
+ */
 public class ThreeDWorldComponent extends WorkspaceComponent {
+    /**
+     * @return A newly constructed xstream for serializing a ThreeDWorld.
+     */
     public static XStream getXStream() {
         XStream stream = new XStream(new DomDriver());
         stream.registerConverter(new ThreeDEngineConverter());
@@ -29,61 +36,91 @@ public class ThreeDWorldComponent extends WorkspaceComponent {
         stream.registerConverter(new ModelEntityXmlConverter());
         return stream;
     }
-	
+
+    /**
+     * Open a saved ThreeDWorldComponent from an XML input stream.
+     * @param input The input stream to read.
+     * @param name The name of the new world component.
+     * @param format The format of the input stream. Should be xml.
+     * @return A deserialized ThreeDWorldComponent with a valid ThreeDWorld.
+     */
     public static ThreeDWorldComponent open(InputStream input, String name, String format) {
-    	ThreeDWorld world = (ThreeDWorld)getXStream().fromXML(input);
+        ThreeDWorld world = (ThreeDWorld) getXStream().fromXML(input);
         return new ThreeDWorldComponent(name, world);
     }
-	
+
     private ThreeDWorld world;
-    
+
+    /**
+     * Construct a new ThreeDWorldComponent.
+     * @param name The name of the new component.
+     */
     public ThreeDWorldComponent(String name) {
         super(name);
         world = new ThreeDWorld();
         addAttributeTypes();
     }
-    
-    public ThreeDWorldComponent(String name, ThreeDWorld world) {
+
+    /**
+     * Construct a ThreeDWorldComponent with an existing ThreeDWorld.
+     * @param name The name of the new component.
+     * @param world The world.
+     */
+    private ThreeDWorldComponent(String name, ThreeDWorld world) {
         super(name);
         this.world = world;
         addAttributeTypes();
     }
-    
+
+    /**
+     * @return The ThreeDWorld for this workspace component.
+     */
     public ThreeDWorld getWorld() {
         return world;
     }
-    
+
+    /**
+     * Setup the attribute types provided by ThreeDWorld.
+     */
     private void addAttributeTypes() {
-        for (AttributeType type : Entity.getProducerTypes(this))
+        for (AttributeType type : Entity.getProducerTypes(this)) {
             addProducerType(type);
-        for (AttributeType type : ModelEntity.getProducerTypes(this))
+        }
+        for (AttributeType type : ModelEntity.getProducerTypes(this)) {
             addProducerType(type);
-        for (AttributeType type : VisionSensor.getProducerTypes(this))
+        }
+        for (AttributeType type : VisionSensor.getProducerTypes(this)) {
             addProducerType(type);
-        for (AttributeType type : Entity.getConsumerTypes(this))
+        }
+        for (AttributeType type : Entity.getConsumerTypes(this)) {
             addConsumerType(type);
-        for (AttributeType type : ModelEntity.getConsumerTypes(this))
+        }
+        for (AttributeType type : ModelEntity.getConsumerTypes(this)) {
             addConsumerType(type);
-        for (AttributeType type : WalkingEffector.getConsumerTypes(this))
+        }
+        for (AttributeType type : WalkingEffector.getConsumerTypes(this)) {
             addConsumerType(type);
+        }
     }
-    
+
     @Override
     public List<PotentialConsumer> getPotentialConsumers() {
         List<PotentialConsumer> potentialConsumers = new ArrayList<PotentialConsumer>();
-        for (Entity entity : world.getEntities())
+        for (Entity entity : world.getEntities()) {
             potentialConsumers.addAll(entity.getPotentialConsumers());
+        }
         return potentialConsumers;
     }
-    
+
     @Override
     public List<PotentialProducer> getPotentialProducers() {
         List<PotentialProducer> potentialProducers = new ArrayList<PotentialProducer>();
-        for (Entity entity : world.getEntities())
+        for (Entity entity : world.getEntities()) {
             potentialProducers.addAll(entity.getPotentialProducers());
+        }
         return potentialProducers;
     }
-    
+
     @Override
     public void save(OutputStream output, String format) {
         ThreeDEngine.State previousState = world.getEngine().getState();
@@ -91,12 +128,12 @@ public class ThreeDWorldComponent extends WorkspaceComponent {
         getXStream().toXML(world, output);
         world.getEngine().queueState(previousState, false);
     }
-    
+
     @Override
     protected void closing() {
         world.getEngine().stop(true);
     }
-    
+
     @Override
     public void update() {
         world.getEngine().updateSync();

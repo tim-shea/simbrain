@@ -1,9 +1,26 @@
 <org.simbrain.world.threedworld.ThreeDWorld>
   <engine/>
+  <sceneName>Scenes/GrassyPlain.j3o</sceneName>
   <entities>
+    <org.simbrain.world.threedworld.entities.ModelEntity>
+      <engine reference="../../../engine"/>
+      <name>Model0</name>
+      <fileName>Models/UVSphere.j3o</fileName>
+      <position>
+        <x>1.9919517</x>
+        <y>0.9999066</y>
+        <z>5.9916697</z>
+      </position>
+      <rotation>
+        <x>-0.004169519</x>
+        <y>-7.639884E-11</y>
+        <z>0.00402919</z>
+        <w>0.9999832</w>
+      </rotation>
+    </org.simbrain.world.threedworld.entities.ModelEntity>
     <org.simbrain.world.threedworld.entities.BoxEntity>
       <engine reference="../../../engine"/>
-      <name>Block0</name>
+      <name>Block1</name>
       <size>
         <x>1.0</x>
         <y>1.0</y>
@@ -12,24 +29,71 @@
       <mass>1.0</mass>
       <material>Materials/BlueTile.j3m</material>
       <position>
-        <x>1.9919696</x>
-        <y>0.99991673</y>
-        <z>6.0132933</z>
+        <x>-4.0032525</x>
+        <y>0.9997245</y>
+        <z>4.0069222</z>
       </position>
       <rotation>
-        <x>1.1197829E-5</x>
-        <y>-0.016429009</y>
-        <z>8.837255E-5</z>
-        <w>0.99986506</w>
+        <x>-9.542315E-6</x>
+        <y>-0.0022181424</y>
+        <z>1.0021559E-4</z>
+        <w>0.99999756</w>
       </rotation>
     </org.simbrain.world.threedworld.entities.BoxEntity>
+    <org.simbrain.world.threedworld.entities.Agent>
+      <model>
+        <engine reference="../../../../engine"/>
+        <name>Mouse2</name>
+        <fileName>Models/Mouse.j3o</fileName>
+        <position>
+          <x>-2.999998</x>
+          <y>0.4113463</y>
+          <z>-1.9780545</z>
+        </position>
+        <rotation>
+          <x>0.0</x>
+          <y>0.0</y>
+          <z>-1.4901174E-8</z>
+          <w>1.0</w>
+        </rotation>
+      </model>
+      <sensors>
+        <org.simbrain.world.threedworld.entities.VisionSensor>
+          <agent reference="../../.."/>
+          <headOffset>
+            <x>0.0</x>
+            <y>1.25</y>
+            <z>2.25</z>
+          </headOffset>
+          <width>10</width>
+          <height>10</height>
+          <mode>1</mode>
+        </org.simbrain.world.threedworld.entities.VisionSensor>
+      </sensors>
+      <effectors>
+        <org.simbrain.world.threedworld.entities.WalkingEffector>
+          <agent reference="../../.."/>
+          <walkSpeed>3.0</walkSpeed>
+          <turnSpeed>3.0</turnSpeed>
+          <idleAnimName>Idle</idleAnimName>
+          <walkAnimName>Walk</walkAnimName>
+          <turnAnimName>Idle</turnAnimName>
+          <idleAnimSpeed>1.0</idleAnimSpeed>
+          <walkAnimSpeed>3.0</walkAnimSpeed>
+          <turnAnimSpeed>1.0</turnAnimSpeed>
+          <walking>0.0</walking>
+          <turning>0.0</turning>
+          <moving>false</moving>
+        </org.simbrain.world.threedworld.entities.WalkingEffector>
+      </effectors>
+    </org.simbrain.world.threedworld.entities.Agent>
   </entities>
   <cameraController>
     <world reference="../.."/>
     <position>
-      <x>5.029545</x>
-      <y>4.7340603</y>
-      <z>-9.649195</z>
+      <x>5.317769</x>
+      <y>4.430875</y>
+      <z>-2.5267665</z>
     </position>
     <fieldOfView>80.0</fieldOfView>
     <nearClip>0.1</nearClip>
@@ -66,6 +130,6 @@
     </cameraBounds>
   </cameraController>
   <idCounter>
-    <value>1</value>
+    <value>3</value>
   </idCounter>
 </org.simbrain.world.threedworld.ThreeDWorld>

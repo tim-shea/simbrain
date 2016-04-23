@@ -31,24 +31,24 @@ public class EditorDialog {
         
         void close();
     }
-    
+
     private static ThreeDDesktopComponent owner;
     public static DecimalFormat integerFormat = new DecimalFormat();
     public static DecimalFormat floatFormat = new DecimalFormat();
-    
+
     static {
         integerFormat.setParseIntegerOnly(true);
         floatFormat.setMaximumFractionDigits(3);
         floatFormat.setMinimumFractionDigits(1);
     }
-    
+
     public static void setOwner(ThreeDDesktopComponent value) {
         owner = value;
     }
-    
+
     private JDialog dialog;
     private Editor editor;
-    
+
     private Action okAction = new AbstractAction("Ok") {
         @Override
         public void actionPerformed(ActionEvent event) {
@@ -71,17 +71,17 @@ public class EditorDialog {
         }
     };
     private JButton cancelButton = new JButton(cancelAction);
-    
+
     public EditorDialog() {}
-    
-    public void showEditor(Entity entity) {
+
+    public void showEditor(Editor editor) {
         if (dialog != null)
             return;
         dialog = new JDialog(owner.getDesktop().getFrame());
-        dialog.setTitle("Entity Editor");
+        dialog.setTitle("ThreeDWorld Editor");
         Container contentPane = dialog.getContentPane();
         contentPane.setLayout(new BorderLayout());
-        editor = entity.getEditor();
+        this.editor = editor;
         editor.readValues();
         contentPane.add(editor.layoutFields(), "Center");
         JPanel buttonPane = new JPanel();
@@ -101,7 +101,7 @@ public class EditorDialog {
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
     }
-    
+
     public void closeEditor() {
         if (dialog != null) {
             editor.close();

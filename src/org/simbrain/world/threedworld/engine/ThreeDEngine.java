@@ -9,9 +9,7 @@ import com.jme3.asset.plugins.FileLocator;
 import com.jme3.audio.AudioContext;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
-import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial.CullHint;
 import com.jme3.system.AppSettings;
 
 /**
@@ -49,11 +47,10 @@ public class ThreeDEngine extends Application {
     private ThreeDView view;
     private BulletAppState bulletAppState;
     private Node rootNode;
-    private Node guiNode;
     private State state;
     private boolean updateSync;
     private float fixedTimeStep = 1 / 60f;
-    private String sceneFileName;
+    private String assetDirectory;
 
     /**
      * Construct a new ThreeDEngine with default settings.
@@ -76,8 +73,6 @@ public class ThreeDEngine extends Application {
         bulletAppState = new BulletAppState();
         bulletAppState.setEnabled(false);
         getStateManager().attach(bulletAppState);
-
-        sceneFileName = "Scenes/GrassyPlain.j3o";
     }
 
     /**
@@ -103,11 +98,16 @@ public class ThreeDEngine extends Application {
     }
 
     /**
-     * @return The gui node which is overlaid on the 3d scene. Gui objects must
-     * be added to the gui node to be rendered.
+     * @param value The node to assign to the engine root node.
      */
-    public Node getGuiNode() {
-        return guiNode;
+    public void setRootNode(Node value) {
+        if (rootNode != null) {
+            bulletAppState.getPhysicsSpace().removeAll(rootNode);
+            viewPort.detachScene(rootNode);
+        }
+        rootNode = value;
+        bulletAppState.getPhysicsSpace().addAll(rootNode);
+        viewPort.attachScene(rootNode);
     }
 
     /**
@@ -227,17 +227,6 @@ public class ThreeDEngine extends Application {
         super.setSettings(settings);
     }
 
-    /**
-     * @param fileName The file to load.
-     */
-    private void loadScene(String fileName) {
-        // TODO: Handle scene reload
-        if (rootNode != null) {
-            throw new RuntimeException("Load scene must be called before initialization.");
-        }
-        rootNode = (Node) getAssetManager().loadModel(fileName);
-    }
-
     @Override
     public void initialize() {
         super.initialize();
@@ -245,27 +234,16 @@ public class ThreeDEngine extends Application {
         String rootDirectory = (System.getProperty("os.name").toLowerCase().contains("windows") ? "C:/" : "/");
         getAssetManager().registerLocator(rootDirectory, FileLocator.class);
 
-        String simbrainDirectory = (new File("Simbrain.jar").exists() ? "threedassets/assets"
+        assetDirectory = (new File("Simbrain.jar").exists() ? "threedassets/assets"
                 : "src/org/simbrain/world/threedworld/threedassets/assets");
-        getAssetManager().registerLocator(simbrainDirectory, FileLocator.class);
-
-        if (!sceneFileName.trim().isEmpty()) {
-            loadScene(sceneFileName);
-        }
-        bulletAppState.getPhysicsSpace().addAll(rootNode);
-        viewPort.attachScene(rootNode);
-
-        guiNode = new Node("Gui");
-        guiNode.setQueueBucket(Bucket.Gui);
-        guiNode.setCullHint(CullHint.Never);
-        guiViewPort.attachScene(guiNode);
+        getAssetManager().registerLocator(assetDirectory, FileLocator.class);
 
         view = new ThreeDView(getCamera().getWidth(), getCamera().getHeight());
         view.attach(true, getViewPort());
         panel.setView(view, true);
 
         updateSync = false;
-        setState(State.RunAll);
+        setState(State.SystemPause);
     }
 
     @Override
@@ -297,10 +275,7 @@ public class ThreeDEngine extends Application {
         stateManager.update(tpf);
 
         rootNode.updateLogicalState(tpf);
-        guiNode.updateLogicalState(tpf);
-
         rootNode.updateGeometricState();
-        guiNode.updateGeometricState();
 
         stateManager.render(renderManager);
         renderManager.render(tpf, context.isRenderable());
@@ -324,5 +299,12 @@ public class ThreeDEngine extends Application {
             enqueue(() -> { }, true);
         }
         paused = false;
+    }
+
+    /**
+     * @return The directory in which default assets are stored.
+     */
+    public String getAssetDirectory() {
+        return assetDirectory;
     }
 }
