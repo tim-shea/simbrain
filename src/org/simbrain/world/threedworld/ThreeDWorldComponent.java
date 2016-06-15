@@ -12,9 +12,13 @@ import org.simbrain.workspace.WorkspaceComponent;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.engine.ThreeDEngineConverter;
 import org.simbrain.world.threedworld.entities.Entity;
+import org.simbrain.world.threedworld.entities.Agent;
 import org.simbrain.world.threedworld.entities.BoxEntityXmlConverter;
+import org.simbrain.world.threedworld.entities.CollisionSensor;
+import org.simbrain.world.threedworld.entities.Effector;
 import org.simbrain.world.threedworld.entities.ModelEntity;
 import org.simbrain.world.threedworld.entities.ModelEntityXmlConverter;
+import org.simbrain.world.threedworld.entities.Sensor;
 import org.simbrain.world.threedworld.entities.VisionSensor;
 import org.simbrain.world.threedworld.entities.WalkingEffector;
 
@@ -92,6 +96,9 @@ public class ThreeDWorldComponent extends WorkspaceComponent {
         for (AttributeType type : VisionSensor.getProducerTypes(this)) {
             addProducerType(type);
         }
+        for (AttributeType type : CollisionSensor.getProducerTypes(this)) {
+            addProducerType(type);
+        }
         for (AttributeType type : Entity.getConsumerTypes(this)) {
             addConsumerType(type);
         }
@@ -127,6 +134,45 @@ public class ThreeDWorldComponent extends WorkspaceComponent {
         world.getEngine().queueState(ThreeDEngine.State.SystemPause, true);
         getXStream().toXML(world, output);
         world.getEngine().queueState(previousState, false);
+    }
+
+    @Override
+    public String getKeyFromObject(Object object) {
+        if (object instanceof Entity) {
+            return ((Entity) object).getName();
+        } else if (object instanceof Sensor) {
+            String agentName = ((Sensor) object).getAgent().getName();
+            String sensorType = object.getClass().getSimpleName();
+            return agentName + ":sensor:" + sensorType;
+        } else if (object instanceof Effector) {
+            String agentName = ((Effector) object).getAgent().getName();
+            String effectorType = object.getClass().getSimpleName();
+            return agentName + ":effector:" + effectorType;
+        }
+        return null;
+    }
+
+    @Override
+    public Object getObjectFromKey(String objectKey) {
+        if (objectKey == null || objectKey.isEmpty()) {
+            return null;
+        }
+        String[] parsedKey = objectKey.split(":");
+        Entity entity = getWorld().getEntity(parsedKey[0]);
+        if (parsedKey.length == 1) {
+            return entity;
+        } else if (entity instanceof Agent) {
+            String objectType = parsedKey[1];
+            Agent agent = (Agent) entity;
+            if ("sensor".equalsIgnoreCase(objectType)) {
+                String sensorType = parsedKey[2];
+                return agent.getSensor(sensorType);
+            } else if ("effector".equalsIgnoreCase(objectType)) {
+                String effectorType = parsedKey[2];
+                return agent.getEffector(effectorType);
+            }
+        }
+        return null;
     }
 
     @Override

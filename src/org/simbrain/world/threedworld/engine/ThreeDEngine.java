@@ -98,19 +98,6 @@ public class ThreeDEngine extends Application {
     }
 
     /**
-     * @param value The node to assign to the engine root node.
-     */
-    public void setRootNode(Node value) {
-        if (rootNode != null) {
-            bulletAppState.getPhysicsSpace().removeAll(rootNode);
-            viewPort.detachScene(rootNode);
-        }
-        rootNode = value;
-        bulletAppState.getPhysicsSpace().addAll(rootNode);
-        viewPort.attachScene(rootNode);
-    }
-
-    /**
      * @return The current update state of the engine. Determines whether input, physics,
      * and logic updates are processed.
      */
@@ -166,6 +153,9 @@ public class ThreeDEngine extends Application {
      */
     public void setUpdateSync(boolean value) {
         updateSync = value;
+        if (!updateSync) {
+            queueState(bulletAppState.isEnabled() ? State.RunAll : State.RenderOnly, false);
+        }
     }
 
     /**
@@ -242,8 +232,12 @@ public class ThreeDEngine extends Application {
         view.attach(true, getViewPort());
         panel.setView(view, true);
 
+        rootNode = new Node("root");
+        viewPort.attachScene(rootNode);
+
         updateSync = false;
-        setState(State.SystemPause);
+        setState(State.RunAll);
+        update();
     }
 
     @Override
@@ -292,10 +286,7 @@ public class ThreeDEngine extends Application {
      * wait for this call when updateSync is true.
      */
     public void updateSync() {
-        if (!updateSync) {
-            return;
-        }
-        while (!paused) {
+        while (updateSync && !paused) {
             enqueue(() -> { }, true);
         }
         paused = false;

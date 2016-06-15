@@ -10,11 +10,19 @@ import javax.swing.JToggleButton;
 import org.simbrain.resource.ResourceManager;
 import org.simbrain.world.threedworld.ThreeDWorld;
 
+/**
+ * ToggleUpdateSyncAction toggles whether ThreeDWorld updates are synchronous with
+ * Simbrain workspace updates or are processed as fast as possible.
+ */
 public class ToggleUpdateSyncAction extends AbstractAction {
     private static final long serialVersionUID = 2065579357970661L;
-    
+
     private ThreeDWorld world;
-    
+
+    /**
+     * Construct a new ToggleUpdateSyncAction.
+     * @param world The world to toggle the update synchronization state for.
+     */
     public ToggleUpdateSyncAction(ThreeDWorld world) {
         super("Toggle Update Sync");
         this.world = world;
@@ -23,9 +31,9 @@ public class ToggleUpdateSyncAction extends AbstractAction {
         putValue(SMALL_ICON, icon);
         putValue(SHORT_DESCRIPTION, "Toggle Update Sync");
     }
-    
+
     @Override public void actionPerformed(ActionEvent event) {
-        final boolean sync = ((JToggleButton)event.getSource()).isSelected();
+        final boolean sync = ((JToggleButton) event.getSource()).isSelected();
         world.getEngine().enqueue(() -> {
             world.getEngine().setUpdateSync(sync);
         });

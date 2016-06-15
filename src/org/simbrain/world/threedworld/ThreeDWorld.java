@@ -17,8 +17,11 @@ import org.simbrain.world.threedworld.entities.Entity;
 import com.jme3.app.Application;
 import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
+import com.jme3.light.DirectionalLight;
+import com.jme3.light.Light;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 
 /**
  * ThreeDWorld is a container for the engine, entities, and controllers needed
@@ -37,7 +40,7 @@ public class ThreeDWorld implements AppState {
 
     private transient boolean initialized;
     private ThreeDEngine engine;
-    private String scene;
+    private ThreeDScene scene;
     private List<Entity> entities;
     private CameraController cameraController;
     private transient SelectionController selectionController;
@@ -60,7 +63,7 @@ public class ThreeDWorld implements AppState {
         agentController = new AgentController(this);
         clipboardController = new ClipboardController(this);
         listeners = new ArrayList<WorldListener>();
-        scene = "Scenes/GrassyPlain.j3o";
+        scene = new ThreeDScene();
         entities = new ArrayList<Entity>();
         actions = ActionManager.createActions(this);
         contextMenu = new ContextMenu(this);
@@ -152,22 +155,8 @@ public class ThreeDWorld implements AppState {
     /**
      * @return The name of the current scene.
      */
-    public String getScene() {
+    public ThreeDScene getScene() {
         return scene;
-    }
-
-    /**
-     * @param value The name of the scene to load.
-     */
-    public void loadScene(String value) {
-        scene = value;
-        Node newRoot = (Node) engine.getAssetManager().loadModel(scene);
-        Node oldRoot = (Node) engine.getRootNode();
-        for (Entity entity : entities) {
-            oldRoot.detachChild(entity.getNode());
-            newRoot.attachChild(entity.getNode());
-        }
-        engine.setRootNode(newRoot);
     }
 
     /**
@@ -175,6 +164,19 @@ public class ThreeDWorld implements AppState {
      */
     public List<Entity> getEntities() {
         return entities;
+    }
+
+    /**
+     * @param name The name of the entity to return.
+     * @return An entity or null if none exists.
+     */
+    public Entity getEntity(String name) {
+        for (Entity entity : entities) {
+            if (entity.getName().equals(name)) {
+                return entity;
+            }
+        }
+        return null;
     }
 
     /**
@@ -201,11 +203,12 @@ public class ThreeDWorld implements AppState {
         cameraController.setCamera(application.getCamera());
         cameraController.moveCameraHome();
         agentController.registerInput();
-        engine.setRootNode((Node) engine.getAssetManager().loadModel(scene));
+        scene.load(engine);
         for (WorldListener listener : listeners) {
             listener.onWorldInitialize(ThreeDWorld.this);
         }
         initialized = true;
+        engine.queueState(ThreeDEngine.State.RunAll, false);
     }
 
     @Override

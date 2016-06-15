@@ -94,7 +94,7 @@ public class ThreeDDesktopComponent extends GuiComponent<ThreeDWorldComponent> {
     private Component createToolBar(ThreeDWorldComponent component) {
         JPanel toolPanel = new JPanel(new BorderLayout());
         JToolBar runToolbar = new JToolBar();
-        runToolbar.add(createToggleButton(component.getWorld().getAction("Toggle Update Sync"), true));
+        runToolbar.add(createToggleButton(component.getWorld().getAction("Toggle Update Sync"), false));
         runToolbar.add(createToggleButton(component.getWorld().getAction("Toggle Run"), true));
 
         JToolBar editToolbar = new JToolBar();
