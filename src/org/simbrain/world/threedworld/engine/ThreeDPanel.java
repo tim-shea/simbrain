@@ -16,7 +16,7 @@ import org.simbrain.world.threedworld.engine.ThreeDView.ViewListener;
 
 public class ThreeDPanel extends Canvas {
     private static final long serialVersionUID = 2582113543119990412L;
-    
+
     private class PanelUpdater implements ViewListener {
         @Override
         public void onUpdate(BufferedImage image) {
@@ -38,13 +38,13 @@ public class ThreeDPanel extends Canvas {
                 drawImage(image);
             }
         }
-        
+
         @Override
         public void onResize() {
-        	setReshapeNeeded();
+            setReshapeNeeded();
         }
     }
-    
+
     private ThreeDView nextView;
     private ThreeDView currentView;
     private BufferStrategy strategy;
@@ -54,7 +54,7 @@ public class ThreeDPanel extends Canvas {
     private boolean destroyNeeded = false;
     private boolean resizeView = false;
     private final Object lock = new Object();
-    
+
     public ThreeDPanel() {
         super();
         setIgnoreRepaint(true);
@@ -65,11 +65,11 @@ public class ThreeDPanel extends Canvas {
             }
         });
     }
-    
+
     public ThreeDView getView() {
         return currentView;
     }
-    
+
     public void setView(ThreeDView value, boolean resize) {
         if (currentView == null) {
             currentView = value;
@@ -79,13 +79,13 @@ public class ThreeDPanel extends Canvas {
         reshapeNeeded = true;
         nextView = value;
     }
-    
+
     public void setReshapeNeeded() {
         synchronized (lock) {
             reshapeNeeded = true;
         }
     }
-    
+
     private void updateDimensions() {
         synchronized (lock) {
             AffineTransform transform;
@@ -93,14 +93,13 @@ public class ThreeDPanel extends Canvas {
                 currentView.resize(getWidth(), getHeight());
                 transform = new AffineTransform();
             } else {
-                transform = AffineTransform.getScaleInstance(
-                        (double)getWidth() / currentView.getWidth(),
-                        (double)getHeight() / currentView.getHeight());
+                transform = AffineTransform.getScaleInstance((double) getWidth() / currentView.getWidth(),
+                        (double) getHeight() / currentView.getHeight());
             }
             transformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
         }
     }
-    
+
     @Override
     public void addNotify() {
         super.addNotify();
@@ -109,7 +108,7 @@ public class ThreeDPanel extends Canvas {
         }
         requestFocusInWindow();
     }
-    
+
     @Override
     public void removeNotify() {
         synchronized (lock) {
@@ -117,7 +116,7 @@ public class ThreeDPanel extends Canvas {
         }
         super.removeNotify();
     }
-    
+
     public boolean checkVisibilityState() {
         if (!hasNativePeer) {
             if (strategy != null) {
@@ -127,14 +126,13 @@ public class ThreeDPanel extends Canvas {
         }
         return isShowing();
     }
-    
+
     public void drawImage(BufferedImage image) {
         synchronized (lock) {
             if (strategy == null) {
                 try {
-                    createBufferStrategy(1, new BufferCapabilities(
-                            new ImageCapabilities(true), new ImageCapabilities(true),
-                            BufferCapabilities.FlipContents.UNDEFINED));
+                    createBufferStrategy(1, new BufferCapabilities(new ImageCapabilities(true),
+                            new ImageCapabilities(true), BufferCapabilities.FlipContents.UNDEFINED));
                 } catch (AWTException ex) {
                     ex.printStackTrace();
                 }
@@ -142,9 +140,10 @@ public class ThreeDPanel extends Canvas {
             }
             do {
                 do {
-                    Graphics2D graphics2d = (Graphics2D)strategy.getDrawGraphics();
-                    if (graphics2d == null)
+                    Graphics2D graphics2d = (Graphics2D) strategy.getDrawGraphics();
+                    if (graphics2d == null) {
                         return;
+                    }
                     graphics2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
                     graphics2d.drawImage(image, transformOp, 0, 0);
                     graphics2d.dispose();
@@ -153,11 +152,12 @@ public class ThreeDPanel extends Canvas {
             } while (strategy.contentsLost());
         }
     }
-    
+
     public void destroy() {
-        if (currentView == null)
+        if (currentView == null) {
             return;
-        else 
+        } else {
             destroyNeeded = true;
+        }
     }
 }

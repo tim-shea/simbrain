@@ -3,8 +3,6 @@ package org.simbrain.world.threedworld.entities;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,8 +19,6 @@ import org.simbrain.world.threedworld.engine.ImageFilters;
 import org.simbrain.world.threedworld.engine.ThreeDPanel;
 import org.simbrain.world.threedworld.engine.ThreeDView;
 import org.simbrain.world.threedworld.engine.ThreeDView.ViewListener;
-import org.simbrain.world.threedworld.entities.EditorDialog.Editor;
-
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -234,8 +230,9 @@ public class VisionSensor implements Sensor {
     }
 
     private void applyMode() {
-        if (colorFilter != null)
+        if (colorFilter != null) {
             view.removeFilter(colorFilter);
+        }
         switch (mode) {
         case MODE_GRAY:
             colorFilter = ImageFilters.gray();
@@ -268,8 +265,9 @@ public class VisionSensor implements Sensor {
     }
 
     public void resize(int width, int height) {
-        if (this.width == width && this.height == height)
+        if (this.width == width && this.height == height) {
             return;
+        }
         this.width = width;
         this.height = height;
         dataByte0 = new double[width * height];
@@ -316,14 +314,18 @@ public class VisionSensor implements Sensor {
     @Override
     public List<PotentialProducer> getPotentialProducers() {
         List<PotentialProducer> producers = new ArrayList<PotentialProducer>();
-        if (valueAttribute.isVisible())
+        if (valueAttribute.isVisible()) {
             producers.add(createProducer(valueAttribute));
-        if (redAttribute.isVisible())
+        }
+        if (redAttribute.isVisible()) {
             producers.add(createProducer(redAttribute));
-        if (greenAttribute.isVisible())
+        }
+        if (greenAttribute.isVisible()) {
             producers.add(createProducer(greenAttribute));
-        if (blueAttribute.isVisible())
+        }
+        if (blueAttribute.isVisible()) {
             producers.add(createProducer(blueAttribute));
+        }
         return producers;
     }
 

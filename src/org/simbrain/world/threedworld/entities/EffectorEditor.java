@@ -1,10 +1,5 @@
 package org.simbrain.world.threedworld.entities;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -17,24 +12,24 @@ public class EffectorEditor implements Editor {
     private Agent agent;
     private Effector effector;
     private JPanel panel;
-    
+
     public EffectorEditor(Agent agent, Effector effector) {
         this.agent = agent;
         this.effector = effector;
     }
-    
+
     public Agent getAgent() {
         return agent;
     }
-    
+
     public Effector getEffector() {
         return effector;
     }
-    
+
     public JPanel getPanel() {
-    	return panel;
+        return panel;
     }
-    
+
     @Override
     public JComponent layoutFields() {
         panel = new JPanel();
@@ -42,13 +37,16 @@ public class EffectorEditor implements Editor {
         panel.setBorder(new TitledBorder(effector.getClass().getSimpleName()));
         return panel;
     }
-    
+
     @Override
-    public void readValues() {}
-    
+    public void readValues() {
+    }
+
     @Override
-    public void writeValues() {}
-    
+    public void writeValues() {
+    }
+
     @Override
-    public void close() {}
+    public void close() {
+    }
 }

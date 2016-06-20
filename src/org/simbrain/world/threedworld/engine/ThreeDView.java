@@ -20,11 +20,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ThreeDView implements SceneProcessor {
     public interface ViewListener {
-        public void onUpdate(BufferedImage image);
-        
-        public void onResize();
+        void onUpdate(BufferedImage image);
+
+        void onResize();
     }
-    
+
     private int width;
     private int height;
     private boolean active;
@@ -39,57 +39,57 @@ public class ThreeDView implements SceneProcessor {
     private List<BufferedImageOp> imageOps = new ArrayList<BufferedImageOp>();
     private List<ViewPort> viewPorts = new ArrayList<ViewPort>();
     private List<ViewListener> listeners = new CopyOnWriteArrayList<ViewListener>();
-    
+
     public ThreeDView(int width, int height) {
         this.width = width;
         this.height = height;
         active = false;
     }
-    
+
     public int getWidth() {
         return width;
     }
-    
+
     public int getHeight() {
         return height;
     }
-    
+
     public boolean isActive() {
         return active;
     }
-    
+
     public void setActive(boolean value) {
         active = value;
     }
-    
+
     public FrameBuffer getFrameBuffer() {
         return frameBuffer;
     }
-    
+
     public IntBuffer getBuffer() {
         return intBuffer;
     }
-    
+
     public BufferedImage getImage() {
         return destination;
     }
-    
+
     public void addFilter(BufferedImageOp imageOp) {
         imageOps.add(imageOp);
     }
-    
+
     public void removeFilter(BufferedImageOp imageOp) {
         imageOps.remove(imageOp);
     }
-    
+
     public void addListener(ViewListener listener) {
         listeners.add(listener);
     }
-    
+
     public void removeListener(ViewListener listener) {
         listeners.remove(listener);
     }
-    
+
     protected void drawFrame() {
         byteBuffer.clear();
         renderManager.getRenderer().readFrameBuffer(frameBuffer, byteBuffer);
@@ -99,7 +99,7 @@ public class ThreeDView implements SceneProcessor {
             destination = imageOp.filter(destination, null);
         }
     }
-    
+
     public void attach(boolean overrideMainFramebuffer, ViewPort... viewPorts) {
         if (this.viewPorts.size() > 0)
             throw new RuntimeException("ThreeDView already attached to ViewPort");
@@ -107,7 +107,7 @@ public class ThreeDView implements SceneProcessor {
         this.viewPorts.get(this.viewPorts.size() - 1).addProcessor(this);
         this.attachAsMain = overrideMainFramebuffer;
     }
-    
+
     @Override
     public void initialize(RenderManager renderManager, ViewPort viewPort) {
         if (this.renderManager == null) {
@@ -116,7 +116,7 @@ public class ThreeDView implements SceneProcessor {
             setActive(true);
         }
     }
-    
+
     public void resize(int width, int height) {
         this.width = width;
         this.height = height;
@@ -141,34 +141,40 @@ public class ThreeDView implements SceneProcessor {
                 sceneProcessor.reshape(viewPort, width, height);
             }
         }
-        for (ViewListener listener : listeners)
-        	listener.onResize();
+        for (ViewListener listener : listeners) {
+            listener.onResize();
+        }
     }
-    
+
     @Override
     public boolean isInitialized() {
         return frameBuffer != null;
     }
-    
+
     @Override
-    public void preFrame(float tpf) {}
-    
+    public void preFrame(float tpf) {
+    }
+
     @Override
-    public void postQueue(RenderQueue renderQueue) {}
-    
+    public void postQueue(RenderQueue renderQueue) {
+    }
+
     @Override
     public void postFrame(FrameBuffer out) {
-        if (!attachAsMain && out != frameBuffer)
+        if (!attachAsMain && out != frameBuffer) {
             throw new IllegalStateException("FrameBuffer was changed");
-        if (isActive())
+        }
+        if (isActive()) {
             drawFrame();
-        for (ViewListener listener : listeners)
+        }
+        for (ViewListener listener : listeners) {
             listener.onUpdate(getImage());
+        }
     }
-    
+
     @Override
-    public void reshape(ViewPort viewPort, int width, int height) {}
-    
+    public void reshape(ViewPort viewPort, int width, int height) { }
+
     @Override
     public void cleanup() {
         active = false;
@@ -176,8 +182,9 @@ public class ThreeDView implements SceneProcessor {
             renderManager.getRenderer().setMainFrameBufferOverride(null);
         }
         for (ViewPort viewPort : viewPorts) {
-            if (!attachAsMain)
+            if (!attachAsMain) {
                 viewPort.setOutputFrameBuffer(null);
+            }
             viewPort.getProcessors().remove(this);
         }
     }

@@ -11,6 +11,7 @@ import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.PotentialProducer;
 import org.simbrain.workspace.WorkspaceComponent;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
+import org.simbrain.world.threedworld.engine.ThreeDEngine.State;
 import org.simbrain.world.threedworld.entities.EditorDialog.Editor;
 
 import com.jme3.animation.AnimChannel;
@@ -54,15 +55,31 @@ public class ModelEntity extends PhysicalEntity {
         this.fileName = fileName;
     }
 
+    /**
+     * @return Return the name of the model file.
+     */
     public String getFileName() {
         return fileName;
     }
 
+    /**
+     * Load a new model for this entity.
+     * @param fileName The filename of the model to load.
+     */
     public void reload(String fileName) {
         Node node = loadModel(getEngine(), fileName);
         node.setName(getName());
         setNode(node);
         this.fileName = fileName;
+    }
+
+    /**
+     * Load a new model for this entity on the next engine update.
+     */
+    public void queueReload(String fileName) {
+        getEngine().enqueue(() -> {
+            reload(fileName);
+        });
     }
 
     public AnimControl getAnimator() {

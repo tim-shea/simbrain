@@ -92,7 +92,7 @@ public class ModelEditor extends EntityEditor {
         super.writeValues();
         String fileName = fileNameCombo.getSelectedItem().toString();
         if (!fileName.equals(model.getFileName())) {
-            model.reload(fileName);
+            model.queueReload(fileName);
         }
     }
 }

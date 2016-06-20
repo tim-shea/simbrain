@@ -37,6 +37,9 @@ public class WalkingEffector implements Effector {
 
         private WalkingEffectorEditor() {
             super(agent, WalkingEffector.this);
+            idleAnimNameField.addItem(NoAnimation);
+            walkAnimNameField.addItem(NoAnimation);
+            turnAnimNameField.addItem(NoAnimation);
             for (String name : agent.getModel().getAnimations()) {
                 idleAnimNameField.addItem(name);
                 walkAnimNameField.addItem(name);
@@ -93,6 +96,8 @@ public class WalkingEffector implements Effector {
             setTurnAnimSpeed(((Number) turnAnimSpeedField.getValue()).floatValue());
         }
     }
+
+    public static String NoAnimation = "None";
 
     public static AttributeType walkAttribute;
     public static AttributeType turnAttribute;
@@ -245,16 +250,17 @@ public class WalkingEffector implements Effector {
 
     private void updateAnimation() {
         ModelEntity model = agent.getModel();
-        if (isWalking()) {
-            if (!model.getAnimation().equals(walkAnimName)) {
+        String animation = model.getAnimation();
+        if (isWalking() && !walkAnimName.equals(NoAnimation)) {
+            if (!walkAnimName.equals(animation)) {
                 model.setAnimation(walkAnimName, walkAnimSpeed);
             }
-        } else if (isTurning()) {
-            if (!model.getAnimation().equals(turnAnimName)) {
+        } else if (isTurning() && !turnAnimName.equals(NoAnimation)) {
+            if (!turnAnimName.equals(animation)) {
                 model.setAnimation(turnAnimName, turnAnimSpeed);
             }
-        } else {
-            if (!model.getAnimation().equals(idleAnimName)) {
+        } else if (!idleAnimName.equals(NoAnimation)) {
+            if (!idleAnimName.equals(animation)) {
                 model.setAnimation(idleAnimName, idleAnimSpeed);
             }
         }

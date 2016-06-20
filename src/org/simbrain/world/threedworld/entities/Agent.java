@@ -13,11 +13,18 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 
+/**
+ * Agent is an Entity which contains a Model, Sensors, and Effectors.
+ */
 public class Agent implements Entity {
     private ModelEntity model;
     private List<Sensor> sensors = new ArrayList<Sensor>();
     private List<Effector> effectors = new ArrayList<Effector>();
 
+    /**
+     * Construct a new Agent.
+     * @param model The model to attach to the Agent.
+     */
     public Agent(ModelEntity model) {
         this.model = model;
     }
