@@ -58,12 +58,20 @@ public class IzhikevichRule extends SpikingNeuronUpdateRule implements
 
     /** Add noise to the neuron. */
     private boolean addNoise;
+    
+    // Backwards compatibility... to be removed
+    @Deprecated
+    private double inputs;
 
     /**
      * An optional absolute refractory period. In many simulations this
      * promotes network stability.
      */
     private double refractoryPeriod = 0.0; //ms
+
+    //TODO
+    private double timeStep;
+    private double val;
 
     /**
      * {@inheritDoc}
@@ -74,14 +82,11 @@ public class IzhikevichRule extends SpikingNeuronUpdateRule implements
         in.setB(getB());
         in.setC(getC());
         in.setD(getD());
+        in.setiBg(getiBg());
         in.setAddNoise(getAddNoise());
         in.noiseGenerator = new Randomizer(noiseGenerator);
-
         return in;
     }
-    private double timeStep;
-    private double inputs = 0;
-    private double val;
     /**
      * {@inheritDoc}
      */

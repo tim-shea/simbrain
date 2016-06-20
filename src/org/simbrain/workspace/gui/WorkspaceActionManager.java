@@ -36,14 +36,15 @@ import org.simbrain.workspace.actions.GlobalStopAction;
 import org.simbrain.workspace.actions.GlobalUpdateAction;
 import org.simbrain.workspace.actions.NewConsoleAction;
 import org.simbrain.workspace.actions.NewDataWorldAction;
+import org.simbrain.workspace.actions.NewDeviceInteractionWorldAction;
 import org.simbrain.workspace.actions.NewDisplayWorldAction;
 import org.simbrain.workspace.actions.NewDocViewerAction;
 import org.simbrain.workspace.actions.NewGameWorldAction;
 import org.simbrain.workspace.actions.NewMidiWorldAction;
 import org.simbrain.workspace.actions.NewNetworkAction;
 import org.simbrain.workspace.actions.NewOdorWorldAction;
-import org.simbrain.workspace.actions.NewThreeDWorldAction;
 import org.simbrain.workspace.actions.NewReaderWorldAction;
+import org.simbrain.workspace.actions.NewThreeDWorldAction;
 import org.simbrain.workspace.actions.NewVisionWorldAction;
 import org.simbrain.workspace.actions.OpenCouplingListAction;
 import org.simbrain.workspace.actions.OpenCouplingManagerAction;
@@ -54,6 +55,7 @@ import org.simbrain.workspace.actions.OpenWorkspaceAction;
 import org.simbrain.workspace.actions.OpenWorkspaceComponentListAction;
 import org.simbrain.workspace.actions.PropertyTabAction;
 import org.simbrain.workspace.actions.QuitWorkspaceAction;
+import org.simbrain.workspace.actions.RepositionAllWindowsAction;
 import org.simbrain.workspace.actions.SaveWorkspaceAction;
 import org.simbrain.workspace.actions.SaveWorkspaceAsAction;
 import org.simbrain.workspace.actions.ScriptEditorAction;
@@ -112,6 +114,9 @@ public class WorkspaceActionManager {
 
     /** New vision world action. */
     private final Action newVisionWorldAction;
+
+    /** New device interaction world action. */
+    private final Action newDeviceInteractionWorldAction;
 
     /** New bar chart action. */
     private final Action newBarChartAction;
@@ -194,6 +199,9 @@ public class WorkspaceActionManager {
     /** Open script editor action. */
     private final Action showUpdaterDialog;
 
+    /** Reposition windows action. */
+    private final Action repositionAllWindowsAction;
+
     /** Location of script menu directory. */
     private static final String SCRIPT_MENU_DIRECTORY = "scripts/scriptmenu";
 
@@ -204,6 +212,7 @@ public class WorkspaceActionManager {
      */
     public WorkspaceActionManager(final SimbrainDesktop desktop) {
         Workspace workspace = desktop.getWorkspace();
+                
         clearWorkspaceAction = new ClearWorkspaceAction(desktop);
 
         openDataWorldAction = new OpenDataWorldAction(workspace);
@@ -236,6 +245,7 @@ public class WorkspaceActionManager {
         newDisplayWorldAction = new NewDisplayWorldAction(workspace);
         newReaderWorldAction = new NewReaderWorldAction(workspace);
         newVisionWorldAction = new NewVisionWorldAction(workspace);
+        newDeviceInteractionWorldAction = new NewDeviceInteractionWorldAction(workspace);
 
         quitWorkspaceAction = new QuitWorkspaceAction(desktop);
 
@@ -252,6 +262,8 @@ public class WorkspaceActionManager {
                 desktop);
 
         propertyTabAction = new PropertyTabAction(desktop);
+
+        repositionAllWindowsAction = new RepositionAllWindowsAction(desktop);
 
     }
 
@@ -318,6 +330,7 @@ public class WorkspaceActionManager {
             if (file.isDirectory()) {
                 continue;
             }
+            // TODO: Maybe try sourcing additional files here.  Maybe those in a subdir.
             if (file.getName().endsWith(".bsh")) {
                 list.add(new ScriptAction(desktop, file.getName()));
             }
@@ -419,6 +432,11 @@ public class WorkspaceActionManager {
     public Action getNewVisionWorldAction() {
         return newVisionWorldAction;
     }
+
+    /**
+     * @return the newDeviceInteractionWorldAction.
+     */
+    public Action getNewDeviceInteractionWorldAction() {return newDeviceInteractionWorldAction; }
 
     /**
      * @return the clearWorkspaceAction.
@@ -572,6 +590,13 @@ public class WorkspaceActionManager {
      */
     public Action getShowUpdaterDialog() {
         return showUpdaterDialog;
+    }
+
+    /**
+     * @return the repositionAllWindowsAction
+     */
+    public Action getRepositionAllWindowsAction() {
+        return repositionAllWindowsAction;
     }
 
 }

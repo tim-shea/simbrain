@@ -116,9 +116,16 @@ public class BinaryRule extends NeuronUpdateRule {
     public String getDescription() {
         return "Binary";
     }
+    
+    // TODO: Get rid of redundant wording.   Have not cleaned it up yet
+    // for fear of xstream problems.
 
     public double getUpperBound() {
         return ceiling;
+    }
+    
+    public void setUpperBound(double ub) {
+        this.ceiling = ub;
     }
 
     public void setCeiling(double ceiling) {
@@ -127,6 +134,10 @@ public class BinaryRule extends NeuronUpdateRule {
 
     public double getLowerBound() {
         return floor;
+    }
+    
+    public void setLowerBound(double lb) {
+        this.floor = lb;
     }
 
     public void setFloor(double floor) {

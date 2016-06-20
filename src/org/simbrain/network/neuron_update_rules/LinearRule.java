@@ -45,16 +45,16 @@ public class LinearRule extends NeuronUpdateRule implements BiasedUpdateRule,
     private static final boolean DEFAULT_CLIPPING = true;
 
     /** Slope. */
-    private double slope = 1;
+    public double slope = 1;
 
     /** Bias. */
-    private double bias = 0;
+    public double bias = 0;
 
-    /** Noise dialog. */
+    /** Noise generator. */
     private Randomizer noiseGenerator = new Randomizer();
 
     /** Add noise to the neuron. */
-    private boolean addNoise;
+    private boolean addNoise = false;
 
     /** Clipping. */
     private boolean clipping = DEFAULT_CLIPPING;
@@ -65,31 +65,7 @@ public class LinearRule extends NeuronUpdateRule implements BiasedUpdateRule,
     /** The lower bound of the activity if clipping is used. */
     private double lowerBound = DEFAULT_LOWER_BOUND;
 
-    /**
-     * {@inheritDoc}
-     */
-    public TimeType getTimeType() {
-        return TimeType.DISCRETE;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public LinearRule deepCopy() {
-        LinearRule ln = new LinearRule();
-        ln.setBias(getBias());
-        ln.setSlope(getSlope());
-        ln.setClipped(isClipped());
-        ln.setAddNoise(getAddNoise());
-        ln.setUpperBound(getUpperBound());
-        ln.setLowerBound(getLowerBound());
-        ln.noiseGenerator = new Randomizer(noiseGenerator);
-        return ln;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void update(Neuron neuron) {
         double wtdInput = inputType.getInput(neuron);
         double val = (slope * wtdInput) + bias;
@@ -105,9 +81,6 @@ public class LinearRule extends NeuronUpdateRule implements BiasedUpdateRule,
         neuron.setBuffer(val);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public double clip(double val) {
         if (val > getUpperBound()) {
@@ -118,10 +91,25 @@ public class LinearRule extends NeuronUpdateRule implements BiasedUpdateRule,
             return val;
         }
     }
+    
+    @Override
+    public TimeType getTimeType() {
+        return TimeType.DISCRETE;
+    }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public LinearRule deepCopy() {
+        LinearRule ln = new LinearRule();
+        ln.setBias(getBias());
+        ln.setSlope(getSlope());
+        ln.setClipped(isClipped());
+        ln.setAddNoise(getAddNoise());
+        ln.setUpperBound(getUpperBound());
+        ln.setLowerBound(getLowerBound());
+        ln.noiseGenerator = new Randomizer(noiseGenerator);
+        return ln;
+    }
+
     @Override
     public void contextualIncrement(Neuron n) {
         double act = n.getActivation();
@@ -138,9 +126,6 @@ public class LinearRule extends NeuronUpdateRule implements BiasedUpdateRule,
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void contextualDecrement(Neuron n) {
         double act = n.getActivation();
@@ -157,9 +142,6 @@ public class LinearRule extends NeuronUpdateRule implements BiasedUpdateRule,
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public double getDerivative(double val) {
         if (val >= getUpperBound()) {
@@ -171,25 +153,14 @@ public class LinearRule extends NeuronUpdateRule implements BiasedUpdateRule,
         }
     }
 
-    /**
-     * @return Returns the bias.
-     */
+    @Override
     public double getBias() {
         return bias;
     }
 
-    /**
-     * @param bias The bias to set.
-     */
+    @Override
     public void setBias(final double bias) {
         this.bias = bias;
-    }
-
-    /**
-     * @return Returns the slope.
-     */
-    public double getSlope() {
-        return slope;
     }
 
     /**
@@ -199,30 +170,22 @@ public class LinearRule extends NeuronUpdateRule implements BiasedUpdateRule,
         this.slope = slope;
     }
 
-    /**
-     * @return Returns the noise generator.
-     */
+    @Override
     public Randomizer getNoiseGenerator() {
         return noiseGenerator;
     }
 
-    /**
-     * @param noise The noise generator to set.
-     */
+    @Override
     public void setNoiseGenerator(final Randomizer noise) {
         this.noiseGenerator = noise;
     }
 
-    /**
-     * @return Returns the addNoise.
-     */
+    @Override
     public boolean getAddNoise() {
         return addNoise;
     }
 
-    /**
-     * @param addNoise The addNoise to set.
-     */
+    @Override
     public void setAddNoise(final boolean addNoise) {
         this.addNoise = addNoise;
     }
@@ -260,6 +223,13 @@ public class LinearRule extends NeuronUpdateRule implements BiasedUpdateRule,
     @Override
     public void setClipped(boolean clipping) {
         this.clipping = clipping;
+    }
+    
+    /**
+     * @return Returns the slope.
+     */
+    public double getSlope() {
+        return slope;
     }
 
 }

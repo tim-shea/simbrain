@@ -12,10 +12,10 @@
 *.iml
 out/*
 .settings/
+.checkstyle
 *.log
 *.so
 *.dll
 *.dylib
 *.DS_Store
-*.checkstyle
 /src/org/simbrain/world/threedworld/threedassets/nbproject/private/
