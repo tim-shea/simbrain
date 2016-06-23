@@ -12,6 +12,8 @@ import org.simbrain.workspace.AttributeManager;
 import org.simbrain.workspace.AttributeType;
 import org.simbrain.workspace.PotentialProducer;
 import org.simbrain.workspace.WorkspaceComponent;
+import org.simbrain.world.threedworld.ThreeDWorldComponent;
+
 import com.jme3.bullet.collision.PhysicsCollisionGroupListener;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.control.RigidBodyControl;
@@ -115,7 +117,7 @@ public class CollisionSensor implements Sensor, PhysicsCollisionGroupListener {
     }
 
     @Override
-    public List<PotentialProducer> getPotentialProducers() {
+    public List<PotentialProducer> getPotentialProducers(ThreeDWorldComponent worldComponent) {
         List<PotentialProducer> producers = new ArrayList<PotentialProducer>();
         if (collidingAttribute.isVisible()) {
             AttributeManager attributeManager = collidingAttribute.getParentComponent().getAttributeManager();

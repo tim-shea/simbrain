@@ -9,6 +9,7 @@ import org.simbrain.workspace.AttributeType;
 import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.PotentialProducer;
 import org.simbrain.workspace.WorkspaceComponent;
+import org.simbrain.world.imageworld.ImageCoupling;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.engine.ThreeDEngineConverter;
 import org.simbrain.world.threedworld.entities.Entity;
@@ -93,9 +94,7 @@ public class ThreeDWorldComponent extends WorkspaceComponent {
         for (AttributeType type : ModelEntity.getProducerTypes(this)) {
             addProducerType(type);
         }
-        for (AttributeType type : VisionSensor.getProducerTypes(this)) {
-            addProducerType(type);
-        }
+        this.addAnnotatedProducers(ImageCoupling.class);
         for (AttributeType type : CollisionSensor.getProducerTypes(this)) {
             addProducerType(type);
         }
@@ -123,7 +122,7 @@ public class ThreeDWorldComponent extends WorkspaceComponent {
     public List<PotentialProducer> getPotentialProducers() {
         List<PotentialProducer> potentialProducers = new ArrayList<PotentialProducer>();
         for (Entity entity : world.getEntities()) {
-            potentialProducers.addAll(entity.getPotentialProducers());
+            potentialProducers.addAll(entity.getPotentialProducers(this));
         }
         return potentialProducers;
     }

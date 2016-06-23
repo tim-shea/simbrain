@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.PotentialProducer;
+import org.simbrain.world.threedworld.ThreeDWorldComponent;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.entities.EditorDialog.Editor;
 
@@ -158,7 +159,7 @@ public class PhysicalEntity implements Entity {
     }
 
     @Override
-    public List<PotentialProducer> getPotentialProducers() {
+    public List<PotentialProducer> getPotentialProducers(ThreeDWorldComponent worldComponent) {
         List<PotentialProducer> producers = new ArrayList<PotentialProducer>();
         producers.addAll(new EntityLocationAdapter(this).getPotentialProducers());
         producers.addAll(new EntityRotationAdapter(this).getPotentialProducers());

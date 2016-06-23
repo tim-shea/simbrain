@@ -10,6 +10,7 @@ import org.simbrain.workspace.AttributeType;
 import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.PotentialProducer;
 import org.simbrain.workspace.WorkspaceComponent;
+import org.simbrain.world.threedworld.ThreeDWorldComponent;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.engine.ThreeDEngine.State;
 import org.simbrain.world.threedworld.entities.EditorDialog.Editor;
@@ -130,8 +131,8 @@ public class ModelEntity extends PhysicalEntity {
     }
 
     @Override
-    public List<PotentialProducer> getPotentialProducers() {
-        List<PotentialProducer> producers = super.getPotentialProducers();
+    public List<PotentialProducer> getPotentialProducers(ThreeDWorldComponent worldComponent) {
+        List<PotentialProducer> producers = super.getPotentialProducers(worldComponent);
         AttributeManager attributeManager = animationProducerAttribute.getParentComponent().getAttributeManager();
         PotentialProducer producer = attributeManager.createPotentialProducer(this, "getAnimation", String.class);
         producer.setCustomDescription("Entity:Animation");

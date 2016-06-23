@@ -7,6 +7,7 @@ import org.simbrain.workspace.AttributeType;
 import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.PotentialProducer;
 import org.simbrain.workspace.WorkspaceComponent;
+import org.simbrain.world.threedworld.ThreeDWorldComponent;
 import org.simbrain.world.threedworld.entities.EditorDialog.Editor;
 
 import com.jme3.bounding.BoundingVolume;
@@ -104,9 +105,10 @@ public interface Entity {
     BoundingVolume getBounds();
 
     /**
+     * @param worldComponent The component to create the producers for.
      * @return Return a list of the producer types this entity can provide.
      */
-    List<PotentialProducer> getPotentialProducers();
+    List<PotentialProducer> getPotentialProducers(ThreeDWorldComponent worldComponent);
 
     /**
      * @return Return a list of the consumer types this entity can provide.
