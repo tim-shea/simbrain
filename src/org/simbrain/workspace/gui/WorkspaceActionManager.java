@@ -45,7 +45,7 @@ import org.simbrain.workspace.actions.NewNetworkAction;
 import org.simbrain.workspace.actions.NewOdorWorldAction;
 import org.simbrain.workspace.actions.NewReaderWorldAction;
 import org.simbrain.workspace.actions.NewThreeDWorldAction;
-import org.simbrain.workspace.actions.NewVisionWorldAction;
+import org.simbrain.workspace.actions.NewImageWorldAction;
 import org.simbrain.workspace.actions.OpenCouplingListAction;
 import org.simbrain.workspace.actions.OpenCouplingManagerAction;
 import org.simbrain.workspace.actions.OpenDataWorldAction;
@@ -244,7 +244,7 @@ public class WorkspaceActionManager {
         newGameWorldAction = new NewGameWorldAction(workspace);
         newDisplayWorldAction = new NewDisplayWorldAction(workspace);
         newReaderWorldAction = new NewReaderWorldAction(workspace);
-        newVisionWorldAction = new NewVisionWorldAction(workspace);
+        newVisionWorldAction = new NewImageWorldAction(workspace);
         newDeviceInteractionWorldAction = new NewDeviceInteractionWorldAction(workspace);
 
         quitWorkspaceAction = new QuitWorkspaceAction(desktop);

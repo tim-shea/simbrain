@@ -20,6 +20,7 @@ package org.simbrain.workspace;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,6 +28,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.simbrain.util.Consumable;
+import org.simbrain.util.Producible;
 import org.simbrain.workspace.gui.ComponentPanel;
 import org.simbrain.workspace.updater.ComponentUpdatePart;
 
@@ -162,6 +165,22 @@ public abstract class WorkspaceComponent {
     }
 
     /**
+     * Create potential producers for a particular object.
+     * @param typeName The typename to use for selecting producer types.
+     * @param object The object to bind the potential producers.
+     * @return Returns a list of potential producers.
+     */
+    public List<PotentialConsumer> getPotentialConsumersForObject(String typeName, Object object) {
+        List<PotentialConsumer> potentialConsumers = new ArrayList<PotentialConsumer>();
+        for (AttributeType type : this.getVisibleConsumerTypes()) {
+            if (type.getTypeName().equals(typeName)) {
+                potentialConsumers.add(getAttributeManager().createPotentialConsumer(object, type));
+            }
+        }
+        return potentialConsumers;
+    }
+
+    /**
      * Return the potential producers associated with this component. Subclasses
      * should override this to make their producers available.
      *
@@ -169,6 +188,22 @@ public abstract class WorkspaceComponent {
      */
     public List<PotentialProducer> getPotentialProducers() {
         return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Create potential producers for a particular object.
+     * @param typeName The typename to use for selecting producer types.
+     * @param object The object to bind the potential producers.
+     * @return Returns a list of potential producers.
+     */
+    public List<PotentialProducer> getPotentialProducersForObject(String typeName, Object object) {
+        List<PotentialProducer> potentialProducers = new ArrayList<PotentialProducer>();
+        for (AttributeType type : this.getVisibleProducerTypes()) {
+            if (type.getTypeName().equals(typeName)) {
+                potentialProducers.add(getAttributeManager().createPotentialProducer(object, type));
+            }
+        }
+        return potentialProducers;
     }
 
     /**
@@ -234,6 +269,19 @@ public abstract class WorkspaceComponent {
     }
 
     /**
+     * Add an AttributeType for each method in the class that has a Producer annotation.
+     * @param clazz The class to scan for producers.
+     */
+    public void addAnnotatedProducers(Class clazz) {
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (method.getAnnotation(Producible.class) != null) {
+                addProducerType(new AttributeType(this, clazz.getSimpleName(),
+                        method.getName(), method.getReturnType(), true));
+            }
+        }
+    }
+
+    /**
      * Add a new type of consumer.
      *
      * @param type type to add
@@ -241,6 +289,19 @@ public abstract class WorkspaceComponent {
     public void addConsumerType(AttributeType type) {
         if (!consumerTypes.contains(type)) {
             consumerTypes.add(type);
+        }
+    }
+
+    /**
+     * Add an AttributeType for each method in the class that has a Consumer annotation.
+     * @param clazz The class to scan for consumers.
+     */
+    public void addAnnotatedConsumers(Class clazz) {
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (method.getAnnotation(Consumable.class) != null) {
+                addProducerType(new AttributeType(this, clazz.getSimpleName(),
+                        method.getName(), method.getReturnType(), true));
+            }
         }
     }
 

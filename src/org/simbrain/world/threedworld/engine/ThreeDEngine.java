@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.io.File;
 import java.util.concurrent.Future;
 
+import org.simbrain.world.imageworld.ImagePanel;
+
 import com.jme3.app.Application;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.audio.AudioContext;
@@ -43,8 +45,8 @@ public class ThreeDEngine extends Application {
     }
 
     private ThreeDContext context;
-    private ThreeDPanel panel;
-    private ThreeDView view;
+    private ImagePanel panel;
+    private ThreeDRenderSource view;
     private BulletAppState bulletAppState;
     private Node rootNode;
     private State state;
@@ -78,14 +80,14 @@ public class ThreeDEngine extends Application {
     /**
      * @return The AWT panel in which the engine is rendered.
      */
-    public ThreeDPanel getPanel() {
+    public ImagePanel getPanel() {
         return panel;
     }
 
     /**
      * @return The main view of the 3d engine, i.e. the editor view.
      */
-    public ThreeDView getMainView() {
+    public ThreeDRenderSource getMainView() {
         return view;
     }
 
@@ -228,9 +230,9 @@ public class ThreeDEngine extends Application {
                 : "src/org/simbrain/world/threedworld/threedassets/assets");
         getAssetManager().registerLocator(assetDirectory, FileLocator.class);
 
-        view = new ThreeDView(getCamera().getWidth(), getCamera().getHeight());
+        view = new ThreeDRenderSource(getCamera().getWidth(), getCamera().getHeight());
         view.attach(true, getViewPort());
-        panel.setView(view, true);
+        panel.setImageSource(view, true);
 
         rootNode = new Node("root");
         viewPort.attachScene(rootNode);

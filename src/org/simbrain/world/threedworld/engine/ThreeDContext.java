@@ -3,6 +3,8 @@ package org.simbrain.world.threedworld.engine;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 
+import org.simbrain.world.imageworld.ImagePanel;
+
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
@@ -62,7 +64,7 @@ public class ThreeDContext implements JmeContext {
     private JmeContext actualContext;
     private AppSettings settings = new AppSettings(true);
     private SystemListener listener;
-    private ThreeDPanel panel;
+    private ImagePanel panel;
     private AwtMouseInput mouseInput = new AwtMouseInput() {
         @Override
         public void mousePressed(MouseEvent event) {
@@ -151,8 +153,8 @@ public class ThreeDContext implements JmeContext {
         return actualContext != null && actualContext.isRenderable();
     }
     
-    public ThreeDPanel createPanel() {
-        panel = new ThreeDPanel();
+    public ImagePanel createPanel() {
+        panel = new ImagePanel();
         return panel;
     }
     
@@ -161,16 +163,9 @@ public class ThreeDContext implements JmeContext {
     }
     
     private void updateInThread() {
-        boolean needThrottle = !panel.isShowing() || !panel.getView().isActive();
+        boolean needThrottle = !panel.isShowing() || !panel.getImageSource().isEnabled();
         if (lastThrottleState != needThrottle) {
             lastThrottleState = needThrottle;
-            /*
-            if (lastThrottleState) {
-                System.out.println("OGL: Throttling update loop.");
-            } else {
-                System.out.println("OGL: Ceased throttling update loop.");
-            }
-            */
         }
         if (needThrottle) {
             try {

@@ -19,9 +19,7 @@ public class ControlAgentAction extends AbstractAction {
     public ControlAgentAction(ThreeDWorld world) {
         super("Control Agent");
         this.world = world;
-        ImageIcon icon = ResourceManager.getImageIcon("Control.png");
-        icon.setImage(icon.getImage().getScaledInstance(18, 18, Image.SCALE_SMOOTH));
-        putValue(SMALL_ICON, icon);
+        putValue(SMALL_ICON, ResourceManager.getSmallIcon("Control.png"));
         putValue(SHORT_DESCRIPTION, "Control Agent");
         putValue("selected", false);
     }

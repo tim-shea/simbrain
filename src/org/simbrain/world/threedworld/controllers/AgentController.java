@@ -98,7 +98,7 @@ public class AgentController implements ActionListener {
         engine.enqueue(() -> {
             VisionSensor sensor = agent.getSensor(VisionSensor.class);
             if (sensor != null) {
-                engine.getPanel().setView(sensor.getView(), false);
+                engine.getPanel().setImageSource(sensor.getView(), false);
             }
         });
     }
@@ -114,8 +114,8 @@ public class AgentController implements ActionListener {
         ThreeDEngine engine = world.getEngine();
         engine.enqueue(() -> {
             VisionSensor sensor = releasedAgent.getSensor(VisionSensor.class);
-            if (sensor != null && engine.getPanel().getView().equals(sensor.getView())) {
-                engine.getPanel().setView(engine.getMainView(), true);
+            if (sensor != null && engine.getPanel().getImageSource().equals(sensor.getView())) {
+                engine.getPanel().setImageSource(engine.getMainView(), true);
             }
         });
     }

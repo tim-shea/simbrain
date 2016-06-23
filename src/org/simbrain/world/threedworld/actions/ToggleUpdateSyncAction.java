@@ -26,9 +26,7 @@ public class ToggleUpdateSyncAction extends AbstractAction {
     public ToggleUpdateSyncAction(ThreeDWorld world) {
         super("Toggle Update Sync");
         this.world = world;
-        ImageIcon icon = ResourceManager.getImageIcon("Clock.png");
-        icon.setImage(icon.getImage().getScaledInstance(18, 18, Image.SCALE_SMOOTH));
-        putValue(SMALL_ICON, icon);
+        putValue(SMALL_ICON, ResourceManager.getSmallIcon("Clock.png"));
         putValue(SHORT_DESCRIPTION, "Toggle Update Sync");
     }
 

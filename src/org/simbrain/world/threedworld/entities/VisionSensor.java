@@ -15,10 +15,11 @@ import org.simbrain.workspace.AttributeManager;
 import org.simbrain.workspace.AttributeType;
 import org.simbrain.workspace.PotentialProducer;
 import org.simbrain.workspace.WorkspaceComponent;
-import org.simbrain.world.threedworld.engine.ImageFilters;
-import org.simbrain.world.threedworld.engine.ThreeDPanel;
-import org.simbrain.world.threedworld.engine.ThreeDView;
-import org.simbrain.world.threedworld.engine.ThreeDView.ViewListener;
+import org.simbrain.world.imageworld.ImageSource;
+import org.simbrain.world.imageworld.ImageSourceListener;
+import org.simbrain.world.imageworld.ImageFilters;
+import org.simbrain.world.imageworld.ImagePanel;
+import org.simbrain.world.threedworld.engine.ThreeDRenderSource;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -32,7 +33,7 @@ public class VisionSensor implements Sensor {
         private JFormattedTextField headOffsetYField = new JFormattedTextField(EditorDialog.floatFormat);
         private JFormattedTextField headOffsetZField = new JFormattedTextField(EditorDialog.floatFormat);
         private JComboBox<String> modeComboBox = new JComboBox<String>();
-        private ThreeDPanel previewPanel = new ThreeDPanel();
+        private ImagePanel previewPanel = new ImagePanel();
 
         {
             widthField.setColumns(5);
@@ -44,7 +45,7 @@ public class VisionSensor implements Sensor {
             modeComboBox.addItem("Gray");
             modeComboBox.addItem("Threshold");
             previewPanel.setPreferredSize(new Dimension(100, 100));
-            previewPanel.setView(getView(), false);
+            previewPanel.setImageSource(getView(), false);
         }
 
         private VisionSensorEditor() {
@@ -97,13 +98,13 @@ public class VisionSensor implements Sensor {
         }
     }
 
-    private class ImageListener implements ViewListener {
+    private class ImageUpdater implements ImageSourceListener {
         @Override
-        public void onUpdate(BufferedImage image) {
-            if (view.isInitialized()) {
+        public void onImage(ImageSource source) {
+            if (source.isEnabled()) {
                 for (int x = 0; x < width; ++x) {
                     for (int y = 0; y < height; ++y) {
-                        int color = image.getRGB(x, y);
+                        int color = source.getCurrentImage().getRGB(x, y);
                         int red = (color >>> 16) & 0xFF;
                         int green = (color >>> 8) & 0xFF;
                         int blue = color & 0xFF;
@@ -116,8 +117,7 @@ public class VisionSensor implements Sensor {
         }
 
         @Override
-        public void onResize() {
-        }
+        public void onResize(ImageSource source) { }
     }
 
     public static final int MODE_COLOR = 0;
@@ -148,7 +148,7 @@ public class VisionSensor implements Sensor {
     private int mode;
     private transient Camera camera;
     private transient ViewPort viewPort;
-    private transient ThreeDView view;
+    private transient ThreeDRenderSource view;
     private transient double[] dataByte0;
     private transient double[] dataByte1;
     private transient double[] dataByte2;
@@ -175,9 +175,9 @@ public class VisionSensor implements Sensor {
         viewPort = agent.getEngine().getRenderManager().createMainView(agent.getName() + "ViewPort", camera);
         viewPort.setClearFlags(true, true, true);
         viewPort.attachScene(agent.getEngine().getRootNode());
-        view = new ThreeDView(width, height);
+        view = new ThreeDRenderSource(width, height);
         view.attach(false, viewPort);
-        view.addListener(new ImageListener());
+        view.addListener(new ImageUpdater());
         dataByte0 = new double[width * height];
         dataByte1 = new double[width * height];
         dataByte2 = new double[width * height];
@@ -214,7 +214,7 @@ public class VisionSensor implements Sensor {
         return viewPort;
     }
 
-    public ThreeDView getView() {
+    public ThreeDRenderSource getView() {
         return view;
     }
 
