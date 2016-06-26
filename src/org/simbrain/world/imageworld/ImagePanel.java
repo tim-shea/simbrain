@@ -151,11 +151,10 @@ public class ImagePanel extends JPanel implements ImageSourceListener {
     }
 
     @Override
-    protected void paintComponent(Graphics grphcs) {
-        super.paintComponent(grphcs);
-        Graphics2D g2d = (Graphics2D) grphcs;
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
         if (currentSource.getCurrentImage() != null) {
-            g2d.drawImage(currentSource.getCurrentImage(), 0, 0, getWidth(),
+            g.drawImage(currentSource.getCurrentImage(), 0, 0, getWidth(),
                     getHeight(), this);
         }
     }
