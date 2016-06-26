@@ -50,7 +50,7 @@ public class ImageWorldComponent extends WorkspaceComponent {
         addAnnotatedProducers(ImageCoupling.class);
         imagePanel = new ImagePanel();
         imagePanel.setPreferredSize(new Dimension(640, 480));
-        imageSource = new StaticImageSource(10, 10);
+        imageSource = new StaticImageSource(200, 200);
         imagePanel.setImageSource(imageSource, false);
         imageCoupling = new ImageCoupling(imageSource);
         imageSource.setEnabled(true);

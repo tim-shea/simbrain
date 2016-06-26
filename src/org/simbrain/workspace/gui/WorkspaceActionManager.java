@@ -94,17 +94,11 @@ public class WorkspaceActionManager {
     /** New odor world action. */
     private final Action newOdorWorldAction;
     
-    /** New proto world action. */
-    private final Action newProtoWorldAction;
-
-    /** New odor world action. */
-    private final Action newGameWorldAction;
+    /** New 3d world action. */
+    private final Action newThreedDWorldAction;
 
     /** New data world action. */
     private final Action newDataWorldAction;
-
-    /** New MIDI world action. */
-    private final Action newMidiWorldAction;
 
     /** New text world action. */
     private final Action newReaderWorldAction;
@@ -113,7 +107,7 @@ public class WorkspaceActionManager {
     private final Action newDisplayWorldAction;
 
     /** New vision world action. */
-    private final Action newVisionWorldAction;
+    private final Action newImageWorldAction;
 
     /** New device interaction world action. */
     private final Action newDeviceInteractionWorldAction;
@@ -238,13 +232,11 @@ public class WorkspaceActionManager {
         newRasterPlotAction = new NewRasterPlotAction(workspace);
 
         newDataWorldAction = new NewDataWorldAction(workspace);
-        newMidiWorldAction = new NewMidiWorldAction(workspace);
         newOdorWorldAction = new NewOdorWorldAction(workspace);
-        newProtoWorldAction = new NewThreeDWorldAction(workspace);
-        newGameWorldAction = new NewGameWorldAction(workspace);
+        newThreedDWorldAction = new NewThreeDWorldAction(workspace);
         newDisplayWorldAction = new NewDisplayWorldAction(workspace);
         newReaderWorldAction = new NewReaderWorldAction(workspace);
-        newVisionWorldAction = new NewImageWorldAction(workspace);
+        newImageWorldAction = new NewImageWorldAction(workspace);
         newDeviceInteractionWorldAction = new NewDeviceInteractionWorldAction(workspace);
 
         quitWorkspaceAction = new QuitWorkspaceAction(desktop);
@@ -297,11 +289,15 @@ public class WorkspaceActionManager {
      * @return New worlds actions.
      */
     public List<Action> getNewWorldActions() {
-        return Arrays.asList(new Action[] { newDataWorldAction,
-                newOdorWorldAction, newDisplayWorldAction,
-                newReaderWorldAction,
-                newProtoWorldAction,
-                newVisionWorldAction });
+        // These should be in alphabetical order in the resulting menus
+        return Arrays.asList(new Action[] {
+                newThreedDWorldAction,
+                newDataWorldAction,
+                newImageWorldAction,
+                newOdorWorldAction, 
+                newDisplayWorldAction,
+                newReaderWorldAction
+                 });
     }
 
     /**
@@ -430,7 +426,7 @@ public class WorkspaceActionManager {
      * @return the newVisionWorldAction.
      */
     public Action getNewVisionWorldAction() {
-        return newVisionWorldAction;
+        return newImageWorldAction;
     }
 
     /**
