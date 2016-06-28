@@ -1,4 +1,4 @@
-package org.simbrain.custom.other_stuff;
+package org.simbrain.custom.test;
 
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.network.groups.SynapseGroup;
@@ -10,13 +10,13 @@ import org.simbrain.workspace.gui.SimbrainDesktop;
 import org.simbrain.world.odorworld.entities.OdorWorldEntity;
 import org.simbrain.world.odorworld.entities.RotatingEntity;
 
-// TODO: Rename!
-
 /**
- * Sample simulation to use as a model for your own simulations.
+ * Playground for testing new features. A lot of stuff is commented out but
+ * should work.
  */
 public class TestSim {
 
+    // The main simulation object
     final Simulation sim;
 
     /**
@@ -30,7 +30,7 @@ public class TestSim {
      * Run the simulation!
      */
     public void run() {
-        
+
         // Clear workspace
         sim.getWorkspace().clearWorkspace();
 
@@ -76,17 +76,7 @@ public class TestSim {
         pursuer2.setLabel("Pursuer 2");
         NeuronGroup avoider1 = vehicleBuilder.addAvoider(480, 400, mouse3, 2);
         avoider1.setLabel("Avoider 1");
-        
-//        // Add input-output network
-//        NeuronGroup inputNodes = net.addNeuronGroup(-350, 500, 5);
-//        inputNodes.setLabel("Inputs");
-//        inputNodes.setClamped(true);
-//        NeuronGroup outputNodes = net.addNeuronGroup(-350, 200, 5);
-//        outputNodes.setLabel("Outputs");
-//        net.connectAllToAll(inputNodes, outputNodes);
-//        
-//        // Couple i/o to mouse
-//        sim.couple(mouse, inputNodes);
+
     }
 
 }
