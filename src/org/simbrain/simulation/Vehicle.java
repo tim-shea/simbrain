@@ -50,7 +50,7 @@ public class Vehicle {
         leftTurn.setLabel("Left");
         setNodeDefaults(leftTurn, vehicle);
         Neuron straight = net.addNeuron(x + 50, y);
-        straight.setLabel("Straight");
+        straight.setLabel("Speed");
         straight.setActivation(3);
         setNodeDefaults(straight, vehicle);
         straight.setClamped(true);
@@ -75,7 +75,7 @@ public class Vehicle {
             net.connect(rightInput, leftTurn, DEFAULT_WEIGHT);
         }
 
-        // Couple network to agent
+        // Couple network to agent.  TODO.   -1 is ugly.
         sim.couple(agent.getSensor("Smell-Left"), stimulusDimension - 1,
                 leftInput);
         sim.couple(agent.getSensor("Smell-Right"), stimulusDimension - 1,
