@@ -87,11 +87,12 @@ public class Simulation {
         AttributeManager consumers = netMap.get(ng.getParentNetwork())
                 .getAttributeManager();
 
+        //TODO: Sensor
         PotentialProducer sensoryProducer = producers.createPotentialProducer(
                 ((SmellSensor) entity.getSensors().get(0)), "getCurrentValue",
                 double[].class);
         PotentialConsumer sensoryConsumer = consumers
-                .createPotentialConsumer(ng, "setActivations", double[].class);
+                .createPotentialConsumer(ng, "forceSetActivations", double[].class);
         
         Coupling sensoryCoupling = new Coupling(sensoryProducer,
                 sensoryConsumer);

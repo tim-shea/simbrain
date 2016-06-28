@@ -139,6 +139,10 @@ public class NetBuilder {
         ng.applyLayout();
         return ng;
     }
+    
+    public NeuronGroup addNeuronGroup(int x, int y, int numNeurons) {
+        return addNeuronGroup(x,y,numNeurons, "line", "LinearRule");
+    }
 
     public Network getNetwork() {
         return network;
