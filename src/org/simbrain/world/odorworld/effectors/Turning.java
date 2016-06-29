@@ -66,6 +66,7 @@ public class Turning extends Effector {
     @Override
     public void update() {
         ((RotatingEntity) parent).turn(direction * amount);
+        this.amount = 0;
     }
 
     /**
@@ -74,6 +75,16 @@ public class Turning extends Effector {
     public double getAmount() {
         return amount;
     }
+    
+    /**
+     * Add an amount to turning.  Allows for multiple "turns" to be aggregated.
+     * 
+     * @param amount amount to turn.
+     */
+    public void addAmount(double amount) {
+        this.amount += amount;
+    }
+
 
     /**
      * @param amount the amount to set

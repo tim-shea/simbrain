@@ -52,6 +52,7 @@ public class StraightMovement extends Effector {
     @Override
     public void update() {
         ((RotatingEntity) parent).goStraight(amount * scalingFactor);
+        this.amount = 0;
     }
 
     /**
@@ -68,6 +69,15 @@ public class StraightMovement extends Effector {
         this.amount = amount;
     }
 
+    /**
+     * Add an amount to go straight.  Allows for multiple "moves" to be aggregated.
+     * 
+     * @param amount amount to turn.
+     */
+    public void addAmount(double amount) {
+        this.amount += amount;
+    }    
+        
     /**
      * @return the scalingFactor
      */

@@ -170,7 +170,7 @@ public class Simulation {
         
         PotentialConsumer agentEffector =
              consumers.createPotentialConsumer(effector,
-              "setAmount", double.class);
+              "addAmount", double.class);
   
         Coupling neuronToAgentCoupling = new Coupling(effectorNeuron,
                 agentEffector);
