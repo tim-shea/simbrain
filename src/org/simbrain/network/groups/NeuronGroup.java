@@ -41,6 +41,7 @@ import org.simbrain.network.layouts.LineLayout.LineOrientation;
 import org.simbrain.network.neuron_update_rules.interfaces.BiasedUpdateRule;
 import org.simbrain.util.Utils;
 import org.simbrain.util.math.SimbrainMath;
+import org.simbrain.world.odorworld.sensors.Sensor;
 
 /**
  * A group of neurons. A primary abstraction for larger network structures.
@@ -1601,5 +1602,21 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
      */
     public static void setNumSubSamples(int numSubSamples) {
         NeuronGroup.numSubSamples = numSubSamples;
+    }
+    
+    /**
+     * Get the neuron with the specified label, or null if none found.
+     *
+     * @param label label to search for
+     * @return the associated neuron
+     */
+    public Neuron getNeuronByLabel(String label) {
+        //TODO: Share code with Network level method with same name.
+        for(Neuron neuron : this.getNeuronList()) {
+            if(neuron.getLabel().equalsIgnoreCase(label)) {
+                return neuron;
+            }
+        }
+        return null;
     }
 }

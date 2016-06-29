@@ -1,5 +1,6 @@
 package org.simbrain.custom.rl_sim;
 
+import org.simbrain.network.core.Neuron;
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.network.groups.SynapseGroup;
 import org.simbrain.simulation.NetBuilder;
@@ -11,13 +12,19 @@ import org.simbrain.world.odorworld.entities.OdorWorldEntity;
 import org.simbrain.world.odorworld.entities.RotatingEntity;
 
 /**
- * Sample simulation to use as a model for your own simulations.
+ * A reinforcement learning simulation in which an agent learns to associate
+ * smells with different pursuer / avoider combinations.
+ * 
+ * TODO: More documentation as this evolves...
  */
 public class RL_Sim {
 
+    /** The main simulation desktop. */
     final Simulation sim;
 
     /**
+     * Construct the reinforcement learning simulation.
+     *
      * @param desktop
      */
     public RL_Sim(SimbrainDesktop desktop) {
@@ -28,68 +35,75 @@ public class RL_Sim {
      * Run the simulation!
      */
     public void run() {
-        
+
         // Clear workspace
         sim.getWorkspace().clearWorkspace();
 
-        // Build a network
+        // Create the network builder
         NetBuilder net = sim.addNetwork(10, 10, 450, 450, "My first network");
-        // nb1.addNeurons(0, 0, 20, "horizontal line", "LinearRule");
-        // nb1.addNeurons(0, 89, 20, "vertical line", "LinearRule");
-        // nb1.addNeurons(89, 89, 49, "grid", "LinearRule");
-        // NeuronGroup inputs = net1.addNeuronGroup(0, 300, 6, "horizontal
-        // line",
-        // "DecayRule");
-        // inputs.setLabel("Inputs");
-        // NeuronGroup outputs = net1.addNeuronGroup(0, 0, 3, "horizontal line",
-        // "DecayRule");
-        // outputs.setUpperBound(10);
-        // outputs.setLabel("Outputs");
-        // // nb1.connectAllToAll(inputs, outputs);
-        // SynapseGroup in_out = net1.addSynapseGroup(inputs, outputs);
-        // in_out.setExcitatoryRatio(.5);
-        // in_out.randomizeConnectionWeights(); // TODO Not working?
 
         // Create the odor world
         OdorWorldBuilder world = sim.addOdorWorld(460, 10, 450, 450,
                 "My first world");
         world.getWorld().setObjectsBlockMovement(false);
+
+        // Add the agent!
         RotatingEntity mouse = world.addAgent(20, 20, "Mouse");
-        RotatingEntity mouse2 = world.addAgent(200, 200, "Mouse");
-        RotatingEntity mouse3 = world.addAgent(400, 200, "Mouse");
 
-        OdorWorldEntity cheese = world.addEntity(150, 150, "Swiss.gif",
-                new double[] { 0, 1, 0, 0 });
-        cheese.getSmellSource().setDispersion(400);
+        // Populate the odor world with stimuli
+        OdorWorldEntity cheese = world.addEntity(10, 100, "Swiss.gif",
+                new double[] { 0, 1, 0, 0, 0 });
+        cheese.getSmellSource().setDispersion(250);
+        OdorWorldEntity flower = world.addEntity(350, 300, "Flax.gif",
+                new double[] { 0, 0, 0, 0, 1 });
+        flower.getSmellSource().setDispersion(250);
+        // Yang add more.
 
-        // Coupling agent to network
-        // sim.couple(mouse, inputs); // Agent sensors to neurons
-        // sim.couple(outputs, mouse); // Neurons to movement effectors
+        // Add main input-output network to be trained by RL
+        NeuronGroup outputs = net.addNeuronGroup(0, 0, 5);
+        outputs.setLabel("Outputs");
+        // TODO: Better way to lay this out...
+        NeuronGroup inputs = net.addNeuronGroup(0, 250, 5);
+        inputs.setLabel("Inputs");
+        inputs.setClamped(true);
+        SynapseGroup connection = net.addSynapseGroup(inputs, outputs);
+        sim.couple(mouse, inputs);
 
-        // Add vehicles
+        // Add vehicle networks
         Vehicle vehicleBuilder = new Vehicle(sim, net, world);
-        NeuronGroup pursuer1 = vehicleBuilder.addPursuer(0, 400, mouse, 2);
-        pursuer1.setLabel("Pursuer 1");
-        NeuronGroup pursuer2 = vehicleBuilder.addPursuer(240, 400, mouse2, 2);
-        pursuer2.setLabel("Pursuer 2");
-        NeuronGroup avoider1 = vehicleBuilder.addAvoider(480, 400, mouse3, 2);
-        avoider1.setLabel("Avoider 1");
-        
-        // Add input-output network
-        NeuronGroup inputNodes = net.addNeuronGroup(-350, 500, 5);
-        inputNodes.setLabel("Inputs");
-        inputNodes.setClamped(true);
-        NeuronGroup outputNodes = net.addNeuronGroup(-350, 200, 5);
-        outputNodes.setLabel("Outputs");
-        net.connectAllToAll(inputNodes, outputNodes);
-        
-        // Couple i/o to mouse
-        sim.couple(mouse, inputNodes);
-        
+        int centerX = (int) outputs.getCenterX();
+        NeuronGroup pursueCheese = vehicleBuilder.addPursuer(centerX - 200,
+                -250, mouse, 2);
+        pursueCheese.setLabel("Pursue Cheese");
+        setUpVehicle(pursueCheese);
+        NeuronGroup pursueFlower = vehicleBuilder.addPursuer(centerX + 200,
+                -250, mouse, 5);
+        pursueFlower.setLabel("Pursue Flower");
+        setUpVehicle(pursueFlower);
+        // Yang add more pursuers and avoiders
+
+        // Couple output nodes to vehicles
+        net.connect(outputs.getNeuronList().get(0),
+                pursueCheese.getNeuronByLabel("Speed"), 0);
+        net.connect(outputs.getNeuronList().get(1),
+                pursueFlower.getNeuronByLabel("Speed"), 0);
+
         // Add custom update rule
         RL_Update rl = new RL_Update();
-        //net.getNetwork().getUpdateManager().clear();
-        //net.getNetwork().addUpdateAction(rl);
+        // net.getNetwork().getUpdateManager().clear();
+        // net.getNetwork().addUpdateAction(rl);
+    }
+    
+    /**
+     * Helper method to set up vehicles to this sim's specs.
+     * 
+     * @param vehicle vehicle to modify
+     */
+    private void setUpVehicle(NeuronGroup vehicle) {
+        Neuron toUpdate = vehicle.getNeuronByLabel("Speed");
+        toUpdate.setUpdateRule("ProductRule");
+        toUpdate.setActivation(0);
+        toUpdate.setClamped(false);
     }
 
 }
