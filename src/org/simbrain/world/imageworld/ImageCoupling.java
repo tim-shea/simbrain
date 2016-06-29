@@ -36,7 +36,7 @@ public class ImageCoupling implements ImageSourceListener {
      * @return Returns an array of doubles for the red component of each pixel in the image.
      */
     @Producible
-    double[] getRedImage() {
+    public double[] getRedImage() {
         return redImage;
     }
 
@@ -44,7 +44,7 @@ public class ImageCoupling implements ImageSourceListener {
      * @return Returns an array of doubles for the green component of each pixel in the image.
      */
     @Producible
-    double[] getGreenImage() {
+    public double[] getGreenImage() {
         return greenImage;
     }
 
@@ -52,15 +52,15 @@ public class ImageCoupling implements ImageSourceListener {
      * @return Returns an array of doubles for the blue component of each pixel in the image.
      */
     @Producible
-    double[] getBlueImage() {
+    public double[] getBlueImage() {
         return blueImage;
     }
 
     @Override
     public void onImage(ImageSource source) {
         if (source.isEnabled()) {
-            for (int x = 0; x < width; ++x) {
-                for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < source.getWidth(); ++x) {
+                for (int y = 0; y < source.getHeight(); ++y) {
                     int color = source.getCurrentImage().getRGB(x, y);
                     int red = (color >>> 16) & 0xFF;
                     int green = (color >>> 8) & 0xFF;
