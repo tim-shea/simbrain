@@ -90,4 +90,9 @@ public class StaticImageSource extends ImageSourceAdapter {
         applyFilters();
         notifyResize();
     }
+
+    @Override
+    public BufferedImage getUnfilteredImage() {
+        return originalImage;
+    }
 }

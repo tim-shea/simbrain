@@ -31,6 +31,7 @@ public class ImagePanel extends JPanel implements ImageSourceListener {
     private boolean destroyNeeded = false;
     private boolean resizeSource = false;
     private final Object lock = new Object();
+    private boolean sensorView = false;
 
     /**
      * Construct a new ImagePanel.
@@ -153,9 +154,19 @@ public class ImagePanel extends JPanel implements ImageSourceListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (currentSource.getCurrentImage() != null) {
-            g.drawImage(currentSource.getCurrentImage(), 0, 0, getWidth(),
-                    getHeight(), this);
+        if(currentSource == null) {
+            return;
+        }
+        if(sensorView) {
+            if (currentSource.getCurrentImage() != null) {
+                g.drawImage(currentSource.getCurrentImage(), 0, 0, getWidth(),
+                        getHeight(), this);
+            }
+        } else {
+            if (currentSource.getUnfilteredImage() != null) {
+                g.drawImage(currentSource.getUnfilteredImage(), 0, 0, getWidth(),
+                        getHeight(), this);
+            }
         }
     }
 
@@ -251,6 +262,16 @@ public class ImagePanel extends JPanel implements ImageSourceListener {
             setReshapeNeeded();
         }
         onImage(source);
+        repaint();
+    }
+
+    /**
+     * Toggles a view of the filtered image (the "sensor view") and the unfiltered image
+     *
+     * @param sensorView true for sensorView; false for image view
+     */
+    public void setSensorView(boolean sensorView) {
+        this.sensorView = sensorView;
         repaint();
     }
 }

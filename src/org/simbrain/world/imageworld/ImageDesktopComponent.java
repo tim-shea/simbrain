@@ -11,6 +11,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 
 import org.simbrain.util.SFileChooser;
 import org.simbrain.util.genericframe.GenericFrame;
@@ -18,9 +19,11 @@ import org.simbrain.workspace.gui.GuiComponent;
 
 /**
  * ImageDesktopComponent construct the GUI for interacting with an ImageWorld.
+ *
  * @author Tim Shea
  */
 public class ImageDesktopComponent extends GuiComponent<ImageWorldComponent> {
+    
     private static final long serialVersionUID = 9019927108869839191L;
 
     /**
@@ -42,6 +45,16 @@ public class ImageDesktopComponent extends GuiComponent<ImageWorldComponent> {
                 source.loadImage(file.toString());
             }
         }));
+        JToggleButton sensorViewButton = new JToggleButton("Sensor View");
+        sensorViewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                workspaceComponent.getImagePanel().setSensorView(sensorViewButton.isSelected());
+            }
+            
+        });
+
+        menubar.add(sensorViewButton);
         JTextField widthField = new JTextField(Integer.toString(source.getWidth()));
         JTextField heightField = new JTextField(Integer.toString(source.getHeight()));
         source.addListener(new ImageSourceListener() {
@@ -58,6 +71,7 @@ public class ImageDesktopComponent extends GuiComponent<ImageWorldComponent> {
         menubar.add(widthField);
         menubar.add(new JLabel("Height"));
         menubar.add(heightField);
+        
         JButton resizeButton = new JButton(new AbstractAction("Resize") {
             @Override
             public void actionPerformed(ActionEvent evt) {

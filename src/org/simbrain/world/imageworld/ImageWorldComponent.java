@@ -16,6 +16,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 /**
  * ImageWorldComponent provides a model for building an image processing
  * pipeline and coupling inputs and outputs within a Simbrain workspace.
+ *
  * @author Tim Shea
  */
 public class ImageWorldComponent extends WorkspaceComponent {
@@ -50,7 +51,7 @@ public class ImageWorldComponent extends WorkspaceComponent {
         addAnnotatedProducers(ImageCoupling.class);
         imagePanel = new ImagePanel();
         imagePanel.setPreferredSize(new Dimension(640, 480));
-        imageSource = new StaticImageSource(200, 200);
+        imageSource = new StaticImageSource(20, 20);
         imagePanel.setImageSource(imageSource, false);
         imageCoupling = new ImageCoupling(imageSource);
         imageSource.setEnabled(true);
@@ -75,12 +76,6 @@ public class ImageWorldComponent extends WorkspaceComponent {
 
     @Override
     protected void closing() { }
-
-    @Override
-    public List<PotentialConsumer> getPotentialConsumers() {
-        List<PotentialConsumer> potentialConsumers = new ArrayList<PotentialConsumer>();
-        return potentialConsumers;
-    }
 
     @Override
     public List<PotentialProducer> getPotentialProducers() {
