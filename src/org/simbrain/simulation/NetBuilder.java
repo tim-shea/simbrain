@@ -15,9 +15,6 @@ import org.simbrain.network.groups.SynapseGroup;
 import org.simbrain.network.layouts.GridLayout;
 import org.simbrain.network.layouts.LineLayout;
 import org.simbrain.network.layouts.LineLayout.LineOrientation;
-import org.simbrain.workspace.PotentialProducer;
-import org.simbrain.world.odorworld.entities.RotatingEntity;
-import org.simbrain.world.odorworld.sensors.SmellSensor;
 
 //TODO: Not sure this is the best name.  Use it a while then decide.
 //  Maybe change to NetHelper.   
@@ -32,6 +29,8 @@ public class NetBuilder {
 
     private final Network network;
 
+    private double GRID_SPACE = 50; // todo; make this settable
+
     /**
      * @param networkComponent
      */
@@ -39,8 +38,6 @@ public class NetBuilder {
         this.networkComponent = networkComponent;
         this.network = networkComponent.getNetwork();
     }
-
-    double GRID_SPACE = 50; // todo; make this settable
 
     public Neuron addNeuron(int x, int y) {
         Neuron neuron = new Neuron(network, "LinearRule");
@@ -79,10 +76,9 @@ public class NetBuilder {
                     (int) Math.sqrt(numNeurons));
             gridLayout.setInitialLocation(new Point(x, y));
             gridLayout.layoutNeurons(newNeurons);
-
         }
     }
-    
+
     /**
      * Make a single source -> target connection.
      *
@@ -91,13 +87,12 @@ public class NetBuilder {
      */
     public void connect(Neuron source, Neuron target, double value) {
         Synapse synapse = new Synapse(source, target);
-        //TODO: assume value > 0
+        // TODO: assume value > 0
         synapse.setLowerBound(-2 * value);
         synapse.setUpperBound(2 * value);
         synapse.setStrength(value);
         source.getNetwork().addSynapse(synapse);
     }
-
 
     public void connectAllToAll(NeuronGroup source, NeuronGroup target) {
         AllToAll connector = new AllToAll();
@@ -120,7 +115,7 @@ public class NetBuilder {
         ng.setNeuronType(type);
         network.addGroup(ng);
 
-        // LAYOUT NEURONS
+        // Lay out neurons
         if (layoutName.toLowerCase().contains("line")) {
             if (layoutName.equalsIgnoreCase("vertical line")) {
                 LineLayout lineLayout = new LineLayout(x, y, 50,
@@ -139,9 +134,9 @@ public class NetBuilder {
         ng.applyLayout();
         return ng;
     }
-    
+
     public NeuronGroup addNeuronGroup(int x, int y, int numNeurons) {
-        return addNeuronGroup(x,y,numNeurons, "line", "LinearRule");
+        return addNeuronGroup(x, y, numNeurons, "line", "LinearRule");
     }
 
     public Network getNetwork() {
@@ -154,6 +149,5 @@ public class NetBuilder {
     public NetworkComponent getNetworkComponent() {
         return networkComponent;
     }
-
 
 }

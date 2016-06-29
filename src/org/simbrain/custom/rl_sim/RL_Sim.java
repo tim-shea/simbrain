@@ -50,12 +50,12 @@ public class RL_Sim {
         // Add the agent!
         RotatingEntity mouse = world.addAgent(20, 20, "Mouse");
 
-        // Populate the odor world with stimuli
+        // Populate the odor world with stimuli.  Last component is reward
         OdorWorldEntity cheese = world.addEntity(10, 100, "Swiss.gif",
-                new double[] { 0, 1, 0, 0, 0 });
+                new double[] { 0, 1, 0, 0, 0, 1 });
         cheese.getSmellSource().setDispersion(250);
         OdorWorldEntity flower = world.addEntity(350, 300, "Flax.gif",
-                new double[] { 0, 0, 0, 0, 1 });
+                new double[] { 0, 0, 0, 0, 1, 0 });
         flower.getSmellSource().setDispersion(250);
         // Yang add more.
 
@@ -68,6 +68,12 @@ public class RL_Sim {
         inputs.setClamped(true);
         SynapseGroup connection = net.addSynapseGroup(inputs, outputs);
         sim.couple(mouse, inputs);
+        Neuron reward = net.addNeuron(500, 0);
+        reward.setLabel("Reward");
+        Neuron value = net.addNeuron(550, 0);
+        value.setLabel("Value");
+        Neuron tdError = net.addNeuron(550, 0);
+        value.setLabel("TD Error");
 
         // Add vehicle networks
         Vehicle vehicleBuilder = new Vehicle(sim, net, world);
@@ -89,9 +95,10 @@ public class RL_Sim {
                 pursueFlower.getNeuronByLabel("Speed"), 0);
 
         // Add custom update rule
-        RL_Update rl = new RL_Update();
-        // net.getNetwork().getUpdateManager().clear();
-        // net.getNetwork().addUpdateAction(rl);
+        RL_Update rl = new RL_Update(net.getNetwork(), inputs, outputs, value,
+                reward, tdError);
+         //net.getNetwork().getUpdateManager().clear();
+         //net.getNetwork().addUpdateAction(rl);
     }
     
     /**
