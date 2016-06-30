@@ -1,6 +1,8 @@
 package org.simbrain.custom.rl_sim;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.NetworkUpdateAction;
@@ -51,8 +53,11 @@ public class RL_Update implements NetworkUpdateAction {
     public void invoke() {
 
         // Update all neurons (Just state neurons?)
-        network.updateNeurons(Collections.singletonList(value));
-        network.updateNeurons(Collections.singletonList(reward));
+        network.updateAllGroups();
+        // Network.updateNeurons(inputs.getNeuronList());
+        // Network.updateNeurons(outputs.getNeuronList());
+        Network.updateNeurons(Collections.singletonList(value));
+        Network.updateNeurons(Collections.singletonList(reward));
 
         // Set main variables
         tdError.setActivation(
@@ -61,6 +66,10 @@ public class RL_Update implements NetworkUpdateAction {
         System.out.println("td error:" + value.getActivation() + " + "
                 + reward.getActivation() + " - " + value.getLastActivation());
 
+        // CUSTOM IMPLEMENTATION OF WTA FOR OUTPUTS
+        updateWTA(outputs);
+
+        // BELOW IS LEARNING. PUT IN SEPARATE FUNCTION
         // Update all value synapses
         for (Synapse synapse : value.getFanIn()) {
             Neuron sourceNeuron = (Neuron) synapse.getSource();
@@ -96,6 +105,40 @@ public class RL_Update implements NetworkUpdateAction {
             }
         }
 
+    }
+
+    Random generator = new Random();
+
+    private void updateWTA(NeuronGroup ng) {
+        List<Neuron> actionNeurons = ng.getNeuronList();
+        Neuron winningNeuron = null;
+        double maxVal;
+        if (Math.random() > epsilon) {
+            maxVal = Double.NEGATIVE_INFINITY;
+            for (Neuron neuron : actionNeurons) {
+                if (neuron.getWeightedInputs() > maxVal) {
+                    maxVal = neuron.getWeightedInputs();
+                    winningNeuron = neuron;
+                }
+            }
+            // Break ties randomly
+            if (maxVal == 0) {
+                int winner = generator.nextInt(actionNeurons.size());
+                winningNeuron = actionNeurons.get(winner);
+            }
+        } else {
+            // Choose winner randomly
+            int winner = generator.nextInt(actionNeurons.size());
+            winningNeuron = actionNeurons.get(winner);
+        }
+        for (Neuron neuron : actionNeurons) {
+            if (neuron == winningNeuron) {
+                neuron.setActivation(1);
+                neuron.update();
+            } else {
+                neuron.setActivation(0);
+            }
+        }
     }
 
 }

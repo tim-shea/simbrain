@@ -132,11 +132,11 @@ public class Simulation {
         return workspace;
     }
 
-    public void couple(Sensor sensor, int stimulusDimension, Neuron leftInput) {
+    public void couple(Sensor sensor, int stimulusDimension, Neuron consumingNeuron) {
         AttributeManager producers = odorMap.get(sensor.getParent().getParentWorld())
                 .getAttributeManager();
         AttributeManager consumers = netMap
-                .get(leftInput.getNetwork())
+                .get(consumingNeuron.getNetwork())
                 .getAttributeManager();
 
         PotentialProducer agentSensor =
@@ -145,13 +145,13 @@ public class Simulation {
               new Class[] { int.class },
               new Object[] { stimulusDimension });
         PotentialConsumer sensoryNeuron = consumers
-                .createPotentialConsumer(leftInput, "forceSetActivation", double.class);
+                .createPotentialConsumer(consumingNeuron, "forceSetActivation", double.class);
         
-        Coupling agentToNeuronCoupling = new Coupling(agentSensor,
+        Coupling sensorToNeuronCoupling = new Coupling(agentSensor,
                 sensoryNeuron);
         
         try {
-            workspace.getCouplingManager().addCoupling(agentToNeuronCoupling);
+            workspace.getCouplingManager().addCoupling(sensorToNeuronCoupling);
         } catch (UmatchedAttributesException e) {
             e.printStackTrace();
         }        

@@ -66,14 +66,19 @@ public class RL_Sim {
         NeuronGroup inputs = net.addNeuronGroup(0, 250, 5);
         inputs.setLabel("Inputs");
         inputs.setClamped(true);
-        SynapseGroup connection = net.addSynapseGroup(inputs, outputs);
+        SynapseGroup inputOutputConnection = net.addSynapseGroup(inputs, outputs);
         sim.couple(mouse, inputs);
+
+        // Reward, Value TD
         Neuron reward = net.addNeuron(500, 0);
+        reward.setClamped(true);
         reward.setLabel("Reward");
+        sim.couple(mouse.getSensor("Smell-Center"), 5, reward);
         Neuron value = net.addNeuron(550, 0);
         value.setLabel("Value");
-        Neuron tdError = net.addNeuron(550, 0);
-        value.setLabel("TD Error");
+        net.connectAllToAll(inputs, value);
+        Neuron tdError = net.addNeuron(600, 0);
+        tdError.setLabel("TD Error");
 
         // Add vehicle networks
         Vehicle vehicleBuilder = new Vehicle(sim, net, world);
@@ -97,8 +102,8 @@ public class RL_Sim {
         // Add custom update rule
         RL_Update rl = new RL_Update(net.getNetwork(), inputs, outputs, value,
                 reward, tdError);
-         //net.getNetwork().getUpdateManager().clear();
-         //net.getNetwork().addUpdateAction(rl);
+         net.getNetwork().getUpdateManager().clear();
+         net.getNetwork().addUpdateAction(rl);
     }
     
     /**

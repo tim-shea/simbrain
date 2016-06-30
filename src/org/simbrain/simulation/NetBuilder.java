@@ -3,6 +3,7 @@ package org.simbrain.simulation;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.simbrain.network.NetworkComponent;
@@ -10,11 +11,13 @@ import org.simbrain.network.connections.AllToAll;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.core.Synapse;
+import org.simbrain.network.groups.Group;
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.network.groups.SynapseGroup;
 import org.simbrain.network.layouts.GridLayout;
 import org.simbrain.network.layouts.LineLayout;
 import org.simbrain.network.layouts.LineLayout.LineOrientation;
+import org.simbrain.network.subnetworks.WinnerTakeAll;
 
 //TODO: Not sure this is the best name.  Use it a while then decide.
 //  Maybe change to NetHelper.   
@@ -99,6 +102,12 @@ public class NetBuilder {
         connector.connectAllToAll(source.getNeuronList(),
                 target.getNeuronList());
     }
+    
+    public void connectAllToAll(NeuronGroup inputs, Neuron target) {
+        AllToAll connector = new AllToAll();
+        connector.connectAllToAll(inputs.getNeuronList(),
+                Collections.singletonList(target));
+    }
 
     public SynapseGroup addSynapseGroup(NeuronGroup source,
             NeuronGroup target) {
@@ -110,10 +119,17 @@ public class NetBuilder {
     public NeuronGroup addNeuronGroup(int x, int y, int numNeurons,
             String layoutName, String type) {
 
-        NeuronGroup ng = new NeuronGroup(network, new Point2D.Double(x, y),
-                numNeurons);
-        ng.setNeuronType(type);
-        network.addGroup(ng);
+        NeuronGroup ng;
+        
+        if(type.equalsIgnoreCase("wta")) {
+            ng = new WinnerTakeAll(network, numNeurons);
+            ng.setLocation(x, y);            
+        } else {
+            ng = new NeuronGroup(network, new Point2D.Double(x, y),
+                    numNeurons);
+            ng.setNeuronType(type);
+        }
+        network.addGroup(ng);            
 
         // Lay out neurons
         if (layoutName.toLowerCase().contains("line")) {
@@ -134,11 +150,25 @@ public class NetBuilder {
         ng.applyLayout();
         return ng;
     }
+    
+    public NeuronGroup addWTAGroup(int x, int y, int numNeurons) {
+        return addNeuronGroup(x, y, numNeurons, "line", "wta");
+    }
+
+    public Group addSubnetwork(int x, int y, int numNeurons, String type) {
+        if(type.equalsIgnoreCase("wta")) {
+            WinnerTakeAll ret = new WinnerTakeAll(network, numNeurons);
+            network.addGroup(ret);
+            return ret;
+        }        
+        return  null;
+
+    }
 
     public NeuronGroup addNeuronGroup(int x, int y, int numNeurons) {
         return addNeuronGroup(x, y, numNeurons, "line", "LinearRule");
     }
-
+    
     public Network getNetwork() {
         return network;
     }
