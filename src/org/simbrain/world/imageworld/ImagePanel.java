@@ -3,6 +3,7 @@ package org.simbrain.world.imageworld;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferStrategy;
@@ -11,8 +12,6 @@ import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-
-import com.sun.glass.events.KeyEvent;
 
 /**
  * ImagePanel is a resizable canvas for displaying images from an ImageSource.
