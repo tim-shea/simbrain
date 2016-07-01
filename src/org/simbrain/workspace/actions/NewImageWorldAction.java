@@ -1,9 +1,6 @@
 package org.simbrain.workspace.actions;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
-
-import javax.swing.ImageIcon;
 
 import org.simbrain.resource.ResourceManager;
 import org.simbrain.workspace.Workspace;

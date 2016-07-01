@@ -47,7 +47,7 @@ public class ImageWorld {
         imagePanel = new ImageWorldPanel(imageSource.getUnfilteredImage());
 
         // Load default sensor matrices
-        SensorMatrix none = new SensorMatrix("None", imageSource);
+        SensorMatrix none = new SensorMatrix("Unfiltered", imageSource);
         none.setWidth(imageSource.getUnfilteredImage().getWidth());
         none.setHeight(imageSource.getUnfilteredImage().getHeight());
         none.setFilter("None");
@@ -122,7 +122,7 @@ public class ImageWorld {
     public void removeSensorMatrix(SensorMatrix sm) {
         // Can't remove the default "none" matrix which just shows the
         // unfiltered image
-        if (sm.getName().equalsIgnoreCase("None")) {
+        if (sm.getName().equalsIgnoreCase("Unfiltered")) {
             return;
         }
         int dialogResult = JOptionPane.showConfirmDialog(
@@ -146,7 +146,7 @@ public class ImageWorld {
         // TODO: Move this to a separate dialog class
 
         // Can't edit the unfiltered matrix
-        if (sm.getName().equalsIgnoreCase("None")) {
+        if (sm.getName().equalsIgnoreCase("Unfiltered")) {
             JOptionPane.showMessageDialog(null, "\"Null\" sensor matrix cannot be edited.");
             return;
         }
