@@ -166,6 +166,7 @@ public abstract class WorkspaceComponent {
 
     /**
      * Create potential producers for a particular object.
+     *
      * @param typeName The typename to use for selecting producer types.
      * @param object The object to bind the potential producers.
      * @return Returns a list of potential producers.
@@ -192,6 +193,7 @@ public abstract class WorkspaceComponent {
 
     /**
      * Create potential producers for a particular object.
+     *
      * @param typeName The typename to use for selecting producer types.
      * @param object The object to bind the potential producers.
      * @return Returns a list of potential producers.

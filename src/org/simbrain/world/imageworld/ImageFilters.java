@@ -14,9 +14,11 @@ import java.awt.image.ColorModel;
 /**
  * ImageFilters provides a set of factory methods for creating BufferedImageOps that
  * apply basic image manipulations.
+ *
  * @author Tim Shea
  */
 public class ImageFilters {
+
     /**
      * @return Returns an identity (non-op) transformation.
      */

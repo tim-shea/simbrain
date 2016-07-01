@@ -16,9 +16,11 @@ import com.jme3.renderer.ViewPort;
 /**
  * VisionSensor provides an interface for a camera to render the ThreeDWorld from
  * the perspective of an agent. 
+ *
  * @author Tim Shea
  */
 public class VisionSensor implements Sensor {
+    
     /** MODE_COLOR uses the unfiltered, full color rendered view for the sensor. */
     public static final int MODE_COLOR = 0;
     /** MODE_GRAY transforms the colorspace of the rendered view to grayscale. */
@@ -46,6 +48,7 @@ public class VisionSensor implements Sensor {
 
     /**
      * Construct a new VisionSensor.
+     * 
      * @param agent The agent to attach the sensor to.
      */
     public VisionSensor(Agent agent) {
@@ -205,6 +208,7 @@ public class VisionSensor implements Sensor {
 
     /**
      * Resize the sensor by providing a new width and height in pixels.
+     * 
      * @param width The new width.
      * @param height The new height.
      */
@@ -220,6 +224,7 @@ public class VisionSensor implements Sensor {
 
     /**
      * Update the sensor by recalculating the position from the agent.
+     * 
      * @param tpf The time since the previous update in seconds.
      */
     public void update(float tpf) {

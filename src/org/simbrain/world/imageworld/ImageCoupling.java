@@ -5,6 +5,7 @@ import org.simbrain.util.Producible;
 /**
  * ImageCoupling encapsulates the adapter code needed to provide RGB and value
  * couplings to the image data produced by an ImageSource.
+ * 
  * @author Tim Shea
  */
 public class ImageCoupling implements ImageSourceListener {
@@ -17,6 +18,7 @@ public class ImageCoupling implements ImageSourceListener {
 
     /**
      * Construct a new ImageCoupling.
+     *
      * @param source The ImageSource to provide producers for.
      */
     public ImageCoupling(ImageSource source) {

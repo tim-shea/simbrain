@@ -16,6 +16,8 @@ import javax.swing.KeyStroke;
 /**
  * ImagePanel is a resizable canvas for displaying images from an ImageSource.
  * 
+ * TODO: Work out relation to ImageWorldPanel
+ * 
  * @author Tim Shea
  */
 public class ImagePanel extends JPanel implements ImageSourceListener {
@@ -30,31 +32,12 @@ public class ImagePanel extends JPanel implements ImageSourceListener {
     private boolean destroyNeeded = false;
     private boolean resizeSource = false;
     private final Object lock = new Object();
-    private boolean sensorView = false;
 
     /**
      * Construct a new ImagePanel.
      */
     public ImagePanel() {
         super();
-        
-        // Working example of a key binding.  Now how to give JME access?
-        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-                .put(KeyStroke.getKeyStroke(KeyEvent.VK_M, 0), "moo");
-        this.getActionMap().put("moo", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Moo");
-            }
-        });
-
-        // setIgnoreRepaint(true);
-        // addComponentListener(new ComponentAdapter() {
-        // @Override
-        // public void componentResized(ComponentEvent event) {
-        // setReshapeNeeded();
-        // }
-        // });
         repaint();
     }
 
@@ -127,8 +110,8 @@ public class ImagePanel extends JPanel implements ImageSourceListener {
                         (double) getWidth() / currentSource.getWidth(),
                         (double) getHeight() / currentSource.getHeight());
             }
-            transformOp = new AffineTransformOp(transform,
-                    AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+            // transformOp = new AffineTransformOp(transform,
+            // AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
         }
         repaint();
     }
@@ -153,19 +136,12 @@ public class ImagePanel extends JPanel implements ImageSourceListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if(currentSource == null) {
+        if (currentSource == null) {
             return;
         }
-        if(sensorView) {
-            if (currentSource.getCurrentImage() != null) {
-                g.drawImage(currentSource.getCurrentImage(), 0, 0, getWidth(),
-                        getHeight(), this);
-            }
-        } else {
-            if (currentSource.getUnfilteredImage() != null) {
-                g.drawImage(currentSource.getUnfilteredImage(), 0, 0, getWidth(),
-                        getHeight(), this);
-            }
+        if (currentSource.getUnfilteredImage() != null) {
+            g.drawImage(currentSource.getUnfilteredImage(), 0, 0, getWidth(),
+                    getHeight(), this);
         }
     }
 
@@ -264,13 +240,4 @@ public class ImagePanel extends JPanel implements ImageSourceListener {
         repaint();
     }
 
-    /**
-     * Toggles a view of the filtered image (the "sensor view") and the unfiltered image
-     *
-     * @param sensorView true for sensorView; false for image view
-     */
-    public void setSensorView(boolean sensorView) {
-        this.sensorView = sensorView;
-        repaint();
-    }
 }
