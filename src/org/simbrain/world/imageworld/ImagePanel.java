@@ -1,17 +1,13 @@
 package org.simbrain.world.imageworld;
 
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferStrategy;
 
-import javax.swing.AbstractAction;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 
 /**
  * ImagePanel is a resizable canvas for displaying images from an ImageSource.
@@ -38,6 +34,12 @@ public class ImagePanel extends JPanel implements ImageSourceListener {
      */
     public ImagePanel() {
         super();
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent event) {
+                setReshapeNeeded();
+            }
+        });
         repaint();
     }
 
