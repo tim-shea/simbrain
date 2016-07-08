@@ -4,13 +4,13 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BoxLayout;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 import org.simbrain.resource.ResourceManager;
-import org.simbrain.util.StandardDialog;
-import org.simbrain.util.propertyeditor.gui.ReflectivePropertyEditor;
+import org.simbrain.world.imageworld.dialogs.SensorMatrixDialog;
+import org.simbrain.world.imageworld.filters.GrayFilter;
+import org.simbrain.world.imageworld.filters.IdentityFilter;
+import org.simbrain.world.imageworld.filters.ThresholdFilter;
 
 /**
  * Imageworld contains the "logical" contents of this component, the image, and
@@ -32,7 +32,7 @@ public class ImageWorld {
 
     /** Holder for the current image or sensor view. */
     private ImageWorldPanel imagePanel;
-    
+
     /** List of world listener. */
     private transient List<WorldListener> listeners = new ArrayList<WorldListener>();
 
@@ -50,37 +50,35 @@ public class ImageWorld {
         SensorMatrix none = new SensorMatrix("Unfiltered", imageSource);
         none.setWidth(imageSource.getUnfilteredImage().getWidth());
         none.setHeight(imageSource.getUnfilteredImage().getHeight());
-        none.setFilter("None");
+        none.setFilter(new IdentityFilter());
         sensorMatrices.add(none);
 
-        SensorMatrix gray75x75 = new SensorMatrix("Gray 75x75",
-                imageSource);
+        SensorMatrix gray75x75 = new SensorMatrix("Gray 75x75", imageSource);
         gray75x75.setWidth(75);
         gray75x75.setHeight(75);
-        gray75x75.setFilter("Gray");
+        gray75x75.setFilter(new GrayFilter());
         sensorMatrices.add(gray75x75);
-        
+
         SensorMatrix gray200x200 = new SensorMatrix("Gray 200x200",
                 imageSource);
         gray200x200.setWidth(200);
         gray200x200.setHeight(200);
-        gray200x200.setFilter("Gray");
+        gray200x200.setFilter(new GrayFilter());
         sensorMatrices.add(gray200x200);
 
+        SensorMatrix threshold10x10 = new SensorMatrix("Threshold 10x10",
+                imageSource);
+        threshold10x10.setWidth(10);
+        threshold10x10.setHeight(10);
+        threshold10x10.setFilter(new ThresholdFilter(.5f));
+        sensorMatrices.add(threshold10x10);
 
         SensorMatrix threshold100x100 = new SensorMatrix("Threshold 100x100",
                 imageSource);
         threshold100x100.setWidth(100);
         threshold100x100.setHeight(100);
-        threshold100x100.setFilter("Threshold");
+        threshold100x100.setFilter(new ThresholdFilter(.5f));
         sensorMatrices.add(threshold100x100);
-
-        SensorMatrix threshold200x200 = new SensorMatrix("Threshold 200x200",
-                imageSource);
-        threshold200x200.setWidth(200);
-        threshold200x200.setHeight(200);
-        threshold200x200.setFilter("Threshold");
-        sensorMatrices.add(threshold200x200);
 
         currentSensorMatrix = sensorMatrices.get(0);
     }
@@ -99,21 +97,23 @@ public class ImageWorld {
     }
 
     /**
+     * Add a new matrix to the list.
+     *
+     * @param matrix the matrix to add
+     */
+    public void addSensorMatrix(SensorMatrix matrix) {
+        sensorMatrices.add(matrix);
+        fireSensorMatricesUpdated();
+    }
+
+    /**
      * Add a new sensor panel.
      */
     public void addSensorMatrix() {
-        String nameString = JOptionPane.showInputDialog("Sensor Matrix Name:",
-                "");
-        if (nameString == null) {
-            return;
-        }
-        if (nameString.equals("")) {
-            return;
-        }
-        sensorMatrices.add(new SensorMatrix(nameString, imageSource));
-
-        fireSensorMatricesUpdated();
-
+        SensorMatrixDialog dialog = new SensorMatrixDialog(this);
+        dialog.pack();
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
     }
 
     /**
@@ -143,40 +143,17 @@ public class ImageWorld {
      */
     public void editSensorMatrix(SensorMatrix sm) {
 
-        // TODO: Move this to a separate dialog class
-
         // Can't edit the unfiltered matrix
         if (sm.getName().equalsIgnoreCase("Unfiltered")) {
-            JOptionPane.showMessageDialog(null, "\"Null\" sensor matrix cannot be edited.");
+            JOptionPane.showMessageDialog(null,
+                    "\"Null\" sensor matrix cannot be edited.");
             return;
         }
 
-        JPanel sensorEditor = new JPanel();
-        sensorEditor.setLayout(new BoxLayout(sensorEditor, BoxLayout.Y_AXIS));
-        ReflectivePropertyEditor editor = new ReflectivePropertyEditor();
-        editor.setUseSuperclass(false);
-        editor.setObject(sm);
-        sensorEditor.add(editor);
-        // sensorEditor.add(new JSeparator());
-
-        StandardDialog dialog = new StandardDialog() {
-            @Override
-            protected void closeDialogOk() {
-                super.closeDialogOk();
-                editor.commit();
-                sm.applyFilters();
-                imagePanel.updateImage(currentSensorMatrix.getImage(),
-                        imagePanel.getWidth(), imagePanel.getHeight());
-                fireSensorMatrixUpdated(sm);
-            }
-        };
-        dialog.setContentPane(sensorEditor);
-        dialog.setTitle("Edit " + sm.getName());
-        dialog.setModal(true);
-        dialog.pack();
-        dialog.setLocationRelativeTo(null);
-        dialog.setVisible(true);
-
+        SensorMatrixDialog sensorEditor = new SensorMatrixDialog(this, sm);
+        sensorEditor.pack();
+        sensorEditor.setLocationRelativeTo(null);
+        sensorEditor.setVisible(true);
     }
 
     /**

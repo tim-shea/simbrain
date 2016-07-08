@@ -57,7 +57,7 @@ public class ImageWorldComponent extends WorkspaceComponent {
         //TODO: Name the couplings in an appropriate way
         List<PotentialProducer> potentialProducers = new ArrayList<PotentialProducer>();
         for(SensorMatrix sm : this.getImageWorld().getSensorMatrices()) {
-            potentialProducers.addAll(getPotentialProducersForObject("SensorMatrix", sm));
+            potentialProducers.addAll(getPotentialProducersForObject(sm));
         }
         return potentialProducers;
     }

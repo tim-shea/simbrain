@@ -4,7 +4,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 
 import org.simbrain.util.Producible;
-import org.simbrain.util.propertyeditor.ComboBoxWrapper;
+import org.simbrain.world.imageworld.filters.GrayFilter;
+import org.simbrain.world.imageworld.filters.IdentityFilter;
+import org.simbrain.world.imageworld.filters.ImageFilter;
+import org.simbrain.world.imageworld.filters.ThresholdFilter;
 
 /**
  * 
@@ -37,29 +40,36 @@ public class SensorMatrix {
     // TODO: Allow the matrix to contain an editable list of filters
     // private List<BufferedImageOp> filters = new ArrayList<BufferedImageOp>();
 
-    /** List of filter types. */
-    private String[] filterTypes = { "None", "Gray", "Threshold" };
+    /** List of filter types. Used in combo box. */
+    public static String[] FILTER_TYPES = { IdentityFilter.NAME,
+            GrayFilter.NAME, ThresholdFilter.NAME };
 
-    /** The current filter. */
-    private String currentFilterName = "None";
-
-    /** The current filter. */
-    private BufferedImageOp currentFilter = null;
+    /** The current image filter. */
+    private ImageFilter filter = null;
 
     /** The vales this matrix produces for couplings. */
     private double[] sensorValues;
 
     /**
-     * Construct the sensor matrix.
+     * Construct the sensor matrix with a specified name.
      *
      * @param name the name of this sensor matrix
      * @param source the source for the image
      */
     public SensorMatrix(final String name, final StaticImageSource source) {
-        super();
         this.source = source;
         this.image = source.getUnfilteredImage();
         this.name = name;
+    }
+
+    /**
+     * Construct a sensor matrix.
+     *
+     * @param imageSource the source for the image
+     */
+    public SensorMatrix(StaticImageSource imageSource) {
+        this.source = imageSource;
+        this.image = source.getUnfilteredImage();
     }
 
     @Override
@@ -68,49 +78,12 @@ public class SensorMatrix {
     }
 
     /**
-     * Temp for property editor.
-     */
-    public ComboBoxWrapper getFilter() {
-        return new ComboBoxWrapper() {
-            public Object getCurrentObject() {
-                return currentFilterName;
-            }
-
-            public Object[] getObjects() {
-                return filterTypes;
-            }
-        };
-    }
-
-    /**
-     * Temp for property editor.
-     */
-    public void setFilter(ComboBoxWrapper filter) {
-        currentFilterName = (String) filter.getCurrentObject();
-        setFilter((String) filter.getCurrentObject());
-    }
-
-    /**
      * Set the current filter
      *
-     * @param filterName
+     * @param filter the filter to set
      */
-    public void setFilter(String filterName) {
-        currentFilterName = filterName;
-        if (filterName.equalsIgnoreCase("Threshold")) {
-            // TODO: Set threshold
-            currentFilter = ImageFilters.threshold(.5f);
-        } else if (filterName.equalsIgnoreCase("Gray")) {
-            currentFilter = ImageFilters.gray();
-        } else if (filterName.equalsIgnoreCase("None")) {
-            currentFilter = ImageFilters.identity();
-        } else {
-            currentFilter = null;
-            // Exception?
-        }
-        if (currentFilter != null) {
-            applyFilters();
-        }
+    public void setFilter(ImageFilter filter) {
+        this.filter = filter;
     }
 
     /**
@@ -119,14 +92,14 @@ public class SensorMatrix {
     public void applyFilters() {
         // System.out.println("In sensorpanel.updateImage for " +
         // this.getPanelName());
-        if ((currentFilter != null) && (source != null)) {
+        if ((filter != null) && (source != null)) {
             // Rescale original image to logical size
             rescaler = ImageFilters.scale(
                     (float) width / source.getUnfilteredImage().getWidth(),
                     (float) height / source.getUnfilteredImage().getHeight(),
                     false);
             image = rescaler.filter(source.getUnfilteredImage(), null);
-            image = currentFilter.filter(image, null);
+            image = filter.getFilter().filter(image, null);
             updateSensorValues();
         }
     }
@@ -134,20 +107,16 @@ public class SensorMatrix {
     /**
      * Update the sensor matrix values.
      * 
-     * TODO: Compute sensor value based on filter type
+     * TODO: When to call this? 
      */
     private void updateSensorValues() {
         sensorValues = new double[width * height];
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
-                int color = image.getRGB(x, y);
-                int red = (color >>> 16) & 0xFF;
-                int green = (color >>> 8) & 0xFF;
-                int blue = color & 0xFF;
-                sensorValues[y * width + x] = (red * 0.2126f + green * 0.7152f
-                        + blue * 0.0722f) / 255;
+                sensorValues[y * width + x] = filter.getValue(image, x, y);
             }
         }
+
     }
 
     /**
@@ -202,9 +171,18 @@ public class SensorMatrix {
     /**
      * @return Returns an array of doubles for the each pixel
      */
-    @Producible
+    @Producible(customDescriptionMethod = "getName")
     public double[] getSensorValues() {
         return sensorValues;
+    }
+
+    /**
+     * Get the current filter associated with this sensor matrix.
+     *
+     * @return the currentFilter
+     */
+    public ImageFilter getFilter() {
+        return filter;
     }
 
 }

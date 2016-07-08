@@ -126,6 +126,9 @@ public class ImageDesktopComponent extends GuiComponent<ImageWorldComponent> {
 
         });
 
+        /**
+         * Update the main combo box when sensor matrices are added or removed. 
+         */
         component.getImageWorld().addListener(new WorldListener() {
             @Override
             public void sensorMatricesUpdated() {
@@ -143,6 +146,9 @@ public class ImageDesktopComponent extends GuiComponent<ImageWorldComponent> {
 
     }
 
+    /**
+     * Reset the combo box for the sensor panels.
+     */
     private void updateComboBox() {
         cbSensorPanel.removeAllItems();
         for (SensorMatrix sp : component.getImageWorld().getSensorMatrices()) {
