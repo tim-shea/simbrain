@@ -58,6 +58,9 @@ public class RL_Sim {
                 new double[] { 0, 0, 0, 0, 1, 0 });
         flower.getSmellSource().setDispersion(250);
         // Yang add more.
+        OdorWorldEntity candle = world.addEntity(180, 200, "Candle.png",
+                new double[] { 0, 0.5, 0, 0, 0.5, 1 });
+        flower.getSmellSource().setDispersion(250);
 
         // Add main input-output network to be trained by RL
         NeuronGroup outputs = net.addNeuronGroup(0, 0, 5);
@@ -83,21 +86,30 @@ public class RL_Sim {
         // Add vehicle networks
         Vehicle vehicleBuilder = new Vehicle(sim, net, world);
         int centerX = (int) outputs.getCenterX();
+        
         NeuronGroup pursueCheese = vehicleBuilder.addPursuer(centerX - 200,
                 -250, mouse, 2);
         pursueCheese.setLabel("Pursue Cheese");
         setUpVehicle(pursueCheese);
+        
         NeuronGroup pursueFlower = vehicleBuilder.addPursuer(centerX + 200,
                 -250, mouse, 5);
         pursueFlower.setLabel("Pursue Flower");
         setUpVehicle(pursueFlower);
         // Yang add more pursuers and avoiders
+        NeuronGroup avoidcandle = vehicleBuilder.addAvoider(centerX,
+                -250, mouse, 6);
+        avoidcandle.setLabel("Avoid Candle");
+        setUpVehicle(avoidcandle);
 
         // Couple output nodes to vehicles
         net.connect(outputs.getNeuronList().get(0),
                 pursueCheese.getNeuronByLabel("Speed"), 0);
         net.connect(outputs.getNeuronList().get(1),
                 pursueFlower.getNeuronByLabel("Speed"), 0);
+        //Yang added this
+        net.connect(outputs.getNeuronList().get(2),
+        		avoidcandle.getNeuronByLabel("Speed"), 0);
 
         // Add custom update rule
         RL_Update rl = new RL_Update(net.getNetwork(), inputs, outputs, value,
