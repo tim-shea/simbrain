@@ -66,7 +66,7 @@ public class RL_Update implements NetworkUpdateAction {
             synapse.setStrength(newStrength);
         }
 
-        // Update all actor neurons. (Roughly) If the last input > output
+        // Update all "actor" neurons. (Roughly) If the last input > output
         // connection led to reward, reinforce that connection.
         for (Neuron neuron : sim.outputs.getNeuronList()) {
             // Just update the last winner
@@ -84,9 +84,10 @@ public class RL_Update implements NetworkUpdateAction {
     }
 
     /**
-     * Helper method to update the WTA network.
+     * Update WTA network using the epsilon ("exploitation vs. exploration")
+     * variable.
      */
-    private void updateWTA(NeuronGroup ng) {
+    private Neuron updateWTA(NeuronGroup ng) {
         List<Neuron> actionNeurons = ng.getNeuronList();
         Neuron winningNeuron = null;
         double maxVal;
@@ -116,6 +117,7 @@ public class RL_Update implements NetworkUpdateAction {
                 neuron.setActivation(0);
             }
         }
+        return winningNeuron;
     }
 
 }

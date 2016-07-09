@@ -2,6 +2,8 @@ package org.simbrain.simulation;
 
 import java.util.Hashtable;
 
+import javax.swing.JInternalFrame;
+
 import org.simbrain.network.NetworkComponent;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
@@ -127,6 +129,17 @@ public class Simulation {
         odorMap.put(odorWorldComponent.getWorld(), odorWorldComponent);
         return new OdorWorldBuilder(odorWorldComponent);
     }
+    
+    public JInternalFrame addFrame(int x, int y, String name) {
+        JInternalFrame frame = new JInternalFrame(name, true,
+                true);
+        frame.setLocation(x, y);
+        frame.setVisible(true);
+        frame.pack();
+        desktop.addInternalFrame(frame);
+        return frame;
+    }
+
 
     // TODO: Same kind of thing as above for odorworld, plots, etc.
 
