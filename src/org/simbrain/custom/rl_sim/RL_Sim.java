@@ -15,6 +15,8 @@ import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.network.groups.SynapseGroup;
+import org.simbrain.network.layouts.LineLayout;
+import org.simbrain.network.subnetworks.WinnerTakeAll;
 import org.simbrain.simulation.NetBuilder;
 import org.simbrain.simulation.OdorWorldBuilder;
 import org.simbrain.simulation.Simulation;
@@ -69,11 +71,12 @@ public class RL_Sim {
     OdorWorldEntity cheese;
     int initialMouseLocation_x = 30;
     int initialMouseLocation_y = 30;
+    int WorldSize = 400;
     Neuron reward;
     Neuron value;
     Neuron tdError;
     NeuronGroup inputs;
-    NeuronGroup outputs;
+    WinnerTakeAll outputs;
     JTextField trialField = new JTextField();
     JTextField discountField = new JTextField();
     JTextField lambdaField = new JTextField();
@@ -97,16 +100,16 @@ public class RL_Sim {
         sim.getWorkspace().clearWorkspace();
 
         // Create the network builder
-        NetBuilder net = sim.addNetwork(223,1,474,614, "Neural Network");
+        NetBuilder net = sim.addNetwork(223, 1, 474, 614, "Neural Network");
         network = net.getNetwork();
 
         // Create the odor world
-        OdorWorldBuilder world = sim.addOdorWorld(690,1,460,567,
+        OdorWorldBuilder world = sim.addOdorWorld(690, 1, 460, 450,
                 "Simple World");
         world.getWorld().setObjectsBlockMovement(false);
-        
+
         // Create a control panel
-        controlPanelFrame = sim.addFrame(1,1, "RL Controls");
+        controlPanelFrame = sim.addFrame(1, 1, "RL Controls");
         initControlPanel();
 
         // Add the agent
@@ -114,17 +117,24 @@ public class RL_Sim {
                 "Mouse");
 
         // Set up the odor world with objects. Last component is reward
-        cheese = world.addEntity(200, 250, "Swiss.gif",
+        cheese = world.addEntity(306, 265, "Swiss.gif",
                 new double[] { 0, 1, 0, 0, 0, 1 });
-        cheese.getSmellSource().setDispersion(250);
-        //OdorWorldEntity flower = world.addEntity(0, 200, "Flax.gif",
-        //        new double[] { 0, 0, 0, 0, 1, 0 });
-        //flower.getSmellSource().setDispersion(250);
-        OdorWorldEntity candle = world.addEntity(100, 100, "Candle.png",
+        cheese.getSmellSource().setDispersion(200);
+        OdorWorldEntity flower = world.addEntity(63, 293, "Flax.gif",
+                new double[] { 0, 0, 0, 0, 1, 0 });
+        flower.getSmellSource().setDispersion(200);
+        OdorWorldEntity candle = world.addEntity(168, 142, "Candle.png",
                 new double[] { 0, 0, 0, 1, 0, 0 });
+        candle.getSmellSource().setDispersion(200);
 
         // Add main input-output network to be trained by RL
-        outputs = net.addNeuronGroup(0, 0, 5);
+        outputs = net.addWTAGroup(0, 0, 3);
+        outputs.setUseRandom(true);
+        outputs.setRandomProb(epsilon);
+        // Add a little extra spacing between neurons to accomodate labels
+        outputs.setLayout(
+                new LineLayout(90, LineLayout.LineOrientation.HORIZONTAL));
+        outputs.applyLayout();
         outputs.setLabel("Outputs");
         // TODO: Better way to lay this out...
         inputs = net.addNeuronGroup(0, 250, 5);
@@ -154,23 +164,30 @@ public class RL_Sim {
         pursueCheese.setLabel("Pursue Cheese");
         setUpVehicle(pursueCheese);
 
-        //NeuronGroup pursueFlower = vehicleBuilder.addPursuer(centerX + 200,
-        //        -250, mouse, 4);
-        //pursueFlower.setLabel("Pursue Flower");
-        //setUpVehicle(pursueFlower);
-        
-        NeuronGroup avoidcandle = vehicleBuilder.addAvoider(centerX, -250,
+        NeuronGroup pursueFlower = vehicleBuilder.addPursuer(centerX + 200,
+                -250, mouse, 4);
+        pursueFlower.setLabel("Pursue Flower");
+        setUpVehicle(pursueFlower);
+
+        NeuronGroup avoidCandle = vehicleBuilder.addAvoider(centerX, -250,
                 mouse, 3);
-        avoidcandle.setLabel("Avoid Candle");
-        setUpVehicle(avoidcandle);
+        avoidCandle.setLabel("Avoid Candle");
+        setUpVehicle(avoidCandle);
+
+        // Label output nodes according to the subnetwork they control.
+        // The label is used to enable or disable vehicle subnets 
+        // TODO: A lot of dependence on these strings... Maybe ok for this?  Think.
+        outputs.getNeuronList().get(0).setLabel("Pursue Cheese");
+        outputs.getNeuronList().get(1).setLabel("Avoid Candle");
+        outputs.getNeuronList().get(2).setLabel("Pursue Flower");
 
         // Couple output nodes to vehicles
-        net.connect(outputs.getNeuronList().get(0),
+        net.connect(outputs.getNeuronByLabel("Pursue Cheese"),
                 pursueCheese.getNeuronByLabel("Speed"), 10);
-        //net.connect(outputs.getNeuronList().get(1),
-        //        pursueFlower.getNeuronByLabel("Speed"), 10);
-        net.connect(outputs.getNeuronList().get(2),
-                avoidcandle.getNeuronByLabel("Speed"), 10);
+        net.connect(outputs.getNeuronByLabel("Pursue Flower"),
+                pursueFlower.getNeuronByLabel("Speed"), 10);
+        net.connect(outputs.getNeuronByLabel("Avoid Candle"),
+                avoidCandle.getNeuronByLabel("Speed"), 10);
 
         // Add custom update rule
         RL_Update rl = new RL_Update(this);
@@ -259,7 +276,7 @@ public class RL_Sim {
         panel.addItem("Trials", trialField);
         discountField.setText("" + gamma);
         panel.addItem("Discount rate", discountField);
-        // panel.addItem("Lambda", lambdaField); 
+        // panel.addItem("Lambda", lambdaField);
         epsilonField.setText("" + epsilon);
         panel.addItem("Epsilon", epsilonField);
 
@@ -281,7 +298,7 @@ public class RL_Sim {
                 stop = true;
             }
         });
-        
+
         controlPanelFrame.pack();
     }
 }

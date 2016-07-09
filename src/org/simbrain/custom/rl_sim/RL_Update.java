@@ -1,7 +1,6 @@
 package org.simbrain.custom.rl_sim;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 
 import org.simbrain.network.core.Network;
@@ -46,10 +45,15 @@ public class RL_Update implements NetworkUpdateAction {
         // Update the neurons and neuron groups in an appropriate order
         Network.updateNeurons(sim.inputs.getNeuronList());
         Network.updateNeurons(Collections.singletonList(sim.reward));
-        updateWTA(sim.outputs); // Custom update for WTA
+        sim.outputs.update();
+        Neuron winner = sim.outputs.getWinningNeuron();
         Network.updateNeurons(Collections.singletonList(sim.value));
         for (NeuronGroup vehicle : sim.vehicles) {
-            vehicle.update();
+            if (vehicle.getLabel().equalsIgnoreCase(winner.getLabel())) {
+                vehicle.update();                
+            } else {
+                vehicle.clearActivations();
+            }
         }
 
         // Set TD Error
@@ -81,43 +85,6 @@ public class RL_Update implements NetworkUpdateAction {
             }
         }
 
-    }
-
-    /**
-     * Update WTA network using the epsilon ("exploitation vs. exploration")
-     * variable.
-     */
-    private Neuron updateWTA(NeuronGroup ng) {
-        List<Neuron> actionNeurons = ng.getNeuronList();
-        Neuron winningNeuron = null;
-        double maxVal;
-        if (Math.random() > sim.epsilon) {
-            maxVal = Double.NEGATIVE_INFINITY;
-            for (Neuron neuron : actionNeurons) {
-                if (neuron.getWeightedInputs() > maxVal) {
-                    maxVal = neuron.getWeightedInputs();
-                    winningNeuron = neuron;
-                }
-            }
-            // Break ties randomly
-            if (maxVal == 0) {
-                int winner = generator.nextInt(actionNeurons.size());
-                winningNeuron = actionNeurons.get(winner);
-            }
-        } else {
-            // Choose winner randomly
-            int winner = generator.nextInt(actionNeurons.size());
-            winningNeuron = actionNeurons.get(winner);
-        }
-        for (Neuron neuron : actionNeurons) {
-            if (neuron == winningNeuron) {
-                neuron.setActivation(1);
-                neuron.update();
-            } else {
-                neuron.setActivation(0);
-            }
-        }
-        return winningNeuron;
     }
 
 }

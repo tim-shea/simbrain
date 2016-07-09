@@ -52,6 +52,9 @@ public class WinnerTakeAll extends NeuronGroup {
     /** Probability of setting the winner randomly, when useRandom is true. */
     private double randomProb = .1;
 
+    /** Reference to winning neurons. */
+    private Neuron winner;
+
     /**
      * Copy constructor.
      *
@@ -84,12 +87,24 @@ public class WinnerTakeAll extends NeuronGroup {
 
     @Override
     public WinnerTakeAll deepCopy(Network newNetwork) {
-    	return new WinnerTakeAll(newNetwork, this);
+        return new WinnerTakeAll(newNetwork, this);
     }
-    
+
     @Override
     public String getTypeDescription() {
         return "Winner Take All Group";
+    }
+
+    /**
+     * Returns a reference to neuron that won that last iteration.
+     *
+     * @return the winning neuron
+     */
+    public Neuron getWinningNeuron() {
+        if (winner == null) {
+            return this.getNeuronList().get(0);
+        }
+        return winner;
     }
 
     @Override
@@ -115,6 +130,7 @@ public class WinnerTakeAll extends NeuronGroup {
                 getNeuronList().get(i).setActivation(loseValue);
             }
         }
+        winner = this.getNeuronList().get(winnerIndex);
     }
 
     /**

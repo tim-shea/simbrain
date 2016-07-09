@@ -151,8 +151,8 @@ public class NetBuilder {
         return ng;
     }
     
-    public NeuronGroup addWTAGroup(int x, int y, int numNeurons) {
-        return addNeuronGroup(x, y, numNeurons, "line", "wta");
+    public WinnerTakeAll addWTAGroup(int x, int y, int numNeurons) {
+        return (WinnerTakeAll) addNeuronGroup(x, y, numNeurons, "line", "wta");
     }
 
     public Group addSubnetwork(int x, int y, int numNeurons, String type) {
