@@ -80,20 +80,25 @@ public class Simulation {
         }
     }
 
-    // Agent to neurons
+    /**
+     * Vector based coupling from an agent to a neuron group.
+     * 
+     * @param entity
+     * @param ng
+     */
     public void couple(RotatingEntity entity, NeuronGroup ng) {
         AttributeManager producers = odorMap.get(entity.getParentWorld())
                 .getAttributeManager();
         AttributeManager consumers = netMap.get(ng.getParentNetwork())
                 .getAttributeManager();
 
-        //TODO: Sensor
+        // TODO: Sensor
         PotentialProducer sensoryProducer = producers.createPotentialProducer(
                 ((SmellSensor) entity.getSensors().get(0)), "getCurrentValue",
                 double[].class);
-        PotentialConsumer sensoryConsumer = consumers
-                .createPotentialConsumer(ng, "forceSetActivations", double[].class);
-        
+        PotentialConsumer sensoryConsumer = consumers.createPotentialConsumer(
+                ng, "forceSetActivations", double[].class);
+
         Coupling sensoryCoupling = new Coupling(sensoryProducer,
                 sensoryConsumer);
         try {
@@ -132,54 +137,61 @@ public class Simulation {
         return workspace;
     }
 
-    public void couple(Sensor sensor, int stimulusDimension, Neuron consumingNeuron) {
-        AttributeManager producers = odorMap.get(sensor.getParent().getParentWorld())
+    /**
+     * Make a coupling from a smell sensor to a neuron. Couples the provided
+     * smell sensor one the indicated dimension to the provided neuron.
+     * 
+     * @param producingSensor the smell sensor. Takes a scalar value.
+     * @param stimulusDimension Which component of the smell vector on the
+     *            agent to "smell"
+     * @param consumingNeuron the neuron to write the values to
+     */
+    public void couple(Sensor producingSensor, int stimulusDimension,
+            Neuron consumingNeuron) {
+        AttributeManager producers = odorMap
+                .get(producingSensor.getParent().getParentWorld())
                 .getAttributeManager();
-        AttributeManager consumers = netMap
-                .get(consumingNeuron.getNetwork())
+        AttributeManager consumers = netMap.get(consumingNeuron.getNetwork())
                 .getAttributeManager();
 
-        PotentialProducer agentSensor =
-             producers.createPotentialProducer(sensor,
-              "getCurrentValue", double.class,
-              new Class[] { int.class },
-              new Object[] { stimulusDimension });
-        PotentialConsumer sensoryNeuron = consumers
-                .createPotentialConsumer(consumingNeuron, "forceSetActivation", double.class);
-        
+        PotentialProducer agentSensor = producers.createPotentialProducer(
+                producingSensor, "getCurrentValue", double.class,
+                new Class[] { int.class }, new Object[] { stimulusDimension });
+        PotentialConsumer sensoryNeuron = consumers.createPotentialConsumer(
+                consumingNeuron, "forceSetActivation", double.class);
+
         Coupling sensorToNeuronCoupling = new Coupling(agentSensor,
                 sensoryNeuron);
-        
+
         try {
             workspace.getCouplingManager().addCoupling(sensorToNeuronCoupling);
         } catch (UmatchedAttributesException e) {
             e.printStackTrace();
-        }        
+        }
     }
 
     public void couple(Neuron straight, Effector effector) {
 
-        AttributeManager producers = netMap
-                .get(straight.getNetwork())
+        AttributeManager producers = netMap.get(straight.getNetwork())
                 .getAttributeManager();
-        AttributeManager consumers = odorMap.get(effector.getParent().getParentWorld())
+        AttributeManager consumers = odorMap
+                .get(effector.getParent().getParentWorld())
                 .getAttributeManager();
-        
-        PotentialProducer effectorNeuron = producers
-                .createPotentialProducer(straight, "getActivation", double.class);
-        
-        PotentialConsumer agentEffector =
-             consumers.createPotentialConsumer(effector,
-              "addAmount", double.class);
-  
+
+        PotentialProducer effectorNeuron = producers.createPotentialProducer(
+                straight, "getActivation", double.class);
+
+        PotentialConsumer agentEffector = consumers
+                .createPotentialConsumer(effector, "addAmount", double.class);
+
         Coupling neuronToAgentCoupling = new Coupling(effectorNeuron,
                 agentEffector);
-        
+
         try {
             workspace.getCouplingManager().addCoupling(neuronToAgentCoupling);
         } catch (UmatchedAttributesException e) {
             e.printStackTrace();
-        }       
+        }
     }
 
 }

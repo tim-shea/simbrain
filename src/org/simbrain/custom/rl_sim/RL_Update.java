@@ -10,36 +10,24 @@ import org.simbrain.network.core.Neuron;
 import org.simbrain.network.core.Synapse;
 import org.simbrain.network.groups.NeuronGroup;
 
+/**
+ * For background see.
+ * http://www.scholarpedia.org/article/Temporal_difference_learning
+ */
 public class RL_Update implements NetworkUpdateAction {
 
-    // Simulation parameters
-    int numTrials = 5;
-    double alpha = .25; // Learning rate
-    double gamma = 1; // Discount factor . 0-1. 0 predict next value only. .5
-                      // predict future values.
-                      // As it increases toward one, values of y in the more
-                      // distant future become more significant.}
-    double lambda = 0; // 0 for no trace; 1 for permanent trace. .9 default.
-                       // Must set in script.
-    double epsilon = .1; // Prob. of taking a random action
+    RL_Sim sim;
 
-    // TODO: Replace with a reference to the whole netbuilder objects
-    Network network;
-    NeuronGroup inputs;
-    NeuronGroup outputs;
-    Neuron value;
-    Neuron reward;
-    Neuron tdError;
+    Random generator = new Random();
 
-    public RL_Update(Network network, NeuronGroup inputs, NeuronGroup outputs,
-            Neuron value, Neuron reward, Neuron tdError) {
+    Neuron reward, value, tdError;
+
+    public RL_Update(RL_Sim sim) {
         super();
-        this.network = network;
-        this.inputs = inputs;
-        this.outputs = outputs;
-        this.value = value;
-        this.reward = reward;
-        this.tdError = tdError;
+        this.sim = sim;
+        reward = sim.reward;
+        value = sim.value;
+        tdError = sim.tdError;
     }
 
     public String getDescription() {
@@ -50,70 +38,59 @@ public class RL_Update implements NetworkUpdateAction {
         return "Custom TD Rule";
     }
 
+    /**
+     * The custom update function.
+     */
     public void invoke() {
 
-        // Update all neurons (Just state neurons?)
-        network.updateAllGroups();
-        // Network.updateNeurons(inputs.getNeuronList());
-        // Network.updateNeurons(outputs.getNeuronList());
-        Network.updateNeurons(Collections.singletonList(value));
-        Network.updateNeurons(Collections.singletonList(reward));
+        // Update the neurons and neuron groups in an appropriate order
+        Network.updateNeurons(sim.inputs.getNeuronList());
+        Network.updateNeurons(Collections.singletonList(sim.reward));
+        updateWTA(sim.outputs); // Custom update for WTA
+        Network.updateNeurons(Collections.singletonList(sim.value));
+        for (NeuronGroup vehicle : sim.vehicles) {
+            vehicle.update();
+        }
 
-        // Set main variables
+        // Set TD Error
         tdError.setActivation(
-                (reward.getActivation() + gamma * value.getActivation())
+                (reward.getActivation() + sim.gamma * value.getActivation())
                         - value.getLastActivation());
-        System.out.println("td error:" + value.getActivation() + " + "
-                + reward.getActivation() + " - " + value.getLastActivation());
 
-        // CUSTOM IMPLEMENTATION OF WTA FOR OUTPUTS
-        updateWTA(outputs);
-
-        // BELOW IS LEARNING. PUT IN SEPARATE FUNCTION
-        // Update all value synapses
+        // Learn the value function. The "critic".
         for (Synapse synapse : value.getFanIn()) {
             Neuron sourceNeuron = (Neuron) synapse.getSource();
-            // Reinforce based on the source neuron's last activation (not its
-            // current value),
-            // since that is what the current td error reflects.
             double newStrength = synapse.getStrength()
-                    + alpha * tdError.getActivation()
+                    + sim.alpha * tdError.getActivation()
                             * sourceNeuron.getLastActivation();
-            // synapse.setStrength(synapse.clip(newStrength));
             synapse.setStrength(newStrength);
         }
 
-        // Update all actor neurons. Go through "outputs"
-        for (Neuron neuron : outputs.getNeuronList()) {
+        // Update all actor neurons. (Roughly) If the last input > output
+        // connection led to reward, reinforce that connection.
+        for (Neuron neuron : sim.outputs.getNeuronList()) {
             // Just update the last winner
             if (neuron.getLastActivation() > 0) {
                 for (Synapse synapse : neuron.getFanIn()) {
                     Neuron sourceNeuron = synapse.getSource();
-                    // Reinforce actions based on the source neuron's last
-                    // activation (not its current value),
-                    // since that is what the current td error reflects.
                     double newStrength = synapse.getStrength()
-                            + alpha * tdError.getActivation()
+                            + sim.alpha * tdError.getActivation()
                                     * sourceNeuron.getLastActivation();
                     synapse.setStrength(synapse.clip(newStrength));
-                    // synapse.setStrength(newStrength);
-                    // System.out.println("Neuron (" + neuron.getLabel() + ") /
-                    // Tile //neuron (" + sourceNeuron.getId() + "):" +
-                    // newStrength);
                 }
-
             }
         }
 
     }
 
-    Random generator = new Random();
-
+    /**
+     * Helper method to update the WTA network.
+     */
     private void updateWTA(NeuronGroup ng) {
         List<Neuron> actionNeurons = ng.getNeuronList();
         Neuron winningNeuron = null;
         double maxVal;
-        if (Math.random() > epsilon) {
+        if (Math.random() > sim.epsilon) {
             maxVal = Double.NEGATIVE_INFINITY;
             for (Neuron neuron : actionNeurons) {
                 if (neuron.getWeightedInputs() > maxVal) {

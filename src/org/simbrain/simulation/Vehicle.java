@@ -83,10 +83,10 @@ public class Vehicle {
             net.connect(rightInput, leftTurn, DEFAULT_WEIGHT);
         }
 
-        // Couple network to agent. TODO. -1 is ugly.
-        sim.couple(agent.getSensor("Smell-Left"), stimulusDimension - 1,
+        // Couple network to agent.
+        sim.couple(agent.getSensor("Smell-Left"), stimulusDimension,
                 leftInput);
-        sim.couple(agent.getSensor("Smell-Right"), stimulusDimension - 1,
+        sim.couple(agent.getSensor("Smell-Right"), stimulusDimension,
                 rightInput);
         sim.couple(straight, agent.getEffector("Go-straight"));
         sim.couple(leftTurn, agent.getEffector("Go-left"));
