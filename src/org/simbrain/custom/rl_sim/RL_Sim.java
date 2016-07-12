@@ -31,7 +31,7 @@ import org.simbrain.world.odorworld.entities.RotatingEntity;
  * A reinforcement learning simulation in which an agent learns to associate
  * smells with different pursuer / avoider combinations.
  * 
- * TODO: More documentation as this evolves...
+ * TODO: All javadocs TODO: Add .htmlfile for docs
  */
 public class RL_Sim {
 
@@ -48,7 +48,7 @@ public class RL_Sim {
     double alpha = .25;
 
     // Eligibility trace. 0 for no trace; 1 for permanent trace. .9 default.
-    // Must set in script.
+    // TODO: Not currently used
     double lambda = 0;
 
     // Prob. of taking a random action.
@@ -79,6 +79,7 @@ public class RL_Sim {
     WinnerTakeAll outputs;
     JTextField trialField = new JTextField();
     JTextField discountField = new JTextField();
+    JTextField alphaField = new JTextField();
     JTextField lambdaField = new JTextField();
     JTextField epsilonField = new JTextField();
 
@@ -100,16 +101,16 @@ public class RL_Sim {
         sim.getWorkspace().clearWorkspace();
 
         // Create the network builder
-        NetBuilder net = sim.addNetwork(223, 1, 474, 614, "Neural Network");
+        NetBuilder net = sim.addNetwork(223, 1, 616, 615, "Neural Network");
         network = net.getNetwork();
 
         // Create the odor world
-        OdorWorldBuilder world = sim.addOdorWorld(690, 1, 460, 450,
+        OdorWorldBuilder world = sim.addOdorWorld(826, 1, 460, 450,
                 "Simple World");
         world.getWorld().setObjectsBlockMovement(false);
 
         // Create a control panel
-        controlPanelFrame = sim.addFrame(1, 1, "RL Controls");
+        controlPanelFrame = sim.addFrame(-6, 1, "RL Controls");
         initControlPanel();
 
         // Add the agent
@@ -128,16 +129,15 @@ public class RL_Sim {
         candle.getSmellSource().setDispersion(200);
 
         // Add main input-output network to be trained by RL
-        outputs = net.addWTAGroup(0, 0, 3);
+        outputs = net.addWTAGroup(-234,58, 6);
         outputs.setUseRandom(true);
         outputs.setRandomProb(epsilon);
-        // Add a little extra spacing between neurons to accomodate labels
+        // Add a little extra spacing between neurons to accommodate labels
         outputs.setLayout(
-                new LineLayout(90, LineLayout.LineOrientation.HORIZONTAL));
+                new LineLayout(80, LineLayout.LineOrientation.HORIZONTAL));
         outputs.applyLayout();
         outputs.setLabel("Outputs");
-        // TODO: Better way to lay this out...
-        inputs = net.addNeuronGroup(0, 250, 5);
+        inputs = net.addNeuronGroup(-128,350, 5);
         inputs.setLabel("Inputs");
         inputs.setClamped(true);
         SynapseGroup inputOutputConnection = net.addSynapseGroup(inputs,
@@ -159,34 +159,62 @@ public class RL_Sim {
         Vehicle vehicleBuilder = new Vehicle(sim, net, world);
         int centerX = (int) outputs.getCenterX();
 
-        NeuronGroup pursueCheese = vehicleBuilder.addPursuer(centerX - 200,
-                -250, mouse, 1);
-        pursueCheese.setLabel("Pursue Cheese");
+        // Labels for vehicles, which must be the same as the label for
+        // the corresponding output node
+        String strPursueCheese = "Pursue Cheese";
+        String strAvoidCheese = "Avoid Cheese";
+        String strPursueFlower = "Pursue Flower";
+        String strAvoidFlower = "Avoid Flower";
+        String strPursueCandle = "Pursue Candle";
+        String strAvoidCandle = "Avoid Candle";
+
+        // Make the vehicle networks
+        NeuronGroup pursueCheese = vehicleBuilder.addPursuer(-509, -460, mouse,
+                1);
+        pursueCheese.setLabel(strPursueCheese);
         setUpVehicle(pursueCheese);
-
-        NeuronGroup pursueFlower = vehicleBuilder.addPursuer(centerX + 200,
-                -250, mouse, 4);
-        pursueFlower.setLabel("Pursue Flower");
+        NeuronGroup avoidCheese = vehicleBuilder.addAvoider(-340, -247, mouse,
+                1);
+        avoidCheese.setLabel(strAvoidCheese);
+        setUpVehicle(avoidCheese);
+        NeuronGroup pursueFlower = vehicleBuilder.addPursuer(-171, -469, mouse,
+                4);
+        pursueFlower.setLabel(strPursueFlower);
         setUpVehicle(pursueFlower);
-
-        NeuronGroup avoidCandle = vehicleBuilder.addAvoider(centerX, -250,
-                mouse, 3);
-        avoidCandle.setLabel("Avoid Candle");
+        NeuronGroup avoidFlower = vehicleBuilder.addAvoider(-41, -240, mouse,
+                4);
+        avoidFlower.setLabel(strAvoidFlower);
+        setUpVehicle(avoidFlower);
+        NeuronGroup pursueCandle = vehicleBuilder.addAvoider(163, -475, mouse,
+                3);
+        pursueCandle.setLabel(strPursueCandle);
+        setUpVehicle(pursueCandle);
+        NeuronGroup avoidCandle = vehicleBuilder.addAvoider(218, -239, mouse,
+                3);
+        avoidCandle.setLabel(strAvoidCandle);
         setUpVehicle(avoidCandle);
 
         // Label output nodes according to the subnetwork they control.
-        // The label is used to enable or disable vehicle subnets 
-        // TODO: A lot of dependence on these strings... Maybe ok for this?  Think.
-        outputs.getNeuronList().get(0).setLabel("Pursue Cheese");
-        outputs.getNeuronList().get(1).setLabel("Avoid Candle");
-        outputs.getNeuronList().get(2).setLabel("Pursue Flower");
+        // The label is used to enable or disable vehicle subnets
+        outputs.getNeuronList().get(0).setLabel(strPursueCheese);
+        outputs.getNeuronList().get(1).setLabel(strAvoidCheese);
+        outputs.getNeuronList().get(2).setLabel(strPursueFlower);
+        outputs.getNeuronList().get(3).setLabel(strAvoidFlower);
+        outputs.getNeuronList().get(4).setLabel(strPursueCandle);
+        outputs.getNeuronList().get(5).setLabel(strAvoidCandle);
 
         // Couple output nodes to vehicles
-        net.connect(outputs.getNeuronByLabel("Pursue Cheese"),
+        net.connect(outputs.getNeuronByLabel(strPursueCheese),
                 pursueCheese.getNeuronByLabel("Speed"), 10);
-        net.connect(outputs.getNeuronByLabel("Pursue Flower"),
+        net.connect(outputs.getNeuronByLabel(strAvoidCheese),
+                avoidCheese.getNeuronByLabel("Speed"), 10);
+        net.connect(outputs.getNeuronByLabel(strPursueFlower),
                 pursueFlower.getNeuronByLabel("Speed"), 10);
-        net.connect(outputs.getNeuronByLabel("Avoid Candle"),
+        net.connect(outputs.getNeuronByLabel(strAvoidFlower),
+                avoidFlower.getNeuronByLabel("Speed"), 10);
+        net.connect(outputs.getNeuronByLabel(strPursueCandle),
+                pursueCandle.getNeuronByLabel("Speed"), 10);
+        net.connect(outputs.getNeuronByLabel(strAvoidCandle),
                 avoidCandle.getNeuronByLabel("Speed"), 10);
 
         // Add custom update rule
@@ -217,10 +245,14 @@ public class RL_Sim {
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             public void run() {
 
+                // At the beginning of each trial, load the values
+                // from the control panel in.
                 numTrials = Integer.parseInt(trialField.getText());
                 gamma = Double.parseDouble(discountField.getText());
                 lambda = Double.parseDouble(lambdaField.getText());
                 epsilon = Double.parseDouble(epsilonField.getText());
+                alpha = Double.parseDouble(alphaField.getText());
+                outputs.setRandomProb(epsilon);
                 stop = false;
                 for (int i = 1; i < numTrials + 1; i++) {
 
@@ -235,12 +267,13 @@ public class RL_Sim {
                     // Clear network activations between trials
                     network.clearActivations();
 
-                    // Randomize position of the mouse
+                    // Reset the positions of the mouse
                     mouse.setLocation(initialMouseLocation_x,
                             initialMouseLocation_y);
                     mouse.setHeading(0);
 
-                    // Move mouse up to object by iterating n times
+                    // Keep iterating until the mouse achieves its goal
+                    // Goal is currently to get near the cheese
                     while (!goalAchieved) {
                         int distance = (int) SimbrainMath.distance(
                                 mouse.getCenterLocation(),
@@ -275,10 +308,11 @@ public class RL_Sim {
         trialField.setText("" + numTrials);
         panel.addItem("Trials", trialField);
         discountField.setText("" + gamma);
-        panel.addItem("Discount rate", discountField);
-        // panel.addItem("Lambda", lambdaField);
+        panel.addItem("Discount (gamma)", discountField);
         epsilonField.setText("" + epsilon);
         panel.addItem("Epsilon", epsilonField);
+        alphaField.setText("" + alpha);
+        panel.addItem("Learning rt. (alpha)", alphaField);
 
         // Run Button
         JButton runButton = new JButton("Run");

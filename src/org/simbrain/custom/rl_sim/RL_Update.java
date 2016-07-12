@@ -48,6 +48,8 @@ public class RL_Update implements NetworkUpdateAction {
         sim.outputs.update();
         Neuron winner = sim.outputs.getWinningNeuron();
         Network.updateNeurons(Collections.singletonList(sim.value));
+
+        // Only update the vehicle corresponding to the winning output node
         for (NeuronGroup vehicle : sim.vehicles) {
             if (vehicle.getLabel().equalsIgnoreCase(winner.getLabel())) {
                 vehicle.update();                
@@ -80,7 +82,8 @@ public class RL_Update implements NetworkUpdateAction {
                     double newStrength = synapse.getStrength()
                             + sim.alpha * tdError.getActivation()
                                     * sourceNeuron.getLastActivation();
-                    synapse.setStrength(synapse.clip(newStrength));
+                    //synapse.setStrength(synapse.clip(newStrength));
+                    synapse.setStrength(newStrength);
                 }
             }
         }
