@@ -1,7 +1,6 @@
 package org.simbrain.custom.test;
 
 import org.simbrain.network.groups.NeuronGroup;
-import org.simbrain.network.groups.SynapseGroup;
 import org.simbrain.simulation.NetBuilder;
 import org.simbrain.simulation.OdorWorldBuilder;
 import org.simbrain.simulation.Simulation;
@@ -16,7 +15,7 @@ import org.simbrain.world.odorworld.entities.RotatingEntity;
  */
 public class TestSim {
 
-    // The main simulation object
+    /** The main simulation object. */
     final Simulation sim;
 
     /**
@@ -62,19 +61,20 @@ public class TestSim {
 
         OdorWorldEntity cheese = world.addEntity(150, 150, "Swiss.gif",
                 new double[] { 0, 1, 0, 0 });
-        cheese.getSmellSource().setDispersion(400);
+        cheese.getSmellSource().setDispersion(200);
 
         // Coupling agent to network
         // sim.couple(mouse, inputs); // Agent sensors to neurons
         // sim.couple(outputs, mouse); // Neurons to movement effectors
-
+        
         // Add vehicles
         Vehicle vehicleBuilder = new Vehicle(sim, net, world);
-        NeuronGroup pursuer1 = vehicleBuilder.addPursuer(0, 400, mouse, 2);
+        vehicleBuilder.setWeightSize(10);
+        NeuronGroup pursuer1 = vehicleBuilder.addPursuer(0, 400, mouse, 1);
         pursuer1.setLabel("Pursuer 1");
-        NeuronGroup pursuer2 = vehicleBuilder.addPursuer(240, 400, mouse2, 2);
+        NeuronGroup pursuer2 = vehicleBuilder.addPursuer(240, 400, mouse2, 1);
         pursuer2.setLabel("Pursuer 2");
-        NeuronGroup avoider1 = vehicleBuilder.addAvoider(480, 400, mouse3, 2);
+        NeuronGroup avoider1 = vehicleBuilder.addAvoider(480, 400, mouse3, 1);
         avoider1.setLabel("Avoider 1");
 
     }

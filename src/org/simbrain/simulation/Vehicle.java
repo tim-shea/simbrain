@@ -7,26 +7,35 @@ import org.simbrain.world.odorworld.entities.RotatingEntity;
 // TODO: Rename this?  VehicleBuilder?  VehicleHelper?
 
 /**
- * A wrapper for a NetworkComponent that makes it easy to add stuff to a
- * network.
+ * A custom class that makes it easy to add Braitenberg vehicles to a
+ * simulation. A vehicle network is added to a network and it is coupled to a
+ * corresponding sensor in a world.
  */
 public class Vehicle {
 
+    /** The simulation object. */
     private final Simulation sim;
 
+    /** Reference to the network to put the vehicle in. */
     private final NetBuilder net;
 
+    /** The world with agents and sensors to attach to the vehicle. */
     private final OdorWorldBuilder world;
+    
+    /** Size of sensor-motor weights. Determines how "sharply" agents turn. */
+    private int weightSize = 70;
 
-    private int DEFAULT_WEIGHT = 70;
-
+    /** What type of vehicle to add. */
     public enum VehicleType {
         PURSUER, AVOIDER
     }
 
     /**
-     * Construct the vehicle builder.
+     * Construct the vehicle builder. Needs a reference to the network to 
+     * build the network, the world to reference the sensor, and the sim
+     * to make the couplings.
      *
+     * @param sim the parent simulation object
      * @param net the network to add the vehicle subnetworks to
      * @param world the world to link the vehicles to
      */
@@ -66,7 +75,7 @@ public class Vehicle {
         rightTurn.setLabel("Right");
         setNodeDefaults(rightTurn, vehicle);
         Neuron leftInput = net.addNeuron(x, y + 100);
-        leftInput.setClamped(true);
+        leftInput.setClamped(false);
         setNodeDefaults(leftInput, vehicle);
         Neuron rightInput = net.addNeuron(x + 100, y + 100);
         rightInput.setClamped(true);
@@ -76,16 +85,15 @@ public class Vehicle {
 
         // Set weights here
         if (type == VehicleType.PURSUER) {
-            net.connect(leftInput, leftTurn, DEFAULT_WEIGHT);
-            net.connect(rightInput, rightTurn, DEFAULT_WEIGHT);
+            net.connect(leftInput, leftTurn, weightSize);
+            net.connect(rightInput, rightTurn, weightSize);
         } else if (type == VehicleType.AVOIDER) {
-            net.connect(leftInput, rightTurn, DEFAULT_WEIGHT);
-            net.connect(rightInput, leftTurn, DEFAULT_WEIGHT);
+            net.connect(leftInput, rightTurn, weightSize);
+            net.connect(rightInput, leftTurn, weightSize);
         }
 
         // Couple network to agent.
-        sim.couple(agent.getSensor("Smell-Left"), stimulusDimension,
-                leftInput);
+        sim.couple(agent.getSensor("Smell-Left"), stimulusDimension, leftInput);
         sim.couple(agent.getSensor("Smell-Right"), stimulusDimension,
                 rightInput);
         sim.couple(straight, agent.getEffector("Go-straight"));
@@ -110,7 +118,7 @@ public class Vehicle {
             int stimulusDimension) {
         return addVehicle(x, y, agent, VehicleType.AVOIDER, stimulusDimension);
     }
-    
+
     /**
      * Helper method to set default value for vehicle nodes.
      *
@@ -121,6 +129,20 @@ public class Vehicle {
         neuron.setLowerBound(-10);
         neuron.setUpperBound(100);
         ng.addNeuron(neuron);
+    }
+
+    /**
+     * @return the weightSize
+     */
+    public int getWeightSize() {
+        return weightSize;
+    }
+
+    /**
+     * @param weightSize the weightSize to set
+     */
+    public void setWeightSize(int weightSize) {
+        this.weightSize = weightSize;
     }
 
 }
