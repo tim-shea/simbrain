@@ -1,7 +1,6 @@
 package org.simbrain.custom.rl_sim;
 
 import java.util.Collections;
-import java.util.Random;
 
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.NetworkUpdateAction;
@@ -10,17 +9,26 @@ import org.simbrain.network.core.Synapse;
 import org.simbrain.network.groups.NeuronGroup;
 
 /**
- * For background see.
+ * A custom updater for use in applying TD Learning and other custom update
+ * features (e.g. only activating one vehicle network at a time based on the
+ * output of a feed-forward net).
+ *
+ * For background on TD Learning see.
  * http://www.scholarpedia.org/article/Temporal_difference_learning
  */
 public class RL_Update implements NetworkUpdateAction {
 
+    /** Reference to RL_Sim object that has all the main variables used. */
     RL_Sim sim;
 
-    Random generator = new Random();
-
+    /**
+     * Reference to main neurons used in td learning.
+     */
     Neuron reward, value, tdError;
 
+    /**
+     * Construct the updater.
+     */
     public RL_Update(RL_Sim sim) {
         super();
         this.sim = sim;
@@ -29,17 +37,17 @@ public class RL_Update implements NetworkUpdateAction {
         tdError = sim.tdError;
     }
 
+    @Override
     public String getDescription() {
         return "Custom TD Rule";
     }
 
+    @Override
     public String getLongDescription() {
         return "Custom TD Rule";
     }
 
-    /**
-     * The custom update function.
-     */
+    @Override
     public void invoke() {
 
         // Update the neurons and neuron groups in an appropriate order
@@ -52,7 +60,8 @@ public class RL_Update implements NetworkUpdateAction {
         // Only update the vehicle corresponding to the winning output node
         for (NeuronGroup vehicle : sim.vehicles) {
             if (vehicle.getLabel().equalsIgnoreCase(winner.getLabel())) {
-                vehicle.update();                
+                vehicle.update();
+                System.out.println(vehicle.getLabel());
             } else {
                 vehicle.clearActivations();
             }
@@ -82,7 +91,7 @@ public class RL_Update implements NetworkUpdateAction {
                     double newStrength = synapse.getStrength()
                             + sim.alpha * tdError.getActivation()
                                     * sourceNeuron.getLastActivation();
-                    //synapse.setStrength(synapse.clip(newStrength));
+                    // synapse.setStrength(synapse.clip(newStrength));
                     synapse.setStrength(newStrength);
                 }
             }

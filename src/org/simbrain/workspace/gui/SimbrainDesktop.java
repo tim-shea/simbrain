@@ -613,7 +613,7 @@ public class SimbrainDesktop {
      * @return script JMenu
      */
     private JMenu createScriptMenu() {
-        JMenu scriptMenu = new JMenu("Scripts");
+        JMenu scriptMenu = new JMenu("Simulations");
         // scriptMenu.add(actionManager.getRunScriptAction());
         scriptMenu.add(actionManager.getShowScriptEditorAction());
         scriptMenu.addSeparator();
@@ -635,7 +635,7 @@ public class SimbrainDesktop {
         // TODO: Consider a way to "inject" menu items from outside
 
         // Adding the  provisional RL simulation
-        JMenuItem rlTest = new JMenuItem("RL Simulation");
+        JMenuItem rlTest = new JMenuItem("RL Vehicles");
         rlTest.addActionListener(ae -> {
             RL_Sim rlSim = new RL_Sim(this);
             rlSim.run();
@@ -643,7 +643,7 @@ public class SimbrainDesktop {
         scriptMenu.add(rlTest);
 
         // Add the test simulation
-        JMenuItem test = new JMenuItem("Test stuff");
+        JMenuItem test = new JMenuItem("Test (temporary)");
         test.addActionListener(ae -> {
             TestSim testSim = new TestSim(this);
             testSim.run();

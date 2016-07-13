@@ -31,7 +31,7 @@ import org.simbrain.world.odorworld.entities.RotatingEntity;
  * A reinforcement learning simulation in which an agent learns to associate
  * smells with different pursuer / avoider combinations.
  * 
- * TODO: All javadocs TODO: Add .htmlfile for docs
+ * TODO: Add .htmlfile to folder and make docs based on that
  */
 public class RL_Sim {
 
@@ -41,17 +41,19 @@ public class RL_Sim {
     /** List of vehicles. */
     List<NeuronGroup> vehicles = new ArrayList<NeuronGroup>();
 
-    // Number of trials to run
+    /** Number of trials to run. */
     int numTrials = 5;
 
-    // Learning Rate
+    /** Learning Rate. */
     double alpha = .25;
 
-    // Eligibility trace. 0 for no trace; 1 for permanent trace. .9 default.
-    // TODO: Not currently used
+    /**
+     * Eligibility trace. 0 for no trace; 1 for permanent trace. .9 default. Not
+     * currently used.
+     */
     double lambda = 0;
 
-    // Prob. of taking a random action.
+    /** Prob. of taking a random action. "Explotation" vs. "exploration". */
     double epsilon = .1;
 
     /**
@@ -129,7 +131,7 @@ public class RL_Sim {
         candle.getSmellSource().setDispersion(200);
 
         // Add main input-output network to be trained by RL
-        outputs = net.addWTAGroup(-234,58, 6);
+        outputs = net.addWTAGroup(-234, 58, 6);
         outputs.setUseRandom(true);
         outputs.setRandomProb(epsilon);
         // Add a little extra spacing between neurons to accommodate labels
@@ -137,7 +139,7 @@ public class RL_Sim {
                 new LineLayout(80, LineLayout.LineOrientation.HORIZONTAL));
         outputs.applyLayout();
         outputs.setLabel("Outputs");
-        inputs = net.addNeuronGroup(-128,350, 5);
+        inputs = net.addNeuronGroup(-128, 350, 5);
         inputs.setLabel("Inputs");
         inputs.setClamped(true);
         SynapseGroup inputOutputConnection = net.addSynapseGroup(inputs,
@@ -155,10 +157,6 @@ public class RL_Sim {
         tdError = net.addNeuron(400, 0);
         tdError.setLabel("TD Error");
 
-        // Add vehicle networks
-        Vehicle vehicleBuilder = new Vehicle(sim, net, world);
-        int centerX = (int) outputs.getCenterX();
-
         // Labels for vehicles, which must be the same as the label for
         // the corresponding output node
         String strPursueCheese = "Pursue Cheese";
@@ -169,6 +167,9 @@ public class RL_Sim {
         String strAvoidCandle = "Avoid Candle";
 
         // Make the vehicle networks
+        // Positions determined by laying by hand and in console running
+        // print(getNetwork("Neural Network"));
+        Vehicle vehicleBuilder = new Vehicle(sim, net, world);
         NeuronGroup pursueCheese = vehicleBuilder.addPursuer(-509, -460, mouse,
                 1);
         pursueCheese.setLabel(strPursueCheese);
@@ -195,7 +196,8 @@ public class RL_Sim {
         setUpVehicle(avoidCandle);
 
         // Label output nodes according to the subnetwork they control.
-        // The label is used to enable or disable vehicle subnets
+        // The label is also used in RL_Update to enable or disable vehicle
+        // subnets
         outputs.getNeuronList().get(0).setLabel(strPursueCheese);
         outputs.getNeuronList().get(1).setLabel(strAvoidCheese);
         outputs.getNeuronList().get(2).setLabel(strPursueFlower);
