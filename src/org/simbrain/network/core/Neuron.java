@@ -358,6 +358,7 @@ public class Neuron {
      *            the new activation value
      */
     public void forceSetActivation(final double act) {
+        lastActivation = getActivation();
         activation = act;
     }
 

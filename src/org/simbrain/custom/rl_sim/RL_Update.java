@@ -27,6 +27,16 @@ public class RL_Update implements NetworkUpdateAction {
     Neuron reward, value, tdError;
 
     /**
+     * 
+     * This variable is a hack needed because the reward neuron's lastactivation
+     * value is not being updated properly in this simulation now.
+     * 
+     * Todo: Remove after fixing the issue. The issue is probably based on
+     * coupling update.
+     */
+    double lastReward;
+
+    /**
      * Construct the updater.
      */
     public RL_Update(RL_Sim sim) {
@@ -35,6 +45,7 @@ public class RL_Update implements NetworkUpdateAction {
         reward = sim.reward;
         value = sim.value;
         tdError = sim.tdError;
+
     }
 
     @Override
@@ -49,29 +60,43 @@ public class RL_Update implements NetworkUpdateAction {
 
     @Override
     public void invoke() {
+        mainUpdateMethod();
+    }
 
-        // Update the neurons and neuron groups in an appropriate order
+    /**
+     * Custom update of the network, including application of TD Rules.
+     */
+    private void mainUpdateMethod() {
+
+        // Inputs
         Network.updateNeurons(sim.inputs.getNeuronList());
+
+        // Reward and Delta Reward
+        lastReward = sim.reward.getLastActivation();
         Network.updateNeurons(Collections.singletonList(sim.reward));
+        updateDeltaReward();
+
+        // Outputs and vehicles
         sim.outputs.update();
         Neuron winner = sim.outputs.getWinningNeuron();
         Network.updateNeurons(Collections.singletonList(sim.value));
-
-        // Only update the vehicle corresponding to the winning output node
+        // Update the vehicle whose name corresponds to the winning output
+        // neuron
         for (NeuronGroup vehicle : sim.vehicles) {
             if (vehicle.getLabel().equalsIgnoreCase(winner.getLabel())) {
                 vehicle.update();
-                System.out.println(vehicle.getLabel());
+                // System.out.println(vehicle.getLabel());
             } else {
                 vehicle.clearActivations();
             }
         }
 
-        // Set TD Error
-        tdError.setActivation(
-                (reward.getActivation() + sim.gamma * value.getActivation())
-                        - value.getLastActivation());
+        // TD Error. Used to drive all learning in the network.
+        tdError.setActivation((sim.deltaReward.getActivation()
+                + sim.gamma * value.getActivation())
+                - value.getLastActivation());
 
+        // Update value synapses.
         // Learn the value function. The "critic".
         for (Synapse synapse : value.getFanIn()) {
             Neuron sourceNeuron = (Neuron) synapse.getSource();
@@ -96,7 +121,22 @@ public class RL_Update implements NetworkUpdateAction {
                 }
             }
         }
+    }
 
+    /**
+     * Update the delta-reward neuron, by taking the difference between the
+     * reward neuron's last state and its current state.
+     * 
+     * Currently artificially scales the delta for positive diff.
+     */
+    private void updateDeltaReward() {
+        double diff = reward.getActivation() - lastReward;
+        // Exaggerate positive differences, resulting in more learning when
+        // reward goes up
+        if (diff > 0) {
+            diff *= 200; // TODO: Name for this factor?
+        }
+        sim.deltaReward.forceSetActivation(diff);
     }
 
 }

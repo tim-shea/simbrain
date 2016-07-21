@@ -23,7 +23,13 @@ public class Vehicle {
     private final OdorWorldBuilder world;
     
     /** Size of sensor-motor weights. Determines how "sharply" agents turn. */
-    private int weightSize = 70;
+    private int weightSize = 120;
+    
+    /** Size of weights from sensors to straight movement. */
+    private int forwardWeights = 5;
+
+    /** If true connect sensor nodes to straight movement node. */
+    private boolean connectSensorToStraightMovement = true;
 
     /** What type of vehicle to add. */
     public enum VehicleType {
@@ -90,6 +96,11 @@ public class Vehicle {
         } else if (type == VehicleType.AVOIDER) {
             net.connect(leftInput, rightTurn, weightSize);
             net.connect(rightInput, leftTurn, weightSize);
+        }
+        
+        if (connectSensorToStraightMovement) {
+            net.connect(leftInput, straight, forwardWeights);
+            net.connect(rightInput, straight, forwardWeights);            
         }
 
         // Couple network to agent.
