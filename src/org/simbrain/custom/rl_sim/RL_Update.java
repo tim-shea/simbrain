@@ -29,15 +29,17 @@ public class RL_Update implements NetworkUpdateAction {
     Neuron reward, value, tdError;
 
     /**
-     * 
+     *
      * This variable is a hack needed because the reward neuron's lastactivation
      * value is not being updated properly in this simulation now.
-     * 
+     *
      * Todo: Remove after fixing the issue. The issue is probably based on
      * coupling update.
      */
     double lastReward;
 
+    // TODO: The machinery to handle iterations between weight updates is
+    // fishy... but works for now
 
     /* Iterations to leave vehicle on between weight updates. */
     private final int iterationsBetweenWeightUpdates = 15;
@@ -45,9 +47,10 @@ public class RL_Update implements NetworkUpdateAction {
     private double previousReward;
     double[] previousInput;
     int counter = 0;
-    // Helper which associates neurons with integer indices of the array that tracks past states
+    // Helper which associates neurons with integer indices of the array that
+    // tracks past states
     Map<Neuron, Integer> neuronIndices = new HashMap();
-    
+
     /**
      * Construct the updater.
      */
@@ -105,8 +108,7 @@ public class RL_Update implements NetworkUpdateAction {
 
             // Record the "before" state of the system.
             previousReward = sim.reward.getActivation();
-            System.arraycopy(sim.inputs.getActivations(), 0,
-                    previousInput, 0,
+            System.arraycopy(sim.inputs.getActivations(), 0, previousInput, 0,
                     sim.inputs.getActivations().length);
         }
 
@@ -123,7 +125,7 @@ public class RL_Update implements NetworkUpdateAction {
 
     /**
      * Update the vehicle whose name corresponds to the winning output.
-     * 
+     *
      * @param winner
      */
     void updateVehicleNet(Neuron winner) {
@@ -171,15 +173,14 @@ public class RL_Update implements NetworkUpdateAction {
         }
     }
 
-
     /**
      * Returns the "before" state of the given neuron.
      */
     private double getPreviousNeuronValue(Neuron neuron) {
-        //System.out.println(previousInput[neuronIndices.get(neuron)]);
+        // System.out.println(previousInput[neuronIndices.get(neuron)]);
         return previousInput[neuronIndices.get(neuron)];
     }
-    
+
     /**
      * Initialize the map from neurons to indices.
      */
@@ -194,7 +195,7 @@ public class RL_Update implements NetworkUpdateAction {
     /**
      * Update the delta-reward neuron, by taking the difference between the
      * reward neuron's last state and its current state.
-     * 
+     *
      * TODO: Rename needed around here? This is now the "reward" used by the TD
      * algorithm, which is different from the reward signal coming directory
      * from the environment.
