@@ -38,6 +38,9 @@ public class RL_Update implements NetworkUpdateAction {
      */
     double lastReward;
 
+    /** Current winning output neuron. */
+    Neuron winner;
+
     // TODO: The machinery to handle iterations between weight updates is
     // fishy... but works for now
 
@@ -84,21 +87,25 @@ public class RL_Update implements NetworkUpdateAction {
     private void mainUpdateMethod() {
 
         // Inputs
-        Network.updateNeurons(sim.inputs.getNeuronList());
-
-        // Reward and Delta Reward
-        lastReward = sim.reward.getLastActivation();
-        Network.updateNeurons(Collections.singletonList(sim.reward));
-        updateDeltaReward();
+        Network.updateNeurons(sim.rightInputs.getNeuronList());
+        Network.updateNeurons(sim.leftInputs.getNeuronList());
 
         // Outputs and vehicles
-        sim.outputs.update();
-        Neuron winner = sim.outputs.getWinningNeuron();
         Network.updateNeurons(Collections.singletonList(sim.value));
-        updateVehicleNet(winner);
+        if (winner != null) {
+            updateVehicleNet(winner);
+        }
 
         // Update the weights
         if (counter++ % iterationsBetweenWeightUpdates == 0) {
+
+            // Find the winning output neuron
+            sim.outputs.update();
+            winner = sim.outputs.getWinningNeuron();
+
+            // Update the reward neuron and the change in reward
+            Network.updateNeurons(Collections.singletonList(sim.reward));
+            updateDeltaReward();
 
             updateTDError();
 
@@ -108,8 +115,11 @@ public class RL_Update implements NetworkUpdateAction {
 
             // Record the "before" state of the system.
             previousReward = sim.reward.getActivation();
-            System.arraycopy(sim.inputs.getActivations(), 0, previousInput, 0,
-                    sim.inputs.getActivations().length);
+            System.arraycopy(sim.leftInputs.getActivations(), 0, previousInput,
+                    0, sim.leftInputs.getActivations().length);
+            System.arraycopy(sim.rightInputs.getActivations(), 0, previousInput,
+                    sim.leftInputs.getActivations().length,
+                    sim.rightInputs.getActivations().length);
         }
 
     }
@@ -161,7 +171,6 @@ public class RL_Update implements NetworkUpdateAction {
             // Just update the last winner
             if (neuron.getLastActivation() > 0) {
                 for (Synapse synapse : neuron.getFanIn()) {
-                    // TODO: Below getXMomentsAgo(Neuron neuron)
                     double previousActivation = getPreviousNeuronValue(
                             synapse.getSource());
                     double newStrength = synapse.getStrength() + sim.alpha
@@ -186,7 +195,10 @@ public class RL_Update implements NetworkUpdateAction {
      */
     void initMap() {
         int index = 0;
-        for (Neuron neuron : sim.inputs.getNeuronList()) {
+        for (Neuron neuron : sim.leftInputs.getNeuronList()) {
+            neuronIndices.put(neuron, index++);
+        }
+        for (Neuron neuron : sim.rightInputs.getNeuronList()) {
             neuronIndices.put(neuron, index++);
         }
         previousInput = new double[index];

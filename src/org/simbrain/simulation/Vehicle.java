@@ -21,10 +21,10 @@ public class Vehicle {
 
     /** The world with agents and sensors to attach to the vehicle. */
     private final OdorWorldBuilder world;
-    
+
     /** Size of sensor-motor weights. Determines how "sharply" agents turn. */
     private int weightSize = 120;
-    
+
     /** Size of weights from sensors to straight movement. */
     private int forwardWeights = 5;
 
@@ -37,7 +37,7 @@ public class Vehicle {
     }
 
     /**
-     * Construct the vehicle builder. Needs a reference to the network to 
+     * Construct the vehicle builder. Needs a reference to the network to
      * build the network, the world to reference the sensor, and the sim
      * to make the couplings.
      *
@@ -53,7 +53,7 @@ public class Vehicle {
 
     /**
      * Add a vehicle.
-     * 
+     *
      * @param x x location
      * @param y y location
      * @param agent reference to the agent to couple to
@@ -81,7 +81,7 @@ public class Vehicle {
         rightTurn.setLabel("Right");
         setNodeDefaults(rightTurn, vehicle);
         Neuron leftInput = net.addNeuron(x, y + 100);
-        leftInput.setClamped(false);
+        leftInput.setClamped(true);
         setNodeDefaults(leftInput, vehicle);
         Neuron rightInput = net.addNeuron(x + 100, y + 100);
         rightInput.setClamped(true);
@@ -97,10 +97,10 @@ public class Vehicle {
             net.connect(leftInput, rightTurn, weightSize);
             net.connect(rightInput, leftTurn, weightSize);
         }
-        
+
         if (connectSensorToStraightMovement) {
             net.connect(leftInput, straight, forwardWeights);
-            net.connect(rightInput, straight, forwardWeights);            
+            net.connect(rightInput, straight, forwardWeights);
         }
 
         // Couple network to agent.

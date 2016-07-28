@@ -32,7 +32,7 @@ import org.simbrain.world.odorworld.entities.RotatingEntity;
 /**
  * A reinforcement learning simulation in which an agent learns to associate
  * smells with different pursuer / avoider combinations.
- * 
+ *
  * TODO: Add .htmlfile to folder and make docs based on that
  */
 public class RL_Sim {
@@ -82,7 +82,9 @@ public class RL_Sim {
     Neuron value;
     Neuron tdError;
     Neuron deltaReward;
-    NeuronGroup inputs;
+    NeuronGroup rightInputs, leftInputs;
+    SynapseGroup rightInputOutput, leftInputOutput;
+
     WinnerTakeAll outputs;
     JTextField trialField = new JTextField();
     JTextField discountField = new JTextField();
@@ -90,7 +92,6 @@ public class RL_Sim {
     JTextField lambdaField = new JTextField();
     JTextField epsilonField = new JTextField();
     RL_Update updateMethod;
-    SynapseGroup inputOutputConnection;
 
     /**
      * Construct the reinforcement learning simulation.
@@ -122,7 +123,7 @@ public class RL_Sim {
         OdorWorldBuilder world = sim.addOdorWorld(826, 1, worldSize, worldSize,
                 "Simple World");
         world.getWorld().setObjectsBlockMovement(true);
-        world.getWorld().setWrapAround(true);
+        world.getWorld().setWrapAround(false);
 
         // Create a control panel
         controlPanelFrame = sim.addFrame(-6, 1, "RL Controls");
@@ -145,6 +146,8 @@ public class RL_Sim {
         // candle.getSmellSource().setDispersion(200);
 
         // Add main input-output network to be trained by RL
+
+        // Outputs
         outputs = net.addWTAGroup(-234, 58, 2);
         outputs.setUseRandom(true);
         outputs.setRandomProb(epsilon);
@@ -153,11 +156,20 @@ public class RL_Sim {
                 new LineLayout(80, LineLayout.LineOrientation.HORIZONTAL));
         outputs.applyLayout();
         outputs.setLabel("Outputs");
-        inputs = net.addNeuronGroup(-128, 350, 5);
-        inputs.setLabel("Inputs");
-        inputs.setClamped(true);
-        inputOutputConnection = net.addSynapseGroup(inputs, outputs);
-        sim.couple(mouse, inputs);
+
+        // Inputs
+        rightInputs = net.addNeuronGroup(-104, 350, 5);
+        rightInputs.setLabel("Right Inputs");
+        rightInputs.setClamped(true);
+        leftInputs = net.addNeuronGroup(-481, 350, 5);
+        leftInputs.setLabel("Left Inputs");
+        leftInputs.setClamped(true);
+
+        // Connections
+        rightInputOutput = net.addSynapseGroup(rightInputs, outputs);
+        sim.couple(mouse, rightInputs, 2);
+        leftInputOutput = net.addSynapseGroup(leftInputs, outputs);
+        sim.couple(mouse, leftInputs, 1);
 
         // Reward, Value TD
         reward = net.addNeuron(300, 0);
@@ -166,7 +178,9 @@ public class RL_Sim {
         sim.couple(mouse.getSensor("Smell-Center"), 5, reward);
         value = net.addNeuron(350, 0);
         value.setLabel("Value");
-        net.connectAllToAll(inputs, value);
+        net.connectAllToAll(leftInputs, value);
+
+
         tdError = net.addNeuron(400, 0);
         tdError.setLabel("TD Error");
 
@@ -249,7 +263,7 @@ public class RL_Sim {
 
     /**
      * Helper method to set up vehicles to this sim's specs.
-     * 
+     *
      * @param vehicle vehicle to modify
      */
     private void setUpVehicle(NeuronGroup vehicle) {
@@ -269,13 +283,14 @@ public class RL_Sim {
      * Clear all learnable weights
      */
     void clearWeights() {
-        inputOutputConnection.setStrength(0, Polarity.BOTH);
+        rightInputOutput.setStrength(0, Polarity.BOTH);
+        leftInputOutput.setStrength(0, Polarity.BOTH);
         for (Synapse synapse : value.getFanIn()) {
             synapse.setStrength(0);
         }
         network.fireNeuronsUpdated();
         if(updateMethod != null) {
-            updateMethod.initMap(); // TODO: Is this needed?            
+            updateMethod.initMap(); // TODO: Is this needed?
         }
     }
 

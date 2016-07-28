@@ -85,10 +85,12 @@ public class Simulation {
     /**
      * Vector based coupling from an agent to a neuron group.
      * 
+     * TODO: Fix ugly sensorIndex thing
+     * 
      * @param entity
      * @param ng
      */
-    public void couple(RotatingEntity entity, NeuronGroup ng) {
+    public void couple(RotatingEntity entity, NeuronGroup ng, int sensorIndex) {
         AttributeManager producers = odorMap.get(entity.getParentWorld())
                 .getAttributeManager();
         AttributeManager consumers = netMap.get(ng.getParentNetwork())
@@ -96,7 +98,7 @@ public class Simulation {
 
         // TODO: Sensor
         PotentialProducer sensoryProducer = producers.createPotentialProducer(
-                ((SmellSensor) entity.getSensors().get(0)), "getCurrentValue",
+                ((SmellSensor) entity.getSensors().get(sensorIndex)), "getCurrentValue",
                 double[].class);
         PotentialConsumer sensoryConsumer = consumers.createPotentialConsumer(
                 ng, "forceSetActivations", double[].class);

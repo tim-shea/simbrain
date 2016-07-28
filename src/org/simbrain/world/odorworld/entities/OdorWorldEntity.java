@@ -267,7 +267,7 @@ public abstract class OdorWorldEntity {
      * image.
      * @return
      */
-    
+
     public int getWidth() {
         while (getImage().getWidth(null) < 0) {
             ;
@@ -430,7 +430,7 @@ public abstract class OdorWorldEntity {
 
         parentWorld.fireSensorAdded(sensor);
     }
-    
+
     /**
      * Get the sensor with the specified label, or null if none found.
      *
@@ -445,7 +445,7 @@ public abstract class OdorWorldEntity {
         }
         return null;
     }
-    
+
     /**
      * Get the effector with the specified label, or null if none found.
      *
