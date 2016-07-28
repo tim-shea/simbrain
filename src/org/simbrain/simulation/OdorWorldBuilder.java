@@ -7,11 +7,12 @@ import org.simbrain.world.odorworld.entities.BasicEntity;
 import org.simbrain.world.odorworld.entities.OdorWorldEntity;
 import org.simbrain.world.odorworld.entities.RotatingEntity;
 
-//TODO: Not sure this is the best name.  Use it a while then decide.
-
 /**
  * A wrapper for a OdorWorldComponent that makes it easy to add stuff to an odor
  * world.
+ * 
+ * TODO: Not sure this is the best name.  Use it a while then decide.
+ * TODO: Some easier way to add a bunch of objects?  
  */
 public class OdorWorldBuilder {
 

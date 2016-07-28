@@ -1,6 +1,8 @@
 package org.simbrain.custom.rl_sim;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.NetworkUpdateAction;
@@ -36,6 +38,16 @@ public class RL_Update implements NetworkUpdateAction {
      */
     double lastReward;
 
+
+    /* Iterations to leave vehicle on between weight updates. */
+    private final int iterationsBetweenWeightUpdates = 15;
+    // Variables to help with the above
+    private double previousReward;
+    double[] previousInput;
+    int counter = 0;
+    // Helper which associates neurons with integer indices of the array that tracks past states
+    Map<Neuron, Integer> neuronIndices = new HashMap();
+    
     /**
      * Construct the updater.
      */
@@ -45,7 +57,7 @@ public class RL_Update implements NetworkUpdateAction {
         reward = sim.reward;
         value = sim.value;
         tdError = sim.tdError;
-
+        initMap();
     }
 
     @Override
@@ -80,8 +92,41 @@ public class RL_Update implements NetworkUpdateAction {
         sim.outputs.update();
         Neuron winner = sim.outputs.getWinningNeuron();
         Network.updateNeurons(Collections.singletonList(sim.value));
-        // Update the vehicle whose name corresponds to the winning output
-        // neuron
+        updateVehicleNet(winner);
+
+        // Update the weights
+        if (counter++ % iterationsBetweenWeightUpdates == 0) {
+
+            updateTDError();
+
+            updateCritic();
+
+            updateActor();
+
+            // Record the "before" state of the system.
+            previousReward = sim.reward.getActivation();
+            System.arraycopy(sim.inputs.getActivations(), 0,
+                    previousInput, 0,
+                    sim.inputs.getActivations().length);
+        }
+
+    }
+
+    /**
+     * TD Error. Used to drive all learning in the network.
+     */
+    void updateTDError() {
+        tdError.setActivation(sim.deltaReward.getActivation()
+                + sim.gamma * value.getActivation()
+                - value.getLastActivation());
+    }
+
+    /**
+     * Update the vehicle whose name corresponds to the winning output.
+     * 
+     * @param winner
+     */
+    void updateVehicleNet(Neuron winner) {
         for (NeuronGroup vehicle : sim.vehicles) {
             if (vehicle.getLabel().equalsIgnoreCase(winner.getLabel())) {
                 vehicle.update();
@@ -90,14 +135,12 @@ public class RL_Update implements NetworkUpdateAction {
                 vehicle.clearActivations();
             }
         }
+    }
 
-        // TD Error. Used to drive all learning in the network.
-        tdError.setActivation((sim.deltaReward.getActivation()
-                + sim.gamma * value.getActivation())
-                - value.getLastActivation());
-
-        // Update value synapses.
-        // Learn the value function. The "critic".
+    /**
+     * Update value synapses. Learn the value function. The "critic".
+     */
+    void updateCritic() {
         for (Synapse synapse : value.getFanIn()) {
             Neuron sourceNeuron = (Neuron) synapse.getSource();
             double newStrength = synapse.getStrength()
@@ -105,17 +148,22 @@ public class RL_Update implements NetworkUpdateAction {
                             * sourceNeuron.getLastActivation();
             synapse.setStrength(newStrength);
         }
+    }
 
-        // Update all "actor" neurons. (Roughly) If the last input > output
-        // connection led to reward, reinforce that connection.
+    /**
+     * Update all "actor" neurons. (Roughly) If the last input > output
+     * connection led to reward, reinforce that connection.
+     */
+    void updateActor() {
         for (Neuron neuron : sim.outputs.getNeuronList()) {
             // Just update the last winner
             if (neuron.getLastActivation() > 0) {
                 for (Synapse synapse : neuron.getFanIn()) {
-                    Neuron sourceNeuron = synapse.getSource();
-                    double newStrength = synapse.getStrength()
-                            + sim.alpha * tdError.getActivation()
-                                    * sourceNeuron.getLastActivation();
+                    // TODO: Below getXMomentsAgo(Neuron neuron)
+                    double previousActivation = getPreviousNeuronValue(
+                            synapse.getSource());
+                    double newStrength = synapse.getStrength() + sim.alpha
+                            * tdError.getActivation() * previousActivation;
                     // synapse.setStrength(synapse.clip(newStrength));
                     synapse.setStrength(newStrength);
                 }
@@ -123,19 +171,36 @@ public class RL_Update implements NetworkUpdateAction {
         }
     }
 
+
+    /**
+     * Returns the "before" state of the given neuron.
+     */
+    private double getPreviousNeuronValue(Neuron neuron) {
+        //System.out.println(previousInput[neuronIndices.get(neuron)]);
+        return previousInput[neuronIndices.get(neuron)];
+    }
+    
+    /**
+     * Initialize the map from neurons to indices.
+     */
+    void initMap() {
+        int index = 0;
+        for (Neuron neuron : sim.inputs.getNeuronList()) {
+            neuronIndices.put(neuron, index++);
+        }
+        previousInput = new double[index];
+    }
+
     /**
      * Update the delta-reward neuron, by taking the difference between the
      * reward neuron's last state and its current state.
      * 
-     * Currently artificially scales the delta for positive diff.
+     * TODO: Rename needed around here? This is now the "reward" used by the TD
+     * algorithm, which is different from the reward signal coming directory
+     * from the environment.
      */
     private void updateDeltaReward() {
-        double diff = reward.getActivation() - lastReward;
-        // Exaggerate positive differences, resulting in more learning when
-        // reward goes up
-        if (diff > 0) {
-            diff *= 200; // TODO: Name for this factor?
-        }
+        double diff = reward.getActivation() - previousReward;
         sim.deltaReward.forceSetActivation(diff);
     }
 

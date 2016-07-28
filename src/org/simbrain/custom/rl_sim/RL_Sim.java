@@ -10,7 +10,6 @@ import java.util.concurrent.Executors;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
@@ -71,7 +70,8 @@ public class RL_Sim {
     double hitRadius = 75;
     int initialMouseLocation_x = 30;
     int initialMouseLocation_y = 30;
-    
+    int initialMouseHeading = 0;
+
     JInternalFrame controlPanelFrame;
     boolean stop = false;
     boolean goalAchieved = false;
@@ -89,7 +89,7 @@ public class RL_Sim {
     JTextField alphaField = new JTextField();
     JTextField lambdaField = new JTextField();
     JTextField epsilonField = new JTextField();
-    
+    RL_Update updateMethod;
     SynapseGroup inputOutputConnection;
 
     /**
@@ -105,12 +105,12 @@ public class RL_Sim {
      * Run the simulation!
      */
     public void run() {
-        
-        // TODO: Below is a problem.  This is running on the EDT which explains
-        //  the poor performance.  Need to add utilities to Simbrain to make 
+
+        // TODO: Below is a problem. This is running on the EDT which explains
+        // the poor performance. Need to add utilities to Simbrain to make
         // sure tasks are "loaded" on the right threads
         // System.out.println(SwingUtilities.isEventDispatchThread());
-        
+
         // Clear workspace
         sim.getWorkspace().clearWorkspace();
 
@@ -131,20 +131,21 @@ public class RL_Sim {
         // Add the agent
         mouse = world.addAgent(initialMouseLocation_x, initialMouseLocation_y,
                 "Mouse");
+        mouse.setHeading(initialMouseHeading);
 
         // Set up the odor world with objects. Last component is reward
         cheese = world.addEntity(159, 159, "Swiss.gif",
                 new double[] { 0, 1, 0, 0, 0, 1 });
         cheese.getSmellSource().setDispersion(400);
-//        OdorWorldEntity flower = world.addEntity(63, 293, "Flax.gif",
-//                new double[] { 0, 0, 0, 0, 1, 0 });
-//        flower.getSmellSource().setDispersion(200);
-//        OdorWorldEntity candle = world.addEntity(168, 142, "Candle.png",
-//                new double[] { 0, 0, 0, 1, 0, 0 });
-//        candle.getSmellSource().setDispersion(200);
+        // OdorWorldEntity flower = world.addEntity(63, 293, "Flax.gif",
+        // new double[] { 0, 0, 0, 0, 1, 0 });
+        // flower.getSmellSource().setDispersion(200);
+        // OdorWorldEntity candle = world.addEntity(168, 142, "Candle.png",
+        // new double[] { 0, 0, 0, 1, 0, 0 });
+        // candle.getSmellSource().setDispersion(200);
 
         // Add main input-output network to be trained by RL
-        outputs = net.addWTAGroup(-234, 58, 6);
+        outputs = net.addWTAGroup(-234, 58, 2);
         outputs.setUseRandom(true);
         outputs.setRandomProb(epsilon);
         // Add a little extra spacing between neurons to accommodate labels
@@ -155,8 +156,7 @@ public class RL_Sim {
         inputs = net.addNeuronGroup(-128, 350, 5);
         inputs.setLabel("Inputs");
         inputs.setClamped(true);
-        inputOutputConnection = net.addSynapseGroup(inputs,
-                outputs);
+        inputOutputConnection = net.addSynapseGroup(inputs, outputs);
         sim.couple(mouse, inputs);
 
         // Reward, Value TD
@@ -169,15 +169,14 @@ public class RL_Sim {
         net.connectAllToAll(inputs, value);
         tdError = net.addNeuron(400, 0);
         tdError.setLabel("TD Error");
-        
-        //TODO
+
+        // TODO
         deltaReward = net.addNeuron(300, -50);
         deltaReward.setClamped(true);
         deltaReward.setLabel("Delta Reward");
-        
+
         // Clear all learnable weights
         clearWeights();
-
 
         // Labels for vehicles, which must be the same as the label for
         // the corresponding output node
@@ -222,29 +221,29 @@ public class RL_Sim {
         // subnets
         outputs.getNeuronList().get(0).setLabel(strPursueCheese);
         outputs.getNeuronList().get(1).setLabel(strAvoidCheese);
-        outputs.getNeuronList().get(2).setLabel(strPursueFlower);
-        outputs.getNeuronList().get(3).setLabel(strAvoidFlower);
-        outputs.getNeuronList().get(4).setLabel(strPursueCandle);
-        outputs.getNeuronList().get(5).setLabel(strAvoidCandle);
+        //outputs.getNeuronList().get(2).setLabel(strPursueFlower);
+        //outputs.getNeuronList().get(3).setLabel(strAvoidFlower);
+        //outputs.getNeuronList().get(4).setLabel(strPursueCandle);
+        //outputs.getNeuronList().get(5).setLabel(strAvoidCandle);
 
         // Connect output nodes to vehicle speed nodes
-//        net.connect(outputs.getNeuronByLabel(strPursueCheese),
-//                pursueCheese.getNeuronByLabel("Speed"), 10);
-//        net.connect(outputs.getNeuronByLabel(strAvoidCheese),
-//                avoidCheese.getNeuronByLabel("Speed"), 10);
-//        net.connect(outputs.getNeuronByLabel(strPursueFlower),
-//                pursueFlower.getNeuronByLabel("Speed"), 10);
-//        net.connect(outputs.getNeuronByLabel(strAvoidFlower),
-//                avoidFlower.getNeuronByLabel("Speed"), 10);
-//        net.connect(outputs.getNeuronByLabel(strPursueCandle),
-//                pursueCandle.getNeuronByLabel("Speed"), 10);
-//        net.connect(outputs.getNeuronByLabel(strAvoidCandle),
-//                avoidCandle.getNeuronByLabel("Speed"), 10);
+        // net.connect(outputs.getNeuronByLabel(strPursueCheese),
+        // pursueCheese.getNeuronByLabel("Speed"), 10);
+        // net.connect(outputs.getNeuronByLabel(strAvoidCheese),
+        // avoidCheese.getNeuronByLabel("Speed"), 10);
+        // net.connect(outputs.getNeuronByLabel(strPursueFlower),
+        // pursueFlower.getNeuronByLabel("Speed"), 10);
+        // net.connect(outputs.getNeuronByLabel(strAvoidFlower),
+        // avoidFlower.getNeuronByLabel("Speed"), 10);
+        // net.connect(outputs.getNeuronByLabel(strPursueCandle),
+        // pursueCandle.getNeuronByLabel("Speed"), 10);
+        // net.connect(outputs.getNeuronByLabel(strAvoidCandle),
+        // avoidCandle.getNeuronByLabel("Speed"), 10);
 
         // Add custom update rule
-        RL_Update rl = new RL_Update(this);
+        updateMethod = new RL_Update(this);
         net.getNetwork().getUpdateManager().clear();
-        net.getNetwork().addUpdateAction(rl);
+        net.getNetwork().addUpdateAction(updateMethod);
 
     }
 
@@ -265,17 +264,19 @@ public class RL_Sim {
         turnRight.setUpperBound(200);
         vehicles.add(vehicle);
     }
-    
-    
+
     /**
      * Clear all learnable weights
      */
     void clearWeights() {
         inputOutputConnection.setStrength(0, Polarity.BOTH);
-        for(Synapse synapse : value.getFanIn()) {
+        for (Synapse synapse : value.getFanIn()) {
             synapse.setStrength(0);
         }
         network.fireNeuronsUpdated();
+        if(updateMethod != null) {
+            updateMethod.initMap(); // TODO: Is this needed?            
+        }
     }
 
     /**
@@ -294,46 +295,71 @@ public class RL_Sim {
                 alpha = Double.parseDouble(alphaField.getText());
                 outputs.setRandomProb(epsilon);
                 stop = false;
+
+                // Run the trials
                 for (int i = 1; i < numTrials + 1; i++) {
 
                     if (stop) {
                         return;
                     }
 
-                    // Set up the trial
-                    trialField.setText("" + ((numTrials + 1) - i));
-                    goalAchieved = false;
-
-                    // Clear network activations between trials
-                    network.clearActivations();
-
-                    // Reset the positions of the mouse
-                    mouse.setLocation(initialMouseLocation_x,
-                            initialMouseLocation_y);
-                    mouse.setHeading(0);
+                    resetTrial(i);
 
                     // Keep iterating until the mouse achieves its goal
-                    // Goal is currently to get near the cheese
+                    // Goal is currently to get near a cheese
                     while (!goalAchieved) {
-                        int distance = (int) SimbrainMath.distance(
-                                mouse.getCenterLocation(),
-                                cheese.getCenterLocation());
-                        if (distance < hitRadius) {
-                            goalAchieved = true;
-                        }
-                        CountDownLatch latch = new CountDownLatch(1);
-                        sim.getWorkspace().iterate(latch);
-                        try {
-                            latch.await();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        iterateSimulation();
+                        updateGoalState();
                     }
 
                 }
+
+                // Reset the text in the trial field
                 trialField.setText("" + numTrials);
             }
         });
+    }
+
+    /**
+     * What counts as achieving a goal is codified here.
+     */
+    void updateGoalState() {
+        int distance = (int) SimbrainMath.distance(mouse.getCenterLocation(),
+                cheese.getCenterLocation());
+        if (distance < hitRadius) {
+            goalAchieved = true;
+        }
+    }
+
+    /**
+     * Set up a new trial. Reset things as needed.
+     *
+     * @param trialNum the trial to set
+     */
+    void resetTrial(int trialNum) {
+        // Set up the trial
+        trialField.setText("" + ((numTrials + 1) - trialNum));
+        goalAchieved = false;
+
+        // Clear network activations between trials
+        network.clearActivations();
+
+        // Reset the positions of the mouse
+        mouse.setLocation(initialMouseLocation_x, initialMouseLocation_y);
+        mouse.setHeading(initialMouseHeading);
+    }
+
+    /**
+     * Iterate the workspace one iteration.
+     */
+    void iterateSimulation() {
+        CountDownLatch latch = new CountDownLatch(1);
+        sim.getWorkspace().iterate(latch);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
