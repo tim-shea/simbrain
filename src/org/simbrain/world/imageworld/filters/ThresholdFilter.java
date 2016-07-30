@@ -97,7 +97,7 @@ public class ThresholdFilter extends ImageFilter implements  BufferedImageOp {
     public double getValue(BufferedImage image, int x, int y) {
         int rgb = image.getRGB(x, y);
         // TODO: A better way to do this?
-        if (rgb == -16777216) {
+        if (rgb == 0x00FFFFFF) {
             return 1;
         } else {
             return 0;

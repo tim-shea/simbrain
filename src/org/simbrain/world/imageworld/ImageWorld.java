@@ -126,14 +126,13 @@ public class ImageWorld {
             return;
         }
         int dialogResult = JOptionPane.showConfirmDialog(
-                null, "Are you sure you want to delete sensor pane \""
+                null, "Are you sure you want to delete sensor panel \""
                         + sm.getName() + "\" ?",
                 "Warning", JOptionPane.YES_NO_OPTION);
         if (dialogResult == JOptionPane.YES_OPTION) {
             sensorMatrices.remove(sm);
+            fireSensorMatricesUpdated();
         }
-
-        fireSensorMatricesUpdated();
     }
 
     /**
@@ -180,13 +179,15 @@ public class ImageWorld {
     }
 
     /**
-     * @param currentSensorPanel the currentSensorPanel to set
+     * Set the current sensor matrix, and update the image panel appropriately.
+     *
+     * @param currentSensorMatrix the currentSensorPanel to set
      */
-    public void setCurrentSensorPanel(SensorMatrix currentSensorPanel) {
-        if (currentSensorPanel != null) {
-            this.currentSensorMatrix = currentSensorPanel;
-            currentSensorPanel.applyFilters();
-            imagePanel.updateImage(currentSensorPanel.getImage(),
+    public void setCurrentSensorMatrix(SensorMatrix currentSensorMatrix) {
+        if (currentSensorMatrix != null) {
+            this.currentSensorMatrix = currentSensorMatrix;
+            currentSensorMatrix.applyFilters();
+            imagePanel.updateImage(currentSensorMatrix.getImage(),
                     imagePanel.getWidth(), imagePanel.getHeight());
         }
     }

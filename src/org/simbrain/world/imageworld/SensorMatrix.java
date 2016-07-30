@@ -37,9 +37,6 @@ public class SensorMatrix {
     /** Transform to rescale image as needed. */
     private BufferedImageOp rescaler;
 
-    // TODO: Allow the matrix to contain an editable list of filters
-    // private List<BufferedImageOp> filters = new ArrayList<BufferedImageOp>();
-
     /** List of filter types. Used in combo box. */
     public static String[] FILTER_TYPES = { IdentityFilter.NAME,
             GrayFilter.NAME, ThresholdFilter.NAME };
@@ -64,7 +61,7 @@ public class SensorMatrix {
 
     /**
      * Construct a sensor matrix.
-     *
+     *  
      * @param imageSource the source for the image
      */
     public SensorMatrix(StaticImageSource imageSource) {
@@ -107,7 +104,8 @@ public class SensorMatrix {
     /**
      * Update the sensor matrix values.
      * 
-     * TODO: When to call this? 
+     * Called every time the actual image is changed.    
+     * Sets the array that users can couple to via {@link getSensorValues}.
      */
     private void updateSensorValues() {
         sensorValues = new double[width * height];

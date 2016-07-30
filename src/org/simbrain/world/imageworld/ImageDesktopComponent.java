@@ -68,7 +68,7 @@ public class ImageDesktopComponent extends GuiComponent<ImageWorldComponent> {
         cbSensorPanel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                component.getImageWorld().setCurrentSensorPanel(
+                component.getImageWorld().setCurrentSensorMatrix(
                         (SensorMatrix) cbSensorPanel.getSelectedItem());
             }
 

@@ -33,8 +33,6 @@ public class SensorMatrixDialog extends StandardDialog {
 
     /**
      * Select filter type.
-     *
-     * TODO: Modify to handle sets of filters.
      */
     private JComboBox cbFilterType = new JComboBox(SensorMatrix.FILTER_TYPES);
 
@@ -98,8 +96,10 @@ public class SensorMatrixDialog extends StandardDialog {
         });
 
         sensorMatrixpanel.addItem("Name", nameField);
-        sensorMatrixpanel.addItem("Width (in pixels)", widthField);
-        sensorMatrixpanel.addItem("Heigh (in pixels)", heightField);
+        if(isCreationDialog) {
+            sensorMatrixpanel.addItem("Width (in pixels)", widthField);
+            sensorMatrixpanel.addItem("Heigh (in pixels)", heightField);            
+        }
         sensorMatrixpanel.addItem("Filter", cbFilterType);
 
         if (isCreationDialog) {
@@ -191,11 +191,11 @@ public class SensorMatrixDialog extends StandardDialog {
     public void commitChanges() {
         if (isCreationDialog) {
             sensorMatrix = new SensorMatrix(world.getImageSource());
+            sensorMatrix.setWidth(Integer.parseInt(widthField.getText()));
+            sensorMatrix.setHeight(Integer.parseInt(heightField.getText()));
         }
         // TODO: It would be nice to only update if changes were made...
         sensorMatrix.setName(nameField.getText());
-        sensorMatrix.setWidth(Integer.parseInt(widthField.getText()));
-        sensorMatrix.setHeight(Integer.parseInt(heightField.getText()));
         currentFilterPanel.commitChanges();
         sensorMatrix.setFilter(currentFilterPanel.getFilter());
         if (isCreationDialog) {
