@@ -473,7 +473,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
         if (conflict) {
             return nType;
         } else {
-            return nur.getDescription();
+            return nur.getName();
         }
     }
 

@@ -628,10 +628,9 @@ public class SimbrainDesktop {
 
     /**
      * Manually add custom simulations.
-     * 
      */
     private void addCustomSimulations(final JMenu scriptMenu) {
-        
+
         // TODO: Consider a way to "inject" menu items from outside
 
         // Adding the  provisional RL simulation
@@ -647,9 +646,9 @@ public class SimbrainDesktop {
         test.addActionListener(ae -> {
             TestSim testSim = new TestSim(this);
             testSim.run();
-        });        
+        });
         scriptMenu.add(test);
-        
+
         // Add more custom simulations here...
 
     }
@@ -1389,7 +1388,7 @@ public class SimbrainDesktop {
 
     /**
      * Returns the internal desktop object. Sometimes useful in scripts.
-     * 
+     *
      * @return
      */
     public JDesktopPane getDesktop() {
