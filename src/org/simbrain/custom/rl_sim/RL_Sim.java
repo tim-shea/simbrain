@@ -20,6 +20,7 @@ import org.simbrain.network.layouts.LineLayout;
 import org.simbrain.network.subnetworks.WinnerTakeAll;
 import org.simbrain.simulation.NetBuilder;
 import org.simbrain.simulation.OdorWorldBuilder;
+import org.simbrain.simulation.PlotBuilder;
 import org.simbrain.simulation.Simulation;
 import org.simbrain.simulation.Vehicle;
 import org.simbrain.util.LabelledItemPanel;
@@ -119,7 +120,7 @@ public class RL_Sim {
         NetBuilder net = sim.addNetwork(223, 1, 616, 615, "Neural Network");
         network = net.getNetwork();
 
-        // Create the odor world
+        // Create the odor world builder
         OdorWorldBuilder world = sim.addOdorWorld(826, 1, worldSize, worldSize,
                 "Simple World");
         world.getWorld().setObjectsBlockMovement(true);
@@ -128,6 +129,33 @@ public class RL_Sim {
         // Create a control panel
         controlPanelFrame = sim.addFrame(-6, 1, "RL Controls");
         makeControlPanel();
+
+        // Set up the odor world
+        setUpWorld(world);
+
+        // Set up the main input-output network that is trained via RL
+        setUpInputOutputNetwork(net);
+
+        // Set up the reward and td error nodes
+        setUpRLNodes(net);
+
+        // Clear all learnable weights
+        clearWeights();
+
+        // Set up the vehicle networks
+        setUpVehicleNets(net, world);
+
+        // Set up the time series plot
+        setUpTimeSeries(net);
+
+        // Configure a custom update rule
+        updateMethod = new RL_Update(this);
+        net.getNetwork().getUpdateManager().clear();
+        net.getNetwork().addUpdateAction(updateMethod);
+
+    }
+
+    private void setUpWorld(OdorWorldBuilder world) {
 
         // Add the agent
         mouse = world.addAgent(initialMouseLocation_x, initialMouseLocation_y,
@@ -146,7 +174,21 @@ public class RL_Sim {
         // candle.getSmellSource().setDispersion(200);
 
         // Add main input-output network to be trained by RL
+    }
 
+    private void setUpTimeSeries(NetBuilder net) {
+        // Create a time series plot
+        PlotBuilder plot = sim.addTimeSeriesPlot(827,301,293,332, "Reward, TD Error");
+        sim.couple(net.getNetworkComponent(), reward,
+                plot.getTimeSeriesComponent(), 0);
+        sim.couple(net.getNetworkComponent(), tdError,
+                plot.getTimeSeriesComponent(), 1);
+        plot.getTimeSeriesModel().setAutoRange(false);
+        plot.getTimeSeriesModel().setRangeUpperBound(1);
+        plot.getTimeSeriesModel().setRangeLowerBound(-1);
+    }
+
+    private void setUpInputOutputNetwork(NetBuilder net) {
         // Outputs
         outputs = net.addWTAGroup(-234, 58, 2);
         outputs.setUseRandom(true);
@@ -170,7 +212,9 @@ public class RL_Sim {
         sim.couple(mouse, rightInputs, 2);
         leftInputOutput = net.addSynapseGroup(leftInputs, outputs);
         sim.couple(mouse, leftInputs, 1);
+    }
 
+    private void setUpRLNodes(NetBuilder net) {
         // Reward, Value TD
         reward = net.addNeuron(300, 0);
         reward.setClamped(true);
@@ -188,10 +232,9 @@ public class RL_Sim {
         deltaReward = net.addNeuron(300, -50);
         deltaReward.setClamped(true);
         deltaReward.setLabel("Delta Reward");
+    }
 
-        // Clear all learnable weights
-        clearWeights();
-
+    private void setUpVehicleNets(NetBuilder net, OdorWorldBuilder world) {
         // Labels for vehicles, which must be the same as the label for
         // the corresponding output node
         String strPursueCheese = "Pursue Cheese";
@@ -253,13 +296,9 @@ public class RL_Sim {
         // pursueCandle.getNeuronByLabel("Speed"), 10);
         // net.connect(outputs.getNeuronByLabel(strAvoidCandle),
         // avoidCandle.getNeuronByLabel("Speed"), 10);
-
-        // Add custom update rule
-        updateMethod = new RL_Update(this);
-        net.getNetwork().getUpdateManager().clear();
-        net.getNetwork().addUpdateAction(updateMethod);
-
     }
+
+
 
     /**
      * Helper method to set up vehicles to this sim's specs.

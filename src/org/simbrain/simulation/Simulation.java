@@ -8,6 +8,8 @@ import org.simbrain.network.NetworkComponent;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.groups.NeuronGroup;
+import org.simbrain.network.gui.NetworkPanel;
+import org.simbrain.plot.timeseries.TimeSeriesPlotComponent;
 import org.simbrain.workspace.AttributeManager;
 import org.simbrain.workspace.Coupling;
 import org.simbrain.workspace.PotentialConsumer;
@@ -84,9 +86,9 @@ public class Simulation {
 
     /**
      * Vector based coupling from an agent to a neuron group.
-     * 
+     *
      * TODO: Fix ugly sensorIndex thing
-     * 
+     *
      * @param entity
      * @param ng
      */
@@ -122,6 +124,16 @@ public class Simulation {
         return new NetBuilder(networkComponent);
     }
 
+
+    public PlotBuilder addTimeSeriesPlot(int x, int y, int width, int height,
+            String name) {
+        TimeSeriesPlotComponent timeSeriesComponent = new TimeSeriesPlotComponent(name);
+        workspace.addWorkspaceComponent(timeSeriesComponent);
+        desktop.getDesktopComponent(timeSeriesComponent).getParentFrame()
+                .setBounds(x, y, width, height);
+        return new PlotBuilder(timeSeriesComponent);
+    }
+
     public OdorWorldBuilder addOdorWorld(int x, int y, int width, int height,
             String name) {
         OdorWorldComponent odorWorldComponent = new OdorWorldComponent(name);
@@ -131,7 +143,7 @@ public class Simulation {
         odorMap.put(odorWorldComponent.getWorld(), odorWorldComponent);
         return new OdorWorldBuilder(odorWorldComponent);
     }
-    
+
     public JInternalFrame addFrame(int x, int y, String name) {
         JInternalFrame frame = new JInternalFrame(name, true,
                 true);
@@ -152,10 +164,13 @@ public class Simulation {
         return workspace;
     }
 
+    // TODO: These coupling methods are ugly. Hopefully they get better
+    // after the planned coupling refactor, so I'm leaving them for now.
+
     /**
      * Make a coupling from a smell sensor to a neuron. Couples the provided
      * smell sensor one the indicated dimension to the provided neuron.
-     * 
+     *
      * @param producingSensor the smell sensor. Takes a scalar value.
      * @param stimulusDimension Which component of the smell vector on the
      *            agent to "smell"
@@ -204,6 +219,22 @@ public class Simulation {
 
         try {
             workspace.getCouplingManager().addCoupling(neuronToAgentCoupling);
+        } catch (UmatchedAttributesException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Coupling a neuron to the indicated (by index) time series of a time series plot.
+    public void couple(NetworkComponent network, Neuron neuron,
+            TimeSeriesPlotComponent plot, int index) {
+        PotentialProducer neuronProducer = network.getAttributeManager()
+                .createPotentialProducer(neuron, "getActivation", double.class);
+        PotentialConsumer timeSeriesConsumer1 = plot.getPotentialConsumers()
+                .get(index);
+        Coupling coupling = new Coupling(neuronProducer,
+                timeSeriesConsumer1);
+        try {
+            workspace.getCouplingManager().addCoupling(coupling);
         } catch (UmatchedAttributesException e) {
             e.printStackTrace();
         }

@@ -1,5 +1,8 @@
 package org.simbrain.simulation;
 
+import java.io.File;
+import java.util.function.Function;
+
 import org.simbrain.util.environment.SmellSource;
 import org.simbrain.world.odorworld.OdorWorld;
 import org.simbrain.world.odorworld.OdorWorldComponent;
@@ -10,9 +13,9 @@ import org.simbrain.world.odorworld.entities.RotatingEntity;
 /**
  * A wrapper for a OdorWorldComponent that makes it easy to add stuff to an odor
  * world.
- * 
+ *
  * TODO: Not sure this is the best name.  Use it a while then decide.
- * TODO: Some easier way to add a bunch of objects?  
+ * TODO: Some easier way to add a bunch of objects?
  */
 public class OdorWorldBuilder {
 
@@ -49,7 +52,13 @@ public class OdorWorldBuilder {
         world.addEntity(entity);
         return entity;
     }
-    
+
+    //TODO
+    public void loadWorld(File jsonFile) {
+    }
+
+
+
     public OdorWorld getWorld() {
         return world;
     }
