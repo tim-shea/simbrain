@@ -220,11 +220,12 @@ public class SmellSource {
     }
 
     /**
-     * Sets the stimulus string.
+     * Sets the stimulus using a string representation, e.g.
+     * "1,0,0,0".
      *
      * @param vectorString Stimulus string
      */
-    public void setStimulusS(final String vectorString) {
+    public void setStimulus(final String vectorString) {
         stimulusVector = Utils.getVectorString(vectorString, ",");
     }
 

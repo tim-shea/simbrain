@@ -1,8 +1,14 @@
 package org.simbrain.simulation;
 
 import java.io.File;
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
+import org.simbrain.simulation.OdorWorldXML.EntityDescription;
 import org.simbrain.util.environment.SmellSource;
 import org.simbrain.world.odorworld.OdorWorld;
 import org.simbrain.world.odorworld.OdorWorldComponent;
@@ -14,8 +20,7 @@ import org.simbrain.world.odorworld.entities.RotatingEntity;
  * A wrapper for a OdorWorldComponent that makes it easy to add stuff to an odor
  * world.
  *
- * TODO: Not sure this is the best name.  Use it a while then decide.
- * TODO: Some easier way to add a bunch of objects?
+ * TODO: Not sure this is the best name. Use it a while then decide.
  */
 public class OdorWorldBuilder {
 
@@ -45,7 +50,8 @@ public class OdorWorldBuilder {
         return entity;
     }
 
-    public OdorWorldEntity addEntity(int x, int y, String imageName, double[] stimulus) {
+    public OdorWorldEntity addEntity(int x, int y, String imageName,
+            double[] stimulus) {
         BasicEntity entity = new BasicEntity(imageName, world);
         entity.setLocation(x, y);
         entity.setSmellSource(new SmellSource(stimulus));
@@ -53,11 +59,37 @@ public class OdorWorldBuilder {
         return entity;
     }
 
-    //TODO
-    public void loadWorld(File jsonFile) {
+    /**
+     * Load a set of odorworld entities from a simple xml representation (see
+     * {@link OdorWorldXML} for an example.) This is not the same as the xml
+     * used in odor world, but is rather a reduced representation that is easy
+     * to write by hand.
+     *
+     * We tried for json but it was a pain to configure with jaxb.
+     *
+     * @param xmlFile the file to load
+     * @return a list of entities (not necessarily needed, this method loads the
+     *         entites in to the world).
+     */
+    public List<OdorWorldEntity> loadWorld(File xmlFile) {
+        ArrayList<OdorWorldEntity> worldEntities = new ArrayList<OdorWorldEntity>();
+        try {
+            JAXBContext jc = JAXBContext.newInstance(OdorWorldXML.class);
+            Unmarshaller unmarshaller = jc.createUnmarshaller();
+            OdorWorldXML xml = (OdorWorldXML) unmarshaller.unmarshal(xmlFile);
+            for (EntityDescription desc : xml.getEntities()) {
+                OdorWorldEntity entity = this.addEntity(desc.x, desc.y,
+                        desc.imageName);
+                entity.getSmellSource().setStimulus(desc.stim);
+                entity.getSmellSource().setDispersion(desc.dispersion);
+                worldEntities.add(entity);
+            }
+
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+        return worldEntities;
     }
-
-
 
     public OdorWorld getWorld() {
         return world;
@@ -66,6 +98,5 @@ public class OdorWorldBuilder {
     public OdorWorldComponent getOdorWorldComponent() {
         return odorWorldComponent;
     }
-
 
 }

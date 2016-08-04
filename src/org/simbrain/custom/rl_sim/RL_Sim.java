@@ -2,6 +2,7 @@ package org.simbrain.custom.rl_sim;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -10,6 +11,9 @@ import java.util.concurrent.Executors;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JTextField;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
@@ -20,6 +24,8 @@ import org.simbrain.network.layouts.LineLayout;
 import org.simbrain.network.subnetworks.WinnerTakeAll;
 import org.simbrain.simulation.NetBuilder;
 import org.simbrain.simulation.OdorWorldBuilder;
+import org.simbrain.simulation.OdorWorldXML;
+import org.simbrain.simulation.OdorWorldXML.EntityDescription;
 import org.simbrain.simulation.PlotBuilder;
 import org.simbrain.simulation.Simulation;
 import org.simbrain.simulation.Vehicle;
@@ -36,6 +42,7 @@ import org.simbrain.world.odorworld.entities.RotatingEntity;
  *
  * TODO: Add .htmlfile to folder and make docs based on that
  */
+//CHECKSTYLE:OFF
 public class RL_Sim {
 
     /** The main simulation desktop. */
@@ -66,26 +73,31 @@ public class RL_Sim {
      */
     double gamma = .4;
 
-    // TODO
-    int worldSize = 300;
-    double hitRadius = 75;
-    int initialMouseLocation_x = 30;
-    int initialMouseLocation_y = 30;
+    /** Size of the (square) world.  */
+    int worldSize = 350;
+    
+    /** Distance in pixels within which a goal object is counted as being arrived at. */
+    double hitRadius = 50;
+    
+    /** Initial mouse location. */
+    int initialMouseLocation_x = 43;
+    int initialMouseLocation_y = 110;
     int initialMouseHeading = 0;
 
+    /** Other variables and references. */
     JInternalFrame controlPanelFrame;
     boolean stop = false;
     boolean goalAchieved = false;
     Network network;
     RotatingEntity mouse;
-    OdorWorldEntity cheese;
+    List<OdorWorldEntity> worldEntities = new ArrayList<OdorWorldEntity>();
+    List<OdorWorldEntity> goalEntities = new ArrayList<OdorWorldEntity>();
     Neuron reward;
     Neuron value;
     Neuron tdError;
     Neuron deltaReward;
     NeuronGroup rightInputs, leftInputs;
     SynapseGroup rightInputOutput, leftInputOutput;
-
     WinnerTakeAll outputs;
     JTextField trialField = new JTextField();
     JTextField discountField = new JTextField();
@@ -155,40 +167,48 @@ public class RL_Sim {
 
     }
 
+    /**
+     * Set up the world
+     */
     private void setUpWorld(OdorWorldBuilder world) {
+
+        // TODO: make sure this works when Simbrain is deployed
+        File xmlFile = new File(
+                "src/org/simbrain/custom/rl_sim/worldDescription.xml");
+        worldEntities = world.loadWorld(xmlFile);
+
+        // First two objects are the "goal" entities
+        goalEntities.add(worldEntities.get(0));
+        goalEntities.add(worldEntities.get(1));
 
         // Add the agent
         mouse = world.addAgent(initialMouseLocation_x, initialMouseLocation_y,
                 "Mouse");
         mouse.setHeading(initialMouseHeading);
 
-        // Set up the odor world with objects. Last component is reward
-        cheese = world.addEntity(159, 159, "Swiss.gif",
-                new double[] { 0, 1, 0, 0, 0, 1 });
-        cheese.getSmellSource().setDispersion(400);
-        // OdorWorldEntity flower = world.addEntity(63, 293, "Flax.gif",
-        // new double[] { 0, 0, 0, 0, 1, 0 });
-        // flower.getSmellSource().setDispersion(200);
-        // OdorWorldEntity candle = world.addEntity(168, 142, "Candle.png",
-        // new double[] { 0, 0, 0, 1, 0, 0 });
-        // candle.getSmellSource().setDispersion(200);
-
-        // Add main input-output network to be trained by RL
     }
 
+    /**
+     * Set up the time series plot.
+     */
     private void setUpTimeSeries(NetBuilder net) {
         // Create a time series plot
-        PlotBuilder plot = sim.addTimeSeriesPlot(827,301,293,332, "Reward, TD Error");
+        PlotBuilder plot = sim.addTimeSeriesPlot(832,353, 293, 332,
+                "Reward, TD Error");
         sim.couple(net.getNetworkComponent(), reward,
                 plot.getTimeSeriesComponent(), 0);
         sim.couple(net.getNetworkComponent(), tdError,
                 plot.getTimeSeriesComponent(), 1);
         plot.getTimeSeriesModel().setAutoRange(false);
-        plot.getTimeSeriesModel().setRangeUpperBound(1);
+        plot.getTimeSeriesModel().setRangeUpperBound(2);
         plot.getTimeSeriesModel().setRangeLowerBound(-1);
     }
 
+    /**
+     * Add main input-output network to be trained by RL.
+     */
     private void setUpInputOutputNetwork(NetBuilder net) {
+        
         // Outputs
         outputs = net.addWTAGroup(-234, 58, 2);
         outputs.setUseRandom(true);
@@ -214,8 +234,10 @@ public class RL_Sim {
         sim.couple(mouse, leftInputs, 1);
     }
 
+    /**
+     * Set up the reward, value and td nodes
+     */
     private void setUpRLNodes(NetBuilder net) {
-        // Reward, Value TD
         reward = net.addNeuron(300, 0);
         reward.setClamped(true);
         reward.setLabel("Reward");
@@ -223,7 +245,6 @@ public class RL_Sim {
         value = net.addNeuron(350, 0);
         value.setLabel("Value");
         net.connectAllToAll(leftInputs, value);
-
 
         tdError = net.addNeuron(400, 0);
         tdError.setLabel("TD Error");
@@ -234,6 +255,9 @@ public class RL_Sim {
         deltaReward.setLabel("Delta Reward");
     }
 
+    /**
+     * Set up the vehicle networks
+     */
     private void setUpVehicleNets(NetBuilder net, OdorWorldBuilder world) {
         // Labels for vehicles, which must be the same as the label for
         // the corresponding output node
@@ -278,10 +302,10 @@ public class RL_Sim {
         // subnets
         outputs.getNeuronList().get(0).setLabel(strPursueCheese);
         outputs.getNeuronList().get(1).setLabel(strAvoidCheese);
-        //outputs.getNeuronList().get(2).setLabel(strPursueFlower);
-        //outputs.getNeuronList().get(3).setLabel(strAvoidFlower);
-        //outputs.getNeuronList().get(4).setLabel(strPursueCandle);
-        //outputs.getNeuronList().get(5).setLabel(strAvoidCandle);
+        // outputs.getNeuronList().get(2).setLabel(strPursueFlower);
+        // outputs.getNeuronList().get(3).setLabel(strAvoidFlower);
+        // outputs.getNeuronList().get(4).setLabel(strPursueCandle);
+        // outputs.getNeuronList().get(5).setLabel(strAvoidCandle);
 
         // Connect output nodes to vehicle speed nodes
         // net.connect(outputs.getNeuronByLabel(strPursueCheese),
@@ -297,8 +321,6 @@ public class RL_Sim {
         // net.connect(outputs.getNeuronByLabel(strAvoidCandle),
         // avoidCandle.getNeuronByLabel("Speed"), 10);
     }
-
-
 
     /**
      * Helper method to set up vehicles to this sim's specs.
@@ -328,7 +350,7 @@ public class RL_Sim {
             synapse.setStrength(0);
         }
         network.fireNeuronsUpdated();
-        if(updateMethod != null) {
+        if (updateMethod != null) {
             updateMethod.initMap(); // TODO: Is this needed?
         }
     }
@@ -378,10 +400,12 @@ public class RL_Sim {
      * What counts as achieving a goal is codified here.
      */
     void updateGoalState() {
-        int distance = (int) SimbrainMath.distance(mouse.getCenterLocation(),
-                cheese.getCenterLocation());
-        if (distance < hitRadius) {
-            goalAchieved = true;
+        for (OdorWorldEntity entity : goalEntities) {
+            int distance = (int) SimbrainMath.distance(
+                    mouse.getCenterLocation(), entity.getCenterLocation());
+            if (distance < hitRadius) {
+                goalAchieved = true;
+            }
         }
     }
 
