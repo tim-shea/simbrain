@@ -1,6 +1,7 @@
 package org.simbrain.simulation;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -8,13 +9,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Convenience class for reading an xml file containing a description of a
  * world. Facilitates a simple xml representation of a world.
+ *
+ * An example xml representation is at the bottom of this document.
  */
 @XmlRootElement(name = "entityList")
 //CHECKSTYLE:OFF
 public class OdorWorldXML {
 
     @XmlElement(name = "entity")
-    private ArrayList<EntityDescription> entities = new ArrayList<EntityDescription>();
+    private List<EntityDescription> entities = new ArrayList<EntityDescription>();
 
     /**
      * Simple description of an odor world entity.
@@ -30,7 +33,7 @@ public class OdorWorldXML {
     /**
      * @return the entities
      */
-    public ArrayList<EntityDescription> getEntities() {
+    public List<EntityDescription> getEntities() {
         return entities;
     }
 
