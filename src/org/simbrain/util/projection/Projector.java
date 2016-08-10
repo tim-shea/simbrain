@@ -416,7 +416,6 @@ public class Projector {
      * @param tolerance the tolerance to set
      */
     public void setTolerance(double tolerance) {
-        System.out.println("here?");
         this.tolerance = tolerance;
     }
 

@@ -172,10 +172,8 @@ public class AgentTrails {
     // Separate class?
 
     private void setUpControlPanel() {
-        // Set up internal frame
-        JInternalFrame internalFrame = new JInternalFrame("Train / Test", true,
-                true);
-        panel = new ControlPanel();
+
+        panel = ControlPanel.makePanel(sim, "Control Panel", 5, 10);
 
         // Move past cheese
         panel.addButton("Cheese", () -> {
@@ -256,12 +254,7 @@ public class AgentTrails {
             }
         });
 
-        // Set up Frame
-        internalFrame.setLocation(5, 10);
-        internalFrame.getContentPane().add(panel);
-        internalFrame.setVisible(true);
-        internalFrame.pack();
-        sim.getDesktop().addInternalFrame(internalFrame);
+
     }
 
     /**
