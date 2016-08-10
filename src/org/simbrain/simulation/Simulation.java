@@ -173,7 +173,7 @@ public class Simulation {
      *
      * @param producingSensor the smell sensor. Takes a scalar value.
      * @param stimulusDimension Which component of the smell vector on the
-     *            agent to "smell"
+     *            agent to "smell", beginning at index "0"
      * @param consumingNeuron the neuron to write the values to
      */
     public void couple(Sensor producingSensor, int stimulusDimension,

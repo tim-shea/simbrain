@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<entityList>
+	<entity>
+	    <imageName>Swiss.gif</imageName>
+	    <x>120</x>
+	    <y>180</y>
+	    <stim>1,0,0</stim>
+	    <dispersion>65</dispersion>
+	</entity>
+	<entity>
+	    <imageName>Pansy.gif</imageName>
+	    <x>200</x>
+	    <y>100</y>
+	    <stim>0,1,0</stim>
+	    <dispersion>65</dispersion>
+	</entity>
+	<entity>
+	    <imageName>Fish.gif</imageName>
+	    <x>50</x>
+	    <y>100</y>
+	    <stim>0,0,1</stim>
+	    <dispersion>65</dispersion>
+	</entity>
+</entityList>

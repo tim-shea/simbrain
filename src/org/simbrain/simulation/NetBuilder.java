@@ -20,7 +20,7 @@ import org.simbrain.network.layouts.LineLayout.LineOrientation;
 import org.simbrain.network.subnetworks.WinnerTakeAll;
 
 //TODO: Not sure this is the best name.  Use it a while then decide.
-//  Maybe change to NetHelper.   
+//  Maybe change to NetHelper.     Or NetworkBuilder
 
 /**
  * A wrapper for a NetworkComponent that makes it easy to add stuff to a
@@ -102,7 +102,7 @@ public class NetBuilder {
         connector.connectAllToAll(source.getNeuronList(),
                 target.getNeuronList());
     }
-    
+
     public void connectAllToAll(NeuronGroup inputs, Neuron target) {
         AllToAll connector = new AllToAll();
         connector.connectAllToAll(inputs.getNeuronList(),
@@ -116,20 +116,20 @@ public class NetBuilder {
         return sg;
     }
 
-    public NeuronGroup addNeuronGroup(int x, int y, int numNeurons,
+    public NeuronGroup addNeuronGroup(double x, double y, int numNeurons,
             String layoutName, String type) {
 
         NeuronGroup ng;
-        
+
         if(type.equalsIgnoreCase("wta")) {
             ng = new WinnerTakeAll(network, numNeurons);
-            ng.setLocation(x, y);            
+            ng.setLocation(x, y);
         } else {
             ng = new NeuronGroup(network, new Point2D.Double(x, y),
                     numNeurons);
             ng.setNeuronType(type);
         }
-        network.addGroup(ng);            
+        network.addGroup(ng);
 
         // Lay out neurons
         if (layoutName.toLowerCase().contains("line")) {
@@ -150,25 +150,25 @@ public class NetBuilder {
         ng.applyLayout();
         return ng;
     }
-    
-    public WinnerTakeAll addWTAGroup(int x, int y, int numNeurons) {
+
+    public WinnerTakeAll addWTAGroup(double x, double y, int numNeurons) {
         return (WinnerTakeAll) addNeuronGroup(x, y, numNeurons, "line", "wta");
     }
 
-    public Group addSubnetwork(int x, int y, int numNeurons, String type) {
+    public Group addSubnetwork(double x, double y, int numNeurons, String type) {
         if(type.equalsIgnoreCase("wta")) {
             WinnerTakeAll ret = new WinnerTakeAll(network, numNeurons);
             network.addGroup(ret);
             return ret;
-        }        
+        }
         return  null;
 
     }
 
-    public NeuronGroup addNeuronGroup(int x, int y, int numNeurons) {
+    public NeuronGroup addNeuronGroup(double x, double y, int numNeurons) {
         return addNeuronGroup(x, y, numNeurons, "line", "LinearRule");
     }
-    
+
     public Network getNetwork() {
         return network;
     }

@@ -11,9 +11,6 @@ import java.util.concurrent.Executors;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JTextField;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
@@ -24,8 +21,6 @@ import org.simbrain.network.layouts.LineLayout;
 import org.simbrain.network.subnetworks.WinnerTakeAll;
 import org.simbrain.simulation.NetBuilder;
 import org.simbrain.simulation.OdorWorldBuilder;
-import org.simbrain.simulation.OdorWorldXML;
-import org.simbrain.simulation.OdorWorldXML.EntityDescription;
 import org.simbrain.simulation.PlotBuilder;
 import org.simbrain.simulation.Simulation;
 import org.simbrain.simulation.Vehicle;
