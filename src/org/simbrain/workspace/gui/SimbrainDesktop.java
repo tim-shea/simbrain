@@ -72,6 +72,7 @@ import javax.swing.event.MenuListener;
 import org.apache.log4j.Logger;
 import org.simbrain.console.ConsoleComponent;
 import org.simbrain.console.ConsoleDesktopComponent;
+import org.simbrain.custom.agent_trails.AgentTrails;
 import org.simbrain.custom.rl_sim.RL_Sim;
 import org.simbrain.custom.test.TestSim;
 import org.simbrain.docviewer.DocViewerComponent;
@@ -631,15 +632,24 @@ public class SimbrainDesktop {
      */
     private void addCustomSimulations(final JMenu scriptMenu) {
 
-        // TODO: Consider a way to "inject" menu items from outside
+        // TODO: Replace with system that adds these based on an annotation
+        //  Below is a temporary hack.
 
-        // Adding the  provisional RL simulation
+        // The RL simulation
         JMenuItem rlTest = new JMenuItem("RL Vehicles");
         rlTest.addActionListener(ae -> {
             RL_Sim rlSim = new RL_Sim(this);
             rlSim.run();
         });
         scriptMenu.add(rlTest);
+
+        // Adding the agent trail simulation
+        JMenuItem agentTrailsMenuItem = new JMenuItem("Agent Trails");
+        agentTrailsMenuItem.addActionListener(ae -> {
+            AgentTrails agentTrails = new AgentTrails(this);
+            agentTrails.run();
+        });
+        scriptMenu.add(agentTrailsMenuItem);
 
         // Add the test simulation
         JMenuItem test = new JMenuItem("Test (temporary)");
