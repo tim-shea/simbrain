@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import java.util.function.Function;
 
 import org.simbrain.workspace.Workspace;
 
@@ -63,6 +64,7 @@ public class UpdateActionCustom implements UpdateAction {
         this.scriptString = script;
         init();
     }
+
 
     /**
      * Create a new custom update action from a file containing the custom

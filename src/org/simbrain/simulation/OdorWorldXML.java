@@ -23,7 +23,8 @@ public class OdorWorldXML {
      * Simple description of an odor world entity.
      */
     public static class EntityDescription {
-        public String imageName;
+        public String imageId;
+        public String name;
         public int x;
         public int y;
         public String stim;

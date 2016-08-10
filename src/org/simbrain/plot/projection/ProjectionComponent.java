@@ -300,9 +300,11 @@ public class ProjectionComponent extends WorkspaceComponent {
      */
     public void addPoint(double[] newPoint) {
         if (initializeDimensions) {
-            projectionModel.init(newPoint.length);
-            initializeConsumers();
-            initializeDimensions = false;
+            //TODO: The init creates a new projector object, which causes problems with
+            // other simulations.
+//            projectionModel.init(newPoint.length);
+//            initializeConsumers();
+//            initializeDimensions = false;
         }
         for (int i = 0; i < newPoint.length; i++) {
             if (i >= dimensionList.size()) {

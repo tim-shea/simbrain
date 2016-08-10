@@ -300,10 +300,15 @@ public class Utils {
      */
     public static String getVectorString(final double[] theVec,
             final String delimiter) {
+        return getVectorString(theVec, delimiter, 1);
+    }
+    
+    public static String getVectorString(final double[] theVec,
+            final String delimiter, int precision) {
         String retString = "";
 
         for (int i = 0; i < (theVec.length - 1); i++) {
-            retString = retString.concat("" + round(theVec[i], 1) + delimiter);
+            retString = retString.concat("" + round(theVec[i], precision) + delimiter);
         }
 
         retString = retString.concat("" + round(theVec[theVec.length - 1], 1));

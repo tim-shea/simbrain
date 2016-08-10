@@ -19,28 +19,21 @@ public class LogActivations implements NetworkUpdateAction {
         this.sim = sim;
     }
 
-
     public void invoke() {
         sim.activationList.add(
-                Utils.getVectorString(sim.sensoryNet.getActivations(), ","));
-
-        // System.out.print("Action:"
-        // + Utils.getVectorString(sim.actionNet.getActivations(), ","));
-        // System.out.print(Utils.getVectorString(sim.sensoryNet.getActivations(),
-        // ","));
-        // System.out.print(" Prediction:" + Utils
-        // .getVectorString(sim.predictionNet.getActivations(), ","));
-        // System.out.println();
+                Utils.getVectorString(sim.sensoryNet.getActivations(), ",", 4)
+                        + "," + Utils.getVectorString(
+                                sim.predictionNet.getActivations(), ",", 4));
     }
 
     // This is how the action appears in the update manager dialog
     public String getDescription() {
-        return "Print activations";
+        return "Log activations";
     }
 
     // This is a longer description for the tooltip
     public String getLongDescription() {
-        return "Print activations for diagnostic purposes";
+        return "Log activations, which are saved to a csv file for analysis in other programs";
     }
 
 }

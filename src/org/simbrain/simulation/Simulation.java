@@ -8,7 +8,7 @@ import org.simbrain.network.NetworkComponent;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.groups.NeuronGroup;
-import org.simbrain.network.gui.NetworkPanel;
+import org.simbrain.plot.projection.ProjectionComponent;
 import org.simbrain.plot.timeseries.TimeSeriesPlotComponent;
 import org.simbrain.workspace.AttributeManager;
 import org.simbrain.workspace.Coupling;
@@ -84,6 +84,39 @@ public class Simulation {
         }
     }
 
+    // Coupling a neuron to the indicated (by index) time series of a time
+    // series plot.
+    public void couple(NetworkComponent network, Neuron neuron,
+            TimeSeriesPlotComponent plot, int index) {
+        PotentialProducer neuronProducer = network.getAttributeManager()
+                .createPotentialProducer(neuron, "getActivation", double.class);
+        PotentialConsumer timeSeriesConsumer1 = plot.getPotentialConsumers()
+                .get(index);
+        Coupling<double[]> coupling = new Coupling<double[]>(neuronProducer,
+                timeSeriesConsumer1);
+        try {
+            workspace.getCouplingManager().addCoupling(coupling);
+        } catch (UmatchedAttributesException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void couple(NetworkComponent network, NeuronGroup ng,
+            ProjectionComponent plot) {
+        PotentialProducer ngProducer = network.getAttributeManager()
+                .createPotentialProducer(ng, "getActivations",
+                        double[].class);
+        PotentialConsumer projConsumer = plot.getPotentialConsumers().get(0); // Ugh
+        Coupling<double[]> coupling = new Coupling<double[]>(ngProducer,
+                projConsumer);
+
+        try {
+            workspace.getCouplingManager().addCoupling(coupling);
+        } catch (UmatchedAttributesException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Vector based coupling from an agent to a neuron group.
      *
@@ -100,8 +133,8 @@ public class Simulation {
 
         // TODO: Sensor
         PotentialProducer sensoryProducer = producers.createPotentialProducer(
-                ((SmellSensor) entity.getSensors().get(sensorIndex)), "getCurrentValue",
-                double[].class);
+                ((SmellSensor) entity.getSensors().get(sensorIndex)),
+                "getCurrentValue", double[].class);
         PotentialConsumer sensoryConsumer = consumers.createPotentialConsumer(
                 ng, "forceSetActivations", double[].class);
 
@@ -124,14 +157,23 @@ public class Simulation {
         return new NetBuilder(networkComponent);
     }
 
-
     public PlotBuilder addTimeSeriesPlot(int x, int y, int width, int height,
             String name) {
-        TimeSeriesPlotComponent timeSeriesComponent = new TimeSeriesPlotComponent(name);
+        TimeSeriesPlotComponent timeSeriesComponent = new TimeSeriesPlotComponent(
+                name);
         workspace.addWorkspaceComponent(timeSeriesComponent);
         desktop.getDesktopComponent(timeSeriesComponent).getParentFrame()
                 .setBounds(x, y, width, height);
         return new PlotBuilder(timeSeriesComponent);
+    }
+
+    public PlotBuilder addProjectionPlot(int x, int y, int width, int height,
+            String name) {
+        ProjectionComponent projectionComponent = new ProjectionComponent(name);
+        workspace.addWorkspaceComponent(projectionComponent);
+        desktop.getDesktopComponent(projectionComponent).getParentFrame()
+                .setBounds(x, y, width, height);
+        return new PlotBuilder(projectionComponent);
     }
 
     public OdorWorldBuilder addOdorWorld(int x, int y, int width, int height,
@@ -145,15 +187,13 @@ public class Simulation {
     }
 
     public JInternalFrame addFrame(int x, int y, String name) {
-        JInternalFrame frame = new JInternalFrame(name, true,
-                true);
+        JInternalFrame frame = new JInternalFrame(name, true, true);
         frame.setLocation(x, y);
         frame.setVisible(true);
         frame.pack();
         desktop.addInternalFrame(frame);
         return frame;
     }
-
 
     // TODO: Same kind of thing as above for odorworld, plots, etc.
 
@@ -172,8 +212,8 @@ public class Simulation {
      * smell sensor one the indicated dimension to the provided neuron.
      *
      * @param producingSensor the smell sensor. Takes a scalar value.
-     * @param stimulusDimension Which component of the smell vector on the
-     *            agent to "smell", beginning at index "0"
+     * @param stimulusDimension Which component of the smell vector on the agent
+     *            to "smell", beginning at index "0"
      * @param consumingNeuron the neuron to write the values to
      */
     public void couple(Sensor producingSensor, int stimulusDimension,
@@ -219,22 +259,6 @@ public class Simulation {
 
         try {
             workspace.getCouplingManager().addCoupling(neuronToAgentCoupling);
-        } catch (UmatchedAttributesException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Coupling a neuron to the indicated (by index) time series of a time series plot.
-    public void couple(NetworkComponent network, Neuron neuron,
-            TimeSeriesPlotComponent plot, int index) {
-        PotentialProducer neuronProducer = network.getAttributeManager()
-                .createPotentialProducer(neuron, "getActivation", double.class);
-        PotentialConsumer timeSeriesConsumer1 = plot.getPotentialConsumers()
-                .get(index);
-        Coupling coupling = new Coupling(neuronProducer,
-                timeSeriesConsumer1);
-        try {
-            workspace.getCouplingManager().addCoupling(coupling);
         } catch (UmatchedAttributesException e) {
             e.printStackTrace();
         }

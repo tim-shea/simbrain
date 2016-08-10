@@ -1,7 +1,5 @@
 package org.simbrain.custom.agent_trails;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,42 +8,45 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
 
-import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 
 import org.simbrain.network.core.NetworkUpdateAction;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.groups.NeuronGroup;
+import org.simbrain.simulation.ControlPanel;
 import org.simbrain.simulation.NetBuilder;
 import org.simbrain.simulation.OdorWorldBuilder;
+import org.simbrain.simulation.PlotBuilder;
 import org.simbrain.simulation.Simulation;
-import org.simbrain.util.LabelledItemPanel;
 import org.simbrain.workspace.gui.SimbrainDesktop;
+import org.simbrain.workspace.updater.UpdateAction;
+import org.simbrain.workspace.updater.UpdateActionCustom;
+import org.simbrain.world.odorworld.entities.OdorWorldEntity;
 import org.simbrain.world.odorworld.entities.RotatingEntity;
 
 /**
- * Todo Stop button
- *
+ * Todo Stop button.
  */
 public class AgentTrails {
 
     /** The main simulation object. */
     final Simulation sim;
 
-
     NetBuilder net;
     RotatingEntity mouse;
-    LabelledItemPanel panel;
+    OdorWorldEntity cheese, flower, fish;
+    ControlPanel panel;
     NeuronGroup sensoryNet, actionNet, predictionNet;
     Neuron leftNeuron, straightNeuron, rightNeuron;
     Neuron cheeseNeuron, flowerNeuron, fishNeuron;
     Neuron errorNeuron;
     Path csvFile;
     List<String> activationList = new ArrayList<String>();
+    PlotBuilder  plot;
+    OdorWorldBuilder world;
 
-    // TODO: Figure out how to relate this to xml
+    // Default values for these used by buttons
     int dispersion = 65;
     int fishX = 50;
     int fishY = 100;
@@ -68,9 +69,6 @@ public class AgentTrails {
 
         // Clear workspace
         sim.getWorkspace().clearWorkspace();
-
-        // Initialize file to save activations
-        csvFile = Paths.get("agentTrails.csv");
 
         // Build a network
         net = sim.addNetwork(195, 9, 447, 296, "Simple Predicter");
@@ -100,12 +98,12 @@ public class AgentTrails {
         net.connectAllToAll(sensoryNet, predictionNet);
         net.connectAllToAll(actionNet, predictionNet);
 
-        errorNeuron  = net.addNeuron(268, 108);
+        errorNeuron = net.addNeuron(268, 108);
         errorNeuron.setClamped(true);
         errorNeuron.setLabel("Error");
 
         // Create the odor world
-        OdorWorldBuilder world = sim.addOdorWorld(629, 9, 315, 383,
+        world = sim.addOdorWorld(629, 9, 315, 383,
                 "Three Objects");
         world.getWorld().setObjectsBlockMovement(false);
         mouse = world.addAgent(120, 245, "Mouse");
@@ -113,6 +111,9 @@ public class AgentTrails {
         File xmlFile = new File(
                 "src/org/simbrain/custom/agent_trails/worldDescription.xml");
         world.loadWorld(xmlFile);
+        cheese = world.getWorld().getEntity("Swiss");
+        flower = world.getWorld().getEntity("Flower");
+        fish = world.getWorld().getEntity("Fish");
 
         // Couple network to agent
         sim.couple(straightNeuron, mouse.getEffector("Go-straight"));
@@ -125,6 +126,15 @@ public class AgentTrails {
         sim.couple(mouse.getSensor("Smell-Center"), 2, fishNeuron);
 
         setUpControlPanel();
+
+        // Set up Plot
+        // Create a time series plot
+        plot = sim.addProjectionPlot(194,312,441,308,
+                "Sensory states + Predictions");
+        plot.getProjectionModel().init(3);
+        plot.getProjectionModel().getProjector().setTolerance(.01);
+        sim.couple(net.getNetworkComponent(), sensoryNet,
+                plot.getProjectionPlotComponent());
 
         // Configure custom updating
         net.getNetwork().getUpdateManager().clear();
@@ -149,122 +159,102 @@ public class AgentTrails {
             }
         });
         net.getNetwork().addUpdateAction(new TrainPredictionNet(this));
+
+        // Log activations
+        csvFile = Paths.get("agentTrails.csv");
         net.getNetwork().addUpdateAction(new LogActivations(this));
 
+        // Add workspace level update action
+        sim.getWorkspace().addUpdateAction(new ColorPlot(this));
+
     }
+
+    // Separate class?
 
     private void setUpControlPanel() {
         // Set up internal frame
         JInternalFrame internalFrame = new JInternalFrame("Train / Test", true,
                 true);
-        panel = new LabelledItemPanel();
+        panel = new ControlPanel();
 
         // Move past cheese
-        JButton button1 = new JButton("Cheese");
-        button1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                Executors.newSingleThreadExecutor().execute(new Runnable() {
-                    public void run() {
-                        net.getNetwork().clearActivations();
-                        mouse.setLocation(cheeseX, cheeseY + dispersion);
-                        mouse.setHeading(90);
-                        straightNeuron.forceSetActivation(1);
-                        iterate(180);
-                    }
-                });
-            }
+        panel.addButton("Cheese", () -> {
+            net.getNetwork().clearActivations();
+            mouse.setLocation(cheeseX, cheeseY + dispersion);
+            mouse.setHeading(90);
+            straightNeuron.forceSetActivation(1);
+            iterate(180);
         });
-        panel.addItem("", button1);
 
         // Move past Fish
-        JButton button2 = new JButton("Fish");
-        button2.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                Executors.newSingleThreadExecutor().execute(new Runnable() {
-                    public void run() {
-                        net.getNetwork().clearActivations();
-                        mouse.setLocation(fishX, fishY + dispersion);
-                        mouse.setHeading(90);
-                        straightNeuron.forceSetActivation(1);
-                        iterate(180);
-                    }
-                });
-            }
+        panel.addButton("Fish", () -> {
+            net.getNetwork().clearActivations();
+            mouse.setLocation(fishX, fishY + dispersion);
+            mouse.setHeading(90);
+            straightNeuron.forceSetActivation(1);
+            iterate(180);
         });
-        panel.addItem("", button2);
 
         // Move past flower
-        JButton button3 = new JButton("Flower");
-        button3.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                Executors.newSingleThreadExecutor().execute(new Runnable() {
-                    public void run() {
-                        net.getNetwork().clearActivations();
-                        mouse.setLocation(flowerX, flowerY + dispersion);
-                        mouse.setHeading(90);
-                        straightNeuron.forceSetActivation(1);
-                        iterate(180);
-
-                    }
-                });
-            }
+        panel.addButton("Flower", () -> {
+            net.getNetwork().clearActivations();
+            mouse.setLocation(flowerX, flowerY + dispersion);
+            mouse.setHeading(90);
+            straightNeuron.forceSetActivation(1);
+            iterate(180);
         });
-        panel.addItem("", button3);
 
         // Cheese > Fish
-        JButton button4 = new JButton("Cheese > Flower");
-        button4.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                Executors.newSingleThreadExecutor().execute(new Runnable() {
-                    public void run() {
-                        net.getNetwork().clearActivations();
-                        mouse.setLocation(cheeseX, cheeseY + dispersion);
-                        mouse.setHeading(90);
-                        straightNeuron.forceSetActivation(1);
-                        iterate(50);
-                        rightNeuron.forceSetActivation(1.5);
-                        iterate(25);
-                        rightNeuron.forceSetActivation(0);
-                        iterate(220);
-                    }
-                });
-            }
+        panel.addButton("Cheese > Flower", () -> {
+            net.getNetwork().clearActivations();
+            mouse.setLocation(cheeseX, cheeseY + dispersion);
+            mouse.setHeading(90);
+            straightNeuron.forceSetActivation(1);
+            iterate(50);
+            rightNeuron.forceSetActivation(1.5);
+            iterate(25);
+            rightNeuron.forceSetActivation(0);
+            iterate(220);
         });
-        panel.addItem("", button4);
 
         // Cheese > Flower
-        JButton button5 = new JButton("Cheese > Fish");
-        button5.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                Executors.newSingleThreadExecutor().execute(new Runnable() {
-                    public void run() {
-                        net.getNetwork().clearActivations();
-                        mouse.setLocation(cheeseX, cheeseY + dispersion);
-                        mouse.setHeading(90);
-                        straightNeuron.forceSetActivation(1);
-                        iterate(50);
-                        leftNeuron.forceSetActivation(1.5);
-                        iterate(25);
-                        leftNeuron.forceSetActivation(0);
-                        iterate(220);
-                    }
-                });
-            }
+        panel.addButton("Cheese > Fish", () -> {
+            net.getNetwork().clearActivations();
+            mouse.setLocation(cheeseX, cheeseY + dispersion);
+            mouse.setHeading(90);
+            straightNeuron.forceSetActivation(1);
+            iterate(50);
+            leftNeuron.forceSetActivation(1.5);
+            iterate(25);
+            leftNeuron.forceSetActivation(0);
+            iterate(220);
         });
-        panel.addItem("", button5);
+
+        //TODO: Factor the velocity settings in to another method
+        panel.addButton("Solar System", () -> {
+            net.getNetwork().clearActivations();
+            world.getWorld().setHeight(100);
+            world.getWorld().setHeight(100);
+            cheese.setVelocityX(2.05f);
+            cheese.setVelocityY(2.05f);
+            flower.setVelocityX(2.5f);
+            flower.setVelocityY(2.1f);
+            fish.setVelocityX(-2.5f);
+            fish.setVelocityY(1.05f);
+            mouse.setLocation(cheeseX, cheeseY + dispersion);
+            mouse.setHeading(90);
+            straightNeuron.forceSetActivation(0);
+            iterate(200);
+        });
 
         // Save File
-        JButton saveButton = new JButton("Save");
-        saveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                try {
-                    Files.write(csvFile, activationList);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        panel.addButton("Save", () -> {
+            try {
+                Files.write(csvFile, activationList);
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
             }
         });
-        panel.addItem("", saveButton);
 
         // Set up Frame
         internalFrame.setLocation(5, 10);

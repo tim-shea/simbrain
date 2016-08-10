@@ -79,7 +79,8 @@ public class OdorWorldBuilder {
             OdorWorldXML xml = (OdorWorldXML) unmarshaller.unmarshal(xmlFile);
             for (EntityDescription desc : xml.getEntities()) {
                 OdorWorldEntity entity = this.addEntity(desc.x, desc.y,
-                        desc.imageName);
+                        desc.imageId);
+                entity.setName(desc.name);
                 entity.getSmellSource().setStimulus(desc.stim);
                 entity.getSmellSource().setDispersion(desc.dispersion);
                 worldEntities.add(entity);
