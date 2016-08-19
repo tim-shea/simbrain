@@ -75,9 +75,9 @@ public class RL_Sim {
     double hitRadius = 50;
     
     /** Initial mouse location. */
-    int initialMouseLocation_x = 43;
-    int initialMouseLocation_y = 110;
-    int initialMouseHeading = 0;
+    int initialMouseLocation_x;
+    int initialMouseLocation_y;
+    int initialMouseHeading;
 
     /** Other variables and references. */
     JInternalFrame controlPanelFrame;
@@ -138,7 +138,9 @@ public class RL_Sim {
         makeControlPanel();
 
         // Set up the odor world
-        setUpWorld(world);
+        //  (Assumes the xml has at least one agent in it.)
+        loadWorld(world, "src/org/simbrain/custom/rl_sim/oneObject.xml");
+        //loadWorld(world, "src/org/simbrain/custom/rl_sim/twoObjects.xml");
 
         // Set up the main input-output network that is trained via RL
         setUpInputOutputNetwork(net);
@@ -165,21 +167,27 @@ public class RL_Sim {
     /**
      * Set up the world
      */
-    private void setUpWorld(OdorWorldBuilder world) {
+    private void loadWorld(OdorWorldBuilder world, String fileName) {
 
         // TODO: make sure this works when Simbrain is deployed
-        File xmlFile = new File(
-                "src/org/simbrain/custom/rl_sim/worldDescription.xml");
+        File xmlFile = new File(fileName);
         worldEntities = world.loadWorld(xmlFile);
 
-        // First two objects are the "goal" entities
-        goalEntities.add(worldEntities.get(0));
-        goalEntities.add(worldEntities.get(1));
 
-        // Add the agent
-        mouse = world.addAgent(initialMouseLocation_x, initialMouseLocation_y,
-                "Mouse");
-        mouse.setHeading(initialMouseHeading);
+        for(OdorWorldEntity entity : worldEntities) {
+            // Set the mouse based on the xml
+            if (entity instanceof RotatingEntity) {
+                mouse = (RotatingEntity) entity;
+                initialMouseLocation_x = (int) mouse.getX();
+                initialMouseLocation_y = (int) mouse.getY();
+                initialMouseHeading = (int) mouse.getHeading();
+            }            
+            // Set the goal entities based on their name, e.g. "Swiss_goal")
+            //  When the mouse comes near a goal entity, the trial resets
+            if(entity.getName().endsWith("goal")) {
+                goalEntities.add(entity);
+            }
+        }
 
     }
 
@@ -239,6 +247,7 @@ public class RL_Sim {
         sim.couple(mouse.getSensor("Smell-Center"), 5, reward);
         value = net.addNeuron(350, 0);
         value.setLabel("Value");
+        net.connectAllToAll(rightInputs, value);
         net.connectAllToAll(leftInputs, value);
 
         tdError = net.addNeuron(400, 0);

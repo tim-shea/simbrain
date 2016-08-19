@@ -30,9 +30,9 @@ import org.simbrain.world.odorworld.OdorWorld;
  * Represents an entity that can rotate.
  *
  * TODO: Currently rotating entities are "agents" that can accept sensors and
- * effectors. This concepts needs to be separated from that of a rotating
- * entity. In principle non-rotating entities should be able to have sensors,
- * for example.
+ * effectors. The concept of an "Agent" needs to be separated from that of a
+ * rotating entity. In principle non-rotating entities should be able to have
+ * sensors, for example.
  */
 public class RotatingEntity extends OdorWorldEntity {
 

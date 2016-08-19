@@ -16,6 +16,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 //CHECKSTYLE:OFF
 public class OdorWorldXML {
 
+    @XmlElement(name = "agent")
+    private List<EntityDescription> agents = new ArrayList<EntityDescription>();
+
     @XmlElement(name = "entity")
     private List<EntityDescription> entities = new ArrayList<EntityDescription>();
 
@@ -27,6 +30,7 @@ public class OdorWorldXML {
         public String name;
         public int x;
         public int y;
+        public double heading;
         public String stim;
         public double dispersion;
     }
@@ -36,6 +40,13 @@ public class OdorWorldXML {
      */
     public List<EntityDescription> getEntities() {
         return entities;
+    }
+
+    /**
+     * @return the agents
+     */
+    public List<EntityDescription> getAgents() {
+        return agents;
     }
 
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<entityList>
+	<agent>
+	    <imageId>Mouse.gif</imageId>
+	    <name>Mouse</name>
+	    <x>45</x>
+	    <y>45</y>
+	    <heading>315</heading>
+	</agent>
+	<entity>
+	    <imageId>Swiss.gif</imageId>
+	    <name>Swiss_1_goal</name>
+	    <x>218</x>
+	    <y>196</y>
+	    <stim>0,1,0,0,0,1</stim>
+	    <dispersion>400</dispersion>
+	</entity>
+</entityList>

@@ -77,6 +77,14 @@ public class OdorWorldBuilder {
             JAXBContext jc = JAXBContext.newInstance(OdorWorldXML.class);
             Unmarshaller unmarshaller = jc.createUnmarshaller();
             OdorWorldXML xml = (OdorWorldXML) unmarshaller.unmarshal(xmlFile);
+            // TODO: Deal with null checks / remove redundant code
+            for (EntityDescription desc : xml.getAgents()) {
+                RotatingEntity agent = this.addAgent(desc.x, desc.y,
+                        desc.imageId);
+                agent.setName(desc.name);
+                agent.setHeading(desc.heading);
+                worldEntities.add(agent);
+            }
             for (EntityDescription desc : xml.getEntities()) {
                 OdorWorldEntity entity = this.addEntity(desc.x, desc.y,
                         desc.imageId);
@@ -85,7 +93,6 @@ public class OdorWorldBuilder {
                 entity.getSmellSource().setDispersion(desc.dispersion);
                 worldEntities.add(entity);
             }
-
         } catch (JAXBException e) {
             e.printStackTrace();
         }
