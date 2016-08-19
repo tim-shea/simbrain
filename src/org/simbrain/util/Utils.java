@@ -310,8 +310,8 @@ public class Utils {
         for (int i = 0; i < (theVec.length - 1); i++) {
             retString = retString.concat("" + round(theVec[i], precision) + delimiter);
         }
-
-        retString = retString.concat("" + round(theVec[theVec.length - 1], 1));
+        // Don't use the delimeter for the last component.
+        retString = retString.concat("" + round(theVec[theVec.length - 1], precision));
 
         return retString;
     }

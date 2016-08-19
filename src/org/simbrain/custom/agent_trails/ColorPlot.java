@@ -44,7 +44,6 @@ public class ColorPlot implements UpdateAction {
         double[] predictedState = sim.predictionNet.getActivations();
 
         // // Iterate through points and color them
-        System.out.println(projector.getUpstairs().getNumPoints());
         for (int i = 0; i < projector.getUpstairs().getNumPoints(); i++) {
             double[] currentPoint = projector.getUpstairs().getPoint(i)
                     .getVector();

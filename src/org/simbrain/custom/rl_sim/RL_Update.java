@@ -76,15 +76,11 @@ public class RL_Update implements NetworkUpdateAction {
         return "Custom TD Rule";
     }
 
-    @Override
-    public void invoke() {
-        mainUpdateMethod();
-    }
-
     /**
      * Custom update of the network, including application of TD Rules.
      */
-    private void mainUpdateMethod() {
+    @Override
+    public void invoke() {
 
         // Inputs
         Network.updateNeurons(sim.rightInputs.getNeuronList());
@@ -121,7 +117,6 @@ public class RL_Update implements NetworkUpdateAction {
                     sim.leftInputs.getActivations().length,
                     sim.rightInputs.getActivations().length);
         }
-
     }
 
     /**

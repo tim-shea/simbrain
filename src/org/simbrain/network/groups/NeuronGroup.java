@@ -63,7 +63,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
 
     /** The description of the update rule governing the group. */
     private String updateRule;
- 
+
     /**
      * Mostly here for backwards compatibility {@link #recordAsSpikes} is
      * ultimately the more important variable.
@@ -132,19 +132,19 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
      * been called so as to determine when to flush the output stream.
      */
     private int writeCounter = 0;
-    
+
     /** Indices used with subsampling. */
     private int[] subsamplingIndices;
-    
+
     /**
      * Reset the indices used for subsampling
      */
     public void resetSubsamplingIndices() {
         if (neuronList != null) {
-            subsamplingIndices = SimbrainMath.randPermute(0, neuronList.size());   
+            subsamplingIndices = SimbrainMath.randPermute(0, neuronList.size());
         }
     }
-    
+
     /**
      * This used to be how neuron group recordings were labeled. This is now
      * only here for backwards compatibility.
@@ -283,7 +283,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
     }
 
     /**
-     * Updates all the neurons in the neuron group according to their 
+     * Updates all the neurons in the neuron group according to their
      * NeuronUpdateRule(s). If the group is in input mode reads in the next
      * set of values from the input table and sets the neuron values
      * accordingly.
@@ -305,7 +305,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
             writeActsToFile();
         }
     }
-    
+
     /**
      * A forwarding method surrounding {@link #readNextInputUnsafe()} in the
      * appropriate checks to make it safe. This allows outside classes to
@@ -326,18 +326,18 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
                     + " is not in input mode.");
         }
     }
-    
+
     /**
      * If this neuron group has an input table reads in the next entry on the
      *  table. If all inputs have been read this method resets the counter and
-     *  starts again from the beginning of the table. 
-     *  
+     *  starts again from the beginning of the table.
+     *
      *  For spiking neuron update rules, values read in are treated as current
      *  being injected into the cell, for non-spiking neurons activations are
      *  set immediately to the value at that index in the table.
-     *  
+     *
      *  This method is unsafe because it does not check if the group is in
-     *  input mode or if the input table is non-null. 
+     *  input mode or if the input table is non-null.
      */
     private void readNextInputUnsafe() {
         if (inputIndex >= testData.length) {
@@ -365,7 +365,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
      * activations differently if the neuron group contains only spiking
      * neurons.
      *
-     * @param outputFile the file to write the activations to 
+     * @param outputFile the file to write the activations to
      */
     public void startRecording(final File outputFile) {
         boolean spikeRecord = true;
@@ -634,7 +634,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
             }
         }
         if (fireEvent) {
-            resetSubsamplingIndices();            
+            resetSubsamplingIndices();
         }
     }
 
@@ -709,7 +709,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
             neuronList.get(i).setInputValue(inputs[i]);
         }
     }
-    
+
     /**
      * Set activations of neurons using an array of doubles. Assumes the order
      * of the items in the array matches the order of items in the neuronlist.
@@ -762,12 +762,12 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
         }
         return retArray;
     }
-    
+
     /**
      * Returns an array of spike indices used in couplings, (e.g. to a raster
      * plot). For example, if a neuron group has 9 neurons, and neurons 1 and 4
      * just spiked, the producer will send the list (1,0,0,4,0,0,0,0,0).
-     * 
+     *
      * @return the spike index array
      */
     public double[] getSpikeIndexes() {
@@ -843,9 +843,9 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
      * Returns all the neurons in this group within a certain radius of the
      * given neuron. This method will never return the given neuron as part
      * of the list of neurons within the given radius, nor will it return
-     * neurons with the exact same position as the given neuron as a part 
+     * neurons with the exact same position as the given neuron as a part
      * of the returned list.
-     * 
+     *
      * @param n the neurons
      * @param radius the radius to search within.
      * @return neurons in the group within a certain radius
@@ -853,17 +853,17 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
     public List<Neuron> getNeuronsInRadius(Neuron n, int radius) {
         ArrayList<Neuron> ret = new ArrayList<Neuron>((int)(size()/0.75f));
         for (Neuron potN : neuronList) {
-            double dist = Network.getEuclideanDist(n, potN); 
+            double dist = Network.getEuclideanDist(n, potN);
             if (dist <= radius && dist != 0) {
                 ret.add(potN);
             }
          }
         return ret;
     }
-    
+
     // TODO: Below don't take account of the actual width of neurons themselves.
     // Treats them as points.
-    
+
     /**
      * Get the central x coordinate of this group, based on the positions of the
      * neurons that comprise it.
@@ -1216,7 +1216,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
             return;
         }
     }
-    
+
     /**
      * Apply this group's layout to its neurons.
      */
@@ -1572,7 +1572,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
             for (int i = 0; i < numSubSamples; i++) {
                 retArray[i] = neuronList.get(i).getActivation();
             }
-            return retArray;            
+            return retArray;
         }
     }
 
@@ -1603,7 +1603,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
     public static void setNumSubSamples(int numSubSamples) {
         NeuronGroup.numSubSamples = numSubSamples;
     }
-    
+
     /**
      * Get the neuron with the specified label, or null if none found.
      *
