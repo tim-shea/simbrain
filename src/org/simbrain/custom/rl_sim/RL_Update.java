@@ -9,6 +9,7 @@ import org.simbrain.network.core.NetworkUpdateAction;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.core.Synapse;
 import org.simbrain.network.groups.NeuronGroup;
+import org.simbrain.network.groups.SynapseGroup;
 
 /**
  * A custom updater for use in applying TD Learning and other custom update
@@ -18,6 +19,7 @@ import org.simbrain.network.groups.NeuronGroup;
  * For background on TD Learning see.
  * http://www.scholarpedia.org/article/Temporal_difference_learning
  */
+//CHECKSTYLE:OFF
 public class RL_Update implements NetworkUpdateAction {
 
     /** Reference to RL_Sim object that has all the main variables used. */
@@ -40,6 +42,11 @@ public class RL_Update implements NetworkUpdateAction {
 
     /** Current winning output neuron. */
     Neuron winner;
+
+    /** For training the predictio network. */
+    double[] leftPrediction;
+    double[] rightPrediction;
+    double learningRate = .1;
 
     // TODO: The machinery to handle iterations between weight updates is
     // fishy... but works for now
@@ -64,6 +71,8 @@ public class RL_Update implements NetworkUpdateAction {
         value = sim.value;
         tdError = sim.tdError;
         initMap();
+        leftPrediction = sim.predictionLeft.getActivations();
+        rightPrediction = sim.predictionRight.getActivations();
     }
 
     @Override
@@ -82,9 +91,16 @@ public class RL_Update implements NetworkUpdateAction {
     @Override
     public void invoke() {
 
-        // Inputs
-        Network.updateNeurons(sim.rightInputs.getNeuronList());
-        Network.updateNeurons(sim.leftInputs.getNeuronList());
+        // Update inputs nodes
+        sim.rightInputs.update();
+        sim.leftInputs.update();
+
+        // Update Prediction subnets
+        sim.predictionLeft.update();
+        sim.predictionRight.update();
+
+        // Train predition subnets
+        trainPredictionNodes();
 
         // Outputs and vehicles
         Network.updateNeurons(Collections.singletonList(sim.value));
@@ -92,7 +108,9 @@ public class RL_Update implements NetworkUpdateAction {
             updateVehicleNet(winner);
         }
 
-        // Update the weights
+        // Apply Actor-critic stuff. Update reward "critic" synapses and actor
+        // synapses. Only perform these updates after the braitenberg vehicles
+        // have run for "iterationsBetweenWeightUpdates"
         if (counter++ % iterationsBetweenWeightUpdates == 0) {
 
             // Find the winning output neuron
@@ -116,6 +134,52 @@ public class RL_Update implements NetworkUpdateAction {
             System.arraycopy(sim.rightInputs.getActivations(), 0, previousInput,
                     sim.leftInputs.getActivations().length,
                     sim.rightInputs.getActivations().length);
+        }
+    }
+
+    /**
+     * Train the prediction nodes to predict the next input states.
+     */
+    private void trainPredictionNodes() {
+
+        // TODO: Remove redundancy!
+        setErrors(sim.leftInputs, sim.predictionLeft, leftPrediction);
+        setErrors(sim.rightInputs, sim.predictionRight, rightPrediction);
+
+        // TODO: More redundancy to deal with!
+        trainDeltaRule(sim.leftInputToLeftPrediction);
+        trainDeltaRule(sim.outputToLeftPrediction);
+        trainDeltaRule(sim.rightInputToRightPrediction);
+        trainDeltaRule(sim.outputToRightPrediction);
+
+        leftPrediction = sim.predictionLeft.getActivations();
+        rightPrediction = sim.predictionRight.getActivations();
+    }
+    
+    /** 
+     * Set errors on neuron groups
+     */
+    void setErrors(NeuronGroup inputs, NeuronGroup predictions,
+            double[] lastPrediction) {
+        int i = 0;
+        double error = 0;
+        for (Neuron neuron : predictions.getNeuronList()) {
+            error = inputs.getNeuronList().get(i).getActivation()
+                    - lastPrediction[i];
+            neuron.setAuxValue(error);
+            i++;
+        }
+    }
+
+    /** 
+     * Train synapse groups
+     */
+    void trainDeltaRule(SynapseGroup group) {
+        for (Synapse synapse : group.getAllSynapses()) {
+            double newStrength = synapse.getStrength()
+                    + learningRate * synapse.getSource().getActivation()
+                            * synapse.getTarget().getAuxValue();
+            synapse.setStrength(newStrength);
         }
     }
 

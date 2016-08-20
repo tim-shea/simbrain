@@ -49,6 +49,21 @@ public class Simulation {
         return desktop;
     }
 
+    // TODO: Move to workspace level?
+    /**
+     * Helper to add couplings and deal with exception (rather poorly for now).
+     *
+     * @param coupling
+     */
+    public void addCoupling(Coupling coupling) {
+        try {
+            workspace.getCouplingManager().addCoupling(coupling);
+        } catch (UmatchedAttributesException e) {
+            System.err.println("Unmatched attributes");
+            e.printStackTrace();
+        }
+    }
+
     // Neurons to agent. So far just one to one
     public void couple(NeuronGroup ng, RotatingEntity entity) {
         AttributeManager producers = netMap.get(ng.getParentNetwork())
@@ -74,14 +89,10 @@ public class Simulation {
                 straightConsumer);
         Coupling leftCoupling = new Coupling(leftProducer, leftConsumer);
         Coupling rightCoupling = new Coupling(rightProducer, rightConsumer);
+        addCoupling(straightCoupling);
+        addCoupling(leftCoupling);
+        addCoupling(rightCoupling);
 
-        try {
-            workspace.getCouplingManager().addCoupling(straightCoupling);
-            workspace.getCouplingManager().addCoupling(leftCoupling);
-            workspace.getCouplingManager().addCoupling(rightCoupling);
-        } catch (UmatchedAttributesException e) {
-            e.printStackTrace();
-        }
     }
 
     // Coupling a neuron to the indicated (by index) time series of a time
@@ -92,29 +103,19 @@ public class Simulation {
                 .createPotentialProducer(neuron, "getActivation", double.class);
         PotentialConsumer timeSeriesConsumer1 = plot.getPotentialConsumers()
                 .get(index);
-        Coupling<double[]> coupling = new Coupling<double[]>(neuronProducer,
-                timeSeriesConsumer1);
-        try {
-            workspace.getCouplingManager().addCoupling(coupling);
-        } catch (UmatchedAttributesException e) {
-            e.printStackTrace();
-        }
+        addCoupling(
+                new Coupling<double[]>(neuronProducer, timeSeriesConsumer1));
     }
 
+    /**
+     * Coupling a neuron group to a projection plot.
+     */
     public void couple(NetworkComponent network, NeuronGroup ng,
             ProjectionComponent plot) {
         PotentialProducer ngProducer = network.getAttributeManager()
-                .createPotentialProducer(ng, "getActivations",
-                        double[].class);
+                .createPotentialProducer(ng, "getActivations", double[].class);
         PotentialConsumer projConsumer = plot.getPotentialConsumers().get(0); // Ugh
-        Coupling<double[]> coupling = new Coupling<double[]>(ngProducer,
-                projConsumer);
-
-        try {
-            workspace.getCouplingManager().addCoupling(coupling);
-        } catch (UmatchedAttributesException e) {
-            e.printStackTrace();
-        }
+        addCoupling(new Coupling<double[]>(ngProducer, projConsumer));
     }
 
     /**
@@ -138,13 +139,7 @@ public class Simulation {
         PotentialConsumer sensoryConsumer = consumers.createPotentialConsumer(
                 ng, "forceSetActivations", double[].class);
 
-        Coupling sensoryCoupling = new Coupling(sensoryProducer,
-                sensoryConsumer);
-        try {
-            workspace.getCouplingManager().addCoupling(sensoryCoupling);
-        } catch (UmatchedAttributesException e) {
-            e.printStackTrace();
-        }
+        addCoupling(new Coupling(sensoryProducer, sensoryConsumer));
     }
 
     public NetBuilder addNetwork(int x, int y, int width, int height,
@@ -232,12 +227,8 @@ public class Simulation {
 
         Coupling sensorToNeuronCoupling = new Coupling(agentSensor,
                 sensoryNeuron);
+        addCoupling(sensorToNeuronCoupling);
 
-        try {
-            workspace.getCouplingManager().addCoupling(sensorToNeuronCoupling);
-        } catch (UmatchedAttributesException e) {
-            e.printStackTrace();
-        }
     }
 
     public void couple(Neuron straight, Effector effector) {
@@ -254,14 +245,7 @@ public class Simulation {
         PotentialConsumer agentEffector = consumers
                 .createPotentialConsumer(effector, "addAmount", double.class);
 
-        Coupling neuronToAgentCoupling = new Coupling(effectorNeuron,
-                agentEffector);
-
-        try {
-            workspace.getCouplingManager().addCoupling(neuronToAgentCoupling);
-        } catch (UmatchedAttributesException e) {
-            e.printStackTrace();
-        }
+        addCoupling(new Coupling(effectorNeuron, agentEffector));
     }
 
 }

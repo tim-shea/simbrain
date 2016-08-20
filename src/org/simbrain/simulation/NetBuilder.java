@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.simbrain.network.NetworkComponent;
 import org.simbrain.network.connections.AllToAll;
+import org.simbrain.network.connections.OneToOne;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.core.Synapse;
@@ -95,6 +96,12 @@ public class NetBuilder {
         synapse.setUpperBound(2 * value);
         synapse.setStrength(value);
         source.getNetwork().addSynapse(synapse);
+    }
+
+    public void connectOneToOne(NeuronGroup source, NeuronGroup target) {
+        OneToOne connector = new OneToOne();
+        connector.connectOneToOne(source.getNeuronList(),
+                target.getNeuronList());
     }
 
     public void connectAllToAll(NeuronGroup source, NeuronGroup target) {

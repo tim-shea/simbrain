@@ -17,10 +17,10 @@
 	</entity>
 	<entity>
 	    <imageId>Swiss.gif</imageId>
-	    <name>Swiss_1_goal</name>
+	    <name>Swiss_2_goal</name>
 	    <x>215</x>
 	    <y>215</y>
-	    <stim>0,1,0,0,0,1</stim>
+	    <stim>0,1,0,0,0,0</stim>
 	    <dispersion>400</dispersion>
 	</entity>
 </entityList>

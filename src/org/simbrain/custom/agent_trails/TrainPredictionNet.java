@@ -41,7 +41,7 @@ public class TrainPredictionNet implements NetworkUpdateAction {
     }
 
     /**
-     * Traing synapses using delta rule
+     * Training synapses using delta rule
      */
     private void mainUpdateMethod() {
 
@@ -50,7 +50,7 @@ public class TrainPredictionNet implements NetworkUpdateAction {
         double sumError = 0;
         for (Neuron neuron : sim.predictionNet.getNeuronList()) {
             // error = target - actual
-            // error = curent sensory - last prediction
+            // error = current sensory - last prediction
             error = sim.sensoryNet.getNeuronList().get(i).getActivation()
                     - lastPrediction[i];
             sumError += error;

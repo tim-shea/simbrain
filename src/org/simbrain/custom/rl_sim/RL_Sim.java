@@ -27,9 +27,14 @@ import org.simbrain.simulation.Vehicle;
 import org.simbrain.util.LabelledItemPanel;
 import org.simbrain.util.SimbrainConstants.Polarity;
 import org.simbrain.util.math.SimbrainMath;
+import org.simbrain.workspace.Consumer;
+import org.simbrain.workspace.Coupling;
+import org.simbrain.workspace.Producer;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 import org.simbrain.world.odorworld.entities.OdorWorldEntity;
 import org.simbrain.world.odorworld.entities.RotatingEntity;
+
+import cern.colt.Arrays;
 
 /**
  * A reinforcement learning simulation in which an agent learns to associate
@@ -37,7 +42,7 @@ import org.simbrain.world.odorworld.entities.RotatingEntity;
  *
  * TODO: Add .htmlfile to folder and make docs based on that
  */
-//CHECKSTYLE:OFF
+// CHECKSTYLE:OFF
 public class RL_Sim {
 
     /** The main simulation desktop. */
@@ -68,12 +73,15 @@ public class RL_Sim {
      */
     double gamma = .4;
 
-    /** Size of the (square) world.  */
+    /** Size of the (square) world. */
     int worldSize = 350;
-    
-    /** Distance in pixels within which a goal object is counted as being arrived at. */
+
+    /**
+     * Distance in pixels within which a goal object is counted as being arrived
+     * at.
+     */
     double hitRadius = 50;
-    
+
     /** Initial mouse location. */
     int initialMouseLocation_x;
     int initialMouseLocation_y;
@@ -100,6 +108,12 @@ public class RL_Sim {
     JTextField lambdaField = new JTextField();
     JTextField epsilonField = new JTextField();
     RL_Update updateMethod;
+    double[] combinedInputs;
+    double[] combinedPredicted;
+    NeuronGroup predictionLeft, predictionRight;
+    SynapseGroup rightInputToRightPrediction, outputToRightPrediction,
+            leftInputToLeftPrediction, outputToLeftPrediction;
+    PlotBuilder plot;
 
     /**
      * Construct the reinforcement learning simulation.
@@ -137,10 +151,14 @@ public class RL_Sim {
         controlPanelFrame = sim.addFrame(-6, 1, "RL Controls");
         makeControlPanel();
 
+        // TODO: Make below scan the directory for xml files and then load them
+        // in
+        // a combo box.
         // Set up the odor world
-        //  (Assumes the xml has at least one agent in it.)
-        loadWorld(world, "src/org/simbrain/custom/rl_sim/oneObject.xml");
-        //loadWorld(world, "src/org/simbrain/custom/rl_sim/twoObjects.xml");
+        // (Assumes the xml has at least one agent in it.)
+        // loadWorld(world, "src/org/simbrain/custom/rl_sim/oneObject.xml");
+        // loadWorld(world, "src/org/simbrain/custom/rl_sim/twoCheese.xml");
+        loadWorld(world, "src/org/simbrain/custom/rl_sim/cheeseFlower.xml");
 
         // Set up the main input-output network that is trained via RL
         setUpInputOutputNetwork(net);
@@ -157,11 +175,54 @@ public class RL_Sim {
         // Set up the time series plot
         setUpTimeSeries(net);
 
-        // Configure a custom update rule
+        // Initialize arrays for concatenating left/right inputs
+        combinedInputs = new double[leftInputs.size() + rightInputs.size()];
+        combinedPredicted = new double[leftInputs.size() + rightInputs.size()];
+
+        // Set up projection plot
+        plot = sim.addProjectionPlot(194, 312, 441, 308,
+                "Sensory states + Predictions");
+        plot.getProjectionModel().init(leftInputs.size() + rightInputs.size());
+        plot.getProjectionModel().getProjector().setTolerance(.01);
+        Producer inputProducer = net.getNetworkComponent().createProducer(this,
+                "getCombinedInputs", double[].class);
+        Consumer plotConsumer = plot.getProjectionPlotComponent()
+                .createConsumer(plot.getProjectionPlotComponent(), "addPoint",
+                        double[].class);
+
+        sim.addCoupling(new Coupling(inputProducer, plotConsumer));
+
+        // Set custom network update
         updateMethod = new RL_Update(this);
         net.getNetwork().getUpdateManager().clear();
         net.getNetwork().addUpdateAction(updateMethod);
 
+        // Add workspace level update action
+        sim.getWorkspace().addUpdateAction(new ColorPlot(this));
+
+    }
+
+    /**
+     * Helper method for "combined input" coupling.
+     */
+    public double[] getCombinedInputs() {
+        System.arraycopy(leftInputs.getActivations(), 0, combinedInputs, 0,
+                leftInputs.size() - 1);
+        System.arraycopy(rightInputs.getActivations(), 0, combinedInputs,
+                leftInputs.size(), rightInputs.size());
+        //System.out.println(Arrays.toString(combinedInputs));
+        return combinedInputs;
+    }
+
+    /**
+     * Helper method for getting combined prediction.
+     */
+    public double[] getCombinedPredicted() {
+        System.arraycopy(predictionLeft.getActivations(), 0, combinedPredicted,
+                0, leftInputs.size() - 1);
+        System.arraycopy(predictionRight.getActivations(), 0, combinedPredicted,
+                leftInputs.size(), rightInputs.size());
+        return combinedPredicted;
     }
 
     /**
@@ -173,18 +234,17 @@ public class RL_Sim {
         File xmlFile = new File(fileName);
         worldEntities = world.loadWorld(xmlFile);
 
-
-        for(OdorWorldEntity entity : worldEntities) {
-            // Set the mouse based on the xml
+        for (OdorWorldEntity entity : worldEntities) {
+            // Set the mouse information based on the xml
             if (entity instanceof RotatingEntity) {
                 mouse = (RotatingEntity) entity;
                 initialMouseLocation_x = (int) mouse.getX();
                 initialMouseLocation_y = (int) mouse.getY();
                 initialMouseHeading = (int) mouse.getHeading();
-            }            
+            }
             // Set the goal entities based on their name, e.g. "Swiss_goal")
-            //  When the mouse comes near a goal entity, the trial resets
-            if(entity.getName().endsWith("goal")) {
+            // When the mouse comes near a goal entity, the trial resets
+            if (entity.getName().endsWith("goal")) {
                 goalEntities.add(entity);
             }
         }
@@ -196,7 +256,7 @@ public class RL_Sim {
      */
     private void setUpTimeSeries(NetBuilder net) {
         // Create a time series plot
-        PlotBuilder plot = sim.addTimeSeriesPlot(832,353, 293, 332,
+        PlotBuilder plot = sim.addTimeSeriesPlot(832, 353, 293, 332,
                 "Reward, TD Error");
         sim.couple(net.getNetworkComponent(), reward,
                 plot.getTimeSeriesComponent(), 0);
@@ -211,7 +271,7 @@ public class RL_Sim {
      * Add main input-output network to be trained by RL.
      */
     private void setUpInputOutputNetwork(NetBuilder net) {
-        
+
         // Outputs
         outputs = net.addWTAGroup(-234, 58, 2);
         outputs.setUseRandom(true);
@@ -235,6 +295,19 @@ public class RL_Sim {
         sim.couple(mouse, rightInputs, 2);
         leftInputOutput = net.addSynapseGroup(leftInputs, outputs);
         sim.couple(mouse, leftInputs, 1);
+
+        // TODO: Move to a new method
+        // Prediction Network
+        predictionLeft = net.addNeuronGroup(-589.29, 188.50, 5);
+        predictionLeft.setLabel("Predicted (L)");
+        predictionRight = net.addNeuronGroup(126, 184, 5);
+        predictionRight.setLabel("Predicted (R)");
+        rightInputToRightPrediction = net.addSynapseGroup(rightInputs,
+                predictionRight);
+        outputToRightPrediction = net.addSynapseGroup(outputs, predictionRight);
+        leftInputToLeftPrediction = net.addSynapseGroup(leftInputs,
+                predictionLeft);
+        outputToLeftPrediction = net.addSynapseGroup(outputs, predictionLeft);
     }
 
     /**

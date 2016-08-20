@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.simbrain.workspace.gui.ComponentPanel;
+import org.simbrain.workspace.gui.GuiComponent;
 import org.simbrain.workspace.updater.ComponentUpdatePart;
 
 /**
@@ -85,8 +86,8 @@ public abstract class WorkspaceComponent {
 
     /**
      * If set to true, serialize this component before others. Possibly replace
-     * with priority system later. {@see
-     * org.simbrain.workspace.Workspace#preSerializationInit()}.
+     * with priority system later.
+     * {@see org.simbrain.workspace.Workspace#preSerializationInit()}.
      */
     private int serializePriority = 0;
 
@@ -106,8 +107,8 @@ public abstract class WorkspaceComponent {
      */
     public WorkspaceComponent(final String name) {
         this.name = name;
-        logger.trace(this.getClass().getCanonicalName() + ": " + name
-                + " created");
+        logger.trace(
+                this.getClass().getCanonicalName() + ": " + name + " created");
     }
 
     /**
@@ -279,8 +280,8 @@ public abstract class WorkspaceComponent {
             }
         };
 
-        return Collections.singleton(new ComponentUpdatePart(this, callable,
-                toString(), this));
+        return Collections.singleton(
+                new ComponentUpdatePart(this, callable, toString(), this));
     }
 
     /**
@@ -608,6 +609,36 @@ public abstract class WorkspaceComponent {
      */
     protected void setSerializePriority(int serializePriority) {
         this.serializePriority = serializePriority;
+    }
+
+    /**
+     * Convenience method for making producers.
+     *
+     * @param baseObject the object to produce values
+     * @param methodName name of the method on that object
+     * @param dataType data type of the method
+     * @return the producer
+     */
+    public Producer<?> createProducer(Object baseObject, String methodName,
+            Class<?> dataType) {
+        PotentialProducer pp = attributeManager
+                .createPotentialProducer(baseObject, methodName, dataType);
+        return pp.createProducer();
+    }
+
+    /**
+     * Convenience method for making consumers.
+     *
+     * @param baseObject the object to consume values
+     * @param methodName the method name on that object
+     * @param dataType data type of argument to that method
+     * @return the consumer
+     */
+    public Consumer<?> createConsumer(Object baseObject, String methodName,
+            Class<?> dataType) {
+        PotentialConsumer pc = attributeManager
+                .createPotentialConsumer(baseObject, methodName, dataType);
+        return pc.createConsumer();
     }
 
 }
