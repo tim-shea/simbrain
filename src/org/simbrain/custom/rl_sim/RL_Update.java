@@ -43,9 +43,9 @@ public class RL_Update implements NetworkUpdateAction {
     /** Current winning output neuron. */
     Neuron winner;
 
-    /** For training the predictio network. */
-    double[] leftPrediction;
-    double[] rightPrediction;
+    /** For training the prediction network. */
+    double[] lastPredictionLeft;
+    double[] lastPredictionRight;
     double learningRate = .1;
 
     // TODO: The machinery to handle iterations between weight updates is
@@ -71,8 +71,8 @@ public class RL_Update implements NetworkUpdateAction {
         value = sim.value;
         tdError = sim.tdError;
         initMap();
-        leftPrediction = sim.predictionLeft.getActivations();
-        rightPrediction = sim.predictionRight.getActivations();
+        lastPredictionLeft = sim.predictionLeft.getActivations();
+        lastPredictionRight = sim.predictionRight.getActivations();
     }
 
     @Override
@@ -92,8 +92,8 @@ public class RL_Update implements NetworkUpdateAction {
     public void invoke() {
 
         // Update inputs nodes
-        sim.rightInputs.update();
         sim.leftInputs.update();
+        sim.rightInputs.update();
 
         // Update Prediction subnets
         sim.predictionLeft.update();
@@ -142,18 +142,16 @@ public class RL_Update implements NetworkUpdateAction {
      */
     private void trainPredictionNodes() {
 
-        // TODO: Remove redundancy!
-        setErrors(sim.leftInputs, sim.predictionLeft, leftPrediction);
-        setErrors(sim.rightInputs, sim.predictionRight, rightPrediction);
+        setErrors(sim.leftInputs, sim.predictionLeft, lastPredictionLeft);
+        setErrors(sim.rightInputs, sim.predictionRight, lastPredictionRight);
 
-        // TODO: More redundancy to deal with!
         trainDeltaRule(sim.leftInputToLeftPrediction);
         trainDeltaRule(sim.outputToLeftPrediction);
         trainDeltaRule(sim.rightInputToRightPrediction);
         trainDeltaRule(sim.outputToRightPrediction);
 
-        leftPrediction = sim.predictionLeft.getActivations();
-        rightPrediction = sim.predictionRight.getActivations();
+        lastPredictionLeft = sim.predictionLeft.getActivations();
+        lastPredictionRight = sim.predictionRight.getActivations();
     }
     
     /** 

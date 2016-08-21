@@ -273,7 +273,7 @@ public class RL_Sim {
     private void setUpInputOutputNetwork(NetBuilder net) {
 
         // Outputs
-        outputs = net.addWTAGroup(-234, 58, 2);
+        outputs = net.addWTAGroup(-234, 58, 4);
         outputs.setUseRandom(true);
         outputs.setRandomProb(epsilon);
         // Add a little extra spacing between neurons to accommodate labels
@@ -379,12 +379,12 @@ public class RL_Sim {
         // subnets
         outputs.getNeuronList().get(0).setLabel(strPursueCheese);
         outputs.getNeuronList().get(1).setLabel(strAvoidCheese);
-        // outputs.getNeuronList().get(2).setLabel(strPursueFlower);
-        // outputs.getNeuronList().get(3).setLabel(strAvoidFlower);
+        outputs.getNeuronList().get(2).setLabel(strPursueFlower);
+        outputs.getNeuronList().get(3).setLabel(strAvoidFlower);
         // outputs.getNeuronList().get(4).setLabel(strPursueCandle);
         // outputs.getNeuronList().get(5).setLabel(strAvoidCandle);
 
-        // Connect output nodes to vehicle speed nodes
+        // Connect output nodes to vehicle nodes
         // net.connect(outputs.getNeuronByLabel(strPursueCheese),
         // pursueCheese.getNeuronByLabel("Speed"), 10);
         // net.connect(outputs.getNeuronByLabel(strAvoidCheese),

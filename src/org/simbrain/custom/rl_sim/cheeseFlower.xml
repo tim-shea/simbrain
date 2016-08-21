@@ -20,7 +20,7 @@
 	    <name>Pansy_goal</name>
 	    <x>215</x>
 	    <y>215</y>
-	    <stim>1,0,0,0,0,1</stim>
+	    <stim>0,0,0,0,1,1</stim>
 	    <dispersion>400</dispersion>
 	</entity>
 </entityList>
