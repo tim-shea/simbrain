@@ -28,8 +28,10 @@ import org.simbrain.util.projection.DataPoint;
 import org.simbrain.util.projection.DataPointColored;
 import org.simbrain.util.projection.Projector;
 import org.simbrain.workspace.AttributeType;
+import org.simbrain.workspace.Consumible;
 import org.simbrain.workspace.Coupling;
 import org.simbrain.workspace.PotentialConsumer;
+import org.simbrain.workspace.Producible;
 import org.simbrain.workspace.WorkspaceComponent;
 
 /**
@@ -298,6 +300,7 @@ public class ProjectionComponent extends WorkspaceComponent {
      *
      * @param newPoint the new point
      */
+    @Consumible
     public void addPoint(double[] newPoint) {
         if (initializeDimensions) {
             //TODO: The init creates a new projector object, which causes problems with
@@ -422,6 +425,11 @@ public class ProjectionComponent extends WorkspaceComponent {
             return dimension;
         }
 
+    }
+
+    @Producible
+    public double[] getCurrentPoint() {
+        return projectionModel.getProjector().getCurrentPoint().getVector();
     }
 
     @Override

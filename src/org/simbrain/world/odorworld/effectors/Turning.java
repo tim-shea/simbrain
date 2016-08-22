@@ -18,6 +18,7 @@
  */
 package org.simbrain.world.odorworld.effectors;
 
+import org.simbrain.workspace.Consumible;
 import org.simbrain.world.odorworld.entities.RotatingEntity;
 
 /**
@@ -75,12 +76,13 @@ public class Turning extends Effector {
     public double getAmount() {
         return amount;
     }
-    
+
     /**
      * Add an amount to turning.  Allows for multiple "turns" to be aggregated.
-     * 
+     *
      * @param amount amount to turn.
      */
+    @Consumible
     public void addAmount(double amount) {
         this.amount += amount;
     }
@@ -89,6 +91,7 @@ public class Turning extends Effector {
     /**
      * @param amount the amount to set
      */
+    @Consumible
     public void setAmount(double amount) {
         this.amount = amount;
     }

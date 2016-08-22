@@ -33,6 +33,7 @@ import org.simbrain.workspace.Producer;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 import org.simbrain.world.odorworld.entities.OdorWorldEntity;
 import org.simbrain.world.odorworld.entities.RotatingEntity;
+import org.simbrain.world.odorworld.sensors.SmellSensor;
 
 import cern.colt.Arrays;
 
@@ -210,7 +211,7 @@ public class RL_Sim {
                 leftInputs.size() - 1);
         System.arraycopy(rightInputs.getActivations(), 0, combinedInputs,
                 leftInputs.size(), rightInputs.size());
-        //System.out.println(Arrays.toString(combinedInputs));
+        // System.out.println(Arrays.toString(combinedInputs));
         return combinedInputs;
     }
 
@@ -292,9 +293,9 @@ public class RL_Sim {
 
         // Connections
         rightInputOutput = net.addSynapseGroup(rightInputs, outputs);
-        sim.couple(mouse, rightInputs, 2);
+        sim.couple((SmellSensor) mouse.getSensors().get(2), rightInputs);
         leftInputOutput = net.addSynapseGroup(leftInputs, outputs);
-        sim.couple(mouse, leftInputs, 1);
+        sim.couple((SmellSensor) mouse.getSensors().get(1), leftInputs);
 
         // TODO: Move to a new method
         // Prediction Network
@@ -317,7 +318,7 @@ public class RL_Sim {
         reward = net.addNeuron(300, 0);
         reward.setClamped(true);
         reward.setLabel("Reward");
-        sim.couple(mouse.getSensor("Smell-Center"), 5, reward);
+        sim.couple((SmellSensor) mouse.getSensor("Smell-Center"), 5, reward);
         value = net.addNeuron(350, 0);
         value.setLabel("Value");
         net.connectAllToAll(rightInputs, value);

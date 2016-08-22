@@ -24,6 +24,7 @@ import java.util.TreeMap;
 
 import org.simbrain.util.propertyeditor.ComboBoxWrapper;
 import org.simbrain.util.propertyeditor.DisplayOrder;
+import org.simbrain.workspace.Consumible;
 import org.simbrain.world.odorworld.OdorWorld;
 
 /**
@@ -260,6 +261,7 @@ public class RotatingEntity extends OdorWorldEntity {
      *
      * @param amount amount to turn left. Assumes a positive number.
      */
+    @Consumible
     public void turnLeft(double amount) {
         turn(amount);
     }
@@ -269,6 +271,7 @@ public class RotatingEntity extends OdorWorldEntity {
      *
      * @param amount
      */
+    @Consumible
     public void turn(double amount) {
         if (amount == 0) {
             return;
@@ -284,6 +287,7 @@ public class RotatingEntity extends OdorWorldEntity {
      *
      * @param amount amount to turn right. Assumes a positive number.
      */
+    @Consumible
     public void turnRight(double amount) {
         if (amount == 0) {
             return;
@@ -298,6 +302,7 @@ public class RotatingEntity extends OdorWorldEntity {
      *
      * @param amount
      */
+    @Consumible
     public void goStraight(double amount) {
         if (amount == 0) {
             return;

@@ -20,6 +20,7 @@ package org.simbrain.workspace;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -611,6 +612,9 @@ public abstract class WorkspaceComponent {
         this.serializePriority = serializePriority;
     }
 
+    // TODO: Once annotation based coupling is done remove the next two
+    //      methods
+
     /**
      * Convenience method for making producers.
      *
@@ -641,4 +645,228 @@ public abstract class WorkspaceComponent {
         return pc.createConsumer();
     }
 
+    /**
+     * Create a producer based on a method name assumed to exist at the
+     * workspace component level. Assumes the method has been annotated with a
+     * potential producer annotations.
+     *
+     * @param methodName the method name
+     * @return the the producer, or null if not such method could be found.
+     */
+    public Producer<?> createProducer(String methodName) {
+        for (PotentialProducer pp : getAnnotatedProducers()) {
+            if (pp.getMethodName().equalsIgnoreCase(methodName)) {
+                return pp.createProducer();
+            }
+        }
+        return null;
+
+    }
+
+    /**
+     * Create a producer based on a method name assumed to exist on the provided
+     * base object. Assumes the method has been annotated with a potential
+     * producer annotations.
+     *
+     * @param baseObject the base object
+     * @param methodName the method name
+     * @return the the producer, or null if not such method could be found.
+     */
+    public Producer<?> createProducer(Object baseObject, String methodName) {
+        for (PotentialProducer pp : getAnnotatedProducers(baseObject)) {
+            if (pp.getMethodName().equalsIgnoreCase(methodName)) {
+                return pp.createProducer();
+            }
+        }
+        return null;
+
+    }
+
+    // TODO: Example in javadoc below
+    /**
+     * Create a producer based on a method name assumed to exist on the provided
+     * base object, accessed via a key (e.g. an index). Assumes the method has
+     * been annotated with a potential producer annotation.
+     *
+     * @param baseObject the base object
+     * @param methodName the method name
+     * @param key the key used to access to call the producer.
+     * @return the the producer, or null if not such method could be found.
+     */
+    public Producer<?> createProducer(Object baseObject, String methodName,
+            Object key) {
+        for (PotentialProducer pp : getAnnotatedProducers(baseObject, key)) {
+            if (pp.getArgumentValues().length > 0) {
+                if (pp.getMethodName().equalsIgnoreCase(methodName)) {
+                    pp.setArgumentValues(new Object[] { key });
+                    return pp.createProducer();
+                }
+            }
+        }
+        return null;
+
+    }
+
+    /**
+     * Create a consumer based on a method name assumed to exist at the
+     * workspace component level. Assumes the method has been annotated with a
+     * potential producer annotations.
+     *
+     * @param methodName the method name
+     * @return the the consumer, or null if not such method could be found.
+     */
+    public Consumer<?> createConsumer(String methodName) {
+        for (PotentialConsumer pp : getAnnotatedConsumers()) {
+            if (pp.getMethodName().equalsIgnoreCase(methodName)) {
+                return pp.createConsumer();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Create a consumer based on a method name assumed to exist on the provided
+     * base object. Assumes the method has been annotated with a potential
+     * producer annotations.
+     *
+     * @param baseObject the base object
+     * @param methodName the method name
+     * @return the the consumer, or null if not such method could be found.
+     */
+    public Consumer<?> createConsumer(Object baseObject, String methodName) {
+        for (PotentialConsumer pc : getAnnotatedConsumers(baseObject)) {
+            if (pc.getMethodName().equalsIgnoreCase(methodName)) {
+                return pc.createConsumer();
+            }
+        }
+        return null;
+    }
+
+    // TODO: Consumer with key.
+
+    /**
+     * Returns all methods annotated as producible at the workspace component
+     * level..
+     *
+     * @return the resulting list of potential producers
+     */
+    public List<PotentialProducer> getAnnotatedProducers() {
+        return getAnnotatedProducers(this);
+    }
+
+    /**
+     * Returns all methods annotated as producible on the provided base object.
+     *
+     * @param baseObject base object
+     * @return the resulting list of potential producers
+     */
+    public List<PotentialProducer> getAnnotatedProducers(Object baseObject) {
+        return getAnnotatedProducers(baseObject, null);
+    }
+
+    /**
+     * Returns all methods annotated as producible on the provided base object,
+     * using the provided key.
+     *
+     * @param baseObject base object
+     * @param key the key used to access the producer
+     * @return the resulting list of potential producers
+     */
+    public List<PotentialProducer> getAnnotatedProducers(Object baseObject,
+            Object key) {
+        List<PotentialProducer> potentialProducers = new ArrayList<PotentialProducer>();
+        for (Method method : baseObject.getClass().getDeclaredMethods()) {
+            // Find methods annotated as producible
+            if (method.getAnnotation(Producible.class) != null) {
+                PotentialProducer pp;
+                if (key == null) {
+                    if (method.getParameterTypes().length == 0) {
+                        pp = getAttributeManager().createPotentialProducer(
+                                baseObject, method.getName(),
+                                method.getReturnType());
+                        setCustomDescription(pp, baseObject, method);
+                        potentialProducers.add(pp);
+                    }
+                } else {
+                    // Find the producible with the specified key
+                    if (method.getParameterTypes().length == 1) {
+                        pp = getAttributeManager().createPotentialProducer(
+                                baseObject, method.getName(),
+                                method.getReturnType(),
+                                new Class[] { key.getClass() },
+                                new Object[] { key });
+                        setCustomDescription(pp, baseObject, method);
+                        potentialProducers.add(pp);
+                    }
+                }
+
+            }
+        }
+        return potentialProducers;
+    }
+
+    /**
+     * Returns all methods annotated as consumible.
+     *
+     * @return the resulting list of potential consumers
+     */
+    public List<PotentialConsumer> getAnnotatedConsumers() {
+        return getAnnotatedConsumers(this);
+    }
+
+    /**
+     * Returns all methods annotated as consumible on the provided base object.
+     *
+     * @param baseObject base object
+     * @return the resulting list of potential consumers
+     */
+    public List<PotentialConsumer> getAnnotatedConsumers(Object baseObject) {
+
+        List<PotentialConsumer> potentialConsumers = new ArrayList<PotentialConsumer>();
+        for (Method method : baseObject.getClass().getDeclaredMethods()) {
+            // Find methods annotated as consumible
+            if (method.getAnnotation(Consumible.class) != null) {
+                PotentialConsumer pc = getAttributeManager()
+                        .createPotentialConsumer(baseObject, method.getName(),
+                                method.getParameterTypes()[0]);
+                setCustomDescription(pc, baseObject, method);
+                potentialConsumers.add(pc);
+            }
+        }
+        return potentialConsumers;
+    }
+
+    /**
+     * Sets a custom description on an annotated attribute, if it has been
+     * specified in the annotation "customDescriptionMethod" field.
+     *
+     * @param attribute the attribute to check
+     * @param baseObject the base object of the method
+     * @param method the producible or consumible method
+     */
+    private void setCustomDescription(PotentialAttribute attribute,
+            Object baseObject, Method method) {
+        String customDescriptionMethod = "";
+        if (attribute instanceof PotentialProducer) {
+            customDescriptionMethod = method.getAnnotation(Producible.class)
+                    .customDescriptionMethod();
+
+        } else {
+            customDescriptionMethod = method.getAnnotation(Consumible.class)
+                    .customDescriptionMethod();
+        }
+        if (!customDescriptionMethod.isEmpty()) {
+            try {
+                // TODO: Think about below
+                Method descriptionMethod = baseObject.getClass()
+                        .getMethod(customDescriptionMethod, null);
+                String customDescription = (String) descriptionMethod
+                        .invoke(this, null);
+                attribute.setCustomDescription(customDescription);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
 }

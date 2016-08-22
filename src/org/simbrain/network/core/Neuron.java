@@ -30,10 +30,11 @@ import java.util.stream.Collectors;
 import org.simbrain.network.core.Network.TimeType;
 import org.simbrain.network.groups.Group;
 import org.simbrain.network.neuron_update_rules.LinearRule;
-import org.simbrain.network.neuron_update_rules.interfaces.ActivityGenerator;
 import org.simbrain.network.neuron_update_rules.interfaces.BiasedUpdateRule;
 import org.simbrain.network.neuron_update_rules.interfaces.BoundedUpdateRule;
 import org.simbrain.util.SimbrainConstants.Polarity;
+import org.simbrain.workspace.Consumible;
+import org.simbrain.workspace.Producible;
 
 /**
  * <b>Neuron</b> represents a node in the neural network. Most of the "logic" of
@@ -357,6 +358,7 @@ public class Neuron {
      * @param act
      *            the new activation value
      */
+    @Consumible
     public void forceSetActivation(final double act) {
         lastActivation = getActivation();
         activation = act;
@@ -365,6 +367,7 @@ public class Neuron {
     /**
      * @return the level of activation.
      */
+    @Producible
     public double getActivation() {
         return activation;
     }

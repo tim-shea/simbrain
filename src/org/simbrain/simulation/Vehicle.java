@@ -3,6 +3,7 @@ package org.simbrain.simulation;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.world.odorworld.entities.RotatingEntity;
+import org.simbrain.world.odorworld.sensors.SmellSensor;
 
 // TODO: Rename this?  VehicleBuilder?  VehicleHelper?
 
@@ -104,9 +105,10 @@ public class Vehicle {
         }
 
         // Couple network to agent.
-        sim.couple(agent.getSensor("Smell-Left"), stimulusDimension, leftInput);
-        sim.couple(agent.getSensor("Smell-Right"), stimulusDimension,
-                rightInput);
+        sim.couple((SmellSensor) agent.getSensor("Smell-Left"),
+                stimulusDimension, leftInput);
+        sim.couple((SmellSensor) agent.getSensor("Smell-Right"),
+                stimulusDimension, rightInput);
         sim.couple(straight, agent.getEffector("Go-straight"));
         sim.couple(leftTurn, agent.getEffector("Go-left"));
         sim.couple(rightTurn, agent.getEffector("Go-right"));

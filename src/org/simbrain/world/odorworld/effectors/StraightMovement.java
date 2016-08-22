@@ -18,6 +18,7 @@
  */
 package org.simbrain.world.odorworld.effectors;
 
+import org.simbrain.workspace.Consumible;
 import org.simbrain.world.odorworld.entities.RotatingEntity;
 
 /**
@@ -65,19 +66,22 @@ public class StraightMovement extends Effector {
     /**
      * @param amount the amount to set
      */
+    @Consumible
     public void setAmount(double amount) {
         this.amount = amount;
     }
 
     /**
-     * Add an amount to go straight.  Allows for multiple "moves" to be aggregated.
-     * 
+     * Add an amount to go straight. Allows for multiple "moves" to be
+     * aggregated.
+     *
      * @param amount amount to turn.
      */
+    @Consumible
     public void addAmount(double amount) {
         this.amount += amount;
-    }    
-        
+    }
+
     /**
      * @return the scalingFactor
      */

@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import javax.swing.JInternalFrame;
-
 import org.simbrain.network.core.NetworkUpdateAction;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.groups.NeuronGroup;
@@ -20,10 +18,9 @@ import org.simbrain.simulation.OdorWorldBuilder;
 import org.simbrain.simulation.PlotBuilder;
 import org.simbrain.simulation.Simulation;
 import org.simbrain.workspace.gui.SimbrainDesktop;
-import org.simbrain.workspace.updater.UpdateAction;
-import org.simbrain.workspace.updater.UpdateActionCustom;
 import org.simbrain.world.odorworld.entities.OdorWorldEntity;
 import org.simbrain.world.odorworld.entities.RotatingEntity;
+import org.simbrain.world.odorworld.sensors.SmellSensor;
 
 /**
  * Todo Stop button.
@@ -43,7 +40,7 @@ public class AgentTrails {
     Neuron errorNeuron;
     Path csvFile;
     List<String> activationList = new ArrayList<String>();
-    PlotBuilder  plot;
+    PlotBuilder plot;
     OdorWorldBuilder world;
 
     // Default values for these used by buttons
@@ -103,8 +100,7 @@ public class AgentTrails {
         errorNeuron.setLabel("Error");
 
         // Create the odor world
-        world = sim.addOdorWorld(629, 9, 315, 383,
-                "Three Objects");
+        world = sim.addOdorWorld(629, 9, 315, 383, "Three Objects");
         world.getWorld().setObjectsBlockMovement(false);
         mouse = world.addAgent(120, 245, "Mouse");
         mouse.setHeading(90);
@@ -121,15 +117,18 @@ public class AgentTrails {
         sim.couple(leftNeuron, mouse.getEffector("Go-right"));
 
         // Couple agent to network
-        sim.couple(mouse.getSensor("Smell-Center"), 0, cheeseNeuron);
-        sim.couple(mouse.getSensor("Smell-Center"), 1, flowerNeuron);
-        sim.couple(mouse.getSensor("Smell-Center"), 2, fishNeuron);
+        sim.couple((SmellSensor) mouse.getSensor("Smell-Center"), 0,
+                cheeseNeuron);
+        sim.couple((SmellSensor) mouse.getSensor("Smell-Center"), 1,
+                flowerNeuron);
+        sim.couple((SmellSensor) mouse.getSensor("Smell-Center"), 2,
+                fishNeuron);
 
         setUpControlPanel();
 
         // Set up Plot
         // Create a time series plot
-        plot = sim.addProjectionPlot(194,312,441,308,
+        plot = sim.addProjectionPlot(194, 312, 441, 308,
                 "Sensory states + Predictions");
         plot.getProjectionModel().init(3);
         plot.getProjectionModel().getProjector().setTolerance(.01);
@@ -228,7 +227,7 @@ public class AgentTrails {
             iterate(220);
         });
 
-        //TODO: Factor the velocity settings in to another method
+        // TODO: Factor the velocity settings in to another method
         panel.addButton("Solar System", () -> {
             net.getNetwork().clearActivations();
             world.getWorld().setHeight(100);
@@ -253,7 +252,6 @@ public class AgentTrails {
                 ioe.printStackTrace();
             }
         });
-
 
     }
 
