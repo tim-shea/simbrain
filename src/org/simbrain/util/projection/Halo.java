@@ -69,7 +69,7 @@ public class Halo {
             double distance = SimbrainMath.distance(target, point);
             if (distance < radius) {
                 float slope = -(maxSaturation - minSaturation) / radius;
-                float saturation = (float) (distance * slope + 1);
+                float saturation = (float) (distance * slope + maxSaturation);
                 ((DataPointColored) proj.getUpstairs().getPoint(i)).setColor(
                         Color.getHSBColor(Utils.colorToFloat(Color.red),
                                 saturation, 1));
