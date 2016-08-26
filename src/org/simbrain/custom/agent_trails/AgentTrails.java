@@ -82,7 +82,7 @@ public class AgentTrails {
         actionNet = net.addNeuronGroup(0, -0.79, 3);
         actionNet.setLabel("Actions");
         actionNet.setClamped(true);
-        actionNet.setLabel("Sensory");
+        actionNet.setLabel("Actions");
         leftNeuron = actionNet.getNeuronList().get(0);
         leftNeuron.setLabel("Left");
         straightNeuron = actionNet.getNeuronList().get(1);
