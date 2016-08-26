@@ -53,14 +53,14 @@ public class TrainPredictionNet implements NetworkUpdateAction {
             // error = current sensory - last prediction
             error = sim.sensoryNet.getNeuronList().get(i).getActivation()
                     - lastPrediction[i];
-            sumError += error;
+            sumError += error * error;
             // System.out.println(i + ":" + error + ":" + neuron.getId());
             neuron.setAuxValue(error);
             i++;
         }
 
         // Update error neuron
-        sim.errorNeuron.forceSetActivation(sumError);
+        sim.errorNeuron.forceSetActivation(Math.sqrt(sumError));
 
         // Update all value synapses
         for (Synapse synapse : sim.net.getNetwork().getFlatSynapseList()) {

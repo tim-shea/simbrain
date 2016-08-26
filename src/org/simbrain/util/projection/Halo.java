@@ -6,7 +6,9 @@ import org.simbrain.util.Utils;
 import org.simbrain.util.math.SimbrainMath;
 
 /**
- * Utility for coloring points of a dataset using a "halo".
+ * Utility for coloring points of a dataset using a "halo".Outside this radius
+ * (in the high dimensional vector space) points are colored gray. Inside they
+ * are colored red.
  */
 public class Halo {
 
@@ -14,10 +16,9 @@ public class Halo {
     // this method overwrites all datapoints so I'm not sure the best approach.
 
     /**
-     * "Radius" of the halo. Outside this distance (in the high dimensional
-     * vector space) points are colored gray. Inside they are colored red.
+     * Default "radius" of the halo.
      */
-    static float haloRadius = .2f;
+    static float DEFAULT_RADIUS = .2f;
 
     /**
      * Maximum saturation.
@@ -30,6 +31,16 @@ public class Halo {
     static float minSaturation = .2f;
 
     /**
+     * Make halo with default halo radius.
+     *
+     * @param proj the projector whose points should be colored
+     * @param target target value around which the halo is created.
+     */
+    public static void makeHalo(Projector proj, double[] target) {
+        makeHalo(proj, target, DEFAULT_RADIUS);
+    }
+
+    /**
      * Color the points in the plot according to how close they are to a
      * provided target value. A "halo" of red is created around the target
      * point.
@@ -38,8 +49,9 @@ public class Halo {
      *
      * @param proj the projector whose points should be colored
      * @param target target value around which the halo is created.
+     * @param radius radius of the halo
      */
-    public static void makeHalo(Projector proj, double[] target) {
+    public static void makeHalo(Projector proj, double[] target, float radius) {
         for (int i = 0; i < proj.getUpstairs().getNumPoints(); i++) {
 
             // Color the current point green
@@ -52,11 +64,11 @@ public class Halo {
             }
 
             // Color the target point red and a halo of saturated red around it,
-            // scaled from max to min saturation.  Outside of the radius color
+            // scaled from max to min saturation. Outside of the radius color
             // points gray.
             double distance = SimbrainMath.distance(target, point);
-            if (distance < haloRadius) {
-                float slope = -(maxSaturation - minSaturation) / haloRadius;
+            if (distance < radius) {
+                float slope = -(maxSaturation - minSaturation) / radius;
                 float saturation = (float) (distance * slope + 1);
                 ((DataPointColored) proj.getUpstairs().getPoint(i)).setColor(
                         Color.getHSBColor(Utils.colorToFloat(Color.red),

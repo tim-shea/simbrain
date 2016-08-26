@@ -161,12 +161,15 @@ public class RL_Update implements NetworkUpdateAction {
             double[] lastPrediction) {
         int i = 0;
         double error = 0;
+        sim.preditionError = 0;
         for (Neuron neuron : predictions.getNeuronList()) {
             error = inputs.getNeuronList().get(i).getActivation()
                     - lastPrediction[i];
+            sim.preditionError += error * error;
             neuron.setAuxValue(error);
             i++;
         }
+        sim.preditionError = Math.sqrt(sim.preditionError);
     }
 
     /** 

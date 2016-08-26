@@ -99,6 +99,7 @@ public class RL_Sim {
     Neuron reward;
     Neuron value;
     Neuron tdError;
+    double preditionError; // used to set "confidence interval" on plot halo
     Neuron deltaReward;
     NeuronGroup rightInputs, leftInputs;
     SynapseGroup rightInputOutput, leftInputOutput;

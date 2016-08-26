@@ -34,6 +34,6 @@ public class ColorPlot implements UpdateAction {
     public void invoke() {
         double[] predictedState = sim.getCombinedPredicted();
         Halo.makeHalo(sim.plot.getProjectionModel().getProjector(),
-                predictedState);
+                predictedState, (float) sim.preditionError);
     }
 }
