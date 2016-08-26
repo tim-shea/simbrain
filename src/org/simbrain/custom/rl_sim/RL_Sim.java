@@ -182,7 +182,7 @@ public class RL_Sim {
         combinedPredicted = new double[leftInputs.size() + rightInputs.size()];
 
         // Set up projection plot
-        plot = sim.addProjectionPlot(194, 312, 441, 308,
+        plot = sim.addProjectionPlot(771,302,355,330,
                 "Sensory states + Predictions");
         plot.getProjectionModel().init(leftInputs.size() + rightInputs.size());
         plot.getProjectionModel().getProjector().setTolerance(.01);
@@ -258,7 +258,7 @@ public class RL_Sim {
      */
     private void setUpTimeSeries(NetBuilder net) {
         // Create a time series plot
-        PlotBuilder plot = sim.addTimeSeriesPlot(832, 353, 293, 332,
+        PlotBuilder plot = sim.addTimeSeriesPlot(0,328,293,332,
                 "Reward, TD Error");
         sim.couple(net.getNetworkComponent(), reward,
                 plot.getTimeSeriesComponent(), 0);
