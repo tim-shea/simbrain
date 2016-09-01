@@ -12,5 +12,5 @@
 *.iml
 out/*
 /bin1/
-
+.DS_Store
 .checkstyle
