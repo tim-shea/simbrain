@@ -214,11 +214,25 @@ public class Hippocampus {
 
         panel = ControlPanel.makePanel(sim, "Control Panel", 5, 10);
 
-        // Move past cheese
+        // Show pattern one
         panel.addButton("Pattern 1", () -> {
             setUpTrainButton(network, new double[] { 1, 0, 0, 0 });
         });
-
+        
+        // Show pattern two
+        panel.addButton("Pattern 2", () -> {
+            setUpTrainButton(network, new double[] { 0, 1, 0, 0 });
+        });
+        
+        // Show pattern three
+        panel.addButton("Pattern 3", () -> {
+            setUpTrainButton(network, new double[] { 0, 0, 1, 0 });
+        });
+        
+        // Show pattern four
+        panel.addButton("Pattern 4", () -> {
+            setUpTrainButton(network, new double[] { 0, 0, 0, 1 });
+        });
     }
 
     /**
