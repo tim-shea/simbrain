@@ -73,6 +73,7 @@ import org.apache.log4j.Logger;
 import org.simbrain.console.ConsoleComponent;
 import org.simbrain.console.ConsoleDesktopComponent;
 import org.simbrain.custom.agent_trails.AgentTrails;
+import org.simbrain.custom.hippocampus.Hippocampus;
 import org.simbrain.custom.rl_sim.RL_Sim;
 import org.simbrain.custom.test.TestSim;
 import org.simbrain.docviewer.DocViewerComponent;
@@ -650,6 +651,14 @@ public class SimbrainDesktop {
             agentTrails.run();
         });
         scriptMenu.add(agentTrailsMenuItem);
+
+        // Adding the hippocampus simulation
+        JMenuItem hippocampusMenuItem = new JMenuItem("Hippocampus");
+        hippocampusMenuItem.addActionListener(ae -> {
+            Hippocampus hippo = new Hippocampus(this);
+            hippo.run();
+        });
+        scriptMenu.add(hippocampusMenuItem);
 
         // Add the test simulation
         JMenuItem test = new JMenuItem("Test (temporary)");
