@@ -1538,9 +1538,19 @@ public class SynapseGroup extends Group {
     }
 
     /**
+     * Enable / disable synapses for both polarities.
      *
-     * @param enabled
-     * @param polarity
+     * @param enabled whether they should be enabled or not
+     */
+    public void setEnabled(boolean enabled) {
+        setEnabled(enabled, Polarity.BOTH);
+    }
+
+    /**
+     * Enable the synapses in this group.
+     *
+     * @param enabled if true, synapse pass information
+     * @param polarity enable both, excitatory, or inhibitory synapses
      */
     public void setEnabled(boolean enabled, Polarity polarity) {
         SynapseParameterSetter<Boolean> setEnabled = new SynapseParameterSetter<Boolean>() {
@@ -1553,9 +1563,9 @@ public class SynapseGroup extends Group {
     }
 
     /**
-     *
-     * @param frozen
-     * @param polarity
+     * Freeze  / unfreeze the synapses in this group so learning can occur or not.
+     * @param frozen if true, synapses can't learn.
+     * @param polarity freeze both, excitatory, or inhibitory synapses
      */
     public void setFrozen(boolean frozen, Polarity polarity) {
         SynapseParameterSetter<Boolean> setFrozen = new SynapseParameterSetter<Boolean>() {
@@ -2047,4 +2057,6 @@ public class SynapseGroup extends Group {
             ((Sparse) connectionManager).setPermitDensityEditing(false);
         }
     }
+
+
 }

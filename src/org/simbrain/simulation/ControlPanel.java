@@ -3,7 +3,9 @@ package org.simbrain.simulation;
 import java.util.concurrent.Executors;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JInternalFrame;
+import javax.swing.JTextField;
 
 import org.simbrain.util.LabelledItemPanel;
 
@@ -15,17 +17,69 @@ import org.simbrain.util.LabelledItemPanel;
  */
 public class ControlPanel extends LabelledItemPanel {
 
-    JInternalFrame internalFrame;
+    /** The internal frame all components are placed in. */
+    private JInternalFrame internalFrame;
 
-    // TODO: Add a version that does not use runnables
+    // TODO: Add a version that does not use runnables?
 
-    public void addButton(String name, Runnable task) {
-        JButton button = new JButton(name);
+    /**
+     * Add a button to the control panel.
+     *
+     * @param buttonText name for the button itself
+     * @param task the task to run when the button is pressed
+     */
+    public void addButton(String buttonText, Runnable task) {
+        addButton("", buttonText, task);
+    }
+
+    /**
+     * Add a button to the control panel and text next to the button.
+     *
+     * @param buttonText text for the button itself
+     * @param buttonLabel text in the panel to the left of the button
+     * @param task the task to run when the button is pressed
+     */
+    public void addButton(String buttonText, String buttonLabel,
+            Runnable task) {
+        JButton button = new JButton(buttonLabel);
         button.addActionListener(e -> {
             Executors.newSingleThreadExecutor().execute(task);
         });
-        this.addItem("", button);
+        this.addItem(buttonText, button);
         internalFrame.pack();
+    }
+
+    /**
+     * Add a text field to the panel.
+     *
+     * @param fieldLabel text in the panel to the left of the field
+     * @param initText initial text in the textfield
+     * @return the text field
+     */
+    public JTextField addTextField(String fieldLabel, String initText) {
+        JTextField tf = new JTextField(initText); // TODO: Check issue 35
+        this.addItem(fieldLabel, tf);
+        internalFrame.pack();
+        return tf;
+    }
+
+    /**
+     * Add a checkbox to the panel.
+     *
+     * @param label text in the panel to the left of the field
+     * @param checked whether the box should initially be checked
+     * @param task task to run when clicking on the checkbox
+     * @return the checkbox
+     */
+    public JCheckBox addCheckBox(String label, boolean checked, Runnable task) {
+        JCheckBox checkBox = new JCheckBox();
+        checkBox.setSelected(checked);
+        this.addItem(label, checkBox);
+        checkBox.addActionListener(e -> {
+            Executors.newSingleThreadExecutor().execute(task);
+        });
+        internalFrame.pack();
+        return checkBox;
     }
 
     /**
@@ -50,4 +104,5 @@ public class ControlPanel extends LabelledItemPanel {
         sim.getDesktop().addInternalFrame(panel.internalFrame);
         return panel;
     }
+
 }
