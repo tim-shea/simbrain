@@ -1,15 +1,18 @@
 package org.simbrain.simulation;
 
+import java.io.File;
 import java.util.Hashtable;
 
 import javax.swing.JInternalFrame;
 
+import org.simbrain.docviewer.DocViewerComponent;
 import org.simbrain.network.NetworkComponent;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.plot.projection.ProjectionComponent;
 import org.simbrain.plot.timeseries.TimeSeriesPlotComponent;
+import org.simbrain.util.Utils;
 import org.simbrain.workspace.Consumer;
 import org.simbrain.workspace.Coupling;
 import org.simbrain.workspace.PotentialConsumer;
@@ -71,6 +74,16 @@ public class Simulation {
         return workspace;
     }
 
+    /**
+     * Add a network and return a network builder.
+     *
+     * @param x x location on screen
+     * @param y y location on screen
+     * @param width width of component
+     * @param height height of component
+     * @param name title to display at top of panel
+     * @return the component the network builder
+     */
     public NetBuilder addNetwork(int x, int y, int width, int height,
             String name) {
         NetworkComponent networkComponent = new NetworkComponent(name);
@@ -81,6 +94,39 @@ public class Simulation {
         return new NetBuilder(networkComponent);
     }
 
+    /**
+     * Add a doc viewer component.
+     *
+     * @param x x location on screen
+     * @param y y location on screen
+     * @param width width of component
+     * @param height height of component
+     * @param name title to display at top of panel
+     * @param filePath path to html file
+     * @return the component
+     */
+    public DocViewerComponent addDocViewer(int x, int y, int width, int height,
+            String name, String filePath) {
+        DocViewerComponent docViewer = new DocViewerComponent(name);
+
+        String html = Utils.readFileContents(new File(filePath));
+        docViewer.setText(html);
+        workspace.addWorkspaceComponent(docViewer);
+        desktop.getDesktopComponent(docViewer).getParentFrame().setBounds(x, y,
+                width, height);
+        return docViewer;
+    }
+
+    /**
+     * Add a time series plot and return a plot builder.
+     *
+     * @param x x location on screen
+     * @param y y location on screen
+     * @param width width of component
+     * @param height height of component
+     * @param name title to display at top of panel
+     * @return the component the plot builder
+     */
     public PlotBuilder addTimeSeriesPlot(int x, int y, int width, int height,
             String name) {
         TimeSeriesPlotComponent timeSeriesComponent = new TimeSeriesPlotComponent(
@@ -91,6 +137,16 @@ public class Simulation {
         return new PlotBuilder(timeSeriesComponent);
     }
 
+    /**
+     * Add a projection plot and return a plot builder.
+     *
+     * @param x x location on screen
+     * @param y y location on screen
+     * @param width width of component
+     * @param height height of component
+     * @param name title to display at top of panel
+     * @return the component the plot builder
+     */
     public PlotBuilder addProjectionPlot(int x, int y, int width, int height,
             String name) {
         ProjectionComponent projectionComponent = new ProjectionComponent(name);
@@ -100,6 +156,16 @@ public class Simulation {
         return new PlotBuilder(projectionComponent);
     }
 
+    /**
+     * Add an odor world and return an odor world builder.
+     *
+     * @param x x location on screen
+     * @param y y location on screen
+     * @param width width of component
+     * @param height height of component
+     * @param name title to display at top of panel
+     * @return the component the odor world builder
+     */
     public OdorWorldBuilder addOdorWorld(int x, int y, int width, int height,
             String name) {
         OdorWorldComponent odorWorldComponent = new OdorWorldComponent(name);
@@ -110,6 +176,14 @@ public class Simulation {
         return new OdorWorldBuilder(odorWorldComponent);
     }
 
+    /**
+     * Add an internal frame to a sim.
+     *
+     * @param x x location on screen
+     * @param y y location on screen
+     * @param name title to display at top of internal frame
+     * @return reference to the frame
+     */
     public JInternalFrame addFrame(int x, int y, String name) {
         JInternalFrame frame = new JInternalFrame(name, true, true);
         frame.setLocation(x, y);

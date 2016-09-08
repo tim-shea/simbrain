@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Hippocampus Simulation</title>
+</head>
+
+<body>
+    <h1>Hippocampus model</h1>
+    Based on Alvarez and Squire (1994)
+    <br>
+    <h2>Training</h2>
+
+    <p>Train the model on cortical patterns by pressing the Train button for patterns 1-4. (Each button press corresponds to training the network on that pattern once).</p>
+    <p>We suggest training each pattern twice. To to do this, click the Train buttons in this sequence: </p>
+    <ul>
+        <li>Pattern 1</li>
+        <li>Pattern 2</li>
+        <li>Pattern 3</li>
+        <li>Pattern 4</li>
+        <li>Pattern 1</li>
+        <li>Pattern 2</li>
+        <li>Pattern 3</li>
+        <li>Pattern 4</li>
+    </ul>
+
+    <h2>Testing</h2>
+
+    <ol>
+        <li>Turn off learning.</li>
+        <li>Test Patterns 1-4. This corresponds to recall right after learning in the non-amnesia case. Left cortex is activated, and the same pattern should occur in the right cortex. There should be no errors if the network was trained as above.</li>
+    </ol>
+
+    <h2>Other Tests</h2>
+
+    <ol>
+        <li>Lesion hippocampus and test again. This models recall in the amnesia case. Errors are likely to occur. Left cortex will be activated but the same pattern may not occur in the right cortex.</li>
+        <li>Conslidate. To do this, first unlesion the hippocampus and turn learning on. Then press the consolidate button some number of times. This is like time passing between learning and recall.</li>
+        <li>Turn learning off and test patterns 1-4. Do this with or without the hippocampus lesioned. You should get different error rates. Compare the results with the two forgetting curves in Alvarez and Squire Fig. 2.</li>
+    </ol> 
+</body>
+
+</html>

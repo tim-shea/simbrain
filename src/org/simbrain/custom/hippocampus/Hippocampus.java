@@ -1,7 +1,12 @@
 package org.simbrain.custom.hippocampus;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
+import org.simbrain.docviewer.DocViewerComponent;
 import org.simbrain.network.connections.AllToAll;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.groups.NeuronGroup;
@@ -55,6 +60,11 @@ public class Hippocampus {
 
         // Set up control panel
         setUpControlPanel();
+
+        // Add docviewer
+        sim.addDocViewer(0,187,260,433,
+                "Information",
+                "src/org/simbrain/custom/hippocampus/Hippocampus.html");
 
     }
 
@@ -218,17 +228,17 @@ public class Hippocampus {
         panel.addButton("Pattern 1", () -> {
             setUpTrainButton(network, new double[] { 1, 0, 0, 0 });
         });
-        
+
         // Show pattern two
         panel.addButton("Pattern 2", () -> {
             setUpTrainButton(network, new double[] { 0, 1, 0, 0 });
         });
-        
+
         // Show pattern three
         panel.addButton("Pattern 3", () -> {
             setUpTrainButton(network, new double[] { 0, 0, 1, 0 });
         });
-        
+
         // Show pattern four
         panel.addButton("Pattern 4", () -> {
             setUpTrainButton(network, new double[] { 0, 0, 0, 1 });
