@@ -5,7 +5,7 @@ public class TwoCheese extends RL_Sim {
 
     public TwoCheese(RL_Sim_Main mainSim) {
         super(mainSim);
-        cp.addButton("Load", () -> {
+        controls.addButton("Load", () -> {
             load();
         });
     }
@@ -13,36 +13,36 @@ public class TwoCheese extends RL_Sim {
     @Override
     public void load() {
 
-        // Set the new world size
-        mainSim.world.setHeight(350);
-        mainSim.world.setWidth(350);
+        // Initialize world size
+        sim.world.setHeight(350);
+        sim.world.setWidth(350);
 
-        // Set up mouse
-        initialMouseLocation_x = 43;
-        initialMouseLocation_y = 110;
-        initialMouseHeading = 0;
-        mainSim.resetMouse();
+        // Initialize mouse
+        mouse_x = 43;
+        mouse_y = 110;
+        mouse_heading = 0;
+        sim.resetMouse();
 
         // Set up cheese 1
-        mainSim.cheese_1.setLocation(215, 29);
-        mainSim.cheese_1.getSmellSource().setDispersion(400);
-        mainSim.world.addEntity(mainSim.cheese_1);
+        sim.cheese_1.setLocation(215, 29);
+        sim.cheese_1.getSmellSource().setDispersion(400);
+        sim.world.addEntity(sim.cheese_1);
 
-        // Set up flower
-        mainSim.cheese_2.setLocation(215, 215);
-        mainSim.cheese_2.getSmellSource().setDispersion(400);
-        mainSim.world.addEntity(mainSim.cheese_2);
+        // Set up cheese 2
+        sim.cheese_2.setLocation(215, 215);
+        sim.cheese_2.getSmellSource().setDispersion(400);
+        sim.world.addEntity(sim.cheese_2);
 
         // Don't use flower
-        mainSim.world.deleteEntity(mainSim.flower);
+        sim.world.deleteEntity(sim.flower);
 
         // Update the world
-        mainSim.world.fireUpdateEvent();
+        sim.world.fireUpdateEvent();
         
-        // Update goals
+        // Set goal states
         goalEntities.clear();
-        goalEntities.add(mainSim.cheese_1);
-        goalEntities.add(mainSim.cheese_2);
+        goalEntities.add(sim.cheese_1);
+        goalEntities.add(sim.cheese_2);
     }
 
 }

@@ -6,7 +6,7 @@ public class OneCheese extends RL_Sim {
     public OneCheese(RL_Sim_Main mainSim) {
         super(mainSim);
 
-        cp.addButton("Load", () -> {
+        controls.addButton("Load", () -> {
             load();
         });
     }
@@ -14,31 +14,31 @@ public class OneCheese extends RL_Sim {
     @Override
     public void load() {
 
-        // Set the new world size
-        mainSim.world.setHeight(350);
-        mainSim.world.setWidth(350);
+        // Initialize world size
+        sim.world.setHeight(350);
+        sim.world.setWidth(350);
 
-        // Set up mouse
-        initialMouseLocation_x = 45;
-        initialMouseLocation_y = 45;
-        initialMouseHeading = 315;
-        mainSim.resetMouse();
+        // Initialize mouse
+        mouse_x = 45;
+        mouse_y = 45;
+        mouse_heading = 315;
+        sim.resetMouse();
 
         // Set up cheese 1
-        mainSim.cheese_1.setLocation(218, 196);
-        mainSim.cheese_1.getSmellSource().setDispersion(400);
-        mainSim.world.addEntity(mainSim.cheese_1);
+        sim.cheese_1.setLocation(218, 196);
+        sim.cheese_1.getSmellSource().setDispersion(400);
+        sim.world.addEntity(sim.cheese_1);
 
         // Don't use flower or second cheese
-        mainSim.world.deleteEntity(mainSim.flower);
-        mainSim.world.deleteEntity(mainSim.cheese_2);
+        sim.world.deleteEntity(sim.flower);
+        sim.world.deleteEntity(sim.cheese_2);
 
         // Update the world
-        mainSim.world.fireUpdateEvent();
+        sim.world.fireUpdateEvent();
 
-        // Update goals
+        // Set goal state
         goalEntities.clear();
-        goalEntities.add(mainSim.cheese_1);
+        goalEntities.add(sim.cheese_1);
     }
 
 }

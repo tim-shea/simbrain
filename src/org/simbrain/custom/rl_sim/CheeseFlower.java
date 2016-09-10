@@ -9,54 +9,54 @@ public class CheeseFlower extends RL_Sim {
         super(mainSim);
 
         // Move past cheese alone
-        cp.addButton("Load", () -> {
+        controls.addButton("Load", () -> {
             load();
         });
 
         // Move past cheese alone
-        cp.addButton("Cheese", () -> {
-            singleTrail("cheese");
+        controls.addButton("Cheese", () -> {
+            singleTrail(sim.cheese_1);
         });
 
         // Mouse past flower alone
-        cp.addButton("Flower", () -> {
-            singleTrail("flower");
+        controls.addButton("Flower", () -> {
+            singleTrail(sim.flower);
         });
     }
 
     @Override
     public void load() {
 
-        // Set the new world size
-        mainSim.world.setHeight(250);
-        mainSim.world.setWidth(700);
+        // Initialize world size
+        sim.world.setHeight(250);
+        sim.world.setWidth(700);
 
-        // Set up mouse
-        initialMouseLocation_x = 43;
-        initialMouseLocation_y = 110;
-        initialMouseHeading = 0;
-        mainSim.resetMouse();
+        // Initialize mouse
+        mouse_x = 43;
+        mouse_y = 110;
+        mouse_heading = 0;
+        sim.resetMouse();
 
         // Set up cheese 1
-        mainSim.cheese_1.setLocation(351, 29);
-        mainSim.cheese_1.getSmellSource().setDispersion(350);
-        mainSim.world.addEntity(mainSim.cheese_1);
+        sim.cheese_1.setLocation(351, 29);
+        sim.cheese_1.getSmellSource().setDispersion(350);
+        sim.world.addEntity(sim.cheese_1);
 
         // Set up flower
-        mainSim.flower.setLocation(351,215);
-        mainSim.flower.getSmellSource().setDispersion(350);
-        mainSim.world.addEntity(mainSim.flower);
+        sim.flower.setLocation(351,215);
+        sim.flower.getSmellSource().setDispersion(350);
+        sim.world.addEntity(sim.flower);
 
         // Don't use cheese 2
-        mainSim.world.deleteEntity(mainSim.cheese_2);
+        sim.world.deleteEntity(sim.cheese_2);
 
         // Update the world
-        mainSim.world.fireUpdateEvent();
+        sim.world.fireUpdateEvent();
 
-        // Update goals
+        // Update goal states
         goalEntities.clear();
-        goalEntities.add(mainSim.cheese_1);
-        goalEntities.add(mainSim.flower);
+        goalEntities.add(sim.cheese_1);
+        goalEntities.add(sim.flower);
 
     }
 
@@ -65,45 +65,45 @@ public class CheeseFlower extends RL_Sim {
      *
      * @param object the object to pass by.
      */
-    private void singleTrail(String object) {
+    private void singleTrail(OdorWorldEntity objectToFollow) {
 
         //TODO: Possibly promote this so that other sims can use it?
 
         // Don't do the RL updates while running this.
-        mainSim.removeCustomAction();
+        sim.removeCustomAction();
 
         OdorWorldEntity objectToPass;
         OdorWorldEntity otherObject;
 
-        if (object.equalsIgnoreCase("cheese")) {
-            objectToPass = mainSim.cheese_1;
-            otherObject = mainSim.flower;
+        if (objectToFollow == sim.cheese_1) {
+            objectToPass = sim.cheese_1;
+            otherObject = sim.flower;
         } else {
-            objectToPass = mainSim.flower;
-            otherObject = mainSim.cheese_1;
+            objectToPass = sim.flower;
+            otherObject = sim.cheese_1;
         }
 
-        mainSim.network.clearActivations();
+        sim.network.clearActivations();
 
         // Remove other entity to get rid of interference
-        mainSim.world.deleteEntity(otherObject);
+        sim.world.deleteEntity(otherObject);
 
         // Get mouse in position
-        mainSim.mouse.setCenterLocation(
+        sim.mouse.setCenterLocation(
                 (float) (objectToPass.getCenterX()
                         - objectToPass.getSmellSource().getDispersion()),
                 (float) objectToPass.getCenterY());
 
         // Run past the object
-        mainSim.mouse.setVelocityX(5);
-        mainSim.mouse.setHeading(0);
-        mainSim.iterate(100);
+        sim.mouse.setVelocityX(5);
+        sim.mouse.setHeading(0);
+        sim.iterate(100);
 
         // Clean up the mess I've made
-        mainSim.mouse.setVelocityX(0);
-        mainSim.resetMouse();
-        mainSim.addCustomAction();
-        mainSim.world.addEntity(otherObject);
+        sim.mouse.setVelocityX(0);
+        sim.resetMouse();
+        sim.addCustomAction();
+        sim.world.addEntity(otherObject);
     }
 
 }

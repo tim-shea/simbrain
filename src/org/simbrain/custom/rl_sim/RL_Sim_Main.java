@@ -90,7 +90,7 @@ public class RL_Sim_Main {
     OdorWorldBuilder ob;
     PlotBuilder plot;
 
-    /** Master list of entities that simulations can refer to. */
+    /** Entities that a simulation can refer to. */
     RotatingEntity mouse;
     BasicEntity flower;
     BasicEntity cheese_1;
@@ -141,7 +141,7 @@ public class RL_Sim_Main {
         sim.getWorkspace().clearWorkspace();
 
         // Create the network builder
-        NetBuilder net = sim.addNetwork(223, 1, 616, 615, "Neural Network");
+        NetBuilder net = sim.addNetwork(252,0,563,597, "Neural Network");
         network = net.getNetwork();
 
         // Set up the control panel and tabbed pane
@@ -149,7 +149,7 @@ public class RL_Sim_Main {
         controlPanel.addBottomComponent(tabbedPane);
 
         // Create the odor world builder with default vals
-        ob = sim.addOdorWorld(826, 1, 350, 350, "Virtual World");
+        ob = sim.addOdorWorld(803,1,724,318, "Virtual World");
         world = ob.getWorld();
         world.setObjectsBlockMovement(true);
         world.setWrapAround(false);
@@ -184,7 +184,7 @@ public class RL_Sim_Main {
         combinedPredicted = new double[leftInputs.size() + rightInputs.size()];
 
         // Set up projection plot
-        plot = sim.addProjectionPlot(771, 302, 355, 330,
+        plot = sim.addProjectionPlot(798,326,355,330,
                 "Sensory states + Predictions");
         plot.getProjectionModel().init(leftInputs.size() + rightInputs.size());
         plot.getProjectionModel().getProjector().setTolerance(.01);
@@ -247,7 +247,7 @@ public class RL_Sim_Main {
      */
     private void addSim(String simName, RL_Sim sim) {
         simList.add(sim);
-        tabbedPane.add(simName, sim.cp);
+        tabbedPane.add(simName, sim.controls);
     }
 
     /**
@@ -542,9 +542,9 @@ public class RL_Sim_Main {
      * Resets the position of the mouse.
      */
     void resetMouse() {
-        mouse.setLocation(getCurrentSim().initialMouseLocation_x,
-                getCurrentSim().initialMouseLocation_y);
-        mouse.setHeading(getCurrentSim().initialMouseHeading);
+        mouse.setLocation(getCurrentSim().mouse_x,
+                getCurrentSim().mouse_y);
+        mouse.setHeading(getCurrentSim().mouse_heading);
     }
 
     // TODO: All iteration methods must go to workspace level!
