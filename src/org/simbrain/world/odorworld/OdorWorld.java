@@ -102,6 +102,11 @@ public class OdorWorld {
      */
     public void addEntity(final OdorWorldEntity entity) {
 
+        // Don't re-add an entity that is already contained.
+        if (entityList.contains(entity)) {
+            return;
+        }
+
         // Set the entity's id
         entity.setId(entityIDGenerator.getId());
 

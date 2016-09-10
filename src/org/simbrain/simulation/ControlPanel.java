@@ -1,26 +1,101 @@
 package org.simbrain.simulation;
 
+import java.awt.BorderLayout;
 import java.util.concurrent.Executors;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
 import org.simbrain.util.LabelledItemPanel;
 
 /**
- * Simple stack of buttons and other actions, used to control a simulation.
+ * Utility for setting up a control panel in an internal frame.
  *
  * @author Jeff Yoshimi
  *
  */
-public class ControlPanel extends LabelledItemPanel {
+public class ControlPanel extends JPanel {
 
     /** The internal frame all components are placed in. */
     private JInternalFrame internalFrame;
 
+    /** Allows for multiple labeled item panels in separate tabs. */
+    private JTabbedPane tabbedPane;
+
+    /** Main panel, in case where there are not tabs. */
+    private LabelledItemPanel mainPanel;
+
+    /**
+     * The main central panel, with a border layout. A bottom component can also
+     * be added.
+     */
+    private JPanel centralPanel;
+
+    /** Number of tabs in this panel. If the index is 0 don't use tabs. */
+    private int numTabs;
+
     // TODO: Add a version that does not use runnables?
+
+    /**
+     * Construct the control panel with a specified number of tabs. Each
+     * contains a labeled item panel.
+     */
+    public ControlPanel() {
+        super(new BorderLayout());
+        mainPanel = new LabelledItemPanel();
+        centralPanel = new JPanel(new BorderLayout());
+        centralPanel.add(BorderLayout.CENTER, mainPanel);
+        JScrollPane scrollPane = new JScrollPane(centralPanel);
+        scrollPane.setBorder(null);
+        this.add(BorderLayout.CENTER, scrollPane);
+    }
+
+    /**
+     * Add an item to the current tab.
+     *
+     * @param text the text to display next to the component
+     * @param component the component to display
+     */
+    public void addItem(String text, JComponent component) {
+        getPanel(0).addItem(text, component);
+    }
+
+    //TODO: Machinery below is for adding multiple tabs to a control panel.
+    //  I created it but have not yet used it, so I'm commenting it out.
+//    public void addItem(String text, JComponent component, int tabIndex) {
+//        getPanel(tabIndex).addItem(text, component);
+//    }
+//
+//    public void addTab(String tabName) {
+//        if (numTabs == 0) {
+//            // Note does not preserve an existing panel. Meant to be used
+//            // right after construction
+//            centralPanel.remove(mainPanel);
+//            tabbedPane = new JTabbedPane();
+//        }
+//        tabbedPane.add(tabName, new LabelledItemPanel());
+//        numTabs++;
+//    }
+
+    /**
+     * Return the labeled item panel at the specified index.
+     *
+     * @param index index of the panel
+     * @return the indexed panel
+     */
+    private LabelledItemPanel getPanel(int index) {
+        if (numTabs == 0) {
+            return mainPanel;
+        } else {
+            return (LabelledItemPanel) tabbedPane.getTabComponentAt(index);
+        }
+    }
 
     /**
      * Add a button to the control panel.
@@ -46,7 +121,7 @@ public class ControlPanel extends LabelledItemPanel {
             Executors.newSingleThreadExecutor().execute(task);
         });
         this.addItem(buttonText, button);
-        internalFrame.pack();
+        pack();
     }
 
     /**
@@ -59,7 +134,7 @@ public class ControlPanel extends LabelledItemPanel {
     public JTextField addTextField(String fieldLabel, String initText) {
         JTextField tf = new JTextField(initText); // TODO: Check issue 35
         this.addItem(fieldLabel, tf);
-        internalFrame.pack();
+        pack();
         return tf;
     }
 
@@ -78,12 +153,22 @@ public class ControlPanel extends LabelledItemPanel {
         checkBox.addActionListener(e -> {
             Executors.newSingleThreadExecutor().execute(task);
         });
-        internalFrame.pack();
+        pack();
         return checkBox;
     }
 
     /**
-     * Utility for setting up a control panel in an internal frame.
+     * Add a component to the bottom of the control panel.
+     *
+     * @param bottomComponent the bottom component to add
+     */
+    public void addBottomComponent(JComponent bottomComponent) {
+        centralPanel.add(BorderLayout.SOUTH, bottomComponent);
+    }
+
+    /**
+     * Embed a controlpanel in an internal frame
+     * and get a reference to it.
      *
      * @param sim reference to parent simulation
      * @param name title to display in panel frame
@@ -99,10 +184,21 @@ public class ControlPanel extends LabelledItemPanel {
         // Set up Frame
         panel.internalFrame.setLocation(x, y);
         panel.internalFrame.getContentPane().add(panel);
+
         panel.internalFrame.setVisible(true);
         panel.internalFrame.pack();
         sim.getDesktop().addInternalFrame(panel.internalFrame);
         return panel;
     }
+
+    /**
+     * Pack the internal frame, if there is one.
+     */
+    public void pack() {
+        if (internalFrame != null) {
+            internalFrame.pack();
+        }
+    }
+
 
 }

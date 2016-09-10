@@ -74,7 +74,7 @@ import org.simbrain.console.ConsoleComponent;
 import org.simbrain.console.ConsoleDesktopComponent;
 import org.simbrain.custom.agent_trails.AgentTrails;
 import org.simbrain.custom.hippocampus.Hippocampus;
-import org.simbrain.custom.rl_sim.RL_Sim;
+import org.simbrain.custom.rl_sim.RL_Sim_Main;
 import org.simbrain.custom.test.TestSim;
 import org.simbrain.docviewer.DocViewerComponent;
 import org.simbrain.docviewer.DocViewerDesktopComponent;
@@ -639,7 +639,7 @@ public class SimbrainDesktop {
         // The RL simulation
         JMenuItem rlTest = new JMenuItem("RL Vehicles");
         rlTest.addActionListener(ae -> {
-            RL_Sim rlSim = new RL_Sim(this);
+            RL_Sim_Main rlSim = new RL_Sim_Main(this);
             rlSim.run();
         });
         scriptMenu.add(rlTest);

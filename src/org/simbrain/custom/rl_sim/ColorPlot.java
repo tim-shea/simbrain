@@ -10,12 +10,12 @@ import org.simbrain.workspace.updater.UpdateAction;
 public class ColorPlot implements UpdateAction {
 
     /** Reference to simulation object that has all the main variables used. */
-    RL_Sim sim;
+    RL_Sim_Main sim;
 
     /**
      * Construct the updater.
      */
-    public ColorPlot(RL_Sim sim) {
+    public ColorPlot(RL_Sim_Main sim) {
         super();
         this.sim = sim;
     }

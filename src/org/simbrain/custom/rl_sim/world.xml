@@ -9,18 +9,26 @@
 	</agent>
 	<entity>
 	    <imageId>Swiss.gif</imageId>
-	    <name>Swiss_1_goal</name>
-	    <x>215</x>
+	    <name>cheese_1</name>
+	    <x>350</x>
 	    <y>29</y>
 	    <stim>0,1,0,0,0,1</stim>
-	    <dispersion>400</dispersion>
+	    <dispersion>350</dispersion>
+	</entity>
+	<entity>
+	    <imageId>Swiss.gif</imageId>
+	    <name>cheese_2</name>
+	    <x>350</x>
+	    <y>29</y>
+	    <stim>0,1,0,0,0,1</stim>
+	    <dispersion>350</dispersion>
 	</entity>
 	<entity>
 	    <imageId>Pansy.gif</imageId>
-	    <name>Pansy_goal</name>
-	    <x>215</x>
+	    <name>flower</name>
+	    <x>350</x>
 	    <y>215</y>
 	    <stim>0,0,0,0,1,1</stim>
-	    <dispersion>400</dispersion>
+	    <dispersion>350</dispersion>
 	</entity>
 </entityList>
