@@ -164,6 +164,7 @@ public class ControlPanel extends JPanel {
      */
     public void addBottomComponent(JComponent bottomComponent) {
         centralPanel.add(BorderLayout.SOUTH, bottomComponent);
+        pack();
     }
 
     /**

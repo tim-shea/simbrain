@@ -3,6 +3,8 @@ package org.simbrain.custom.hippocampus;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
+import javax.swing.JPanel;
+
 import org.simbrain.network.connections.AllToAll;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.groups.NeuronGroup;
@@ -11,6 +13,9 @@ import org.simbrain.network.subnetworks.CompetitiveGroup;
 import org.simbrain.simulation.ControlPanel;
 import org.simbrain.simulation.NetBuilder;
 import org.simbrain.simulation.Simulation;
+import org.simbrain.util.SimbrainConstants.Polarity;
+import org.simbrain.util.math.ProbDistribution;
+import org.simbrain.util.randomizer.PolarizedRandomizer;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 
 /**
@@ -22,6 +27,7 @@ import org.simbrain.workspace.gui.SimbrainDesktop;
  * @author Alex Pabst
  *
  */
+//CHECKSTYLE:OFF
 public class Hippocampus {
 
     /** The main simulation object. */
@@ -33,6 +39,10 @@ public class Hippocampus {
     ControlPanel panel;
     boolean hippoLesioned = false;
     boolean learningEnabled = true;
+
+    /** References to main neuron and synapse groups. */
+    CompetitiveGroup LC1, LC2, RC1, RC2, hippocampus;
+    SynapseGroup HtoLC1 , HtoLC2 , HtoRC1 , HtoRC2 , LC1toH , LC2toH , RC1toH , RC2toH;
 
     /**
      * @param desktop
@@ -56,7 +66,7 @@ public class Hippocampus {
         setUpControlPanel();
 
         // Add docviewer
-        sim.addDocViewer(832, 9, 284, 544, "Information",
+        sim.addDocViewer(807, 12, 307, 591, "Information",
                 "src/org/simbrain/custom/hippocampus/Hippocampus.html");
 
     }
@@ -66,153 +76,91 @@ public class Hippocampus {
      */
     private void buildNetwork() {
 
-        // Set up
-        net = sim.addNetwork(254, 8, 588, 572, "Hippocampus");
+        // Set network variables
+        net = sim.addNetwork(187, 12, 632, 585, "Hippocampus");
         network = net.getNetwork();
 
-        // TODO: Consider a rename to upper / lower cortex 1 + 2 to better match
-        // paper
+        // Add cortical groups
+        LC1 = addCorticalGroup("Left Cortex Top", 185, -114);
+        LC2 = addCorticalGroup("Left Cortex Bottom", 185, -28);
+        RC1 = addCorticalGroup("Right Cortex Top", 597, -114);
+        RC2 = addCorticalGroup("Right Cortex Top", 597, -28);
 
-        // LC1
-        CompetitiveGroup LC1 = new CompetitiveGroup(network, 4);
-        LC1.setLabel("Left Cortex 1");
-        LC1.applyLayout();
-        LC1.setLocation(0, 0);
-        LC1.setUpdateMethod("AS");
-        network.addGroup(LC1);
+        // Add hippocampus
+        hippocampus = addHippocampus("Hippocampus", 368, 179);
 
-        // LC2
-        CompetitiveGroup LC2 = new CompetitiveGroup(network, 4);
-        LC2.setLabel("Left Cortex 2");
-        LC2.applyLayout();
-        LC2.setLocation(0, 800);
-        LC2.setUpdateMethod("AS");
-        network.addGroup(LC2);
-
-        // RC1
-        CompetitiveGroup RC1 = new CompetitiveGroup(network, 4);
-        RC1.setLabel("Right Cortex 1");
-        RC1.applyLayout();
-        RC1.setLocation(1600, 0);
-        RC1.setUpdateMethod("AS");
-        network.addGroup(RC1);
-
-        // RC2
-        CompetitiveGroup RC2 = new CompetitiveGroup(network, 4);
-        RC2.setLabel("Right Cortex 2");
-        RC2.applyLayout();
-        RC2.offset(1600, 800);
-        RC2.setUpdateMethod("AS");
-        network.addGroup(RC2);
-
-        // Hippocampus
-        CompetitiveGroup hippocampus = new CompetitiveGroup(network, 4);
-        hippocampus.setLabel("Hippocampus");
-        hippocampus.applyLayout();
-        hippocampus.setUpdateMethod("AS");
-        hippocampus.offset(800, 1200);
-        network.addGroup(hippocampus);
-
-        // Make hippocampal synapse groups
-        SynapseGroup HtoLC1 = SynapseGroup.createSynapseGroup(hippocampus, LC1,
-                new AllToAll());
-        HtoLC1.setLabel("H to LC1");
-        network.addGroup(HtoLC1);
-        // HtoLC1.setLearningRate(0.1);
-
-        SynapseGroup HtoLC2 = SynapseGroup.createSynapseGroup(hippocampus, LC2,
-                new AllToAll());
-        HtoLC2.setLabel("H to LC2");
-        network.addGroup(HtoLC2);
-        // HtoLC2.setLearningRate(0.1);
-
-        SynapseGroup HtoRC1 = SynapseGroup.createSynapseGroup(hippocampus, RC1,
-                new AllToAll());
-        HtoRC1.setLabel("H to RC1");
-        network.addGroup(HtoRC1);
-        // HtoRC1.setLearningRate(0.1);
-
-        SynapseGroup HtoRC2 = SynapseGroup.createSynapseGroup(hippocampus, RC2,
-                new AllToAll());
-        HtoRC2.setLabel("H to RC2");
-        network.addGroup(HtoRC2);
-        // HtoRC2.setLearningRate(0.1);
-
-        SynapseGroup LC1toH = SynapseGroup.createSynapseGroup(LC1, hippocampus,
-                new AllToAll());
-        LC1toH.setLabel("LC1 to H");
-        network.addGroup(LC1toH);
-        // LC1toH.setLearningRate(0.1);
-
-        SynapseGroup LC2toH = SynapseGroup.createSynapseGroup(LC2, hippocampus,
-                new AllToAll());
-        LC2toH.setLabel("LC2 to H");
-        network.addGroup(LC2toH);
-        // LC2toH.setLearningRate(0.1);
-
-        SynapseGroup RC1toH = SynapseGroup.createSynapseGroup(RC1, hippocampus,
-                new AllToAll());
-        RC1toH.setLabel("RC1 to H");
-        network.addGroup(RC1toH);
-        // RC1toH.setLearningRate(0.1);
-
-        SynapseGroup RC2toH = SynapseGroup.createSynapseGroup(RC2, hippocampus,
-                new AllToAll());
-        RC2toH.setLabel("RC2 to H");
-        network.addGroup(RC2toH);
-        // RC2toH.setLearningRate(0.1);
-
-        // Make cortico-cortical synapse groups
-        SynapseGroup LC1toRC1 = SynapseGroup.createSynapseGroup(LC1, RC1,
-                new AllToAll());
-        LC1toRC1.setLabel("LC1 to RC1");
-        network.addGroup(LC1toRC1);
-        // LC1toRC1.setLearningRate(0.002);
-
-        SynapseGroup LC1toRC2 = SynapseGroup.createSynapseGroup(LC1, RC2,
-                new AllToAll());
-        LC1toRC2.setLabel("LC1 to RC2");
-        network.addGroup(LC1toRC2);
-        // LC1toRC2.setLearningRate(0.002);
-
-        SynapseGroup LC2toRC1 = SynapseGroup.createSynapseGroup(LC2, RC1,
-                new AllToAll());
-        LC2toRC1.setLabel("LC2 to RC1");
-        network.addGroup(LC2toRC1);
-        // LC2toRC1.setLearningRate(0.002);
-
-        SynapseGroup LC2toRC2 = SynapseGroup.createSynapseGroup(LC2, RC2,
-                new AllToAll());
-        LC2toRC2.setLabel("LC2 to RC2");
-        network.addGroup(LC2toRC2);
-        // LC2toRC2.setLearningRate(0.002);
-
-        SynapseGroup RC1toLC1 = SynapseGroup.createSynapseGroup(RC1, LC1,
-                new AllToAll());
-        RC1toLC1.setLabel("RC1 to LC1");
-        network.addGroup(RC1toLC1);
-        // RC1toLC1.setLearningRate(0.002);
-
-        SynapseGroup RC1toLC2 = SynapseGroup.createSynapseGroup(RC1, LC2,
-                new AllToAll());
-        RC1toLC2.setLabel("RC1 to LC2");
-        network.addGroup(RC1toLC2);
-        /// RC1toLC2.setLearningRate(0.002);
-
-        SynapseGroup RC2toLC1 = SynapseGroup.createSynapseGroup(RC2, LC1,
-                new AllToAll());
-        RC2toLC1.setLabel("RC2 to LC1");
-        network.addGroup(RC2toLC1);
-        // RC2toLC1.setLearningRate(0.002);
-
-        SynapseGroup RC2toLC2 = SynapseGroup.createSynapseGroup(RC2, LC2,
-                new AllToAll());
-        RC2toLC2.setLabel("RC2 to LC2");
-        network.addGroup(RC2toLC2);
-        // RC2toLC2.setLearningRate(0.002);
+        // Connect the groups together
+        HtoLC1 = addSynapseGroup(hippocampus, LC1, "H to LC1");
+        HtoLC2 = addSynapseGroup(hippocampus, LC2, "H to LC2");
+        HtoRC1 = addSynapseGroup(hippocampus, RC1, "H to RC1");
+        HtoRC2 = addSynapseGroup(hippocampus, RC2, "H to RC2");
+        LC1toH = addSynapseGroup(hippocampus, LC1, "LC1 to H");
+        LC2toH = addSynapseGroup(hippocampus, LC2, "LC2 to H");
+        RC1toH = addSynapseGroup(RC1, hippocampus, "RC1 to H");
+        RC2toH = addSynapseGroup(RC2, hippocampus, "RC2 to H");
+        addSynapseGroup(LC1, RC1, "LC1 to RC1");
+        addSynapseGroup(LC1, RC2, "LC1 to RC2");
+        addSynapseGroup(LC2, RC1, "LC2 to RC1");
+        addSynapseGroup(LC2, RC2, "LC2 to RC2");
+        addSynapseGroup(RC1, LC1, "RC1 to LC1");
+        addSynapseGroup(RC1, LC2, "RC1 to LC2");
+        addSynapseGroup(RC2, LC1, "RC2 to LC1");
+        addSynapseGroup(RC2, LC2, "RC2 to LC2");
 
     }
 
+    /**
+     * Add the MTL.
+     */
+    private CompetitiveGroup addHippocampus(String label, double x, double y) {
+        CompetitiveGroup cg = addCompetitiveGroup(label, x, y);
+        // See Alvarez-Squire Fig. 2
+        cg.setSynpaseDecayPercent(.04);
+        cg.setLearningRate(.1);
+        return cg;
+    }
+
+    /**
+     * Add a cortical group.
+     */
+    private CompetitiveGroup addCorticalGroup(String label, double x, double y) {
+        CompetitiveGroup cg = addCompetitiveGroup(label, x, y);
+        // See Alvarez-Squire Fig. 2
+        cg.setSynpaseDecayPercent(.0008);
+        cg.setLearningRate(.002);
+        return cg;
+    }
+
+    /**
+     * Add and properly initialize a competitive neuron group.
+     */
+    private CompetitiveGroup addCompetitiveGroup(String label, double x, double y) {
+        CompetitiveGroup cg = new CompetitiveGroup(network, 4);
+        cg.setLabel(label);
+        cg.applyLayout();
+        cg.setLocation(x, y);
+        cg.setUpdateMethod("AS");
+        network.addGroup(cg);
+        return cg;
+    }
+
+    /**
+     * Add and properly initialize a synapse group.
+     */
+    private SynapseGroup addSynapseGroup(NeuronGroup source, NeuronGroup target, String name) {
+        SynapseGroup synGroup = SynapseGroup.createSynapseGroup(source, target,
+                new AllToAll());
+        synGroup.setLabel(name);
+        synGroup.setExcitatoryRatio(1);
+        synGroup.setStrength(0, Polarity.EXCITATORY);
+        synGroup.setUpperBound(1, Polarity.EXCITATORY);
+        network.addGroup(synGroup);
+        return synGroup;
+    }
+
+    /**
+     * Set up the controls.
+     */
     private void setUpControlPanel() {
 
         panel = ControlPanel.makePanel(sim, "Control Panel", 5, 10);
@@ -220,22 +168,22 @@ public class Hippocampus {
 
         // Show pattern one
         panel.addButton("Train 1", () -> {
-            setUpTrainButton(network, new double[] { 1, 0, 0, 0 });
+            train(network, new double[] { 1, 0, 0, 0 });
         });
 
         // Show pattern two
         panel.addButton("Train 2", () -> {
-            setUpTrainButton(network, new double[] { 0, 1, 0, 0 });
+            train(network, new double[] { 0, 1, 0, 0 });
         });
 
         // Show pattern three
         panel.addButton("Train 3", () -> {
-            setUpTrainButton(network, new double[] { 0, 0, 1, 0 });
+            train(network, new double[] { 0, 0, 1, 0 });
         });
 
         // Show pattern four
         panel.addButton("Train 4", () -> {
-            setUpTrainButton(network, new double[] { 0, 0, 0, 1 });
+            train(network, new double[] { 0, 0, 0, 1 });
         });
 
         // Consolidate
@@ -251,17 +199,37 @@ public class Hippocampus {
             } else if (actNeuron == 3) {
                 activations = new double[] { 0, 0, 0, 1 };
             }
-            NeuronGroup hippo = (NeuronGroup) network
-                    .getGroupByLabel("Hippocampus");
             network.clearActivations();
-            hippo.setClamped(true);
-            hippo.forceSetActivations(activations);
+            hippocampus.setClamped(true);
+            hippocampus.forceSetActivations(activations);
             iterate(1);
-            hippo.setClamped(false);
+            hippocampus.setClamped(false);
         });
 
+        // Show pattern one
+        panel.addButton("Test 1", () -> {
+            test(network, new double[] { 1, 0, 0, 0 });
+        });
+
+        // Show pattern two
+        panel.addButton("Test 2", () -> {
+            test(network, new double[] { 0, 1, 0, 0 });
+        });
+
+        // Show pattern three
+        panel.addButton("Test 3", () -> {
+            test(network, new double[] { 0, 0, 1, 0 });
+        });
+
+        // Show pattern four
+        panel.addButton("Test 4", () -> {
+            test(network, new double[] { 0, 0, 0, 1 });
+        });
+
+        ControlPanel bottomPanel = new ControlPanel();
+
         // Hippocampus checkbox
-        panel.addCheckBox("Hippocampus", hippoLesioned, () -> {
+        bottomPanel.addCheckBox("Lesion MTL", hippoLesioned, () -> {
             if (hippoLesioned == true) {
                 hippoLesioned = false;
             } else {
@@ -271,7 +239,7 @@ public class Hippocampus {
         });
 
         // Freeze weights checkbox
-        panel.addCheckBox("Learning", learningEnabled, () -> {
+        bottomPanel.addCheckBox("Learning", learningEnabled, () -> {
             if (learningEnabled == true) {
                 learningEnabled = false;
             } else {
@@ -280,25 +248,7 @@ public class Hippocampus {
             network.freezeSynapses(!learningEnabled);
         });
 
-        // Show pattern one
-        panel.addButton("Test 1", () -> {
-            setUpTestButton(network, new double[] { 1, 0, 0, 0 });
-        });
-
-        // Show pattern two
-        panel.addButton("Test 2", () -> {
-            setUpTestButton(network, new double[] { 0, 1, 0, 0 });
-        });
-
-        // Show pattern three
-        panel.addButton("Test 3", () -> {
-            setUpTestButton(network, new double[] { 0, 0, 1, 0 });
-        });
-
-        // Show pattern four
-        panel.addButton("Test 4", () -> {
-            setUpTestButton(network, new double[] { 0, 0, 0, 1 });
-        });
+        panel.addBottomComponent(bottomPanel);
     }
 
     /**
@@ -325,17 +275,7 @@ public class Hippocampus {
      * @param network
      * @param activations
      */
-    void setUpTrainButton(Network network, double[] activations) {
-        NeuronGroup LC1 = (NeuronGroup) network
-                .getGroupByLabel("Left Cortex 1");
-        NeuronGroup LC2 = (NeuronGroup) network
-                .getGroupByLabel("Left Cortex 2");
-        NeuronGroup RC1 = (NeuronGroup) network
-                .getGroupByLabel("Right Cortex 1");
-        NeuronGroup RC2 = (NeuronGroup) network
-                .getGroupByLabel("Right Cortex 2");
-        NeuronGroup HP = (NeuronGroup) network.getGroupByLabel("Hippocampus");
-
+    void train(Network network, double[] activations) {
         // Clamp nodes and set activations
         LC1.setClamped(true);
         LC2.setClamped(true);
@@ -345,7 +285,7 @@ public class Hippocampus {
         LC2.forceSetActivations(activations);
         RC1.forceSetActivations(activations);
         RC2.forceSetActivations(activations);
-        HP.forceSetActivations(new double[] { 0, 0, 0, 0 });
+        hippocampus.forceSetActivations(new double[] { 0, 0, 0, 0 });
 
         // Iterate 3 times
         iterate(3);
@@ -364,13 +304,7 @@ public class Hippocampus {
      * @param network
      * @param activations
      */
-    void setUpTestButton(Network network, double[] activations) {
-        NeuronGroup LC1 = (NeuronGroup) network
-                .getGroupByLabel("Left Cortex 1");
-        NeuronGroup LC2 = (NeuronGroup) network
-                .getGroupByLabel("Left Cortex 2");
-        NeuronGroup HP = (NeuronGroup) network.getGroupByLabel("Hippocampus");
-
+    void test(Network network, double[] activations) {
         // Clamp nodes and set activations
         LC1.setClamped(true);
         LC2.setClamped(true);
@@ -389,22 +323,6 @@ public class Hippocampus {
      * Enable / disable the hippocampus
      */
     void enableHippocampus(Network network, boolean lesioned) {
-        SynapseGroup HtoLC1 = (SynapseGroup) network
-                .getGroupByLabel("H to LC1");
-        SynapseGroup HtoLC2 = (SynapseGroup) network
-                .getGroupByLabel("H to LC2");
-        SynapseGroup HtoRC1 = (SynapseGroup) network
-                .getGroupByLabel("H to RC1");
-        SynapseGroup HtoRC2 = (SynapseGroup) network
-                .getGroupByLabel("H to RC2");
-        SynapseGroup LC1toH = (SynapseGroup) network
-                .getGroupByLabel("LC1 to H");
-        SynapseGroup LC2toH = (SynapseGroup) network
-                .getGroupByLabel("LC2 to H");
-        SynapseGroup RC1toH = (SynapseGroup) network
-                .getGroupByLabel("RC1 to H");
-        SynapseGroup RC2toH = (SynapseGroup) network
-                .getGroupByLabel("RC2 to H");
 
         HtoLC1.setEnabled(!lesioned);
         HtoLC2.setEnabled(!lesioned);

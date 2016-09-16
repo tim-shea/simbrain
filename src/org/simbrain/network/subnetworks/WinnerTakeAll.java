@@ -166,7 +166,7 @@ public class WinnerTakeAll extends NeuronGroup {
             }
         }
         // Break ties randomly
-        // (TODO: Add a field so use can decide if they want this)
+        // (TODO: Add a field so user can decide if they want this)
         if (tie) {
             winnerIndex = getRandomWinnerIndex();
         }

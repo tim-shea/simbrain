@@ -60,7 +60,7 @@ public class CompetitiveGroup extends NeuronGroup {
 
     /**
      * Percentage by which to decay synapses on each update for for
-     * Alvarez-Squire update.
+     * Alvarez-Squire update.  What they call a forgetting term rho.
      */
     private double synpaseDecayPercent = .0008;
 

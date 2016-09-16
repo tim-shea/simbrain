@@ -807,7 +807,7 @@ public class SynapseGroup extends Group {
      *
      * @param excitatoryRatio
      *            the ratio of synapses which will be made excitatory, value
-     *            must be in the range [0, 1]
+     *            must be in the range [0, 1].   1 means all excitatory.
      * @throws IllegalArgumentException if the ratio is not on [0, 1].
      */
     public void setExcitatoryRatio(double excitatoryRatio)
