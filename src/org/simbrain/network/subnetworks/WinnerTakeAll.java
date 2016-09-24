@@ -196,6 +196,10 @@ public class WinnerTakeAll extends NeuronGroup {
             Neuron n = neuronList.get(i);
             double val = n.getWeightedInputs();
             if (val > max) {
+            	//throw away the old ones
+            	candidateIndex_box = new ArrayList<Neuron>();
+            }
+            if (val >= max) {
                 winnerIndex = i;
                 max = n.getWeightedInputs();
                 candidateIndex_box.add(n);
