@@ -3,7 +3,6 @@ package org.simbrain.custom.hippocampus;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
-import org.simbrain.network.connections.AllToAll;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.network.groups.SynapseGroup;
@@ -12,7 +11,6 @@ import org.simbrain.simulation.ControlPanel;
 import org.simbrain.simulation.NetBuilder;
 import org.simbrain.simulation.Simulation;
 import org.simbrain.util.SimbrainConstants.Polarity;
-import org.simbrain.util.math.ProbDistribution;
 import org.simbrain.util.randomizer.PolarizedRandomizer;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 
@@ -40,7 +38,7 @@ public class Hippocampus {
     ControlPanel panel;
     boolean hippoLesioned = false;
     boolean learningEnabled = true;
-
+    
     /** References to main neuron and synapse groups. */
     CompetitiveGroup LC1, LC2, RC1, RC2, hippocampus;
     SynapseGroup HtoLC1 , HtoLC2 , HtoRC1 , HtoRC2 , LC1toH , LC2toH , RC1toH , RC2toH;
@@ -71,8 +69,8 @@ public class Hippocampus {
         sim.addDocViewer(807, 12, 307, 591, "Information",
                 "src/org/simbrain/custom/hippocampus/Hippocampus.html");
         
-        //Manually update using task specific updating
-        network.getUpdateManager().clear();
+        // If manually updating in script, must clear built-in updates
+        //network.getUpdateManager().clear();
 
     }
 
@@ -91,11 +89,10 @@ public class Hippocampus {
         RC1 = addCorticalGroup("Right Cortex Top", 597, -114);
         RC2 = addCorticalGroup("Right Cortex Top", 597, -28);
 
-        // Add hippocampus
+        // Add hippocampus (MTL)
         hippocampus = addHippocampus("Hippocampus", 368, 179);
 
-        // Connect the groups together
-        //hippocampus related synapses
+        // Cortex to MTL connections
         HtoLC1 = addSynapseGroup(hippocampus, LC1, "H to LC1");
         HtoLC2 = addSynapseGroup(hippocampus, LC2, "H to LC2");
         HtoRC1 = addSynapseGroup(hippocampus, RC1, "H to RC1");
@@ -104,7 +101,7 @@ public class Hippocampus {
         LC2toH = addSynapseGroup(LC2, hippocampus, "LC2 to H");
         RC1toH = addSynapseGroup(RC1, hippocampus, "RC1 to H");
         RC2toH = addSynapseGroup(RC2, hippocampus, "RC2 to H");
-        //others
+        // Cortico-corticol connections
         addSynapseGroup(LC1, RC1, "LC1 to RC1");
         addSynapseGroup(LC1, RC2, "LC1 to RC2");
         addSynapseGroup(LC2, RC1, "LC2 to RC1");
@@ -208,7 +205,7 @@ public class Hippocampus {
 //        });
 
         // Consolidate
-        panel.addButton("Consolidate", () -> {
+        panel.addButton("Sleep", () -> {
             double[] activations = new double[4];
             int actNeuron = generator.nextInt(4);
             if (actNeuron == 0) {
@@ -225,6 +222,20 @@ public class Hippocampus {
             hippocampus.forceSetActivations(activations);
             iterate(1);
             hippocampus.setClamped(false);
+        });
+
+        // Test all the patterns
+        panel.addButton("Test All", () -> {
+            double error = 0;
+            test(network, new double[] { 1, 0, 0, 0 });
+            error += getError(0);
+            test(network, new double[] { 0, 1, 0, 0 });
+            error += getError(1);
+            test(network, new double[] { 0, 0, 1, 0 });
+            error += getError(2);
+            test(network, new double[] { 0, 0, 0, 1 });
+            error += getError(3);
+            System.out.println("error:" + error);
         });
 
         // Show pattern one
@@ -272,6 +283,14 @@ public class Hippocampus {
         panel.addBottomComponent(bottomPanel);
     }
 
+    //todo: print to control panel
+    public double getError(int index) {
+        double diff1 = LC1.getNeuronList().get(index).getActivation()
+                - RC1.getNeuronList().get(index).getActivation();
+        double diff2 = LC2.getNeuronList().get(index).getActivation()
+                - RC2.getNeuronList().get(index).getActivation();
+        return Math.abs(diff1) + Math.abs(diff2);
+    }
     /**
      * Iterate the simulation a specific number of times and don't move forward
      * in the script until done.
@@ -282,21 +301,21 @@ public class Hippocampus {
         CountDownLatch iterationLatch = new CountDownLatch(1);
         
         // TODO: Temporary for testing
-        LC1.update1();
-        LC2.update1();
-        RC1.update1();
-        RC2.update1();
-        hippocampus.update1();
-        LC1.update2();
-        LC2.update2();
-        RC1.update2();
-        RC2.update2();
-        hippocampus.update2();
-        LC1.update3();
-        LC2.update3();
-        RC1.update3();
-        RC2.update3();
-        hippocampus.update3();
+//        LC1.update1();
+//        LC2.update1();
+//        RC1.update1();
+//        RC2.update1();
+//        hippocampus.update1();
+//        LC1.update2();
+//        LC2.update2();
+//        RC1.update2();
+//        RC2.update2();
+//        hippocampus.update2();
+//        LC1.update3();
+//        LC2.update3();
+//        RC1.update3();
+//        RC2.update3();
+//        hippocampus.update3();
         
         sim.getWorkspace().iterate(iterationLatch, iterations);
         try {
@@ -347,6 +366,7 @@ public class Hippocampus {
         
         // Turn off learning during testing
         network.freezeSynapses(true);
+        network.clearActivations();
         
         // Clamp nodes and set activations
         LC1.setClamped(true);

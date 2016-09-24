@@ -148,44 +148,43 @@ public class CompetitiveGroup extends NeuronGroup {
     public String getTypeDescription() {
         return "Competitive Group";
     }
-    
+
     // TODO: Below is temporaray for testing
-
-    public void update1() {
-        Neuron win = getNeuronList()
-                .get(WinnerTakeAll.getWinningIndex(getNeuronList()));
-        squireAlvarezWeightUpdate(win);
-    }
-
-    public void update2() {
-        winner = WinnerTakeAll.getWinningIndex(getNeuronList());
-        for (int i = 0; i < getNeuronList().size(); i++) {
-            Neuron neuron = getNeuronList().get(i);
-            if (i == winner) {
-                neuron.setSpkBuffer(neuron.isSpike());
-                // TODO: Redo all the neuron update
-                if (!neuron.isClamped()) {
-                    double val = .7 * neuron.getActivation()
-                            + neuron.getWeightedInputs()
-                            + noiseGenerator.getRandom();
-                    neuron.forceSetActivation((val > 0) ? val : 0);
-                    neuron.forceSetActivation((val < 1) ? val : 1);
-                }
-                squireAlvarezWeightUpdate(neuron);
-                decayAllSynapses();
-            } else {
-                neuron.setActivation(loseValue);
-                neuron.setSpkBuffer(neuron.isSpike());
-                if (useLeakyLearning) {
-                    leakyLearning(neuron);
-                }
-            }
-        }
-    }
-
-    public void update3() {
-        decayAllSynapses();
-    }
+//    public void update1() {
+//        Neuron win = getNeuronList()
+//                .get(WinnerTakeAll.getWinningIndex(getNeuronList()));
+//        squireAlvarezWeightUpdate(win);
+//    }
+//
+//    public void update2() {
+//        winner = WinnerTakeAll.getWinningIndex(getNeuronList());
+//        for (int i = 0; i < getNeuronList().size(); i++) {
+//            Neuron neuron = getNeuronList().get(i);
+//            if (i == winner) {
+//                neuron.setSpkBuffer(neuron.isSpike());
+//                // TODO: Redo all the neuron update
+//                if (!neuron.isClamped()) {
+//                    double val = .7 * neuron.getActivation()
+//                            + neuron.getWeightedInputs()
+//                            + noiseGenerator.getRandom();
+//                    neuron.forceSetActivation(val > 0 ? val : 0);
+//                    neuron.forceSetActivation(val < 1 ? val : 1);
+//                }
+//                squireAlvarezWeightUpdate(neuron);
+//                decayAllSynapses();
+//            } else {
+//                neuron.setActivation(loseValue);
+//                neuron.setSpkBuffer(neuron.isSpike());
+//                if (useLeakyLearning) {
+//                    leakyLearning(neuron);
+//                }
+//            }
+//        }
+//    }
+//
+//    public void update3() {
+//        decayAllSynapses();
+//    }
 
     @Override
     public void update() {
@@ -203,16 +202,16 @@ public class CompetitiveGroup extends NeuronGroup {
                     neuron.setActivation(winValue);
                     rummelhartZipser(neuron);
                 } else if (updateMethod == UpdateMethod.ALVAREZ_SQUIRE) {
-                    // TODO: Redo all the neuron update
                     if (!neuron.isClamped()) {
-                        double val = .7 * neuron.getActivation()
-                                + neuron.getWeightedInputs()
-                                + noiseGenerator.getRandom();
-                        neuron.forceSetActivation((val > 0) ? val : 0);
-                        neuron.forceSetActivation((val < 1) ? val : 1);
+                        neuron.setActivation(winValue);
+//                        double val = .7 * neuron.getActivation()
+//                                + neuron.getWeightedInputs()
+//                                + noiseGenerator.getRandom();
+//                        neuron.forceSetActivation((val > 0) ? val : 0);
+//                        neuron.forceSetActivation((val < 1) ? val : 1);
                     }
                     squireAlvarezWeightUpdate(neuron);
-                    decayAllSynapses();
+//                    decayAllSynapses();
                 }
             } else {
                 neuron.setActivation(loseValue);
@@ -235,10 +234,24 @@ public class CompetitiveGroup extends NeuronGroup {
      * @param neuron winning neuron.
      */
     private void squireAlvarezWeightUpdate(final Neuron neuron) {
+        double lambda;
+
+        // TODO: Temporary for testing
         for (Synapse synapse : neuron.getFanIn()) {
-            double deltaw = learningRate * synapse.getTarget().getActivation()
-                    * (synapse.getSource().getActivation() - 0);
+            if (synapse.getSource().getParentGroup().getLabel()
+                    .equalsIgnoreCase("Hippocampus")) {
+                lambda = .1;
+            } else if (synapse.getTarget().getParentGroup().getLabel()
+                    .equalsIgnoreCase("Hippocampus")) {
+                lambda = .1;
+            } else {
+                lambda = .002;
+            }
+            double deltaw = lambda * synapse.getTarget().getActivation()
+                    * (synapse.getSource().getActivation()
+                            - synapse.getTarget().getAverageInput());
             synapse.setStrength(synapse.clip(synapse.getStrength() + deltaw));
+
         }
     }
 

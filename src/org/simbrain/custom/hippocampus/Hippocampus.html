@@ -6,39 +6,72 @@
     <title>Hippocampus Simulation</title>
 </head>
 
+<!-- TODO: Include picture of original network and of their graph  -->
 <body>
     <h1>Hippocampus model</h1>
     Based on Alvarez and Squire (1994)
     <br>
-    <h2>Training</h2>
+    <h2>Background</h2>
 
-    <p>Train the model on cortical patterns by pressing the Train button for patterns 1-4. (Each button press corresponds to training the network on that pattern once).</p>
-    <p>We suggest training each pattern twice. To to do this, click the Train buttons in this sequence: </p>
-    <ul>
-        <li>Pattern 1</li>
-        <li>Pattern 2</li>
-        <li>Pattern 3</li>
-        <li>Pattern 4</li>
-        <li>Pattern 1</li>
-        <li>Pattern 2</li>
-        <li>Pattern 3</li>
-        <li>Pattern 4</li>
+    <p>This model illustrates the idea that the hippocampus encodes information in to the cortex via memory consolidation.</p>
+
+    <p>The model has two cortical areas and a hippocampus</p>
+
+    <p>The model is trained on the following four patterns: 
+    <ul style="list-style: none;">
+        <li>1,0,0,0 > 1,0,0,0</li>
+        <li>1,0,0,0 > 1,0,0,0</li>
+    </ul>
+    <ul style="list-style: none;">
+        <li>0,1,0,0 > 0,1,0,0</li>
+        <li>0,1,0,0 > 0,1,0,0</li>
+    </ul>
+    <ul style="list-style: none;">
+        <li>0,0,1,0 > 0,0,1,0</li>
+        <li>0,0,1,0 > 0,0,1,0</li>
+    </ul>
+    <ul style="list-style: none;">
+        <li>0,0,0,1 > 0,0,0,1</li>
+        <li>0,0,0,1 > 0,0,0,1</li>
     </ul>
 
-    <h2>Testing</h2>
+    </p>
+
+
+    <h2>Normal Learning</h2>
+
+    <p>To see what happens when new information is learned and the hippocampus is intact:</p>
 
     <ol>
-        <li>Turn off learning.</li>
-        <li>Test Patterns 1-4. This corresponds to recall right after learning in the non-amnesia case. Left cortex is activated, and the same pattern should occur in the right cortex. There should be no errors if the network was trained as above.</li>
+        <li><b>Train</b> the model on the four cortical patterns by pressing the <b>train all</b> button. </li>
+        <li><b>Test</b> the model by pressing <b>test all</b> (error currently printed to console), or by testing individuals patterns with the <b>test</b> buttons.</li>
     </ol>
 
-    <h2>Other Tests</h2>
+    
+    <h2>Consolidatiation or "Sleeping"</h2>
 
-    <ol>
-        <li>Lesion hippocampus and test again. This models recall in the amnesia case. Errors are likely to occur. Left cortex will be activated but the same pattern may not occur in the right cortex.</li>
-        <li>Conslidate. To do this, first unlesion the hippocampus and turn learning on. Then press the consolidate button some number of times. This is like time passing between learning and recall.</li>
-        <li>Turn learning off and test patterns 1-4. Do this with or without the hippocampus lesioned. You should get different error rates. Compare the results with the two forgetting curves in Alvarez and Squire Fig. 2.</li>
-    </ol> 
+    <p>In this model "consolidation" corresponds to running the MTL alone.   This is like what happens in dreaming.  Thus, we can think of each press of the "sleep" button as one night's sleep. </p>
+
+    <h2>Normal Forgetting</h2>
+
+    <p>To model normal forgetting train on all the patterns, sleep  a bunch, then test.   Error should rise and then flatten out.</p>
+
+    <ul style="list-style: none;">
+        <li>Train > Sleep <i>n</i> times > Test</li>
+    </ul>
+
+    <h2>Retrograde Amnesia</h2>
+
+    <p>To model retrograde amnesia sleep a bunch of times, <b>lesion</b>, then test.</p>
+
+    <!-- Whatever memories remain are what's left. -->
+
+    <!-- <p>Todo: Show that recent memories are lost.</p> -->
+
+    <ul style="list-style: none;">
+        <li>Train > Sleep <i>n</i> times >  Lesion > Test</li>
+    </ul>
+
 </body>
 
 </html>
