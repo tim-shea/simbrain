@@ -7,10 +7,13 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import org.simbrain.util.LabelledItemPanel;
 
@@ -139,6 +142,20 @@ public class ControlPanel extends JPanel {
     }
 
     /**
+     * Add a label to the panel.
+     *
+     * @param fieldLabel text in the panel to the left of the label
+     * @param initText initial text in the label
+     * @return the label
+     */
+    public JLabel addLabel(String fieldLabel, String initText) {
+        JLabel label = new JLabel(initText);
+        this.addItem(fieldLabel, label);
+        pack();
+        return label;
+    }
+
+    /**
      * Add a checkbox to the panel.
      *
      * @param label text in the panel to the left of the field
@@ -155,6 +172,22 @@ public class ControlPanel extends JPanel {
         });
         pack();
         return checkBox;
+    }
+
+    /**
+     * Add an arbitrary component.
+     *
+     * @param component the component to add
+     */
+    public void addComponent(JComponent component) {
+        mainPanel.addItem(component, 1);
+    }
+
+    /**
+     * Add a horizontal separator.
+     */
+    public void addSeparator() {
+        addComponent(new JSeparator(SwingConstants.HORIZONTAL));
     }
 
     /**

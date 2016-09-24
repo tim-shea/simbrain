@@ -1,9 +1,17 @@
 package org.simbrain.custom.hippocampus;
 
+import java.awt.FlowLayout;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.simbrain.network.core.Network;
+import org.simbrain.network.core.Synapse;
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.network.groups.SynapseGroup;
 import org.simbrain.network.subnetworks.CompetitiveGroup;
@@ -23,7 +31,7 @@ import org.simbrain.workspace.gui.SimbrainDesktop;
  * @author Alex Pabst
  *
  */
-//CHECKSTYLE:OFF
+// CHECKSTYLE:OFF
 public class Hippocampus {
 
     /** The main simulation object. */
@@ -38,10 +46,12 @@ public class Hippocampus {
     ControlPanel panel;
     boolean hippoLesioned = false;
     boolean learningEnabled = true;
-    
+    JLabel errorLabel;
+    JTextField sleepField;
+
     /** References to main neuron and synapse groups. */
     CompetitiveGroup LC1, LC2, RC1, RC2, hippocampus;
-    SynapseGroup HtoLC1 , HtoLC2 , HtoRC1 , HtoRC2 , LC1toH , LC2toH , RC1toH , RC2toH;
+    SynapseGroup HtoLC1, HtoLC2, HtoRC1, HtoRC2, LC1toH, LC2toH, RC1toH, RC2toH;
 
     /**
      * @param desktop
@@ -68,9 +78,9 @@ public class Hippocampus {
         // Add docviewer
         sim.addDocViewer(807, 12, 307, 591, "Information",
                 "src/org/simbrain/custom/hippocampus/Hippocampus.html");
-        
+
         // If manually updating in script, must clear built-in updates
-        //network.getUpdateManager().clear();
+        // network.getUpdateManager().clear();
 
     }
 
@@ -127,9 +137,10 @@ public class Hippocampus {
     /**
      * Add a cortical group.
      */
-    private CompetitiveGroup addCorticalGroup(String label, double x, double y) {
+    private CompetitiveGroup addCorticalGroup(String label, double x,
+            double y) {
         CompetitiveGroup cg = addCompetitiveGroup(label, x, y);
-        // See Alvarez-Squire Fig. 2 
+        // See Alvarez-Squire Fig. 2
         cg.setSynpaseDecayPercent(.0008);
         cg.setLearningRate(.002);
         return cg;
@@ -138,13 +149,14 @@ public class Hippocampus {
     /**
      * Add and properly initialize a competitive neuron group.
      */
-    private CompetitiveGroup addCompetitiveGroup(String label, double x, double y) {
+    private CompetitiveGroup addCompetitiveGroup(String label, double x,
+            double y) {
         CompetitiveGroup cg = new CompetitiveGroup(network, 4);
         cg.setLabel(label);
         cg.applyLayout();
         cg.setLocation(x, y);
         cg.setUpdateMethod("AS");
-        
+
         network.addGroup(cg);
         return cg;
     }
@@ -152,12 +164,13 @@ public class Hippocampus {
     /**
      * Add and properly initialize a synapse group.
      */
-    private SynapseGroup addSynapseGroup(NeuronGroup source, NeuronGroup target, String name) {
-        
+    private SynapseGroup addSynapseGroup(NeuronGroup source, NeuronGroup target,
+            String name) {
+
         // Initialize with uniform distribution from 0 to .1
-        SynapseGroup synGroup =
-            SynapseGroup.createSynapseGroup(source, target, SynapseGroup.DEFAULT_CONNECTION_MANAGER,
-            1, exRand, SynapseGroup.DEFAULT_IN_RANDOMIZER);
+        SynapseGroup synGroup = SynapseGroup.createSynapseGroup(source, target,
+                SynapseGroup.DEFAULT_CONNECTION_MANAGER, 1, exRand,
+                SynapseGroup.DEFAULT_IN_RANDOMIZER);
         synGroup.setLabel(name);
         synGroup.setLowerBound(0, Polarity.EXCITATORY);
         synGroup.setUpperBound(1, Polarity.EXCITATORY);
@@ -184,45 +197,6 @@ public class Hippocampus {
             train(network, new double[] { 0, 0, 1, 0 });
             train(network, new double[] { 0, 0, 0, 1 });
         });
-        
-//        panel.addButton("Train 1", () -> {
-//            train(network, new double[] { 1, 0, 0, 0 });
-//        });
-//
-//        // Show pattern two
-//        panel.addButton("Train 2", () -> {
-//            train(network, new double[] { 0, 1, 0, 0 });
-//        });
-//
-//        // Show pattern three
-//        panel.addButton("Train 3", () -> {
-//            train(network, new double[] { 0, 0, 1, 0 });
-//        });
-//
-//        // Show pattern four
-//        panel.addButton("Train 4", () -> {
-//            train(network, new double[] { 0, 0, 0, 1 });
-//        });
-
-        // Consolidate
-        panel.addButton("Sleep", () -> {
-            double[] activations = new double[4];
-            int actNeuron = generator.nextInt(4);
-            if (actNeuron == 0) {
-                activations = new double[] { 1, 0, 0, 0 };
-            } else if (actNeuron == 1) {
-                activations = new double[] { 0, 1, 0, 0 };
-            } else if (actNeuron == 2) {
-                activations = new double[] { 0, 0, 1, 0 };
-            } else if (actNeuron == 3) {
-                activations = new double[] { 0, 0, 0, 1 };
-            }
-            network.clearActivations();
-            hippocampus.setClamped(true);
-            hippocampus.forceSetActivations(activations);
-            iterate(1);
-            hippocampus.setClamped(false);
-        });
 
         // Test all the patterns
         panel.addButton("Test All", () -> {
@@ -235,8 +209,38 @@ public class Hippocampus {
             error += getError(2);
             test(network, new double[] { 0, 0, 0, 1 });
             error += getError(3);
-            System.out.println("error:" + error);
+            errorLabel.setText("" + error);
         });
+
+        // panel.addButton("Train 1", () -> {
+        // train(network, new double[] { 1, 0, 0, 0 });
+        // });
+        //
+        // // Show pattern two
+        // panel.addButton("Train 2", () -> {
+        // train(network, new double[] { 0, 1, 0, 0 });
+        // });
+        //
+        // // Show pattern three
+        // panel.addButton("Train 3", () -> {
+        // train(network, new double[] { 0, 0, 1, 0 });
+        // });
+        //
+        // // Show pattern four
+        // panel.addButton("Train 4", () -> {
+        // train(network, new double[] { 0, 0, 0, 1 });
+        // });
+
+        // Reset weights
+        panel.addButton("Reset weights", () -> {
+            // Quick and easy weight reset.
+            for (Synapse synapse : network.getFlatSynapseList()) {
+                synapse.setStrength(.2 * Math.random());
+            }
+            network.fireSynapsesUpdated();
+        });
+
+        panel.addSeparator();
 
         // Show pattern one
         panel.addButton("Test 1", () -> {
@@ -258,9 +262,12 @@ public class Hippocampus {
             test(network, new double[] { 0, 0, 0, 1 });
         });
 
-        ControlPanel bottomPanel = new ControlPanel();
+        panel.addSeparator();
 
-        // Hippocampus checkbox
+        ControlPanel bottomPanel = new ControlPanel();
+        errorLabel = bottomPanel.addLabel("Error:", "");
+
+        // Lesion checkbox
         bottomPanel.addCheckBox("Lesion MTL", hippoLesioned, () -> {
             if (hippoLesioned == true) {
                 hippoLesioned = false;
@@ -271,26 +278,64 @@ public class Hippocampus {
         });
 
         // Freeze weights checkbox
-//        bottomPanel.addCheckBox("Learning", learningEnabled, () -> {
-//            if (learningEnabled == true) {
-//                learningEnabled = false;
-//            } else {
-//                learningEnabled = true;
-//            }
-//            network.freezeSynapses(!learningEnabled);
-//        });
+        // bottomPanel.addCheckBox("Learning", learningEnabled, () -> {
+        // if (learningEnabled == true) {
+        // learningEnabled = false;
+        // } else {
+        // learningEnabled = true;
+        // }
+        // network.freezeSynapses(!learningEnabled);
+        // });
+
+        // Consolidate
+        JPanel sleepPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        JButton sleepButton = new JButton("Sleep");
+        sleepPanel.add(sleepButton);
+        sleepField = new JTextField();
+        sleepField.setColumns(3);
+        sleepField.setText("1");
+        sleepPanel.add(sleepField);
+        sleepButton.addActionListener(e -> {
+            Executors.newSingleThreadExecutor().execute(() -> {
+                double[] activations = new double[4];
+                int actNeuron = generator.nextInt(4);
+                if (actNeuron == 0) {
+                    activations = new double[] { 1, 0, 0, 0 };
+                } else if (actNeuron == 1) {
+                    activations = new double[] { 0, 1, 0, 0 };
+                } else if (actNeuron == 2) {
+                    activations = new double[] { 0, 0, 1, 0 };
+                } else if (actNeuron == 3) {
+                    activations = new double[] { 0, 0, 0, 1 };
+                }
+                network.clearActivations();
+                hippocampus.setClamped(true);
+                hippocampus.forceSetActivations(activations);
+                iterate(Integer.parseInt(sleepField.getText()));
+                hippocampus.setClamped(false);
+            });
+        });
+        panel.addComponent(sleepPanel);
 
         panel.addBottomComponent(bottomPanel);
+
     }
 
-    //todo: print to control panel
+    /**
+     * Compute the error on the indicated test pattern (half patterns 1-4).
+     *
+     * @param index which pattern to test on
+     * @return the error for that pattern.
+     */
     public double getError(int index) {
         double diff1 = LC1.getNeuronList().get(index).getActivation()
                 - RC1.getNeuronList().get(index).getActivation();
         double diff2 = LC2.getNeuronList().get(index).getActivation()
                 - RC2.getNeuronList().get(index).getActivation();
-        return Math.abs(diff1) + Math.abs(diff2);
+        double error = Math.abs(diff1) + Math.abs(diff2);
+        return error;
     }
+
     /**
      * Iterate the simulation a specific number of times and don't move forward
      * in the script until done.
@@ -299,24 +344,24 @@ public class Hippocampus {
      */
     void iterate(int iterations) {
         CountDownLatch iterationLatch = new CountDownLatch(1);
-        
+
         // TODO: Temporary for testing
-//        LC1.update1();
-//        LC2.update1();
-//        RC1.update1();
-//        RC2.update1();
-//        hippocampus.update1();
-//        LC1.update2();
-//        LC2.update2();
-//        RC1.update2();
-//        RC2.update2();
-//        hippocampus.update2();
-//        LC1.update3();
-//        LC2.update3();
-//        RC1.update3();
-//        RC2.update3();
-//        hippocampus.update3();
-        
+        // LC1.update1();
+        // LC2.update1();
+        // RC1.update1();
+        // RC2.update1();
+        // hippocampus.update1();
+        // LC1.update2();
+        // LC2.update2();
+        // RC1.update2();
+        // RC2.update2();
+        // hippocampus.update2();
+        // LC1.update3();
+        // LC2.update3();
+        // RC1.update3();
+        // RC2.update3();
+        // hippocampus.update3();
+
         sim.getWorkspace().iterate(iterationLatch, iterations);
         try {
             iterationLatch.await();
@@ -363,11 +408,11 @@ public class Hippocampus {
      * @param activations
      */
     void test(Network network, double[] activations) {
-        
+
         // Turn off learning during testing
         network.freezeSynapses(true);
         network.clearActivations();
-        
+
         // Clamp nodes and set activations
         LC1.setClamped(true);
         LC2.setClamped(true);
@@ -380,7 +425,7 @@ public class Hippocampus {
         // Unclamp nodes
         LC1.setClamped(false);
         LC2.setClamped(false);
-        
+
         // Turn on learning after testing
         network.freezeSynapses(false);
 

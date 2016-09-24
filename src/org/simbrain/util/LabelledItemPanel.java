@@ -225,7 +225,7 @@ public class LabelledItemPanel extends JPanel {
         itemConstraints.weightx = 1.0;
         itemConstraints.anchor = GridBagConstraints.EAST;
         itemConstraints.fill = GridBagConstraints.HORIZONTAL;
-
+        myNextItemRow++;
         add(item, itemConstraints);
     }
 
