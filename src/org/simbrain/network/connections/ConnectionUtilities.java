@@ -30,10 +30,10 @@ import org.simbrain.util.randomizer.PolarizedRandomizer;
 
 /**
  * A set of static utility functions/interfaces/etc for manipulating synapses.
- * Usually, for manipulating loose synapses since most changes to 
- * Synapses in a synapse group should be done through the synapse group, but
- * there are counter-examples. 
- * 
+ * Usually, for manipulating loose synapses since most changes to synapses in a
+ * synapse group should be done through the synapse group, but there are
+ * counter-examples.
+ *
  * TODO: Make synapse group use more of these functions.
  *
  * @author Zach Tosi
@@ -62,7 +62,7 @@ public class ConnectionUtilities {
      * assigned default strengths based on their polarity depending on which
      * randomizers are null.
      *
-     * @param exciteRand the randomizer to be used to determine the weights of excitatory synapses. 
+     * @param exciteRand the randomizer to be used to determine the weights of excitatory synapses.
      * @param inhibRand the randomizer to be used to determine the weights of inhibitory synapses.
      * @param excitatoryRatio the ration of excitatory to inhibitory synapses.
      * @param synapses the synapses to modify
@@ -131,7 +131,7 @@ public class ConnectionUtilities {
     /**
      *
      * @param synapses the synapses to modify
-     * @param exciteRand the randomizer to be used to determine the weights of excitatory synapses. 
+     * @param exciteRand the randomizer to be used to determine the weights of excitatory synapses.
      * @param inhibRand the randomizer to be used to determine the weights of inhibitory synapses.
      */
     public static void randomizeSynapses(Collection<Synapse> synapses,
@@ -163,7 +163,7 @@ public class ConnectionUtilities {
      * the given excitatory randomizer.
      *
      * @param synapses the synapses to modify
-     * @param exciteRand the randomizer to be used to determine the weights of excitatory synapses. 
+     * @param exciteRand the randomizer to be used to determine the weights of excitatory synapses.
      */
     public static void randomizeExcitatorySynapses(
         Collection<Synapse> synapses, PolarizedRandomizer exciteRand) {
@@ -184,7 +184,7 @@ public class ConnectionUtilities {
      * the synapses in the list is known ahead of time.
      *
      * @param synapses the synapses to modify
-     * @param exciteRand the randomizer to be used to determine the weights of excitatory synapses. 
+     * @param exciteRand the randomizer to be used to determine the weights of excitatory synapses.
      */
     public static void randomizeExcitatorySynapsesUnsafe(
         Collection<Synapse> synapses, PolarizedRandomizer exciteRand) {
@@ -451,7 +451,7 @@ public class ConnectionUtilities {
      *
      * @param exciteRule
      * @param inhibRule
-     * @param synapses 
+     * @param synapses
      */
     public static void applyLearningRules(SynapseUpdateRule exciteRule,
         SynapseUpdateRule inhibRule, List<Synapse> synapses) {
@@ -466,10 +466,10 @@ public class ConnectionUtilities {
 
     /**
      * A functional interface that is intended to be used to set some parameter
-     * of the synapse to the specified value. Essentially, this interface 
+     * of the synapse to the specified value. Essentially, this interface
      * supports a generic setter, which can be used to create any given setter
      * which can then be applied across multiple synapses.
-     * 
+     *
      * @author Zach Tosi
      *
      * @param <T>
@@ -489,7 +489,7 @@ public class ConnectionUtilities {
      * parameter(s) of a(some) synapse(s). The function checks only one synapse
      * but the interface is meant to be used as a generic getter which can be
      * applied over a list of synapses.
-     * 
+     *
      * @author Zach Tosi
      *
      * @param <T>

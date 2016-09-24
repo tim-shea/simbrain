@@ -18,11 +18,11 @@
  */
 package org.simbrain.network.subnetworks;
 
+import java.util.List;
 import java.util.Random;
 
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
-import org.simbrain.network.groups.CopyableGroup;
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.network.neuron_update_rules.LinearRule;
 
@@ -114,7 +114,7 @@ public class WinnerTakeAll extends NeuronGroup {
         int winnerIndex;
         if (useRandom) {
             if (Math.random() < randomProb) {
-                winnerIndex = getRandomWinnerIndex();
+                winnerIndex = getRandomWinnerIndex(getNeuronList());
             } else {
                 winnerIndex = getWinningIndex();
             }
@@ -139,8 +139,8 @@ public class WinnerTakeAll extends NeuronGroup {
      *
      * @return index of random winner
      */
-    private int getRandomWinnerIndex() {
-        return new Random().nextInt(getNeuronList().size());
+    public static int getRandomWinnerIndex(List<Neuron> neuronList) {
+        return new Random().nextInt(neuronList.size());
     }
 
     /**
@@ -149,12 +149,23 @@ public class WinnerTakeAll extends NeuronGroup {
      * @return winning node's index
      */
     private int getWinningIndex() {
+        return getWinningIndex(getNeuronList());
+    }
+
+    /**
+     * Given a list of neurons, returns the one with the highest activation. In
+     * the case of a tie returns a random neuron from the list.
+     *
+     * @param neuronList the neuron list
+     * @return the winning neuron.
+     */
+    public static int getWinningIndex(List<Neuron> neuronList) {
         int winnerIndex = 0;
         double max = Double.NEGATIVE_INFINITY;
-        double lastVal = getNeuronList().get(0).getWeightedInputs();
+        double lastVal = neuronList.get(0).getWeightedInputs();
         boolean tie = true;
-        for (int i = 0; i < getNeuronList().size(); i++) {
-            Neuron n = getNeuronList().get(i);
+        for (int i = 0; i < neuronList.size(); i++) {
+            Neuron n = neuronList.get(i);
             double val = n.getWeightedInputs();
             if (val != lastVal) {
                 tie = false;
@@ -168,7 +179,7 @@ public class WinnerTakeAll extends NeuronGroup {
         // Break ties randomly
         // (TODO: Add a field so user can decide if they want this)
         if (tie) {
-            winnerIndex = getRandomWinnerIndex();
+            winnerIndex = getRandomWinnerIndex(neuronList);
         }
         return winnerIndex;
     }

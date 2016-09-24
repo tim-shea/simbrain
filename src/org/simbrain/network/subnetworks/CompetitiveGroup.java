@@ -20,13 +20,12 @@ package org.simbrain.network.subnetworks;
 
 import java.util.Iterator;
 
-import org.simbrain.network.connections.ConnectNeurons;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.core.Synapse;
 import org.simbrain.network.groups.NeuronGroup;
-import org.simbrain.network.groups.SynapseGroup;
 import org.simbrain.network.neuron_update_rules.LinearRule;
+import org.simbrain.util.randomizer.Randomizer;
 
 /**
  * <b>Competitive</b> implements a simple competitive network.
@@ -60,7 +59,7 @@ public class CompetitiveGroup extends NeuronGroup {
 
     /**
      * Percentage by which to decay synapses on each update for for
-     * Alvarez-Squire update.  What they call a forgetting term rho.
+     * Alvarez-Squire update. What they call a forgetting term rho.
      */
     private double synpaseDecayPercent = .0008;
 
@@ -72,6 +71,9 @@ public class CompetitiveGroup extends NeuronGroup {
 
     /** Current update method. */
     private UpdateMethod updateMethod = UpdateMethod.RUMM_ZIPSER;
+
+    /** Noise generator. */
+    private Randomizer noiseGenerator = new Randomizer();
 
     /**
      * Specific implementation of competitive learning.
@@ -110,6 +112,8 @@ public class CompetitiveGroup extends NeuronGroup {
             addNeuron(new Neuron(root, new LinearRule()));
         }
         setLabel("Competitive Group");
+        noiseGenerator.setParam1(-.05);
+        noiseGenerator.setParam2(.05);
     }
 
     /**
@@ -144,36 +148,69 @@ public class CompetitiveGroup extends NeuronGroup {
     public String getTypeDescription() {
         return "Competitive Group";
     }
+    
+    // TODO: Below is temporaray for testing
+
+    public void update1() {
+        Neuron win = getNeuronList()
+                .get(WinnerTakeAll.getWinningIndex(getNeuronList()));
+        squireAlvarezWeightUpdate(win);
+    }
+
+    public void update2() {
+        winner = WinnerTakeAll.getWinningIndex(getNeuronList());
+        for (int i = 0; i < getNeuronList().size(); i++) {
+            Neuron neuron = getNeuronList().get(i);
+            if (i == winner) {
+                neuron.setSpkBuffer(neuron.isSpike());
+                // TODO: Redo all the neuron update
+                if (!neuron.isClamped()) {
+                    double val = .7 * neuron.getActivation()
+                            + neuron.getWeightedInputs()
+                            + noiseGenerator.getRandom();
+                    neuron.forceSetActivation((val > 0) ? val : 0);
+                    neuron.forceSetActivation((val < 1) ? val : 1);
+                }
+                squireAlvarezWeightUpdate(neuron);
+                decayAllSynapses();
+            } else {
+                neuron.setActivation(loseValue);
+                neuron.setSpkBuffer(neuron.isSpike());
+                if (useLeakyLearning) {
+                    leakyLearning(neuron);
+                }
+            }
+        }
+    }
+
+    public void update3() {
+        decayAllSynapses();
+    }
 
     @Override
     public void update() {
 
         super.update();
 
-        max = 0;
-        winner = 0;
-
-        // Determine Winner
-        for (int i = 0; i < getNeuronList().size(); i++) {
-            Neuron n = getNeuronList().get(i);
-            if (!n.isClamped()) {
-                n.update();
-            }
-            if (n.getActivation() > max) {
-                max = n.getActivation();
-                winner = i;
-            }
-        }
+        winner = WinnerTakeAll.getWinningIndex(getNeuronList());
 
         // Update weights on winning neuron
         for (int i = 0; i < getNeuronList().size(); i++) {
             Neuron neuron = getNeuronList().get(i);
             if (i == winner) {
-                neuron.setActivation(winValue);
                 neuron.setSpkBuffer(neuron.isSpike());
                 if (updateMethod == UpdateMethod.RUMM_ZIPSER) {
+                    neuron.setActivation(winValue);
                     rummelhartZipser(neuron);
                 } else if (updateMethod == UpdateMethod.ALVAREZ_SQUIRE) {
+                    // TODO: Redo all the neuron update
+                    if (!neuron.isClamped()) {
+                        double val = .7 * neuron.getActivation()
+                                + neuron.getWeightedInputs()
+                                + noiseGenerator.getRandom();
+                        neuron.forceSetActivation((val > 0) ? val : 0);
+                        neuron.forceSetActivation((val < 1) ? val : 1);
+                    }
                     squireAlvarezWeightUpdate(neuron);
                     decayAllSynapses();
                 }
@@ -200,8 +237,7 @@ public class CompetitiveGroup extends NeuronGroup {
     private void squireAlvarezWeightUpdate(final Neuron neuron) {
         for (Synapse synapse : neuron.getFanIn()) {
             double deltaw = learningRate * synapse.getTarget().getActivation()
-                    * (synapse.getSource().getActivation()
-                            - synapse.getTarget().getAverageInput());
+                    * (synapse.getSource().getActivation() - 0);
             synapse.setStrength(synapse.clip(synapse.getStrength() + deltaw));
         }
     }

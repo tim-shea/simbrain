@@ -61,14 +61,14 @@ public class SynapseGroup extends Group {
      *
      * synapse strengths for all synapse groups.
      */
-    private static final PolarizedRandomizer DEFAULT_EX_RANDOMIZER =
+    public static final PolarizedRandomizer DEFAULT_EX_RANDOMIZER =
             new PolarizedRandomizer(Polarity.EXCITATORY);
 
     /**
      * The <b>default>/b> polarized randomizer associated with inhibitory
      * synapse strengths for all synapse groups.
      */
-    private static final PolarizedRandomizer DEFAULT_IN_RANDOMIZER =
+    public static final PolarizedRandomizer DEFAULT_IN_RANDOMIZER =
             new PolarizedRandomizer(Polarity.INHIBITORY);
 
     /**
@@ -2057,6 +2057,7 @@ public class SynapseGroup extends Group {
             ((Sparse) connectionManager).setPermitDensityEditing(false);
         }
     }
+
 
 
 }

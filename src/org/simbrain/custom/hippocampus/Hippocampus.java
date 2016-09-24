@@ -3,8 +3,6 @@ package org.simbrain.custom.hippocampus;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
-import javax.swing.JPanel;
-
 import org.simbrain.network.connections.AllToAll;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.groups.NeuronGroup;
@@ -33,6 +31,9 @@ public class Hippocampus {
     /** The main simulation object. */
     final Simulation sim;
 
+    /** Randomizer for creating new synapse groups. */
+    PolarizedRandomizer exRand = new PolarizedRandomizer(Polarity.EXCITATORY);
+
     /** Other variables. */
     NetBuilder net;
     Network network;
@@ -49,6 +50,7 @@ public class Hippocampus {
      */
     public Hippocampus(SimbrainDesktop desktop) {
         sim = new Simulation(desktop);
+        exRand.setParam2(0.02); // Set up randomizer
     }
 
     /**
@@ -68,6 +70,8 @@ public class Hippocampus {
         // Add docviewer
         sim.addDocViewer(807, 12, 307, 591, "Information",
                 "src/org/simbrain/custom/hippocampus/Hippocampus.html");
+        
+        network.getUpdateManager().clear();
 
     }
 
@@ -94,8 +98,8 @@ public class Hippocampus {
         HtoLC2 = addSynapseGroup(hippocampus, LC2, "H to LC2");
         HtoRC1 = addSynapseGroup(hippocampus, RC1, "H to RC1");
         HtoRC2 = addSynapseGroup(hippocampus, RC2, "H to RC2");
-        LC1toH = addSynapseGroup(hippocampus, LC1, "LC1 to H");
-        LC2toH = addSynapseGroup(hippocampus, LC2, "LC2 to H");
+        LC1toH = addSynapseGroup(LC1, hippocampus, "LC1 to H");
+        LC2toH = addSynapseGroup(LC2, hippocampus, "LC2 to H");
         RC1toH = addSynapseGroup(RC1, hippocampus, "RC1 to H");
         RC2toH = addSynapseGroup(RC2, hippocampus, "RC2 to H");
         addSynapseGroup(LC1, RC1, "LC1 to RC1");
@@ -140,6 +144,7 @@ public class Hippocampus {
         cg.applyLayout();
         cg.setLocation(x, y);
         cg.setUpdateMethod("AS");
+        
         network.addGroup(cg);
         return cg;
     }
@@ -148,11 +153,13 @@ public class Hippocampus {
      * Add and properly initialize a synapse group.
      */
     private SynapseGroup addSynapseGroup(NeuronGroup source, NeuronGroup target, String name) {
-        SynapseGroup synGroup = SynapseGroup.createSynapseGroup(source, target,
-                new AllToAll());
+        
+        // Initialize with uniform distribution from 0 to .1
+        SynapseGroup synGroup =
+            SynapseGroup.createSynapseGroup(source, target, SynapseGroup.DEFAULT_CONNECTION_MANAGER,
+            1, exRand, SynapseGroup.DEFAULT_IN_RANDOMIZER);
         synGroup.setLabel(name);
-        synGroup.setExcitatoryRatio(1);
-        synGroup.setStrength(0, Polarity.EXCITATORY);
+        synGroup.setLowerBound(0, Polarity.EXCITATORY);
         synGroup.setUpperBound(1, Polarity.EXCITATORY);
         network.addGroup(synGroup);
         return synGroup;
@@ -167,24 +174,35 @@ public class Hippocampus {
         Random generator = new Random();
 
         // Show pattern one
-        panel.addButton("Train 1", () -> {
+        panel.addButton("Train All", () -> {
             train(network, new double[] { 1, 0, 0, 0 });
-        });
-
-        // Show pattern two
-        panel.addButton("Train 2", () -> {
             train(network, new double[] { 0, 1, 0, 0 });
-        });
-
-        // Show pattern three
-        panel.addButton("Train 3", () -> {
             train(network, new double[] { 0, 0, 1, 0 });
-        });
-
-        // Show pattern four
-        panel.addButton("Train 4", () -> {
+            train(network, new double[] { 0, 0, 0, 1 });
+            train(network, new double[] { 1, 0, 0, 0 });
+            train(network, new double[] { 0, 1, 0, 0 });
+            train(network, new double[] { 0, 0, 1, 0 });
             train(network, new double[] { 0, 0, 0, 1 });
         });
+        
+//        panel.addButton("Train 1", () -> {
+//            train(network, new double[] { 1, 0, 0, 0 });
+//        });
+//
+//        // Show pattern two
+//        panel.addButton("Train 2", () -> {
+//            train(network, new double[] { 0, 1, 0, 0 });
+//        });
+//
+//        // Show pattern three
+//        panel.addButton("Train 3", () -> {
+//            train(network, new double[] { 0, 0, 1, 0 });
+//        });
+//
+//        // Show pattern four
+//        panel.addButton("Train 4", () -> {
+//            train(network, new double[] { 0, 0, 0, 1 });
+//        });
 
         // Consolidate
         panel.addButton("Consolidate", () -> {
@@ -235,18 +253,18 @@ public class Hippocampus {
             } else {
                 hippoLesioned = true;
             }
-            enableHippocampus(network, hippoLesioned);
+            enableHippocampus(hippoLesioned);
         });
 
         // Freeze weights checkbox
-        bottomPanel.addCheckBox("Learning", learningEnabled, () -> {
-            if (learningEnabled == true) {
-                learningEnabled = false;
-            } else {
-                learningEnabled = true;
-            }
-            network.freezeSynapses(!learningEnabled);
-        });
+//        bottomPanel.addCheckBox("Learning", learningEnabled, () -> {
+//            if (learningEnabled == true) {
+//                learningEnabled = false;
+//            } else {
+//                learningEnabled = true;
+//            }
+//            network.freezeSynapses(!learningEnabled);
+//        });
 
         panel.addBottomComponent(bottomPanel);
     }
@@ -259,6 +277,24 @@ public class Hippocampus {
      */
     void iterate(int iterations) {
         CountDownLatch iterationLatch = new CountDownLatch(1);
+        
+        // TODO: Temporary for testing
+        LC1.update1();
+        LC2.update1();
+        RC1.update1();
+        RC2.update1();
+        hippocampus.update1();
+        LC1.update2();
+        LC2.update2();
+        RC1.update2();
+        RC2.update2();
+        hippocampus.update2();
+        LC1.update3();
+        LC2.update3();
+        RC1.update3();
+        RC2.update3();
+        hippocampus.update3();
+        
         sim.getWorkspace().iterate(iterationLatch, iterations);
         try {
             iterationLatch.await();
@@ -305,6 +341,10 @@ public class Hippocampus {
      * @param activations
      */
     void test(Network network, double[] activations) {
+        
+        // Turn off learning during testing
+        network.freezeSynapses(true);
+        
         // Clamp nodes and set activations
         LC1.setClamped(true);
         LC2.setClamped(true);
@@ -317,12 +357,16 @@ public class Hippocampus {
         // Unclamp nodes
         LC1.setClamped(false);
         LC2.setClamped(false);
+        
+        // Turn off learning during testing
+        network.freezeSynapses(false);
+
     }
 
     /**
      * Enable / disable the hippocampus
      */
-    void enableHippocampus(Network network, boolean lesioned) {
+    private void enableHippocampus(boolean lesioned) {
 
         HtoLC1.setEnabled(!lesioned);
         HtoLC2.setEnabled(!lesioned);
