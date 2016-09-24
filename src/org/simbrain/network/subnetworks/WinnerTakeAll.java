@@ -20,6 +20,7 @@ package org.simbrain.network.subnetworks;
 
 import java.util.List;
 import java.util.Random;
+import java.util.ArrayList;
 
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
@@ -159,6 +160,7 @@ public class WinnerTakeAll extends NeuronGroup {
      * @param neuronList the neuron list
      * @return the winning neuron.
      */
+    /* saved old code
     public static int getWinningIndex(List<Neuron> neuronList) {
         int winnerIndex = 0;
         double max = Double.NEGATIVE_INFINITY;
@@ -183,6 +185,32 @@ public class WinnerTakeAll extends NeuronGroup {
         }
         return winnerIndex;
     }
+    */
+    //new getWinningIndex
+    public static int getWinningIndex(List<Neuron> neuronList) {
+        int winnerIndex = 0;
+        double max = Double.NEGATIVE_INFINITY;
+        List<Neuron> candidateIndex_box = new ArrayList<Neuron>();
+        boolean tie = true;// for readability
+        for (int i = 0; i < neuronList.size(); i++) {
+            Neuron n = neuronList.get(i);
+            double val = n.getWeightedInputs();
+            if (val > max) {
+                winnerIndex = i;
+                max = n.getWeightedInputs();
+                candidateIndex_box.add(n);
+            }
+        }
+        // Break ties randomly
+        // (TODO: Add a field so user can decide if they want this)
+        tie = candidateIndex_box.size() > 1;
+        if (tie) {
+            winnerIndex = getRandomWinnerIndex(candidateIndex_box);
+        }
+        return winnerIndex;
+    }
+    
+    
 
     /**
      * @return Returns the loseValue.

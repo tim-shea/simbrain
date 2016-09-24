@@ -71,6 +71,7 @@ public class Hippocampus {
         sim.addDocViewer(807, 12, 307, 591, "Information",
                 "src/org/simbrain/custom/hippocampus/Hippocampus.html");
         
+        //Manually update using task specific updating
         network.getUpdateManager().clear();
 
     }
@@ -94,6 +95,7 @@ public class Hippocampus {
         hippocampus = addHippocampus("Hippocampus", 368, 179);
 
         // Connect the groups together
+        //hippocampus related synapses
         HtoLC1 = addSynapseGroup(hippocampus, LC1, "H to LC1");
         HtoLC2 = addSynapseGroup(hippocampus, LC2, "H to LC2");
         HtoRC1 = addSynapseGroup(hippocampus, RC1, "H to RC1");
@@ -102,6 +104,7 @@ public class Hippocampus {
         LC2toH = addSynapseGroup(LC2, hippocampus, "LC2 to H");
         RC1toH = addSynapseGroup(RC1, hippocampus, "RC1 to H");
         RC2toH = addSynapseGroup(RC2, hippocampus, "RC2 to H");
+        //others
         addSynapseGroup(LC1, RC1, "LC1 to RC1");
         addSynapseGroup(LC1, RC2, "LC1 to RC2");
         addSynapseGroup(LC2, RC1, "LC2 to RC1");
@@ -129,7 +132,7 @@ public class Hippocampus {
      */
     private CompetitiveGroup addCorticalGroup(String label, double x, double y) {
         CompetitiveGroup cg = addCompetitiveGroup(label, x, y);
-        // See Alvarez-Squire Fig. 2
+        // See Alvarez-Squire Fig. 2 
         cg.setSynpaseDecayPercent(.0008);
         cg.setLearningRate(.002);
         return cg;
@@ -358,7 +361,7 @@ public class Hippocampus {
         LC1.setClamped(false);
         LC2.setClamped(false);
         
-        // Turn off learning during testing
+        // Turn on learning after testing
         network.freezeSynapses(false);
 
     }
