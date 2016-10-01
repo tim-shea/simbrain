@@ -115,7 +115,7 @@ public class RL_Update implements NetworkUpdateAction {
 
             // Find the winning output neuron
             sim.outputs.update();
-            winner = sim.outputs.getWinningNeuron();
+            winner = sim.outputs.getWinner();
 
             // Update the reward neuron and the change in reward
             Network.updateNeurons(Collections.singletonList(sim.reward));

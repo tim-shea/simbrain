@@ -66,9 +66,6 @@ public class CompetitiveGroup extends NeuronGroup {
     /** Max, value and activation values. */
     private double max, val, activation;
 
-    /** Winner value. */
-    private int winner;
-
     /** Current update method. */
     private UpdateMethod updateMethod = UpdateMethod.RUMM_ZIPSER;
 
@@ -134,7 +131,6 @@ public class CompetitiveGroup extends NeuronGroup {
         this.max = oldNet.max;
         this.val = oldNet.val;
         this.activation = oldNet.activation;
-        this.winner = oldNet.winner;
         this.updateMethod = oldNet.updateMethod;
         setLabel("Competitive Group (copy)");
     }
@@ -149,22 +145,19 @@ public class CompetitiveGroup extends NeuronGroup {
         return "Competitive Group";
     }
 
-    //
-    // public void update3() {
-    // decayAllSynapses();
-    // }
-
     @Override
     public void update() {
 
         super.update();
 
-        winner = WinnerTakeAll.getWinningIndex(getNeuronList());
+        //TODO: Temp
+        boolean clamped = getNeuronList().get(0).isClamped();
+        Neuron winner = WinnerTakeAll.getWinner(getNeuronList(), clamped);
 
         // Update weights on winning neuron
         for (int i = 0; i < getNeuronList().size(); i++) {
             Neuron neuron = getNeuronList().get(i);
-            if (i == winner) {
+            if (neuron  == winner) {
                 neuron.setSpkBuffer(neuron.isSpike());
                 if (updateMethod == UpdateMethod.RUMM_ZIPSER) {
                     neuron.setActivation(winValue);
@@ -190,7 +183,6 @@ public class CompetitiveGroup extends NeuronGroup {
 
             }
         }
-        // normalizeIncomingWeights();
     }
 
     /**
