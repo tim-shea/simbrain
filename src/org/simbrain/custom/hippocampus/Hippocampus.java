@@ -14,11 +14,11 @@ import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Synapse;
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.network.groups.SynapseGroup;
-import org.simbrain.network.subnetworks.CompetitiveGroup;
 import org.simbrain.simulation.ControlPanel;
 import org.simbrain.simulation.NetBuilder;
 import org.simbrain.simulation.Simulation;
 import org.simbrain.util.SimbrainConstants.Polarity;
+import org.simbrain.util.math.SimbrainMath;
 import org.simbrain.util.randomizer.PolarizedRandomizer;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 
@@ -50,7 +50,7 @@ public class Hippocampus {
     JTextField sleepField;
 
     /** References to main neuron and synapse groups. */
-    CompetitiveGroup LC1, LC2, RC1, RC2, hippocampus;
+    AlvarezSquire LC1, LC2, RC1, RC2, hippocampus;
     // TODO: Change names to reference top or bottom
     SynapseGroup HtoLC1, HtoLC2, HtoRC1, HtoRC2, LC1toH, LC2toH, RC1toH, RC2toH;
 
@@ -124,8 +124,8 @@ public class Hippocampus {
     /**
      * Add the MTL.
      */
-    private CompetitiveGroup addHippocampus(String label, double x, double y) {
-        CompetitiveGroup cg = addCompetitiveGroup(label, x, y);
+    private AlvarezSquire addHippocampus(String label, double x, double y) {
+        AlvarezSquire cg = addCompetitiveGroup(label, x, y);
         // See Alvarez-Squire Fig. 2
         cg.setSynpaseDecayPercent(.04);
         cg.setLearningRate(.1);
@@ -135,9 +135,9 @@ public class Hippocampus {
     /**
      * Add a cortical group.
      */
-    private CompetitiveGroup addCorticalGroup(String label, double x,
+    private AlvarezSquire addCorticalGroup(String label, double x,
             double y) {
-        CompetitiveGroup cg = addCompetitiveGroup(label, x, y);
+        AlvarezSquire cg = addCompetitiveGroup(label, x, y);
         // See Alvarez-Squire Fig. 2
         cg.setSynpaseDecayPercent(.0008);
         cg.setLearningRate(.002);
@@ -147,9 +147,9 @@ public class Hippocampus {
     /**
      * Add and properly initialize a competitive neuron group.
      */
-    private CompetitiveGroup addCompetitiveGroup(String label, double x,
+    private AlvarezSquire addCompetitiveGroup(String label, double x,
             double y) {
-        CompetitiveGroup cg = new CompetitiveGroup(network, 4);
+        AlvarezSquire cg = new AlvarezSquire(network, 4);
         cg.setLabel(label);
         cg.applyLayout();
         cg.setLocation(x, y);
@@ -207,7 +207,7 @@ public class Hippocampus {
             error += getError(2);
             test(network, new double[] { 0, 0, 0, 1 });
             error += getError(3);
-            errorLabel.setText("" + error);
+            errorLabel.setText("" + SimbrainMath.roundDouble(error, 2));
         });
 
         // panel.addButton("Train 1", () -> {
