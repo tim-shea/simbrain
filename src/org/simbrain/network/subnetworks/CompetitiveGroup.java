@@ -149,42 +149,10 @@ public class CompetitiveGroup extends NeuronGroup {
         return "Competitive Group";
     }
 
-    // TODO: Below is temporaray for testing
-//    public void update1() {
-//        Neuron win = getNeuronList()
-//                .get(WinnerTakeAll.getWinningIndex(getNeuronList()));
-//        squireAlvarezWeightUpdate(win);
-//    }
-//
-//    public void update2() {
-//        winner = WinnerTakeAll.getWinningIndex(getNeuronList());
-//        for (int i = 0; i < getNeuronList().size(); i++) {
-//            Neuron neuron = getNeuronList().get(i);
-//            if (i == winner) {
-//                neuron.setSpkBuffer(neuron.isSpike());
-//                // TODO: Redo all the neuron update
-//                if (!neuron.isClamped()) {
-//                    double val = .7 * neuron.getActivation()
-//                            + neuron.getWeightedInputs()
-//                            + noiseGenerator.getRandom();
-//                    neuron.forceSetActivation(val > 0 ? val : 0);
-//                    neuron.forceSetActivation(val < 1 ? val : 1);
-//                }
-//                squireAlvarezWeightUpdate(neuron);
-//                decayAllSynapses();
-//            } else {
-//                neuron.setActivation(loseValue);
-//                neuron.setSpkBuffer(neuron.isSpike());
-//                if (useLeakyLearning) {
-//                    leakyLearning(neuron);
-//                }
-//            }
-//        }
-//    }
-//
-//    public void update3() {
-//        decayAllSynapses();
-//    }
+    //
+    // public void update3() {
+    // decayAllSynapses();
+    // }
 
     @Override
     public void update() {
@@ -204,14 +172,14 @@ public class CompetitiveGroup extends NeuronGroup {
                 } else if (updateMethod == UpdateMethod.ALVAREZ_SQUIRE) {
                     if (!neuron.isClamped()) {
                         neuron.setActivation(winValue);
-//                        double val = .7 * neuron.getActivation()
-//                                + neuron.getWeightedInputs()
-//                                + noiseGenerator.getRandom();
-//                        neuron.forceSetActivation((val > 0) ? val : 0);
-//                        neuron.forceSetActivation((val < 1) ? val : 1);
+                        // double val = .7 * neuron.getActivation()
+                        // + neuron.getWeightedInputs()
+                        // + noiseGenerator.getRandom();
+                        // neuron.forceSetActivation((val > 0) ? val : 0);
+                        // neuron.forceSetActivation((val < 1) ? val : 1);
                     }
                     squireAlvarezWeightUpdate(neuron);
-//                    decayAllSynapses();
+                    // decayAllSynapses();
                 }
             } else {
                 neuron.setActivation(loseValue);

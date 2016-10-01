@@ -51,6 +51,7 @@ public class Hippocampus {
 
     /** References to main neuron and synapse groups. */
     CompetitiveGroup LC1, LC2, RC1, RC2, hippocampus;
+    // TODO: Change names to reference top or bottom
     SynapseGroup HtoLC1, HtoLC2, HtoRC1, HtoRC2, LC1toH, LC2toH, RC1toH, RC2toH;
 
     /**
@@ -79,9 +80,6 @@ public class Hippocampus {
         sim.addDocViewer(807, 12, 307, 591, "Information",
                 "src/org/simbrain/custom/hippocampus/Hippocampus.html");
 
-        // If manually updating in script, must clear built-in updates
-        // network.getUpdateManager().clear();
-
     }
 
     /**
@@ -97,7 +95,7 @@ public class Hippocampus {
         LC1 = addCorticalGroup("Left Cortex Top", 185, -114);
         LC2 = addCorticalGroup("Left Cortex Bottom", 185, -28);
         RC1 = addCorticalGroup("Right Cortex Top", 597, -114);
-        RC2 = addCorticalGroup("Right Cortex Top", 597, -28);
+        RC2 = addCorticalGroup("Right Cortex Bottom", 597, -28);
 
         // Add hippocampus (MTL)
         hippocampus = addHippocampus("Hippocampus", 368, 179);
@@ -344,23 +342,6 @@ public class Hippocampus {
      */
     void iterate(int iterations) {
         CountDownLatch iterationLatch = new CountDownLatch(1);
-
-        // TODO: Temporary for testing
-        // LC1.update1();
-        // LC2.update1();
-        // RC1.update1();
-        // RC2.update1();
-        // hippocampus.update1();
-        // LC1.update2();
-        // LC2.update2();
-        // RC1.update2();
-        // RC2.update2();
-        // hippocampus.update2();
-        // LC1.update3();
-        // LC2.update3();
-        // RC1.update3();
-        // RC2.update3();
-        // hippocampus.update3();
 
         sim.getWorkspace().iterate(iterationLatch, iterations);
         try {

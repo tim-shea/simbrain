@@ -188,6 +188,23 @@ public class WinnerTakeAll extends NeuronGroup {
     */
     //new getWinningIndex
     public static int getWinningIndex(List<Neuron> neuronList) {
+        
+        // TODO: Ugly!
+        // If clamped then the winner is the one with the greatest activation
+        if(neuronList.get(0).isClamped()) {
+            int winnerIndex = 0;
+            double max = Double.NEGATIVE_INFINITY;
+            for (int i = 0; i < neuronList.size(); i++) {
+                Neuron n = neuronList.get(i);
+                double val = n.getActivation();
+                if (val > max) {
+                    max = val;
+                    winnerIndex = i;
+                }
+            }
+            return winnerIndex;
+        }
+
         int winnerIndex = 0;
         double max = Double.NEGATIVE_INFINITY;
         List<Neuron> candidateIndex_box = new ArrayList<Neuron>();
@@ -213,8 +230,8 @@ public class WinnerTakeAll extends NeuronGroup {
         }
         return winnerIndex;
     }
-    
-    
+
+
 
     /**
      * @return Returns the loseValue.
