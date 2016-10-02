@@ -314,5 +314,4 @@ public class RotatingEntity extends OdorWorldEntity {
         }
     }
 
-
 }

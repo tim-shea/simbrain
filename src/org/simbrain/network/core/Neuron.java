@@ -657,6 +657,7 @@ public class Neuron {
      * @param inputValue
      *            The inputValue to set.
      */
+    @Consumible
     public void setInputValue(final double inputValue) {
         this.inputValue = inputValue;
     }

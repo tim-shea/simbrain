@@ -23,7 +23,7 @@ import org.simbrain.network.groups.SynapseGroup;
 public class RL_Update implements NetworkUpdateAction {
 
     /** Reference to RL_Sim object that has all the main variables used. */
-    ActorCritic_Main sim;
+    ActorCritic sim;
 
     /**
      * Reference to main neurons used in td learning.
@@ -57,7 +57,7 @@ public class RL_Update implements NetworkUpdateAction {
     /**
      * Construct the updater.
      */
-    public RL_Update(ActorCritic_Main sim) {
+    public RL_Update(ActorCritic sim) {
         super();
         this.sim = sim;
         reward = sim.reward;

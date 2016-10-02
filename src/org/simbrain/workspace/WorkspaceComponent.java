@@ -666,7 +666,7 @@ public abstract class WorkspaceComponent {
     /**
      * Create a producer based on a method name assumed to exist on the provided
      * base object. Assumes the method has been annotated with a potential
-     * producer annotations.
+     * producer annotation.
      *
      * @param baseObject the base object
      * @param methodName the method name
@@ -775,7 +775,7 @@ public abstract class WorkspaceComponent {
     public List<PotentialProducer> getAnnotatedProducers(Object baseObject,
             Object key) {
         List<PotentialProducer> potentialProducers = new ArrayList<PotentialProducer>();
-        for (Method method : baseObject.getClass().getDeclaredMethods()) {
+        for (Method method : baseObject.getClass().getMethods()) {
             // Find methods annotated as producible
             if (method.getAnnotation(Producible.class) != null) {
                 PotentialProducer pp;
@@ -823,7 +823,7 @@ public abstract class WorkspaceComponent {
     public List<PotentialConsumer> getAnnotatedConsumers(Object baseObject) {
 
         List<PotentialConsumer> potentialConsumers = new ArrayList<PotentialConsumer>();
-        for (Method method : baseObject.getClass().getDeclaredMethods()) {
+        for (Method method : baseObject.getClass().getMethods()) {
             // Find methods annotated as consumible
             if (method.getAnnotation(Consumible.class) != null) {
                 PotentialConsumer pc = getAttributeManager()

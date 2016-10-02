@@ -500,7 +500,6 @@ public class RL_Sim_Main {
                         iterateSimulation();
                         updateGoalState();
                     }
-
                 }
 
                 // Reset the text in the trial field
@@ -510,7 +509,7 @@ public class RL_Sim_Main {
     }
 
     /**
-     * What counts as achieving a goal is codified here.
+     * Decide if the goal has been achived.
      */
     void updateGoalState() {
         for (OdorWorldEntity entity : getCurrentSim().goalEntities) {

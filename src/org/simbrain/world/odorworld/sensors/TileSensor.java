@@ -18,6 +18,7 @@
  */
 package org.simbrain.world.odorworld.sensors;
 
+import org.simbrain.workspace.Producible;
 import org.simbrain.world.odorworld.entities.OdorWorldEntity;
 
 /**
@@ -103,6 +104,7 @@ public class TileSensor extends Sensor {
     /**
      * @return value associated with this sensor, 0 if occupied,
      */
+    @Producible
     public double getValue() {
         return value;
     }

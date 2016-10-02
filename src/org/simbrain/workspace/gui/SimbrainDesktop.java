@@ -72,7 +72,7 @@ import javax.swing.event.MenuListener;
 import org.apache.log4j.Logger;
 import org.simbrain.console.ConsoleComponent;
 import org.simbrain.console.ConsoleDesktopComponent;
-import org.simbrain.custom.actor_critic.ActorCritic_Main;
+import org.simbrain.custom.actor_critic.ActorCritic;
 import org.simbrain.custom.agent_trails.AgentTrails;
 import org.simbrain.custom.hippocampus.Hippocampus;
 import org.simbrain.custom.rl_sim.RL_Sim_Main;
@@ -648,7 +648,7 @@ public class SimbrainDesktop {
         // The RL simulation
         JMenuItem acItem = new JMenuItem("Actor Critic");
         acItem.addActionListener(ae -> {
-            ActorCritic_Main acSim = new ActorCritic_Main(this);
+            ActorCritic acSim = new ActorCritic(this);
             acSim.run();
         });
         scriptMenu.add(acItem);
