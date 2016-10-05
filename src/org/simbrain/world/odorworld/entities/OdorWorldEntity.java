@@ -838,7 +838,7 @@ public abstract class OdorWorldEntity {
     public void moveWest(double amount) {
         if (!isBlocked()) {
             if (this instanceof RotatingEntity) {
-                ((RotatingEntity) this).setHeading(0);
+                ((RotatingEntity) this).setHeading(180);
             }
             setX(getX() - (float) amount);
         }

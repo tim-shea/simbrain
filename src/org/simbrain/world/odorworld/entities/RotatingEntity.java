@@ -125,7 +125,7 @@ public class RotatingEntity extends OdorWorldEntity {
      * @param d the orientation, in degrees
      */
     public void setHeading(final double d) {
-        // System.out.println("setOrientation:" + d);
+        //System.out.println("setHeading:" + d);
         heading = d;
         updateImageBasedOnHeading();
         getParentWorld().fireEntityChanged(this);

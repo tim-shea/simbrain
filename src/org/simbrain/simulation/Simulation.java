@@ -239,14 +239,16 @@ public class Simulation {
 
     // Coupling a neuron to the indicated (by index) time series of a time
     // series plot.
-    public void couple(NetworkComponent network, Neuron neuron,
+    public Coupling couple(NetworkComponent network, Neuron neuron,
             TimeSeriesPlotComponent plot, int index) {
         PotentialProducer neuronProducer = network.getAttributeManager()
                 .createPotentialProducer(neuron, "getActivation", double.class);
         PotentialConsumer timeSeriesConsumer1 = plot.getPotentialConsumers()
                 .get(index);
-        addCoupling(
-                new Coupling<double[]>(neuronProducer, timeSeriesConsumer1));
+        Coupling coupling = new Coupling<double[]>(neuronProducer, timeSeriesConsumer1);
+        addCoupling(coupling);
+        return coupling;
+
     }
 
     /**

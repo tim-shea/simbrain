@@ -43,17 +43,6 @@ public class RL_Update implements NetworkUpdateAction {
     /** Current winning output neuron. */
     Neuron winner;
 
-    /** For training the prediction network. */
-    double[] lastPredictionLeft;
-    double[] lastPredictionRight;
-    double learningRate = .1;
-
-    // Variables to help with the above
-    private double previousReward;
-    double[] previousInput;
-    int counter = 0;
-
-
     /**
      * Construct the updater.
      */
@@ -81,109 +70,42 @@ public class RL_Update implements NetworkUpdateAction {
     @Override
     public void invoke() {
 
-        // Update inputs nodes
-//        sim.inputs.update();
-
-//        // Update Prediction subnets
-//        sim.predictionLeft.update();
-//        sim.predictionRight.update();
-
-        // Train predition subnets
-        trainPredictionNodes();
-
-        // Outputs and vehicles
+        // Update neurons and networks
+        Network.updateNeurons(sim.tileNeurons);
         Network.updateNeurons(Collections.singletonList(sim.value));
+        Network.updateNeurons(Collections.singletonList(sim.reward));
+        sim.tdError.forceSetActivation((reward.getActivation() + sim.gamma * value.getActivation()) - value.getLastActivation());
+        //System.out.println("td error:" + value.getActivation() + " + " + reward.getActivation() + " - " + value.getLastActivation());        
+        sim.outputs.update();
 
-    }
-
-    /**
-     * Train the prediction nodes to predict the next input states.
-     */
-    private void trainPredictionNodes() {
-
-//        setErrors(sim.leftInputs, sim.predictionLeft, lastPredictionLeft);
-//        setErrors(sim.rightInputs, sim.predictionRight, lastPredictionRight);
-//
-//        trainDeltaRule(sim.leftInputToLeftPrediction);
-//        trainDeltaRule(sim.outputToLeftPrediction);
-//        trainDeltaRule(sim.rightInputToRightPrediction);
-//        trainDeltaRule(sim.outputToRightPrediction);
-//
-//        lastPredictionLeft = sim.predictionLeft.getActivations();
-//        lastPredictionRight = sim.predictionRight.getActivations();
-    }
-    
-    /** 
-     * Set errors on neuron groups
-     */
-    void setErrors(NeuronGroup inputs, NeuronGroup predictions,
-            double[] lastPrediction) {
-        int i = 0;
-        double error = 0;
-        sim.preditionError = 0;
-        for (Neuron neuron : predictions.getNeuronList()) {
-            error = inputs.getNeuronList().get(i).getActivation()
-                    - lastPrediction[i];
-            sim.preditionError += error * error;
-            neuron.setAuxValue(error);
-            i++;
-        }
-        sim.preditionError = Math.sqrt(sim.preditionError);
-    }
-
-    /** 
-     * Train synapse groups
-     */
-    void trainDeltaRule(SynapseGroup group) {
-        for (Synapse synapse : group.getAllSynapses()) {
-            double newStrength = synapse.getStrength()
-                    + learningRate * synapse.getSource().getActivation()
-                            * synapse.getTarget().getAuxValue();
-            synapse.setStrength(newStrength);
-        }
-    }
-
-    /**
-     * TD Error. Used to drive all learning in the network.
-     */
-    void updateTDError() {
-        tdError.setActivation(sim.reward.getActivation()
-                + sim.gamma * value.getActivation()
-                - value.getLastActivation());
-    }
-
-    /**
-     * Update value synapses. Learn the value function. The "critic".
-     */
-    void updateCritic() {
+        // Update all value synapses 
         for (Synapse synapse : value.getFanIn()) {
-            Neuron sourceNeuron = (Neuron) synapse.getSource();
-            double newStrength = synapse.getStrength()
-                    + sim.alpha * tdError.getActivation()
-                            * sourceNeuron.getLastActivation();
-            synapse.setStrength(newStrength);
+            Neuron sourceNeuron = synapse.getSource(); 
+            // Reinforce based on the source neuron's last activation (not its current value), 
+            //  since that is what the current td error reflects.
+            double newStrength = synapse.getStrength() + sim.alpha * tdError.getActivation() * sourceNeuron.getLastActivation();
+            //synapse.setStrength(synapse.clip(newStrength)); 
+            synapse.setStrength(newStrength); 
+            //System.out.println("Value Neuron / Tile neuron (" + sourceNeuron.getId() + "):" + newStrength);
         }
+ 
+        // Update all actor neurons. Reinforce input > output connection that were
+        //   active at the last time-step.
+        for (Neuron neuron : sim.outputs.getNeuronList()) {
+            // Just update the last winner
+            if (neuron.getLastActivation() > 0) {
+                for (Synapse synapse : neuron.getFanIn()) {
+                    Neuron sourceNeuron = synapse.getSource(); 
+                    double newStrength = synapse.getStrength() + sim.alpha * tdError.getActivation() * sourceNeuron.getLastActivation();
+                    //synapse.setStrength(synapse.clip(newStrength)); 
+                    synapse.setStrength(newStrength); 
+                    //System.out.println(tdError.getActivation() + "," + sourceNeuron.getLastActivation());
+                }
+
+            }
+        } 
+        
+
     }
-
-//    /**
-//     * Update all "actor" neurons. (Roughly) If the last input > output
-//     * connection led to reward, reinforce that connection.
-//     */
-//    void updateActor() {
-//        for (Neuron neuron : sim.outputs.getNeuronList()) {
-//            // Just update the last winner
-//            if (neuron.getLastActivation() > 0) {
-//                for (Synapse synapse : neuron.getFanIn()) {
-//                    double previousActivation = getPreviousNeuronValue(
-//                            synapse.getSource());
-//                    double newStrength = synapse.getStrength() + sim.alpha
-//                            * tdError.getActivation() * previousActivation;
-//                    // synapse.setStrength(synapse.clip(newStrength));
-//                    synapse.setStrength(newStrength);
-//                }
-//            }
-//        }
-//    }
-
 
 }
