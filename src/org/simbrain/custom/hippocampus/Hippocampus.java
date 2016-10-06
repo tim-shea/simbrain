@@ -47,7 +47,7 @@ public class Hippocampus {
     boolean hippoLesioned = false;
     boolean learningEnabled = true;
     JLabel errorLabel;
-    JTextField sleepField;
+    JTextField conslidationField;
 
     /** References to main neuron and synapse groups. */
     AlvarezSquire LC1, LC2, RC1, RC2, hippocampus;
@@ -88,7 +88,7 @@ public class Hippocampus {
     private void buildNetwork() {
 
         // Set network variables
-        net = sim.addNetwork(187, 12, 632, 585, "Hippocampus");
+        net = sim.addNetwork(193, 12, 632, 585, "Hippocampus");
         network = net.getNetwork();
 
         // Add cortical groups
@@ -286,14 +286,14 @@ public class Hippocampus {
         // });
 
         // Consolidate
-        JPanel sleepPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        JButton sleepButton = new JButton("Sleep");
-        sleepPanel.add(sleepButton);
-        sleepField = new JTextField();
-        sleepField.setColumns(3);
-        sleepField.setText("1");
-        sleepPanel.add(sleepField);
-        sleepButton.addActionListener(e -> {
+        JPanel consolidationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        JButton consolidationButton = new JButton("Consolidate");
+        consolidationPanel.add(consolidationButton);
+        conslidationField = new JTextField();
+        conslidationField.setColumns(2);
+        conslidationField.setText("100");
+        consolidationPanel.add(conslidationField);
+        consolidationButton.addActionListener(e -> {
             Executors.newSingleThreadExecutor().execute(() -> {
                 double[] activations = new double[4];
                 int actNeuron = generator.nextInt(4);
@@ -309,11 +309,11 @@ public class Hippocampus {
                 network.clearActivations();
                 hippocampus.setClamped(true);
                 hippocampus.forceSetActivations(activations);
-                iterate(Integer.parseInt(sleepField.getText()));
+                iterate(Integer.parseInt(conslidationField.getText()));
                 hippocampus.setClamped(false);
             });
         });
-        panel.addComponent(sleepPanel);
+        panel.addComponent(consolidationPanel);
 
         panel.addBottomComponent(bottomPanel);
 
