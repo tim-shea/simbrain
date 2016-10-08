@@ -791,7 +791,7 @@ public abstract class OdorWorldEntity {
      */
     @Consumible
     public void moveNorth(double amount) {
-        if (!isBlocked()) {
+        if (!isBlocked() && (amount != 0)) {
             if (this instanceof RotatingEntity) {
                 ((RotatingEntity) this).setHeading(90);
             }
@@ -806,7 +806,7 @@ public abstract class OdorWorldEntity {
      */
     @Consumible
     public void moveSouth(double amount) {
-        if (!isBlocked()) {
+        if (!isBlocked() && (amount != 0)) {
             if (this instanceof RotatingEntity) {
                 ((RotatingEntity) this).setHeading(270);
             }
@@ -821,7 +821,7 @@ public abstract class OdorWorldEntity {
      */
     @Consumible
     public void moveEast(double amount) {
-        if (!isBlocked()) {
+        if (!isBlocked() && (amount != 0)) {
             if (this instanceof RotatingEntity) {
                 ((RotatingEntity) this).setHeading(0);
             }
@@ -836,7 +836,7 @@ public abstract class OdorWorldEntity {
      */
     @Consumible
     public void moveWest(double amount) {
-        if (!isBlocked()) {
+        if (!isBlocked() && (amount != 0)) {
             if (this instanceof RotatingEntity) {
                 ((RotatingEntity) this).setHeading(180);
             }

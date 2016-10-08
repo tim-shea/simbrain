@@ -38,9 +38,9 @@ public class Vehicle {
     }
 
     /**
-     * Construct the vehicle builder. Needs a reference to the network to
-     * build the network, the world to reference the sensor, and the sim
-     * to make the couplings.
+     * Construct the vehicle builder. Needs a reference to the network to build
+     * the network, the world to reference the sensor, and the sim to make the
+     * couplings.
      *
      * @param sim the parent simulation object
      * @param net the network to add the vehicle subnetworks to
@@ -92,11 +92,15 @@ public class Vehicle {
 
         // Set weights here
         if (type == VehicleType.PURSUER) {
-            net.connect(leftInput, leftTurn, weightSize);
-            net.connect(rightInput, rightTurn, weightSize);
+            net.connect(leftInput, leftTurn, weightSize, -2 * weightSize,
+                    2 * weightSize);
+            net.connect(rightInput, rightTurn, weightSize, -2 * weightSize,
+                    2 * weightSize);
         } else if (type == VehicleType.AVOIDER) {
-            net.connect(leftInput, rightTurn, weightSize);
-            net.connect(rightInput, leftTurn, weightSize);
+            net.connect(leftInput, rightTurn, weightSize, -2 * weightSize,
+                    2 * weightSize);
+            net.connect(rightInput, leftTurn, weightSize, -2 * weightSize,
+                    2 * weightSize);
         }
 
         if (connectSensorToStraightMovement) {

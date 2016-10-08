@@ -44,7 +44,7 @@ public class ActorCritic {
     int numTrials = 5;
 
     /** Learning Rate. */
-    double alpha = 1;
+    double alpha = .25;
 
     /**
      * Eligibility trace. 0 for no trace; 1 for permanent trace. .9 default. Not
@@ -60,7 +60,7 @@ public class ActorCritic {
      * values. As it increases toward one, values of y in the more distant
      * future become more significant.
      */
-    double gamma = .4;
+    double gamma = 1;
 
     /** GUI Variables. */
     ControlPanel controlPanel;
@@ -75,12 +75,12 @@ public class ActorCritic {
     PlotBuilder plot;
 
     /** Tile World. */
+    int tileSets = 1; // Number of tilesets
     int numTiles = 5; // Number of rows / cols in each tileset
     int worldWidth = 320;
     int worldHeight = 320;
     double initTilesX = 100;
     double initTilesY = 100;
-    int tileSets = 1; // Number of tilesets
     int tileSize = worldHeight / numTiles;
     double rewardDispersionFactor = 2; // Number of tiles for reward to disperse
     double movementFactor = 1; // Number of tiles to move
@@ -164,20 +164,21 @@ public class ActorCritic {
             }
 
             public void invoke() {
-                // First: update world effectors
+
+                // Update net > movement couplings
                 sim.getWorkspace().getCouplingManager()
                         .updateCouplings(effectorCouplings);
 
-                // Second: update world
+                // Update world
                 ob.getOdorWorldComponent().update();
 
-                // Third: update tile sensors
+                // Update world > tile neurons and plot couplings
                 sim.getWorkspace().getCouplingManager()
                         .updateCouplings(sensorCouplings);
 
                 // Fourth: update network
                 net.getNetworkComponent().update();
-                
+
                 // TODO: Why don't we have to call plot update?
             }
 
@@ -191,16 +192,17 @@ public class ActorCritic {
      * Set up the "grid world" and tile sensors.
      */
     void setUpWorld() {
-        // TODO: Fix below. Symptom of another problem
-        ob = sim.addOdorWorld(806, 11, worldWidth + 50, worldHeight + 50,
+        // TODO: Why can't I use worldwidth and worldheight below? I had to
+        // manually set size.
+        ob = sim.addOdorWorld(806, 11, 347, 390,
                 "Tile World");
         world = ob.getWorld();
         world.setObjectsBlockMovement(true);
         world.setWrapAround(false);
 
         mouse = new RotatingEntity(world);
-        mouse.setCenterLocation(mouseHomeLocation, mouseHomeLocation);
         world.addAgent(mouse);
+        resetMouse();
 
         cheese = new BasicEntity("Swiss.gif", world);
         double dispersion = rewardDispersionFactor * (tileSize / 2);
@@ -251,11 +253,11 @@ public class ActorCritic {
                     // why does using 0 make weights non-existent
                     // Connect tile neuron to output / action neurons
                     for (Neuron actionNeuron : outputs.getNeuronList()) {
-                        net.connect(tileNeuron, actionNeuron, .01);
+                        net.connect(tileNeuron, actionNeuron, 0);
                     }
 
                     // Connect tile neuron to value neuron
-                    net.connect(tileNeuron, value, .01);
+                    net.connect(tileNeuron, value, 0);
                 }
             }
 
@@ -334,9 +336,9 @@ public class ActorCritic {
         plot = sim.addTimeSeriesPlot(810, 340, 293, 332, "Reward, TD Error");
         Coupling rewardCoupling = sim.couple(net.getNetworkComponent(), reward,
                 plot.getTimeSeriesComponent(), 0);
-        Coupling tdCoupling =  sim.couple(net.getNetworkComponent(), tdError,
+        Coupling tdCoupling = sim.couple(net.getNetworkComponent(), tdError,
                 plot.getTimeSeriesComponent(), 1);
-        Coupling valueCoupling =  sim.couple(net.getNetworkComponent(), value,
+        Coupling valueCoupling = sim.couple(net.getNetworkComponent(), value,
                 plot.getTimeSeriesComponent(), 2);
         plot.getTimeSeriesModel().setAutoRange(false);
         plot.getTimeSeriesModel().setRangeUpperBound(2);
@@ -390,7 +392,7 @@ public class ActorCritic {
                 // from the control panel in.
                 numTrials = Integer.parseInt(trialField.getText());
                 gamma = Double.parseDouble(discountField.getText());
-                lambda = Double.parseDouble(lambdaField.getText());
+                //lambda = Double.parseDouble(lambdaField.getText());
                 epsilon = Double.parseDouble(epsilonField.getText());
                 alpha = Double.parseDouble(alphaField.getText());
                 outputs.setRandomProb(epsilon);
@@ -401,13 +403,25 @@ public class ActorCritic {
                     if (stop) {
                         return;
                     }
-                    resetTrial(i);
+
+                    trialField.setText("" + ((numTrials + 1) - i));
+
+                    goalAchieved = false;
+
+                    network.clearActivations();
+                    
+                    resetMouse();
 
                     // Keep iterating until the mouse achieves its goal
-                    // Goal is currently to get near a cheese
+                    // Goal is currently to get near the cheese
                     while (!goalAchieved) {
+                        int distance = (int) SimbrainMath.distance(
+                                mouse.getCenterLocation(),
+                                cheese.getCenterLocation());
+                        if (distance < hitRadius) {
+                            goalAchieved = true;
+                        }
                         iterateSimulation();
-                        updateGoalState();
                     }
                 }
 
@@ -418,29 +432,12 @@ public class ActorCritic {
     }
 
     /**
-     * Decide if the goal has been achived.
+     * Init mouse position.
      */
-    void updateGoalState() {
-        int distance = (int) SimbrainMath.distance(mouse.getCenterLocation(),
-                cheese.getCenterLocation());
-        if (distance < hitRadius) {
-            goalAchieved = true;
-        }
-    }
-
-    /**
-     * Set up a new trial. Reset things as needed.
-     *
-     * @param trialNum the trial to set
-     */
-    void resetTrial(int trialNum) {
-        // Set up the trial
-        trialField.setText("" + ((numTrials + 1) - trialNum));
-        goalAchieved = false;
-
-        // Clear network activations between trials
-        network.clearActivations();
-        mouse.setLocation(mouseHomeLocation, mouseHomeLocation);
+    private void resetMouse() {
+        mouse.setCenterLocation(mouseHomeLocation,
+                mouseHomeLocation);
+        mouse.setHeading(90);                
     }
 
     // TODO: All iteration methods must go to workspace level!
@@ -485,7 +482,7 @@ public class ActorCritic {
         trialField = controlPanel.addTextField("Trials", "" + numTrials);
         discountField = controlPanel.addTextField("Discount (gamma)",
                 "" + gamma);
-        lambdaField = controlPanel.addTextField("Lambda", "" + lambda);
+        //lambdaField = controlPanel.addTextField("Lambda", "" + lambda);
         epsilonField = controlPanel.addTextField("Epsilon", "" + epsilon);
         alphaField = controlPanel.addTextField("Learning rt.", "" + alpha);
 

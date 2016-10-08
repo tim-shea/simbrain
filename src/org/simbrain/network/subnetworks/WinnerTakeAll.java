@@ -99,6 +99,12 @@ public class WinnerTakeAll extends NeuronGroup {
     @Override
     public void update() {
         Neuron winner = getWinner();
+        if (useRandom) {
+            if (Math.random() < randomProb) {
+                winner = getNeuronList()
+                        .get(rand.nextInt(getNeuronList().size()));
+            }
+        }
         for (Neuron neuron : getNeuronList()) {
             if (neuron == winner) {
                 neuron.setActivation(winValue);

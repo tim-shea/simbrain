@@ -88,12 +88,25 @@ public class NetBuilder {
      *
      * @param source the source neuron
      * @param target the target neuron
+     * @param lowerBound lower bound for synapse
+     * @param upperBound upper bound for synapse
+     */
+    public void connect(Neuron source, Neuron target, double value, double lowerBound, double upperBound) {
+        Synapse synapse = new Synapse(source, target);
+        synapse.setStrength(value);
+        synapse.setLowerBound(lowerBound);
+        synapse.setUpperBound(upperBound);
+        source.getNetwork().addSynapse(synapse);
+    }
+
+    /**
+     * Make a single source -> target connection.
+     *
+     * @param source the source neuron
+     * @param target the target neuron
      */
     public void connect(Neuron source, Neuron target, double value) {
         Synapse synapse = new Synapse(source, target);
-        // TODO: assume value > 0
-        synapse.setLowerBound(-2 * value);
-        synapse.setUpperBound(2 * value);
         synapse.setStrength(value);
         source.getNetwork().addSynapse(synapse);
     }
