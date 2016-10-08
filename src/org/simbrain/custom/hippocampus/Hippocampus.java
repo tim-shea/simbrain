@@ -91,14 +91,12 @@ public class Hippocampus {
         net = sim.addNetwork(193, 12, 632, 585, "Hippocampus");
         network = net.getNetwork();
 
-        // Add cortical groups
-        LC1 = addCorticalGroup("Left Cortex Top", 185, -114);
-        LC2 = addCorticalGroup("Left Cortex Bottom", 185, -28);
-        RC1 = addCorticalGroup("Right Cortex Top", 597, -114);
-        RC2 = addCorticalGroup("Right Cortex Bottom", 597, -28);
-
-        // Add hippocampus (MTL)
-        hippocampus = addHippocampus("Hippocampus", 368, 179);
+        // Add all neuron groups
+        LC1 = addCompetitiveGroup("Left Cortex Top", 185, -114);
+        LC2 = addCompetitiveGroup("Left Cortex Bottom", 185, -28);
+        RC1 = addCompetitiveGroup("Right Cortex Top", 597, -114);
+        RC2 = addCompetitiveGroup("Right Cortex Bottom", 597, -28);
+        hippocampus = addCompetitiveGroup("Hippocampus", 368, 179);
 
         // Cortex to MTL connections
         HtoLC1 = addSynapseGroup(hippocampus, LC1, "H to LC1");
@@ -118,30 +116,10 @@ public class Hippocampus {
         addSynapseGroup(RC1, LC2, "RC1 to LC2");
         addSynapseGroup(RC2, LC1, "RC2 to LC1");
         addSynapseGroup(RC2, LC2, "RC2 to LC2");
+        
+        // Initialize the synapses
+        initWeights();
 
-    }
-
-    /**
-     * Add the MTL.
-     */
-    private AlvarezSquire addHippocampus(String label, double x, double y) {
-        AlvarezSquire cg = addCompetitiveGroup(label, x, y);
-        // See Alvarez-Squire Fig. 2
-        cg.setSynpaseDecayPercent(.04);
-        cg.setLearningRate(.1);
-        return cg;
-    }
-
-    /**
-     * Add a cortical group.
-     */
-    private AlvarezSquire addCorticalGroup(String label, double x,
-            double y) {
-        AlvarezSquire cg = addCompetitiveGroup(label, x, y);
-        // See Alvarez-Squire Fig. 2
-        cg.setSynpaseDecayPercent(.0008);
-        cg.setLearningRate(.002);
-        return cg;
     }
 
     /**
@@ -149,12 +127,11 @@ public class Hippocampus {
      */
     private AlvarezSquire addCompetitiveGroup(String label, double x,
             double y) {
-        AlvarezSquire cg = new AlvarezSquire(network, 4);
+        AlvarezSquire cg = new AlvarezSquire(this, 4);
         cg.setLabel(label);
         cg.applyLayout();
         cg.setLocation(x, y);
         cg.setUpdateMethod("AS");
-
         network.addGroup(cg);
         return cg;
     }
@@ -167,8 +144,7 @@ public class Hippocampus {
 
         // Initialize with uniform distribution from 0 to .1
         SynapseGroup synGroup = SynapseGroup.createSynapseGroup(source, target,
-                SynapseGroup.DEFAULT_CONNECTION_MANAGER, 1, exRand,
-                SynapseGroup.DEFAULT_IN_RANDOMIZER);
+                SynapseGroup.DEFAULT_CONNECTION_MANAGER, 1);
         synGroup.setLabel(name);
         synGroup.setLowerBound(0, Polarity.EXCITATORY);
         synGroup.setUpperBound(1, Polarity.EXCITATORY);
@@ -231,11 +207,7 @@ public class Hippocampus {
 
         // Reset weights
         panel.addButton("Reset weights", () -> {
-            // Quick and easy weight reset.
-            for (Synapse synapse : network.getFlatSynapseList()) {
-                synapse.setStrength(.2 * Math.random());
-            }
-            network.fireSynapsesUpdated();
+            initWeights();
         });
 
         panel.addSeparator();
@@ -317,6 +289,16 @@ public class Hippocampus {
 
         panel.addBottomComponent(bottomPanel);
 
+    }
+
+    /**
+     * Initialize weights randomly and uniformly between 0 and .02. 
+     */
+    private void initWeights() {
+        for (Synapse synapse : network.getFlatSynapseList()) {
+            synapse.setStrength(.2 * Math.random());
+        }
+        network.fireSynapsesUpdated();
     }
 
     /**

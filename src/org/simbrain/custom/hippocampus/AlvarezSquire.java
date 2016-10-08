@@ -16,14 +16,18 @@ public class AlvarezSquire extends CompetitiveGroup {
     /** Noise generator. */
     private Randomizer noiseGenerator = new Randomizer();
 
+    /** Reference to parent simulation. */
+    private Hippocampus hippo;
+
     /**
      * Construct the group.
      *
-     * @param root parent network
+     * @param hippo reference to parent sim
      * @param numNeurons number neurons
      */
-    public AlvarezSquire(Network root, int numNeurons) {
-        super(root, numNeurons);
+    public AlvarezSquire(Hippocampus hippo, int numNeurons) {
+        super(hippo.network, numNeurons);
+        this.hippo = hippo;
         // TODO
         noiseGenerator.setParam1(-.05);
         noiseGenerator.setParam2(.05);
@@ -42,18 +46,47 @@ public class AlvarezSquire extends CompetitiveGroup {
         for (int i = 0; i < getNeuronList().size(); i++) {
             Neuron neuron = getNeuronList().get(i);
             if (neuron == winner) {
-                // TODO: Use library for clipping
-                double val = .7 * neuron.getActivation()
-                        + neuron.getWeightedInputs()
-                        + noiseGenerator.getRandom();
-                neuron.forceSetActivation((val > 0) ? val : 0);
-                neuron.forceSetActivation((val < 1) ? val : 1);
+                // TODO: Allow user to choose update function
+                //neuron.setActivation(this.getWinValue());
+                alvarezSquireUpdate(neuron);
                 updateWeights(neuron);
-                // decayAllSynapses();
             } else {
                 neuron.setActivation(this.getLoseValue());
             }
         }
+        decaySynapses();
+    }
+
+    /**
+     * Simple decay with random noise
+     */
+    private void alvarezSquireUpdate(Neuron neuron) {
+        // TODO: Use library for clipping
+        double val = .7 * neuron.getActivation() + neuron.getWeightedInputs()
+                + noiseGenerator.getRandom();
+        neuron.forceSetActivation((val > 0) ? val : 0);
+        neuron.forceSetActivation((val < 1) ? val : 1);
+    }
+
+    /**
+     * Decay attached synapses in accordance with Alvarez and Squire 1994.
+     */
+    private void decaySynapses() {
+        double rho;
+        for (Neuron n : getNeuronList()) {
+            for (Synapse synapse : n.getFanIn()) {
+                if (synapse.getSource().getParentGroup() == hippo.hippocampus) {
+                    rho = .04;
+                } else if (synapse.getTarget()
+                        .getParentGroup() == hippo.hippocampus) {
+                    rho = .04;
+                } else {
+                    rho = .0008;
+                }
+                synapse.decay(rho);
+            }
+        }
+
     }
 
     /**
@@ -64,13 +97,11 @@ public class AlvarezSquire extends CompetitiveGroup {
     private void updateWeights(final Neuron neuron) {
         double lambda;
 
-        // TODO. Remove reliance on labels
         for (Synapse synapse : neuron.getFanIn()) {
-            if (synapse.getSource().getParentGroup().getLabel()
-                    .equalsIgnoreCase("Hippocampus")) {
+            if (synapse.getSource().getParentGroup() == hippo.hippocampus) {
                 lambda = .1;
-            } else if (synapse.getTarget().getParentGroup().getLabel()
-                    .equalsIgnoreCase("Hippocampus")) {
+            } else if (synapse.getTarget()
+                    .getParentGroup() == hippo.hippocampus) {
                 lambda = .1;
             } else {
                 lambda = .002;

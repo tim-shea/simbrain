@@ -918,12 +918,13 @@ public class Synapse {
 
     /**
      * Decay this synapse by the indicated percentage. E.g. .5 cuts the strength
-     * in half.
+     * in half at each iteration.
      *
-     * @param decayPercent decay percent
+     * @param decayFraction number between 0 and 1 to reduce strength by each
+     *            iteration
      */
-    public void decay(final double decayPercent) {
-        double decayAmount = decayPercent * getStrength();
+    public void decay(final double decayFraction) {
+        double decayAmount = decayFraction * getStrength();
         setStrength(getStrength() - decayAmount);
     }
 
