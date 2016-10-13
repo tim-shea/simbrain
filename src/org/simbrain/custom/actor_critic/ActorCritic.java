@@ -129,7 +129,7 @@ public class ActorCritic {
         sim.getWorkspace().clearWorkspace();
 
         // Create the network builder
-        net = sim.addNetwork(252, 0, 563, 597, "Neural Network");
+        net = sim.addNetwork(236,4,522,595, "Neural Network");
         network = net.getNetwork();
 
         // Set up the control panel and tabbed pane
@@ -146,13 +146,26 @@ public class ActorCritic {
         setUpWorld();
 
         // Set up the time series plot
-        setUpTimeSeries(net);
+        setUpPlot(net);
 
         // Set custom network update
         network.getUpdateManager().clear();
         updateMethod = new RL_Update(this);
         network.addUpdateAction(updateMethod);
+        
+        // Add docviewer
+        sim.addDocViewer(0,301,253,313, "Information",
+                "src/org/simbrain/custom/actor_critic/ActorCritic.html");
 
+        // Add method for custom update
+        addCustomWorkspaceUpdate();
+
+    }
+
+    /**
+     * Add custom workspace upadate method.
+     */
+    private void addCustomWorkspaceUpdate() {
         // Custom workspace update rule
         UpdateAction workspaceUpdateAction = new UpdateAction() {
             public String getDescription() {
@@ -185,7 +198,6 @@ public class ActorCritic {
         };
         sim.getWorkspace().getUpdater().getUpdateManager().clear();
         sim.getWorkspace().addUpdateAction(workspaceUpdateAction);
-
     }
 
     /**
@@ -194,7 +206,7 @@ public class ActorCritic {
     void setUpWorld() {
         // TODO: Why can't I use worldwidth and worldheight below? I had to
         // manually set size.
-        ob = sim.addOdorWorld(806, 11, 347, 390,
+        ob = sim.addOdorWorld(761,8,347,390,
                 "Tile World");
         world = ob.getWorld();
         world.setObjectsBlockMovement(true);
@@ -331,9 +343,9 @@ public class ActorCritic {
     /**
      * Set up the time series plot.
      */
-    private void setUpTimeSeries(NetBuilder net) {
+    private void setUpPlot(NetBuilder net) {
         // Create a time series plot
-        plot = sim.addTimeSeriesPlot(810, 340, 293, 332, "Reward, TD Error");
+        plot = sim.addTimeSeriesPlot(759,377,363,285, "Reward, TD Error");
         Coupling rewardCoupling = sim.couple(net.getNetworkComponent(), reward,
                 plot.getTimeSeriesComponent(), 0);
         Coupling tdCoupling = sim.couple(net.getNetworkComponent(), tdError,

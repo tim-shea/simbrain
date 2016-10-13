@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Actor Critic Simulation</title>
+</head>
+<body>
+    <h1>Actor Critic model</h1> Based on Sutton and Barto, grid world model. Simbrain implementation by Jeff Yoshimi and Jonathon Vickrey.
+    
+    <p>A model which learns the location of rewarding stimuli. Do a few runs through 5 trials using the run button on the panel below. Using default values, the rat should figure out how to get the cheese.</p>
+    
+    <p><b>Discount Factor</b>: Range is 0-1. If 0, predict next value only. If .5, predict future values. As it increases toward one, values of y in the more distant future become more significant.</p>
+    
+    <p><b>Epsilon</b>: Probability of taking a random action. 0 for no random actions; 1 for all random actions.</p>
+    
+    <p><b>Movement Factor</b>: Number of tiles to move in a given update.</p>
+    
+    <p><b>Other params</b>: A fair number of other parameters can be set in the script itself.</p>   
+    
+    <p><b>Time series:</b> The red time series shows the activation of the value neuron. This means a tile either has reward or (together with correct actions) leads to reward. The blue time series shows the activation of the td error neuron. When something unexpected happens this goes up and the network learns.</p>
+    
+</body>
+
+</html>
