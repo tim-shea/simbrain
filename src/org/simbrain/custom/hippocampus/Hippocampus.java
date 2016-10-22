@@ -47,13 +47,19 @@ public class Hippocampus {
     boolean hippoLesioned = false;
     boolean learningEnabled = true;
     JLabel errorLabel;
+    JLabel perfLabel;
     JTextField conslidationField;
 
     /** References to main neuron and synapse groups. */
     AlvarezSquire LC1, LC2, RC1, RC2, hippocampus;
-    // TODO: Change names to reference top or bottom
     SynapseGroup HtoLC1, HtoLC2, HtoRC1, HtoRC2, LC1toH, LC2toH, RC1toH, RC2toH;
 
+    /** The four main network patterns. */
+    double[] pattern1 = new double[] { 1, 0, 0, 0 };
+    double[] pattern2 = new double[] { 0, 1, 0, 0 };
+    double[] pattern3 = new double[] { 0, 0, 1, 0 };
+    double[] pattern4 = new double[] { 0, 0, 0, 1 };
+    
     /**
      * @param desktop
      */
@@ -162,48 +168,32 @@ public class Hippocampus {
 
         // Show pattern one
         panel.addButton("Train All", () -> {
-            train(network, new double[] { 1, 0, 0, 0 });
-            train(network, new double[] { 0, 1, 0, 0 });
-            train(network, new double[] { 0, 0, 1, 0 });
-            train(network, new double[] { 0, 0, 0, 1 });
-            train(network, new double[] { 1, 0, 0, 0 });
-            train(network, new double[] { 0, 1, 0, 0 });
-            train(network, new double[] { 0, 0, 1, 0 });
-            train(network, new double[] { 0, 0, 0, 1 });
+            train(network, pattern1);
+            train(network, pattern2);
+            train(network, pattern3);
+            train(network, pattern4);
+            train(network, pattern1);
+            train(network, pattern2);
+            train(network, pattern3);
+            train(network, pattern4);
         });
 
         // Test all the patterns
         panel.addButton("Test All", () -> {
             double error = 0;
-            test(network, new double[] { 1, 0, 0, 0 });
-            error += getError(0);
-            test(network, new double[] { 0, 1, 0, 0 });
-            error += getError(1);
-            test(network, new double[] { 0, 0, 1, 0 });
-            error += getError(2);
-            test(network, new double[] { 0, 0, 0, 1 });
-            error += getError(3);
-            errorLabel.setText("" + SimbrainMath.roundDouble(error, 2));
+            test(network, pattern1);
+            error += getError(pattern1);
+            test(network, pattern2);
+            error += getError(pattern2);
+            test(network, pattern3);
+            error += getError(pattern3);
+            test(network, pattern4);
+            error += getError(pattern4);
+            error =  SimbrainMath.roundDouble(error, 2);
+            errorLabel.setText("" + error);
+            double perf = SimbrainMath.roundDouble(8 - error, 2);
+            perfLabel.setText("" + (perf > 0 ? perf : 0));
         });
-
-        // panel.addButton("Train 1", () -> {
-        // train(network, new double[] { 1, 0, 0, 0 });
-        // });
-        //
-        // // Show pattern two
-        // panel.addButton("Train 2", () -> {
-        // train(network, new double[] { 0, 1, 0, 0 });
-        // });
-        //
-        // // Show pattern three
-        // panel.addButton("Train 3", () -> {
-        // train(network, new double[] { 0, 0, 1, 0 });
-        // });
-        //
-        // // Show pattern four
-        // panel.addButton("Train 4", () -> {
-        // train(network, new double[] { 0, 0, 0, 1 });
-        // });
 
         // Reset weights
         panel.addButton("Reset weights", () -> {
@@ -214,28 +204,29 @@ public class Hippocampus {
 
         // Show pattern one
         panel.addButton("Test 1", () -> {
-            test(network, new double[] { 1, 0, 0, 0 });
+            test(network, pattern1);
         });
 
         // Show pattern two
         panel.addButton("Test 2", () -> {
-            test(network, new double[] { 0, 1, 0, 0 });
+            test(network, pattern2);
         });
 
         // Show pattern three
         panel.addButton("Test 3", () -> {
-            test(network, new double[] { 0, 0, 1, 0 });
+            test(network, pattern3);
         });
 
         // Show pattern four
         panel.addButton("Test 4", () -> {
-            test(network, new double[] { 0, 0, 0, 1 });
+            test(network, pattern4);
         });
 
         panel.addSeparator();
 
         ControlPanel bottomPanel = new ControlPanel();
         errorLabel = bottomPanel.addLabel("Error:", "");
+        perfLabel = bottomPanel.addLabel("Performance:", "");
 
         // Lesion checkbox
         bottomPanel.addCheckBox("Lesion MTL", hippoLesioned, () -> {
@@ -302,18 +293,23 @@ public class Hippocampus {
     }
 
     /**
-     * Compute the error on the indicated test pattern (half patterns 1-4).
-     *
-     * @param index which pattern to test on
-     * @return the error for that pattern.
+     * Returns error  for a specific pattern
+     * 
+     * @pattern the pattern to check all cortical areas against
      */
-    public double getError(int index) {
-        double diff1 = LC1.getNeuronList().get(index).getActivation()
-                - RC1.getNeuronList().get(index).getActivation();
-        double diff2 = LC2.getNeuronList().get(index).getActivation()
-                - RC2.getNeuronList().get(index).getActivation();
-        double error = Math.abs(diff1) + Math.abs(diff2);
-        return error;
+    public double getError(double[] pattern) {
+        double retVal = 0;
+        for(int i = 0; i < 4; i++) {
+            double diff = LC1.getNeuronList().get(i).getActivation() - pattern[i];
+            retVal += diff*diff;
+            diff = LC2.getNeuronList().get(i).getActivation() - pattern[i];
+            retVal += diff*diff;
+            diff = RC1.getNeuronList().get(i).getActivation() - pattern[i];
+            retVal += diff*diff;
+            diff = RC2.getNeuronList().get(i).getActivation() - pattern[i];
+            retVal += diff*diff;
+        }
+        return retVal;
     }
 
     /**
