@@ -261,13 +261,13 @@ public class Hippocampus {
                 double[] activations = new double[4];
                 int actNeuron = generator.nextInt(4);
                 if (actNeuron == 0) {
-                    activations = new double[] { 1, 0, 0, 0 };
+                    activations = pattern1;
                 } else if (actNeuron == 1) {
-                    activations = new double[] { 0, 1, 0, 0 };
+                    activations = pattern2;
                 } else if (actNeuron == 2) {
-                    activations = new double[] { 0, 0, 1, 0 };
+                    activations = pattern3;
                 } else if (actNeuron == 3) {
-                    activations = new double[] { 0, 0, 0, 1 };
+                    activations = pattern4;
                 }
                 network.clearActivations();
                 hippocampus.setClamped(true);
