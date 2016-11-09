@@ -51,9 +51,6 @@ import org.simbrain.workspace.updater.WorkspaceUpdater;
  */
 public class Workspace {
 
-    /** The default serial version ID. */
-    private static final long serialVersionUID = 1L;
-
     /** The static logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(Workspace.class);
 
@@ -64,7 +61,7 @@ public class Workspace {
     private List<WorkspaceComponent> componentList = Collections
             .synchronizedList(new ArrayList<WorkspaceComponent>());
 
-    /** Sentinel for determining if workspace has been changed since last save. */
+    /** Flag to indicate workspace has been changed since last save. */
     private boolean workspaceChanged = false;
 
     /** Current workspace file. */
@@ -84,7 +81,7 @@ public class Workspace {
 
     /**
      * Mapping from workspace component types to integers which show how many
-     * have been added. For naming.
+     * have been added. For naming new workspace components.
      */
     private Hashtable<Class<?>, Integer> componentNameIndices = new Hashtable<Class<?>, Integer>();
 
@@ -609,9 +606,7 @@ public class Workspace {
         return manager;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder("Number of components: "
                 + componentList.size() + "\n");
