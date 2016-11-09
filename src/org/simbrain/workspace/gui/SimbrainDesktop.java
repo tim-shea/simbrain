@@ -74,6 +74,7 @@ import org.simbrain.console.ConsoleComponent;
 import org.simbrain.console.ConsoleDesktopComponent;
 import org.simbrain.custom.actor_critic.ActorCritic;
 import org.simbrain.custom.agent_trails.AgentTrails;
+import org.simbrain.custom.cerebellum.Cerebellum;
 import org.simbrain.custom.hippocampus.Hippocampus;
 import org.simbrain.custom.rl_sim.RL_Sim_Main;
 import org.simbrain.custom.test.TestSim;
@@ -638,14 +639,6 @@ public class SimbrainDesktop {
         //  Below is a temporary hack.
 
         // The RL simulation
-        JMenuItem rlTest = new JMenuItem("RL Vehicles");
-        rlTest.addActionListener(ae -> {
-            RL_Sim_Main rlSim = new RL_Sim_Main(this);
-            rlSim.run();
-        });
-        scriptMenu.add(rlTest);
-
-        // The RL simulation
         JMenuItem acItem = new JMenuItem("Actor Critic");
         acItem.addActionListener(ae -> {
             ActorCritic acSim = new ActorCritic(this);
@@ -661,6 +654,14 @@ public class SimbrainDesktop {
         });
         scriptMenu.add(agentTrailsMenuItem);
 
+        // Adding the cerebellum simulation
+        JMenuItem cerebellumMenuItem = new JMenuItem("Cerebellum");
+        cerebellumMenuItem.addActionListener(ae -> {
+            Cerebellum cerebellumSim = new Cerebellum(this);
+            cerebellumSim.run();
+        });
+        scriptMenu.add(cerebellumMenuItem);
+
         // Adding the hippocampus simulation
         JMenuItem hippocampusMenuItem = new JMenuItem("Hippocampus");
         hippocampusMenuItem.addActionListener(ae -> {
@@ -668,6 +669,14 @@ public class SimbrainDesktop {
             hippo.run();
         });
         scriptMenu.add(hippocampusMenuItem);
+
+        // The RL simulation
+        JMenuItem rlTest = new JMenuItem("RL Vehicles");
+        rlTest.addActionListener(ae -> {
+            RL_Sim_Main rlSim = new RL_Sim_Main(this);
+            rlSim.run();
+        });
+        scriptMenu.add(rlTest);
 
         // Add the test simulation
         JMenuItem test = new JMenuItem("Test (temporary)");

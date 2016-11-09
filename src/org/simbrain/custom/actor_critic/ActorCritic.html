@@ -18,6 +18,7 @@
     <p>A model which learns the location of rewarding stimuli. Do a few runs through 5 trials using the "run" button on the control panel. Using default values, the rat should figure out how to get the cheese.</p>
     <h2>Parameters and what they mean</h2>
     <p><b>Epsilon</b>: Probability of taking a random action. 0 for no random actions; 1 for all random actions. <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2645553/">Doya, 2007</a> suggests this may be related to noradernaline (or Norepinephrine) which regulates overall arousal (it decreases when asleep, rises when awake, etc.) </p>
+    <!-- When you are in a new situation that demands different responses you need the alertness to be able to respond appropriately and to act in new ways.   -->
     <!--  TODO: Discuss exploitation / exploration  -->
     <p><b>Learning rate</b>:How much weights are updated at each time step. <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2645553/">Doya, 2007</a> suggests this may be related to acetlycholine in the brain, which regulates some forms of plasticity.</p>
     <p><b>Discount Factor (gamma)</b>: Determines how "future oriented" the agent is. Range is 0-1. For values closer to 0 the agent is more focused on immediate rewards, it is "short-sighted" or impulsive. For values closer to 1 the agent is more focused on distant rewards. The agent will not learn when gamma is 0 because it only cares about immediate reward and never learns to attach values to states <i>leading to</i> reward.</p>
