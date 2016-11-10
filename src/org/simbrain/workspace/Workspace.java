@@ -515,9 +515,6 @@ public class Workspace {
         return null;
     }
 
-    /** The lock used to lock calls on syncAllComponents. */
-    private final Object componentLock = new Object();
-
     /**
      * Set the task synchronization manager.
      *
@@ -526,75 +523,6 @@ public class Workspace {
     public void setTaskSynchronizationManager(
             final TaskSynchronizationManager manager) {
         updater.setTaskSynchronizationManager(manager);
-    }
-
-    /**
-     * Synchronizes on all components and executes task, returning the result of
-     * that callable.
-     *
-     * @param <E> The return type of task.
-     * @param task The task to synchronize.
-     * @return The result of task.
-     * @throws Exception if an exception occurs.
-     */
-    public <E> E syncOnAllComponents(final Callable<E> task) throws Exception {
-        synchronized (componentLock) {
-
-            Iterator<Object> locks = new Iterator<Object>() {
-
-                Iterator<? extends WorkspaceComponent> components = getComponentList()
-                        .iterator();
-                Iterator<? extends Object> current = null;
-
-                public boolean hasNext() {
-                    if (current == null || !current.hasNext()) {
-                        return components.hasNext();
-                    } else {
-                        return true;
-                    }
-                }
-
-                public Object next() {
-                    if (current == null || !current.hasNext()) {
-                        if (components.hasNext()) {
-                            current = components.next().getLocks().iterator();
-                        } else {
-                            throw new IllegalStateException("no more elements");
-                        }
-                    }
-
-                    return current.next();
-                }
-
-                public void remove() {
-                    throw new UnsupportedOperationException();
-                }
-            };
-
-            return syncRest(locks, task);
-        }
-    }
-
-    /**
-     * Recursively synchronizes on the components in the provided iterator and
-     * executes the provided task if there are no more components.
-     *
-     * @param <E> The return type of task.
-     * @param iterator The iterator of the remaining components to synchronize
-     *            on.
-     * @param task The task to synchronize.
-     * @return The result of the task.
-     * @throws Exception if an exception occurs.
-     */
-    public static <E> E syncRest(final Iterator<? extends Object> iterator,
-            final Callable<E> task) throws Exception {
-        if (iterator.hasNext()) {
-            synchronized (iterator.next()) {
-                return syncRest(iterator, task);
-            }
-        } else {
-            return task.call();
-        }
     }
 
     /**

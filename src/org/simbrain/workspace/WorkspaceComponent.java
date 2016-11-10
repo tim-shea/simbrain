@@ -286,17 +286,6 @@ public abstract class WorkspaceComponent {
     }
 
     /**
-     * Returns the locks for the update parts. There should be one lock per
-     * part. These locks need to be the same ones used to lock the update of
-     * each part.
-     *
-     * @return The locks for the update parts.
-     */
-    public Collection<? extends Object> getLocks() {
-        return Collections.singleton(this);
-    }
-
-    /**
      * Called by Workspace to notify that updates have stopped.
      */
     protected void stopped() {

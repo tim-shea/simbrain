@@ -122,14 +122,11 @@ public final class Coupling<E> {
     public void setBuffer() {
         final WorkspaceComponent producerComponent = producer
                 .getParentComponent();
-
+        
         try {
-            buffer = Workspace.syncRest(
-                    producerComponent.getLocks().iterator(), new Callable<E>() {
-                        public E call() throws Exception {
-                            return producer.getValue();
-                        }
-                    });
+            synchronized(producerComponent) {
+                buffer = producer.getValue();
+            }
         } catch (Exception e) {
             // TODO exception service?
             e.printStackTrace();
@@ -146,21 +143,9 @@ public final class Coupling<E> {
             final WorkspaceComponent consumerComponent = consumer
                     .getParentComponent();
             try {
-                Workspace.syncRest(consumerComponent.getLocks().iterator(),
-                        new Callable<E>() {
-                            public E call() throws Exception {
-                                consumer.setValue(buffer);
-                                LOGGER.debug(consumer.getParentComponent()
-                                        .getName()
-                                        + " just consumed "
-                                        + producer.getValue()
-                                        + " from "
-                                        + producer.getParentComponent()
-                                                .getName());
-
-                                return null;
-                            }
-                        });
+                synchronized (consumer) {
+                    consumer.setValue(buffer);
+                }
             } catch (Exception e) {
                 // TODO exception service?
                 e.printStackTrace();
