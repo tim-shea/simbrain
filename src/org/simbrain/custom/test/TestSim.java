@@ -66,7 +66,7 @@ public class TestSim {
         // Coupling agent to network
         // sim.couple(mouse, inputs); // Agent sensors to neurons
         // sim.couple(outputs, mouse); // Neurons to movement effectors
-        
+
         // Add vehicles
         Vehicle vehicleBuilder = new Vehicle(sim, net, world);
         vehicleBuilder.setWeightSize(10);

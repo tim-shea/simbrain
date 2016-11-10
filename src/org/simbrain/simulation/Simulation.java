@@ -2,6 +2,7 @@ package org.simbrain.simulation;
 
 import java.io.File;
 import java.util.Hashtable;
+import java.util.concurrent.CountDownLatch;
 
 import javax.swing.JInternalFrame;
 
@@ -320,6 +321,28 @@ public class Simulation {
         Consumer agentEffector = ow.createConsumer(effector, "addAmount");
 
         addCoupling(new Coupling(effectorNeuron, agentEffector));
+    }
+
+    /**
+     * Iterate the simulation once.
+     */
+    public void iterate() {
+        iterate(1);
+    }
+
+    /**
+     * Iterate the simulation for the specified number of times.
+     *
+     * @param iterations number of iterations
+     */
+    public void iterate(int iterations) {
+        CountDownLatch latch = new CountDownLatch(1);
+        workspace.iterate(latch, iterations);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 }

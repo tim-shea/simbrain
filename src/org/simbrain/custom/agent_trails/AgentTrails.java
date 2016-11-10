@@ -180,7 +180,7 @@ public class AgentTrails {
             mouse.setLocation(cheeseX, cheeseY + dispersion);
             mouse.setHeading(90);
             straightNeuron.forceSetActivation(1);
-            iterate(180);
+            sim.iterate(180);
         });
 
         // Move past Fish
@@ -189,7 +189,7 @@ public class AgentTrails {
             mouse.setLocation(fishX, fishY + dispersion);
             mouse.setHeading(90);
             straightNeuron.forceSetActivation(1);
-            iterate(180);
+            sim.iterate(180);
         });
 
         // Move past flower
@@ -198,7 +198,7 @@ public class AgentTrails {
             mouse.setLocation(flowerX, flowerY + dispersion);
             mouse.setHeading(90);
             straightNeuron.forceSetActivation(1);
-            iterate(180);
+            sim.iterate(180);
         });
 
         // Cheese > Fish
@@ -206,12 +206,12 @@ public class AgentTrails {
             net.getNetwork().clearActivations();
             mouse.setLocation(cheeseX, cheeseY + dispersion);
             mouse.setHeading(90);
-            straightNeuron.forceSetActivation(1);
-            iterate(50);
+            straightNeuron.forceSetActivation(1);   
+            sim.iterate(50);
             rightNeuron.forceSetActivation(1.5);
-            iterate(25);
+            sim.iterate(25);
             rightNeuron.forceSetActivation(0);
-            iterate(220);
+            sim.iterate(220);
         });
 
         // Cheese > Flower
@@ -220,11 +220,11 @@ public class AgentTrails {
             mouse.setLocation(cheeseX, cheeseY + dispersion);
             mouse.setHeading(90);
             straightNeuron.forceSetActivation(1);
-            iterate(50);
+            sim.iterate(50);
             leftNeuron.forceSetActivation(1.5);
-            iterate(25);
+            sim.iterate(25);
             leftNeuron.forceSetActivation(0);
-            iterate(220);
+            sim.iterate(220);
         });
 
         // TODO: Factor the velocity settings in to another method
@@ -241,7 +241,7 @@ public class AgentTrails {
             mouse.setLocation(cheeseX, cheeseY + dispersion);
             mouse.setHeading(90);
             straightNeuron.forceSetActivation(0);
-            iterate(200);
+            sim.iterate(200);
         });
 
         // Save File
@@ -253,22 +253,6 @@ public class AgentTrails {
             }
         });
 
-    }
-
-    /**
-     * Iterate the simulation a specific number of times and don't move forward
-     * in the script until done.
-     *
-     * @param iterations
-     */
-    void iterate(int iterations) {
-        CountDownLatch iterationLatch = new CountDownLatch(1);
-        sim.getWorkspace().iterate(iterationLatch, iterations);
-        try {
-            iterationLatch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
 }

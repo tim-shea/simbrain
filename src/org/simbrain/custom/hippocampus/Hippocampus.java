@@ -272,7 +272,7 @@ public class Hippocampus {
                 network.clearActivations();
                 hippocampus.setClamped(true);
                 hippocampus.forceSetActivations(activations);
-                iterate(Integer.parseInt(conslidationField.getText()));
+                sim.iterate(Integer.parseInt(conslidationField.getText()));
                 hippocampus.setClamped(false);
             });
         });
@@ -313,23 +313,6 @@ public class Hippocampus {
     }
 
     /**
-     * Iterate the simulation a specific number of times and don't move forward
-     * in the script until done.
-     *
-     * @param iterations
-     */
-    void iterate(int iterations) {
-        CountDownLatch iterationLatch = new CountDownLatch(1);
-
-        sim.getWorkspace().iterate(iterationLatch, iterations);
-        try {
-            iterationLatch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Set up a train button that will clamp the the cortical neurons, then
      * train the network for three iterations, then unclamp the cortical
      * neurons.
@@ -350,7 +333,7 @@ public class Hippocampus {
         hippocampus.forceSetActivations(new double[] { 0, 0, 0, 0 });
 
         // Iterate 3 times
-        iterate(3);
+        sim.iterate(3);
 
         // Unclamp nodes
         LC1.setClamped(false);
@@ -379,7 +362,7 @@ public class Hippocampus {
         LC2.forceSetActivations(activations);
 
         // Iterate 3 times
-        iterate(3);
+        sim.iterate(3);
 
         // Unclamp nodes
         LC1.setClamped(false);

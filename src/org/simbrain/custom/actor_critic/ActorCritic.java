@@ -433,7 +433,7 @@ public class ActorCritic {
                         if (distance < hitRadius) {
                             goalAchieved = true;
                         }
-                        iterateSimulation();
+                        sim.iterate();
                     }
                 }
 
@@ -450,36 +450,6 @@ public class ActorCritic {
         mouse.setCenterLocation(mouseHomeLocation,
                 mouseHomeLocation);
         mouse.setHeading(90);                
-    }
-
-    // TODO: All iteration methods must go to workspace level!
-
-    /**
-     * Iterate the workspace one iteration.
-     */
-    void iterateSimulation() {
-        CountDownLatch latch = new CountDownLatch(1);
-        sim.getWorkspace().iterate(latch);
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Iterate for a set number of iterations.
-     *
-     * @param iterations number of iteration.
-     */
-    void iterate(int iterations) {
-        CountDownLatch iterationLatch = new CountDownLatch(1);
-        sim.getWorkspace().iterate(iterationLatch, iterations);
-        try {
-            iterationLatch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     /**

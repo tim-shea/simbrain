@@ -378,25 +378,11 @@ public class Cerebellum {
             dopamine.setClamped(true);
             // Turn off learning
             toggleLearning = false;
-            CountDownLatch latch = new CountDownLatch(1);
-            sim.getWorkspace().iterate(latch,
-                    currentTrialLength / 2);
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            sim.iterate(currentTrialLength / 2);
 
             inputs.getNeuronList().get(0).forceSetActivation(0);
             inputs.getNeuronList().get(1).forceSetActivation(1);
-            latch = new CountDownLatch(1);
-            sim.getWorkspace().iterate(latch,
-                    currentTrialLength / 2);
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            sim.iterate(currentTrialLength / 2);
             dopamine.setClamped(false);
             toggleLearning = true;
    
@@ -407,26 +393,12 @@ public class Cerebellum {
             inputs.getNeuronList().get(0).forceSetActivation(1);
             inputs.getNeuronList().get(1).forceSetActivation(0);
             target.forceSetActivation(1);
-            CountDownLatch latch = new CountDownLatch(1);
-            sim.getWorkspace().iterate(latch,
-                    currentTrialLength / 2);
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            sim.iterate(currentTrialLength / 2);
 
             inputs.getNeuronList().get(0).forceSetActivation(0);
             inputs.getNeuronList().get(1).forceSetActivation(1);
             target.forceSetActivation(0);
-            latch = new CountDownLatch(1);
-            sim.getWorkspace().iterate(latch,
-                    currentTrialLength / 2);
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            sim.iterate(currentTrialLength / 2);
         });
 
 
@@ -435,26 +407,12 @@ public class Cerebellum {
                 inputs.getNeuronList().get(0).forceSetActivation(1);
                 inputs.getNeuronList().get(1).forceSetActivation(0);
                 target.forceSetActivation(1);
-                CountDownLatch latch = new CountDownLatch(1);
-                sim.getWorkspace().iterate(latch,
-                        currentTrialLength / 2);
-                try {
-                    latch.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                sim.iterate(currentTrialLength / 2);
 
                 inputs.getNeuronList().get(0).forceSetActivation(0);
                 inputs.getNeuronList().get(1).forceSetActivation(1);
                 target.forceSetActivation(0);
-                latch = new CountDownLatch(1);
-                sim.getWorkspace().iterate(latch,
-                        currentTrialLength / 2);
-                try {
-                    latch.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                sim.iterate(currentTrialLength / 2);
             }
         });
 
@@ -492,7 +450,6 @@ public class Cerebellum {
         trialLengthSlider.setSnapToTicks(true);
         panel.addItem("", new JLabel("Trial Length"));
         panel.addItem("", trialLengthSlider);
-        
         panel.pack();
 
     }

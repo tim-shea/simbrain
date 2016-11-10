@@ -497,7 +497,7 @@ public class RL_Sim_Main {
                     // Keep iterating until the mouse achieves its goal
                     // Goal is currently to get near a cheese
                     while (!goalAchieved) {
-                        iterateSimulation();
+                        sim.iterate();
                         updateGoalState();
                     }
                 }
@@ -544,36 +544,6 @@ public class RL_Sim_Main {
         mouse.setLocation(getCurrentSim().mouse_x,
                 getCurrentSim().mouse_y);
         mouse.setHeading(getCurrentSim().mouse_heading);
-    }
-
-    // TODO: All iteration methods must go to workspace level!
-
-    /**
-     * Iterate the workspace one iteration.
-     */
-    void iterateSimulation() {
-        CountDownLatch latch = new CountDownLatch(1);
-        sim.getWorkspace().iterate(latch);
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Iterate for a set number of iterations.
-     *
-     * @param iterations number of iteration.
-     */
-    void iterate(int iterations) {
-        CountDownLatch iterationLatch = new CountDownLatch(1);
-        sim.getWorkspace().iterate(iterationLatch, iterations);
-        try {
-            iterationLatch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     /**

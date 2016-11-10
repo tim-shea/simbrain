@@ -97,7 +97,7 @@ public class CheeseFlower extends RL_Sim {
         // Run past the object
         sim.mouse.setVelocityX(5);
         sim.mouse.setHeading(0);
-        sim.iterate(100);
+        sim.sim.iterate(100);
 
         // Clean up the mess I've made
         sim.mouse.setVelocityX(0);
