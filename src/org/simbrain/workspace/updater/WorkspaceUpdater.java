@@ -209,13 +209,38 @@ public class WorkspaceUpdater {
             try {
                 doUpdate();
             } catch (Exception e) {
-                // TODO exception handler
                 e.printStackTrace();
             }
 
             synchManager.releaseTasks();
             synchManager.runTasks();
 
+            notifyWorkspaceUpdateCompleted();
+        });
+    }
+
+    /**
+     * Iterate a set number of iterations against a latch.
+     *
+     * See {@link Workspace#iterate(CountDownLatch, int)}
+     *
+     * @param latch the latch to count down
+     * @param numIterations the number of iterations to update
+     */
+    public void iterate(final CountDownLatch latch, final int numIterations) {
+        workspaceUpdateExecutor.submit(() -> {
+            notifyWorkspaceUpdateStarted();
+            for (int i = 0; i < numIterations; i++) {
+                synchManager.queueTasks();
+                try {
+                    doUpdate();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                synchManager.releaseTasks();
+                synchManager.runTasks();
+            }
+            latch.countDown();
             notifyWorkspaceUpdateCompleted();
         });
     }
@@ -234,7 +259,7 @@ public class WorkspaceUpdater {
             e.printStackTrace();
         }
 
-        //TODO: Test to make sure these actions occur in the proper order
+        // TODO: Test to make sure these actions occur in the proper order
         for (UpdateAction action : updateActionManager.getActionList()) {
             action.invoke();
         }
@@ -411,40 +436,12 @@ public class WorkspaceUpdater {
             stop();
         }
         this.numThreads = numThreads;
-        //this.componentUpdates = Executors.newFixedThreadPool(numThreads,
-        //        new UpdaterThreadFactory());
+        // this.componentUpdates = Executors.newFixedThreadPool(numThreads,
+        // new UpdaterThreadFactory());
         for (WorkspaceUpdaterListener listener : updaterListeners) {
             listener.changeNumThreads();
         }
 
-    }
-
-    /**
-     * Iterate a set number of iterations against a latch.
-     *
-     * See {@link Workspace#iterate(CountDownLatch, int)}
-     *
-     * @param latch the latch to count down
-     * @param numIterations the number of iteration to update
-     */
-    public void iterate(final CountDownLatch latch, final int numIterations) {
-        workspaceUpdateExecutor.submit(new Runnable() {
-            public void run() {
-                notifyWorkspaceUpdateStarted();
-                for (int i = 0; i < numIterations; i++) {
-                    synchManager.queueTasks();
-                    try {
-                        doUpdate();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    synchManager.releaseTasks();
-                    synchManager.runTasks();
-                }
-                latch.countDown();
-                notifyWorkspaceUpdateCompleted();
-            }
-        });
     }
 
     /** A synch-manager where the methods do nothing. */
