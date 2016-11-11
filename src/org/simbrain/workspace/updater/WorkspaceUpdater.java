@@ -24,7 +24,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 import org.apache.log4j.Logger;
 import org.simbrain.workspace.Workspace;
@@ -57,10 +56,7 @@ public class WorkspaceUpdater {
     private final Workspace workspace;
 
     /** The executor service for managing workspace updates. */
-    private final ExecutorService workspaceUpdates;
-
-    /** The executor service for doing the component updates. */
-    private ExecutorService componentUpdates;
+    private final ExecutorService workspaceUpdateExecutor;
 
     /** The executor service for notifying listeners. */
     private final ExecutorService notificationEvents;
@@ -99,12 +95,7 @@ public class WorkspaceUpdater {
         this.numThreads = threads;
 
         // A single thread updates the workspace
-        workspaceUpdates = Executors.newSingleThreadExecutor();
-
-        // In some cases components can be updated in parallel. So
-        // a thread pool with a configurable number of threads is used
-        componentUpdates = Executors.newFixedThreadPool(threads,
-                new UpdaterThreadFactory());
+        workspaceUpdateExecutor = Executors.newSingleThreadExecutor();
 
         // A single thread to fire notification events
         notificationEvents = Executors.newSingleThreadExecutor();
@@ -186,7 +177,7 @@ public class WorkspaceUpdater {
     public void run() {
         run = true;
 
-        workspaceUpdates.submit(() -> {
+        workspaceUpdateExecutor.submit(() -> {
             notifyWorkspaceUpdateStarted();
 
             synchManager.queueTasks();
@@ -211,7 +202,7 @@ public class WorkspaceUpdater {
      * Submits a single task to the queue.
      */
     public void runOnce() {
-        workspaceUpdates.submit(() -> {
+        workspaceUpdateExecutor.submit(() -> {
             notifyWorkspaceUpdateStarted();
             synchManager.queueTasks();
 
@@ -420,8 +411,8 @@ public class WorkspaceUpdater {
             stop();
         }
         this.numThreads = numThreads;
-        this.componentUpdates = Executors.newFixedThreadPool(numThreads,
-                new UpdaterThreadFactory());
+        //this.componentUpdates = Executors.newFixedThreadPool(numThreads,
+        //        new UpdaterThreadFactory());
         for (WorkspaceUpdaterListener listener : updaterListeners) {
             listener.changeNumThreads();
         }
@@ -437,7 +428,7 @@ public class WorkspaceUpdater {
      * @param numIterations the number of iteration to update
      */
     public void iterate(final CountDownLatch latch, final int numIterations) {
-        workspaceUpdates.submit(new Runnable() {
+        workspaceUpdateExecutor.submit(new Runnable() {
             public void run() {
                 notifyWorkspaceUpdateStarted();
                 for (int i = 0; i < numIterations; i++) {
@@ -472,30 +463,6 @@ public class WorkspaceUpdater {
     };
 
     /**
-     * Creates the threads used in the ExecutorService. Used to create a custom
-     * thread class that will be generated inside the executor. This allows for
-     * a clean way to capture the events using the thread instances themselves
-     * which 'know' their thread number.
-     */
-    private class UpdaterThreadFactory implements ThreadFactory {
-        /** Numbers the threads sequentially. */
-        private int nextThread = 1;
-
-        /**
-         * Creates a new UpdateThread with the current thread number.
-         *
-         * @param runnable The runnable this thread will execute.
-         * @return current thread number
-         */
-        public Thread newThread(final Runnable runnable) {
-            synchronized (this) {
-                return new UpdateThread(WorkspaceUpdater.this, runnable,
-                        nextThread++);
-            }
-        }
-    }
-
-    /**
      * Returns a reference to the update manager.
      *
      * @return the update manager
@@ -517,40 +484,6 @@ public class WorkspaceUpdater {
         }
 
         return components;
-    }
-
-    /**
-     * Update the provided workspace component.
-     *
-     * @param component the component to update.
-     * @param signal completion signal
-     */
-    public void updateComponent(final WorkspaceComponent component,
-            final CompletionSignal signal) {
-
-        // If update is turned off on this component, return
-        if (!component.getUpdateOn()) {
-            signal.done();
-            return;
-        }
-
-        componentUpdates.submit(() -> {
-            UpdateThread thread = (UpdateThread) Thread.currentThread();
-            thread.setCurrentTask(component);
-            component.update();
-            thread.clearCurrentTask(component);
-            signal.done();
-        });
-
-    }
-
-    /**
-     * Update couplings.
-     */
-    public void updateCouplings() {
-        workspace.getCouplingManager().updateAllCouplings();
-        LOGGER.trace("couplings updated");
-        workspace.getUpdater().notifyCouplingsUpdated();
     }
 
     /**

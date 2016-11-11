@@ -19,16 +19,20 @@
 package org.simbrain.workspace.updater;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import org.apache.log4j.Logger;
 import org.simbrain.workspace.WorkspaceComponent;
 
 /**
- * Update all components and couplings as follows. First update couplings using
- * a buffering system whereby the order in which they are updated does not
- * matter (read all producer values, write them to a buffer, then read all
- * buffer values and write them to the consumers). Then update all the
- * components.
+ * This is the default action for all workspace updates.
+ *
+ * First update couplings using a buffering system whereby the order in which
+ * they are updated does not matter (read all producer values, write them to a
+ * buffer, then read all buffer values and write them to the consumers). Then
+ * update all the components.
  *
  * In workspace updater, the following happens. Each component update call is
  * fed to an executor service which uses as many threads as it's configured to
@@ -47,11 +51,26 @@ public class UpdateAllBuffered implements UpdateAction {
     /** The static logger for the class. */
     static final Logger LOGGER = Logger.getLogger(UpdateAllBuffered.class);
 
+    /** The executor service for doing the component updates. */
+    private ExecutorService componentUpdateExecutor;
+
     /**
-     * @param controls update controls
+     * Construct the action.
+     *
+     * @param updater reference to parent updater
      */
-    public UpdateAllBuffered(WorkspaceUpdater controls) {
-        this.updater = controls;
+    public UpdateAllBuffered(WorkspaceUpdater updater) {
+        this.updater = updater;
+
+        // In some cases components can be updated in parallel. So
+        // a thread pool with a configurable number of threads is used
+        componentUpdateExecutor = Executors.newFixedThreadPool(updater.getNumThreads(),
+                new UpdaterThreadFactory());
+
+        // TODO: the executor needs to be reinitialized when
+        // updater.setNumThreads is called
+        //this.componentUpdates = Executors.newFixedThreadPool(numThreads,
+        //        new UpdaterThreadFactory());
     }
 
     @Override
@@ -65,18 +84,52 @@ public class UpdateAllBuffered implements UpdateAction {
         }
 
         LOGGER.trace("updating couplings");
-        updater.updateCouplings();
+        updateCouplings();
 
         LOGGER.trace("creating latch");
         LatchCompletionSignal latch = new LatchCompletionSignal(componentCount);
 
         LOGGER.trace("updating components");
         for (WorkspaceComponent component : components) {
-            updater.updateComponent(component, latch);
+            updateComponent(component, latch);
         }
         LOGGER.trace("waiting");
         latch.await();
         LOGGER.trace("update complete");
+    }
+
+    /**
+     * Update the provided workspace component.
+     *
+     * @param component the component to update.
+     * @param signal completion signal
+     */
+    public void updateComponent(final WorkspaceComponent component,
+            final CompletionSignal signal) {
+
+        // If update is turned off on this component, return
+        if (!component.getUpdateOn()) {
+            signal.done();
+            return;
+        }
+
+        componentUpdateExecutor.submit(() -> {
+            UpdateThread thread = (UpdateThread) Thread.currentThread();
+            thread.setCurrentTask(component);
+            component.update();
+            thread.clearCurrentTask(component);
+            signal.done();
+        });
+
+    }
+
+    /**
+     * Update couplings.
+     */
+    public void updateCouplings() {
+        updater.getWorkspace().getCouplingManager().updateAllCouplings();
+        LOGGER.trace("couplings updated");
+        updater.notifyCouplingsUpdated();
     }
 
     @Override
@@ -89,4 +142,27 @@ public class UpdateAllBuffered implements UpdateAction {
         return getDescription();
     }
 
+    /**
+     * Creates the threads used in the ExecutorService. Used to create a custom
+     * thread class that will be generated inside the executor. This allows for
+     * a clean way to capture the events using the thread instances themselves
+     * which 'know' their thread number.
+     */
+    private class UpdaterThreadFactory implements ThreadFactory {
+
+        /** Numbers the threads sequentially. */
+        private int nextThread = 1;
+
+        /**
+         * Creates a new UpdateThread with the current thread number.
+         *
+         * @param runnable The runnable this thread will execute.
+         * @return current thread number
+         */
+        public Thread newThread(final Runnable runnable) {
+            synchronized (this) {
+                return new UpdateThread(updater, runnable, nextThread++);
+            }
+        }
+    }
 }
