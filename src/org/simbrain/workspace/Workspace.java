@@ -280,22 +280,31 @@ public class Workspace {
     }
 
     /**
+     * Iterates all couplings on all components until halted by user.
+     */
+    public void run() {
+        synchronized (updaterLock) {
+            updater.run();
+        }
+    }
+
+    /**
+     * Stops iteration of all couplings on all components.
+     */
+    public void stop() {
+        synchronized (updaterLock) {
+            updater.stop();
+        }
+        updateStopped();
+    }
+
+    /**
      * Update the workspace a single time.
      */
     public void iterate() {
         synchronized (updaterLock) {
             updater.runOnce();
         }
-        updateStopped();
-    }
-
-    /**
-     * Iterate for a specified number of steps.
-     *
-     * @param numIterations number of times to iterate the workspace.
-     */
-    public void iterate(final int numIterations) {
-        updater.iterate(numIterations);
         updateStopped();
     }
 
@@ -339,42 +348,6 @@ public class Workspace {
     public void iterate(CountDownLatch latch, final int numIterations) {
         synchronized (updaterLock) {
             updater.iterate(latch, numIterations);
-        }
-        updateStopped();
-    }
-
-    /**
-     * Iterate using a latch, which is counted down after the iteration
-     * completes. Use this in applications where it is important to perform
-     * additional operations after each workspace update.
-     *
-     * NOTE-1: The latch must be initialized with a count of 1. NOTE-2: This
-     * function should be called from a separate thread.
-     *
-     * @param latch the latch to count down after successful iteration.
-     */
-    public void iterate(CountDownLatch latch) {
-        synchronized (updaterLock) {
-            updater.runOnce(latch);
-        }
-        updateStopped();
-    }
-
-    /**
-     * Iterates all couplings on all components until halted by user.
-     */
-    public void run() {
-        synchronized (updaterLock) {
-            updater.run();
-        }
-    }
-
-    /**
-     * Stops iteration of all couplings on all components.
-     */
-    public void stop() {
-        synchronized (updaterLock) {
-            updater.stop();
         }
         updateStopped();
     }

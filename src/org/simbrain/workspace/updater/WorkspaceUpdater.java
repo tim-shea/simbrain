@@ -186,80 +186,46 @@ public class WorkspaceUpdater {
     public void run() {
         run = true;
 
-        workspaceUpdates.submit(new Runnable() {
-            public void run() {
-                notifyWorkspaceUpdateStarted();
+        workspaceUpdates.submit(() -> {
+            notifyWorkspaceUpdateStarted();
 
-                synchManager.queueTasks();
+            synchManager.queueTasks();
 
-                while (run) {
-                    try {
-                        doUpdate();
-                    } catch (Exception e) {
-                        // TODO exception handler
-                        e.printStackTrace();
-                    }
-                }
-
-                synchManager.releaseTasks();
-                synchManager.runTasks();
-
-                notifyWorkspaceUpdateCompleted();
-            }
-        });
-
-    }
-
-    /**
-     * Submits a single task to the queue, and counts down a latch when done.
-     * Used when iterating the workspace for a set number of times.
-     *
-     * @param latch the latch to count down.
-     */
-    public void runOnce(final CountDownLatch latch) {
-        workspaceUpdates.submit(new Runnable() {
-            public void run() {
-                notifyWorkspaceUpdateStarted();
-                synchManager.queueTasks();
-
+            while (run) {
                 try {
                     doUpdate();
                 } catch (Exception e) {
-                    // TODO exception handler
                     e.printStackTrace();
                 }
-
-                synchManager.releaseTasks();
-                synchManager.runTasks();
-                notifyWorkspaceUpdateCompleted();
-                latch.countDown();
-
             }
+
+            synchManager.releaseTasks();
+            synchManager.runTasks();
+
+            notifyWorkspaceUpdateCompleted();
         });
+
     }
 
     /**
      * Submits a single task to the queue.
      */
     public void runOnce() {
-        workspaceUpdates.submit(new Runnable() {
-            public void run() {
-                notifyWorkspaceUpdateStarted();
-                synchManager.queueTasks();
+        workspaceUpdates.submit(() -> {
+            notifyWorkspaceUpdateStarted();
+            synchManager.queueTasks();
 
-                try {
-                    doUpdate();
-                } catch (Exception e) {
-                    // TODO exception handler
-                    e.printStackTrace();
-                }
-
-                synchManager.releaseTasks();
-                synchManager.runTasks();
-
-                notifyWorkspaceUpdateCompleted();
-
+            try {
+                doUpdate();
+            } catch (Exception e) {
+                // TODO exception handler
+                e.printStackTrace();
             }
+
+            synchManager.releaseTasks();
+            synchManager.runTasks();
+
+            notifyWorkspaceUpdateCompleted();
         });
     }
 
@@ -277,6 +243,7 @@ public class WorkspaceUpdater {
             e.printStackTrace();
         }
 
+        //TODO: Test to make sure these actions occur in the proper order
         for (UpdateAction action : updateActionManager.getActionList()) {
             action.invoke();
         }
@@ -437,20 +404,6 @@ public class WorkspaceUpdater {
     }
 
     /**
-     * Called when update controller is changed.
-     */
-    private void notifyUpdateControllerChanged() {
-
-        notificationEvents.submit(new Runnable() {
-            public void run() {
-                for (WorkspaceUpdaterListener listener : updaterListeners) {
-                    listener.changedUpdateController();
-                }
-            }
-        });
-    }
-
-    /**
      * @return the numThreads
      */
     public int getNumThreads() {
@@ -473,32 +426,6 @@ public class WorkspaceUpdater {
             listener.changeNumThreads();
         }
 
-    }
-
-    /**
-     * Iterate the updater for a specified number of iterations.
-     *
-     * @param numIterations number of times to iterate updater.
-     */
-    public void iterate(final int numIterations) {
-        workspaceUpdates.submit(new Runnable() {
-            public void run() {
-                notifyWorkspaceUpdateStarted();
-                for (int i = 0; i < numIterations; i++) {
-                    synchManager.queueTasks();
-
-                    try {
-                        doUpdate();
-                    } catch (Exception e) {
-                        // TODO exception handler
-                        e.printStackTrace();
-                    }
-                    synchManager.releaseTasks();
-                    synchManager.runTasks();
-                }
-                notifyWorkspaceUpdateCompleted();
-            }
-        });
     }
 
     /**

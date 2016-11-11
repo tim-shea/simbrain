@@ -54,9 +54,7 @@ public class UpdateAllBuffered implements UpdateAction {
         this.updater = controls;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void invoke() {
         List<? extends WorkspaceComponent> components = updater.getComponents();
 
