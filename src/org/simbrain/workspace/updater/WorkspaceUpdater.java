@@ -19,7 +19,6 @@
 package org.simbrain.workspace.updater;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -312,7 +311,8 @@ public class WorkspaceUpdater {
      *
      * @param listener The listener to add.
      */
-    public void removeComponentListener(final ComponentUpdateListener listener) {
+    public void removeComponentListener(
+            final ComponentUpdateListener listener) {
         componentListeners.remove(listener);
     }
 
@@ -602,32 +602,19 @@ public class WorkspaceUpdater {
             final CompletionSignal signal) {
 
         // If update is turned off on this component, return
-        if (component.getUpdateOn() == false) {
+        if (!component.getUpdateOn()) {
             signal.done();
             return;
         }
 
-        Collection<ComponentUpdatePart> parts = component.getUpdateParts();
+        componentUpdates.submit(() -> {
+            UpdateThread thread = (UpdateThread) Thread.currentThread();
+            thread.setCurrentTask(component);
+            component.update();
+            thread.clearCurrentTask(component);
+            signal.done();
+        });
 
-        final LatchCompletionSignal partsSignal = new LatchCompletionSignal(
-                parts.size()) {
-            public void done() {
-                super.done();
-
-                /*
-                 * I'm not 100% sure this is safe. The JavaDocs don't say it
-                 * isn't but they don't say it is either. If a deadlock occurs
-                 * in the caller to updateComponent, this may be the issue.
-                 */
-                if (getLatch().getCount() <= 0) {
-                    signal.done();
-                }
-            }
-        };
-
-        for (ComponentUpdatePart part : parts) {
-            componentUpdates.submit(part.getUpdate(partsSignal));
-        }
     }
 
     /**
