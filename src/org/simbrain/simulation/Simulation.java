@@ -238,8 +238,16 @@ public class Simulation {
 
     }
 
-    // Coupling a neuron to the indicated (by index) time series of a time
-    // series plot.
+
+    /**
+     * Couple a specific neuron to a specific time series in a time series plot.
+     *
+     * @param network the network with the neuron
+     * @param neuron the neuron to couple
+     * @param plot the plot component
+     * @param index the index of the time series to write to
+     * @return the coupling
+     */
     public Coupling couple(NetworkComponent network, Neuron neuron,
             TimeSeriesPlotComponent plot, int index) {
         PotentialProducer neuronProducer = network.getAttributeManager()

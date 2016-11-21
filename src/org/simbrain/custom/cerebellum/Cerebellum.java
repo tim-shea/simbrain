@@ -1,7 +1,6 @@
 package org.simbrain.custom.cerebellum;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import javax.swing.JLabel;
 import javax.swing.JSlider;
@@ -15,10 +14,11 @@ import org.simbrain.network.core.Neuron;
 import org.simbrain.network.core.Synapse;
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.network.neuron_update_rules.DecayRule;
-import org.simbrain.plot.timeseries.TimeSeriesPlotComponent;
 import org.simbrain.simulation.ControlPanel;
 import org.simbrain.simulation.NetBuilder;
+import org.simbrain.simulation.PlotBuilder;
 import org.simbrain.simulation.Simulation;
+import org.simbrain.workspace.Coupling;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 
 /**
@@ -27,8 +27,7 @@ import org.simbrain.workspace.gui.SimbrainDesktop;
 // CHECKSTYLE:OFF
 public class Cerebellum {
 
-    //TODO: Stop button
-    //TODO: Wire up time series
+    // TODO: Stop button
 
     /** The main simulation object. */
     final Simulation sim;
@@ -41,11 +40,16 @@ public class Cerebellum {
     public boolean toggleLearning = true;
     double eta = 0.01;
     double alpha = 2; // TODO: This should be based on a running average?
-    double xi = 1;// Balances alpha with c (climbing fiber activity).  TODO: Not sure what to set it to
+    double xi = 1;// Balances alpha with c (climbing fiber activity). TODO: Not
+                  // sure what to set it to
     double gamma = 0.5; // Basal ganglia time constant
     double zeta = 0.5; // BG damped target time constant
     double dampedTarget = 0;
     double alphaTimeConstant = 0.1; // running average constant for alpha
+
+    private Neuron dopamine;
+
+    private Neuron output;
 
     /**
      * Set up the simulation object
@@ -66,11 +70,14 @@ public class Cerebellum {
         buildNetwork();
         loadCustomUpdater();
 
+        // Time series
+        addTimeSeries();
+
         // Set up control panel
-         setUpControlPanel();
+        setUpControlPanel();
 
         // Add docviewer
-        sim.addDocViewer(0,279,261,325, "Information",
+        sim.addDocViewer(0, 279, 261, 325, "Information",
                 "src/org/simbrain/custom/cerebellum/cerebellum.html");
 
     }
@@ -81,7 +88,7 @@ public class Cerebellum {
     void buildNetwork() {
 
         // Set up network
-        net = sim.addNetwork(246,9,538,595, "Cerebellum");
+        net = sim.addNetwork(246, 9, 538, 595, "Cerebellum");
         network = net.getNetwork();
 
         DecayRule generalRule = new DecayRule();
@@ -150,7 +157,7 @@ public class Cerebellum {
                 toSpinalCord.getNeuronList().get(1), 1));
 
         // Output
-        Neuron output = new Neuron(network, new DecayRule());
+        output = new Neuron(network, new DecayRule());
         output.setLabel("Output");
         output.setUpdateRule(generalRule);
         output.setLocation(0, 325);
@@ -244,7 +251,7 @@ public class Cerebellum {
                 cerebellum.getNeuronList().get(4), 1));
 
         // DA
-        Neuron dopamine = new Neuron(network);
+        dopamine = new Neuron(network);
         dopamine.setLabel("Basal Ganglia (GPi)");
         dopamine.setLocation(150, 50);
         // dopamine.setLowerBound(0);
@@ -330,8 +337,8 @@ public class Cerebellum {
                     // Update Alpha (stable IO firing rate)
                     alpha = (1 - alphaTimeConstant) * i_olive.getActivation();
                     // + alpha * alphaTimeConstant;
-                    //System.out.println("IO: " + i_olive.getActivation()
-                    //        + " | alpha:" + alpha);
+                    // System.out.println("IO: " + i_olive.getActivation()
+                    // + " | alpha:" + alpha);
                     // System.out.println("Target: " + target.getActivation() +
                     // " | Damped Target:" + dampedTarget + " | Damped Damped
                     // DA:" + dopamine.getActivation());
@@ -385,9 +392,8 @@ public class Cerebellum {
             sim.iterate(currentTrialLength / 2);
             dopamine.setClamped(false);
             toggleLearning = true;
-   
-        });
 
+        });
 
         panel.addButton("Test", () -> {
             inputs.getNeuronList().get(0).forceSetActivation(1);
@@ -400,7 +406,6 @@ public class Cerebellum {
             target.forceSetActivation(0);
             sim.iterate(currentTrialLength / 2);
         });
-
 
         panel.addButton("10 Trials", () -> {
             for (int ii = 0; ii <= 10; ii++) {
@@ -415,7 +420,6 @@ public class Cerebellum {
                 sim.iterate(currentTrialLength / 2);
             }
         });
-
 
         // // Individual trial runs
         // JButton button2 = new JButton("Train Pattern 1");
@@ -459,33 +463,13 @@ public class Cerebellum {
     //
     void addTimeSeries() {
 
-        // Make time series chart
-        TimeSeriesPlotComponent chart = new TimeSeriesPlotComponent(
-                "Timeseries", 2);
-        chart.getModel().setAutoRange(false);
-        chart.getModel().setRangeUpperBound(1);
-        chart.getModel().setRangeLowerBound(-1);
+        PlotBuilder plot = sim.addTimeSeriesPlot(768, 9, 363, 285,
+                "dopamine, output");
 
-        // TODO
-        // workspace.addWorkspaceComponent(chart);
-        // desktop.getDesktopComponent(chart).getParentFrame().setBounds(785,11,338,290);
-
-        // TODO
-        // Couple network to time series
-        // PotentialProducer neuronProducer1 =
-        // NetworkComponent.getNeuronProducer(networkComponent,
-        // network.getNeuronByLabel("Output"), "getActivation");
-        // PotentialConsumer timeSeriesConsumer1 =
-        // chart.getPotentialConsumers().get(0);
-        // workspace.getCouplingManager().addCoupling(new
-        // Coupling(neuronProducer1, timeSeriesConsumer1));
-        // PotentialProducer neuronProducer2 =
-        // NetworkComponent.getNeuronProducer(networkComponent,
-        // network.getNeuronByLabel("Basal Ganglia (GPi)"), "getActivation");
-        // PotentialConsumer timeSeriesConsumer2 =
-        // chart.getPotentialConsumers().get(1);
-        // workspace.getCouplingManager().addCoupling(new
-        // Coupling(neuronProducer2, timeSeriesConsumer2));
+        sim.couple(net.getNetworkComponent(),
+                dopamine, plot.getTimeSeriesComponent(), 0);
+        sim.couple(net.getNetworkComponent(), output,
+                plot.getTimeSeriesComponent(), 1);
 
     }
 
