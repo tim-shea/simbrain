@@ -27,9 +27,14 @@
         <blockquote>
             to elucidate the role of serotonin in the evaluation of delayed rewards, we performed a functional brain imaging experiment in which subjects chose small-immediate or large-delayed liquid rewards under dietary regulation of tryptophan, a precursor of serotonin. A model-based analysis revealed that <i>the activity of the ventral part of the striatum was correlated with reward prediction at shorter time scales, and this correlated activity was stronger at low serotonin levels</i>. By contrast, <i>the activity of the dorsal part of the striatum was correlated with reward prediction at longer time scales, and this correlated activity was stronger at high serotonin levels.</i> (<a href="https://www.ncbi.nlm.nih.gov/pubmed/18091999">Tanaka et. al, 2007</a>, our emphasis).</blockquote>
     </p>
-    <h2>Time Series</h2>
-    <p>The <b>red time series</b> shows the activation of the value neuron. This means a tile either has reward or (together with correct actions) leads to reward.</p>
-    <p>The <b>blue time series</b> shows the activation of the td error neuron. When something unexpected happens this goes up and the network learns.</p>
+    <h2>Reward, Value, TD Error</h2>
+    <p>The activation of the <b>reward</b> neuron is shown in the <b>red time series</b>. In this simulation, it only goes up when the agent is on top of the cheese.</p>
+    <p>The activation of the <b>value</b> neuron is shown in the <b>green time series</b>. When it goes up the agent is either experiencing reward or is in a state that it believes will lead to reward.</p>
+    <p>The activation of the <b>td-error</b> neuron is shown in the <b>blue time series</b>. When an unexpected amount of value occurs, td-error is positive and the network learns to associate the current state and action with more value. The last action is also reinforced. Conversely, if less than the expected value occurs td-error is negative and the network learns to associate the current state and action with less value. The last action is diminished.</p>
+    
+    <h2>Changes in values with learning</h2>
+
+    <p>Running many trials will tend to increase value (green), bring reward (red) more frequently, and error (blue) less frequently.  Of course these factors change as the parameters are changed.</p>
 </body>
 
 </html>
