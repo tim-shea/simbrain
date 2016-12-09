@@ -208,12 +208,12 @@ public class PotentialAttributePanel extends JPanel implements ActionListener,
             model.clear();
             if (producerOrConsumer == ProducerOrConsumer.Producing) {
                 for (PotentialAttribute potentialProducer : component
-                        .getPotentialProducers()) {
+                        .getAnnotatedProducers()) {
                     model.addElement(potentialProducer);
                 }
             } else if (producerOrConsumer == ProducerOrConsumer.Consuming) {
                 for (PotentialAttribute potentialConsumer : component
-                        .getPotentialConsumers()) {
+                        .getAnnotatedConsumers()) {
                     model.addElement(potentialConsumer);
                 }
             }

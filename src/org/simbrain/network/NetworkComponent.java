@@ -462,4 +462,22 @@ public final class NetworkComponent extends WorkspaceComponent {
         return Network.getXStream().toXML(network);
     }
 
+    @Override
+    public List<PotentialProducer> getAnnotatedProducers() {
+        List<PotentialProducer> retList = new ArrayList<>();
+        for (Neuron neuron : network.getNeuronList()) {
+            retList.addAll(super.getAnnotatedProducers(neuron));
+        }
+        return retList;
+    }
+
+    @Override
+    public List<PotentialConsumer> getAnnotatedConsumers() {
+        List<PotentialConsumer> retList = new ArrayList<>();
+        for (Neuron neuron : network.getNeuronList()) {
+            retList.addAll(super.getAnnotatedConsumers(neuron));
+        }
+        return retList;
+    }
+
 }

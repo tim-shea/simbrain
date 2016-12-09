@@ -112,8 +112,8 @@ public class CouplingMenuComponent extends JMenu implements WorkspaceListener {
                 public void actionPerformed(ActionEvent e) {
                     try {
                         workspace.coupleOneToOne(
-                                sourceComponent.getPotentialProducers(),
-                                targetComponent.getPotentialConsumers());
+                                sourceComponent.getAnnotatedProducers(),
+                                targetComponent.getAnnotatedConsumers());
                     } catch (UmatchedAttributesException e1) {
                         JOptionPane.showMessageDialog(null, e1.getMessage(),
                                 "Unmatched Attributes",

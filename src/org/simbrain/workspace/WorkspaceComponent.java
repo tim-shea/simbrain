@@ -152,6 +152,8 @@ public abstract class WorkspaceComponent {
         /* no default implementation */
     }
 
+    // TODO: This is more cruft to remove
+
     /**
      * Return the potential consumers associated with this component. Subclasses
      * should override this to make their consumers available.
@@ -268,21 +270,21 @@ public abstract class WorkspaceComponent {
         return null;
     }
 
-//    /**
-//     * Returns the collection of update parts for this component.
-//     *
-//     * @return The collection of update parts for this component.
-//     */
-//    public Collection<ComponentUpdatePart> getUpdateParts() {
-//        Runnable callable = new Runnable() {
-//            public void run() {
-//                update();
-//            }
-//        };
-//
-//        return Collections.singleton(
-//                new ComponentUpdatePart(this, callable, toString(), this));
-//    }
+    // /**
+    // * Returns the collection of update parts for this component.
+    // *
+    // * @return The collection of update parts for this component.
+    // */
+    // public Collection<ComponentUpdatePart> getUpdateParts() {
+    // Runnable callable = new Runnable() {
+    // public void run() {
+    // update();
+    // }
+    // };
+    //
+    // return Collections.singleton(
+    // new ComponentUpdatePart(this, callable, toString(), this));
+    // }
 
     /**
      * Called by Workspace to notify that updates have stopped.
@@ -601,7 +603,7 @@ public abstract class WorkspaceComponent {
     }
 
     // TODO: Once annotation based coupling is done remove the next two
-    //      methods
+    // methods and as much other cruft as possible
 
     /**
      * Convenience method for making producers.
@@ -731,10 +733,12 @@ public abstract class WorkspaceComponent {
     }
 
     // TODO: Consumer with key.
+    // TODO: Change to getProducibles/Consumibles?
 
     /**
-     * Returns all methods annotated as producible at the workspace component
-     * level..
+     * Returns all methods annotated as producible. Override this as in
+     * NetworkComponent.
+     * {@link org.simbrain.network.NetworkComponent#getAnnotatedProducers()}
      *
      * @return the resulting list of potential producers
      */
@@ -744,11 +748,13 @@ public abstract class WorkspaceComponent {
 
     /**
      * Returns all methods annotated as producible on the provided base object.
+     * Helper for getAnnotatedProducers.
      *
      * @param baseObject base object
      * @return the resulting list of potential producers
      */
-    public List<PotentialProducer> getAnnotatedProducers(Object baseObject) {
+    public final List<PotentialProducer> getAnnotatedProducers(
+            Object baseObject) {
         return getAnnotatedProducers(baseObject, null);
     }
 
@@ -760,8 +766,8 @@ public abstract class WorkspaceComponent {
      * @param key the key used to access the producer
      * @return the resulting list of potential producers
      */
-    public List<PotentialProducer> getAnnotatedProducers(Object baseObject,
-            Object key) {
+    public final List<PotentialProducer> getAnnotatedProducers(
+            Object baseObject, Object key) {
         List<PotentialProducer> potentialProducers = new ArrayList<PotentialProducer>();
         for (Method method : baseObject.getClass().getMethods()) {
             // Find methods annotated as producible
@@ -796,6 +802,8 @@ public abstract class WorkspaceComponent {
     /**
      * Returns all methods annotated as consumible.
      *
+     * Override this
+     *
      * @return the resulting list of potential consumers
      */
     public List<PotentialConsumer> getAnnotatedConsumers() {
@@ -808,7 +816,8 @@ public abstract class WorkspaceComponent {
      * @param baseObject base object
      * @return the resulting list of potential consumers
      */
-    public List<PotentialConsumer> getAnnotatedConsumers(Object baseObject) {
+    public final List<PotentialConsumer> getAnnotatedConsumers(
+            Object baseObject) {
 
         List<PotentialConsumer> potentialConsumers = new ArrayList<PotentialConsumer>();
         for (Method method : baseObject.getClass().getMethods()) {
