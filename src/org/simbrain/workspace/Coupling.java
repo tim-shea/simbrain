@@ -122,16 +122,13 @@ public final class Coupling<E> {
     public void setBuffer() {
         final WorkspaceComponent producerComponent = producer
                 .getParentComponent();
-        
         try {
             synchronized(producerComponent) {
                 buffer = producer.getValue();
             }
         } catch (Exception e) {
-            // TODO exception service?
             e.printStackTrace();
         }
-
         LOGGER.debug("buffer set: " + buffer);
     }
 

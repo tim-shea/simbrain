@@ -465,7 +465,7 @@ public final class NetworkComponent extends WorkspaceComponent {
     @Override
     public List<PotentialProducer> getAnnotatedProducers() {
         List<PotentialProducer> retList = new ArrayList<>();
-        for (Neuron neuron : network.getNeuronList()) {
+        for (Neuron neuron : network.getLooseNeurons()) {
             retList.addAll(super.getAnnotatedProducers(neuron));
         }
         return retList;
@@ -474,7 +474,7 @@ public final class NetworkComponent extends WorkspaceComponent {
     @Override
     public List<PotentialConsumer> getAnnotatedConsumers() {
         List<PotentialConsumer> retList = new ArrayList<>();
-        for (Neuron neuron : network.getNeuronList()) {
+        for (Neuron neuron : network.getLooseNeurons()) {
             retList.addAll(super.getAnnotatedConsumers(neuron));
         }
         return retList;

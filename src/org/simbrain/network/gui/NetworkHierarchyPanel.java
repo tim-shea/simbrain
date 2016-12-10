@@ -182,7 +182,7 @@ public class NetworkHierarchyPanel extends JScrollPane {
         DefaultMutableTreeNode neurons = new DefaultMutableTreeNode(
                 "Loose Neurons");
         model.insertNodeInto(neurons, root, 0);
-        for (Neuron neuron : networkPanel.getNetwork().getNeuronList()) {
+        for (Neuron neuron : networkPanel.getNetwork().getLooseNeurons()) {
             DefaultMutableTreeNode neuronTreeNode = new DefaultMutableTreeNode(
                     neuron);
             model.insertNodeInto(neuronTreeNode, neurons, 0);
@@ -192,7 +192,7 @@ public class NetworkHierarchyPanel extends JScrollPane {
         // Synapses
         DefaultMutableTreeNode synapses = new DefaultMutableTreeNode(
                 "Loose Synapses");
-        for (Synapse synapse : networkPanel.getNetwork().getSynapseList()) {
+        for (Synapse synapse : networkPanel.getNetwork().getLooseSynapses()) {
             DefaultMutableTreeNode synapseTreeNode = new DefaultMutableTreeNode(
                     synapse);
             model.insertNodeInto(synapseTreeNode, synapses, 0);

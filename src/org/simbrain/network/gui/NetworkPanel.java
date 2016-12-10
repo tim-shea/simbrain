@@ -2340,7 +2340,7 @@ public class NetworkPanel extends JPanel {
      * Synchronize model and view.
      */
     public void syncToModel() {
-        for (Neuron neuron : network.getNeuronList()) {
+        for (Neuron neuron : network.getLooseNeurons()) {
             addNeuron(neuron);
         }
         for (Group group : network.getGroupList()) {
@@ -2349,7 +2349,7 @@ public class NetworkPanel extends JPanel {
         // Synapses must be added _after_ groups are added so that all neurons
         // in groups are
         // in place.
-        for (Synapse synapse : network.getSynapseList()) {
+        for (Synapse synapse : network.getLooseSynapses()) {
             addSynapse(synapse);
         }
         for (NetworkTextObject text : network.getTextList()) {
@@ -2714,7 +2714,7 @@ public class NetworkPanel extends JPanel {
     public void setWeightsVisible(final boolean weightsVisible) {
         this.looseWeightsVisible = weightsVisible;
         actionManager.getShowWeightsAction().setState(looseWeightsVisible);
-        for (Synapse synapse : network.getSynapseList()) {
+        for (Synapse synapse : network.getLooseSynapses()) {
             SynapseNode node = (SynapseNode) objectNodeMap.get(synapse);
             if (node != null) {
                 node.setVisible(weightsVisible);

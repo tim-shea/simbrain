@@ -296,7 +296,7 @@ public class Network {
      *
      * @return List of neurons in network.
      */
-    public List<? extends Neuron> getNeuronList() {
+    public List<? extends Neuron> getLooseNeurons() {
         return Collections.unmodifiableList(neuronList);
     }
 
@@ -307,7 +307,7 @@ public class Network {
      *
      * @return List of synapses in network.
      */
-    public Collection<Synapse> getSynapseList() {
+    public Collection<Synapse> getLooseSynapses() {
         return Collections.unmodifiableCollection(synapseList);
     }
 
@@ -1063,7 +1063,7 @@ public class Network {
         }
 
         // Re-populate fan-in / fan-out for loose synapses
-        for (Synapse synapse : this.getSynapseList()) {
+        for (Synapse synapse : this.getLooseSynapses()) {
             synapse.postUnmarshallingInit();
         }
         updateCompleted = new AtomicBoolean(false);
@@ -1556,13 +1556,13 @@ public class Network {
 
         String ret = "Root Network \n================= \n";
 
-        for (Neuron n : this.getNeuronList()) {
+        for (Neuron n : this.getLooseNeurons()) {
             ret += (n + "\n");
         }
 
-        if (this.getSynapseList().size() > 0) {
+        if (this.getLooseSynapses().size() > 0) {
             Iterator<Synapse> synapseIterator = synapseList.iterator();
-            for (int i = 0; i < getSynapseList().size(); i++) {
+            for (int i = 0; i < getLooseSynapses().size(); i++) {
                 Synapse tempRef = synapseIterator.next();
                 ret += tempRef;
             }
@@ -1841,7 +1841,7 @@ public class Network {
             group.setFrozen(freeze, Polarity.BOTH);
         }
         // Freeze loose synapses
-        for (Synapse synapse : this.getSynapseList()) {
+        for (Synapse synapse : this.getLooseSynapses()) {
             synapse.setFrozen(freeze);
         }
     }
