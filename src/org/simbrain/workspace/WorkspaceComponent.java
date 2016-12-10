@@ -299,8 +299,8 @@ public abstract class WorkspaceComponent {
     public void addAnnotatedConsumers(Class clazz) {
         for (Method method : clazz.getDeclaredMethods()) {
             if (method.getAnnotation(Consumable.class) != null) {
-                addProducerType(new AttributeType(this, clazz.getSimpleName(),
-                        method.getName(), method.getReturnType(), true));
+                addConsumerType(new AttributeType(this, clazz.getSimpleName(),
+                        method.getName(), method.getParameters()[0].getClass(), true));
             }
         }
     }

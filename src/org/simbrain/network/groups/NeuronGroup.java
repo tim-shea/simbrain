@@ -325,18 +325,18 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
                     + " is not in input mode.");
         }
     }
-    
+
     /**
      * If this neuron group has an input table reads in the next entry on the
      *  table. If all inputs have been read this method resets the counter and
-     *  starts again from the beginning of the table. 
-     *  
+     *  starts again from the beginning of the table.
+     *
      *  For spiking neuron update rules, values read in are treated as current
      *  being injected into the cell, for non-spiking neurons activations are
      *  set immediately to the value at that index in the table.
-     *  
+     *
      *  This method is unsafe because it does not check if the group is in
-     *  input mode or if the input table is non-null. 
+     *  input mode or if the input table is non-null.
      */
     private void readNextInputUnsafe() {
         if (inputIndex >= testData.length) {
@@ -633,7 +633,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
             }
         }
         if (fireEvent) {
-            resetSubsamplingIndices();            
+            resetSubsamplingIndices();
         }
     }
 
@@ -1571,7 +1571,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
             for (int i = 0; i < numSubSamples; i++) {
                 retArray[i] = neuronList.get(i).getActivation();
             }
-            return retArray;            
+            return retArray;
         }
     }
 
