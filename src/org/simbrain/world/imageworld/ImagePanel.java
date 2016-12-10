@@ -1,23 +1,22 @@
 package org.simbrain.world.imageworld;
 
-import java.awt.AWTException;
-import java.awt.BufferCapabilities;
-import java.awt.Canvas;
-import java.awt.Graphics2D;
-import java.awt.ImageCapabilities;
-import java.awt.RenderingHints;
+import java.awt.Graphics;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
+
+import javax.swing.JPanel;
 
 /**
  * ImagePanel is a resizable canvas for displaying images from an ImageSource.
+ * 
+ * TODO: Work out relation to ImageWorldPanel
+ * 
  * @author Tim Shea
  */
-public class ImagePanel extends Canvas implements ImageSourceListener {
+public class ImagePanel extends JPanel implements ImageSourceListener {
     private static final long serialVersionUID = 2582113543119990412L;
 
     private ImageSource nextSource;
@@ -35,13 +34,13 @@ public class ImagePanel extends Canvas implements ImageSourceListener {
      */
     public ImagePanel() {
         super();
-        setIgnoreRepaint(true);
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent event) {
                 setReshapeNeeded();
             }
         });
+        repaint();
     }
 
     /**
@@ -53,8 +52,10 @@ public class ImagePanel extends Canvas implements ImageSourceListener {
 
     /**
      * Assign the source of the images for this panel.
+     * 
      * @param value The new source to use.
-     * @param resize Whether to resize the source to match the size of the panel.
+     * @param resize Whether to resize the source to match the size of the
+     *            panel.
      */
     public void setImageSource(ImageSource value, boolean resize) {
         if (currentSource == null) {
@@ -64,6 +65,7 @@ public class ImagePanel extends Canvas implements ImageSourceListener {
         resizeSource = resize;
         reshapeNeeded = true;
         nextSource = value;
+        repaint();
     }
 
     /**
@@ -79,22 +81,25 @@ public class ImagePanel extends Canvas implements ImageSourceListener {
     }
 
     /**
-     * @return Returns whether the ImageSource should be resized to match the ImagePanel.
+     * @return Returns whether the ImageSource should be resized to match the
+     *         ImagePanel.
      */
     public boolean getResizeSource() {
         return resizeSource;
     }
 
     /**
-     * @param value Assigns whether the ImageSource should be resized to match the ImagePanel.
+     * @param value Assigns whether the ImageSource should be resized to match
+     *            the ImagePanel.
      */
     public void setResizeSource(boolean value) {
         resizeSource = value;
     }
 
     /**
-     * Update the dimensions of the panel by either resizing the ImageSource or by
-     * creating a scaling transformation to display the ImageSource in the panel.
+     * Update the dimensions of the panel by either resizing the ImageSource or
+     * by creating a scaling transformation to display the ImageSource in the
+     * panel.
      */
     private void updateDimensions() {
         synchronized (lock) {
@@ -107,8 +112,10 @@ public class ImagePanel extends Canvas implements ImageSourceListener {
                         (double) getWidth() / currentSource.getWidth(),
                         (double) getHeight() / currentSource.getHeight());
             }
-            transformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+            // transformOp = new AffineTransformOp(transform,
+            // AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
         }
+        repaint();
     }
 
     @Override
@@ -128,41 +135,69 @@ public class ImagePanel extends Canvas implements ImageSourceListener {
         super.removeNotify();
     }
 
-    /**
-     * Draw the contents of a BufferedImage to the canvas.
-     * @param image The image to draw.
-     */
-    public void drawImage(BufferedImage image) {
-        synchronized (lock) {
-            if (!hasNativePeer) {
-                if (strategy != null) {
-                    strategy = null;
-                }
-                return;
-            }
-            if (strategy == null) {
-                try {
-                    createBufferStrategy(1, new BufferCapabilities(new ImageCapabilities(true),
-                            new ImageCapabilities(true), BufferCapabilities.FlipContents.UNDEFINED));
-                } catch (AWTException ex) {
-                    ex.printStackTrace();
-                }
-                strategy = getBufferStrategy();
-            }
-            do {
-                do {
-                    Graphics2D graphics2d = (Graphics2D) strategy.getDrawGraphics();
-                    if (graphics2d == null) {
-                        return;
-                    }
-                    graphics2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-                    graphics2d.drawImage(image, transformOp, 0, 0);
-                    graphics2d.dispose();
-                    strategy.show();
-                } while (strategy.contentsRestored());
-            } while (strategy.contentsLost());
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (currentSource == null) {
+            return;
+        }
+        if (currentSource.getUnfilteredImage() != null) {
+            g.drawImage(currentSource.getUnfilteredImage(), 0, 0, getWidth(),
+                    getHeight(), this);
         }
     }
+
+    // /**
+    // * Draw the contents of a BufferedImage to the canvas.
+    // *
+    // * @param image The image to draw.
+    // */
+    // public void drawImage(BufferedImage image) {
+    // Graphics2D graphics2d = (Graphics2D) strategy.getDrawGraphics();
+    // if (graphics2d == null) {
+    // return;
+    // }
+    // graphics2d.setRenderingHint(RenderingHints.KEY_RENDERING,
+    // RenderingHints.VALUE_RENDER_SPEED);
+    // graphics2d.drawImage(image, transformOp, 0, 0);
+    // graphics2d.dispose();
+    // strategy.show();
+    // updateScreen();
+    // synchronized (lock) {
+    //
+    // if (!hasNativePeer) {
+    // if (strategy != null) {
+    // strategy = null;
+    // }
+    // return;
+    // }
+    // if (strategy == null) {
+    // try {
+    // createBufferStrategy(1,
+    // new BufferCapabilities(new ImageCapabilities(true),
+    // new ImageCapabilities(true),
+    // BufferCapabilities.FlipContents.UNDEFINED));
+    // } catch (AWTException ex) {
+    // ex.printStackTrace();
+    // }
+    // strategy = getBufferStrategy();
+    // }
+    // do {
+    // do {
+    // Graphics2D graphics2d = (Graphics2D) strategy
+    // .getDrawGraphics();
+    // if (graphics2d == null) {
+    // return;
+    // }
+    // graphics2d.setRenderingHint(RenderingHints.KEY_RENDERING,
+    // RenderingHints.VALUE_RENDER_SPEED);
+    // graphics2d.drawImage(image, transformOp, 0, 0);
+    // graphics2d.dispose();
+    // strategy.show();
+    // } while (strategy.contentsRestored());
+    // } while (strategy.contentsLost());
+    // }
+    // }
 
     /**
      * Set a flag to destroy this ImagePanel on the next update.
@@ -194,7 +229,8 @@ public class ImagePanel extends Canvas implements ImageSourceListener {
             reshapeNeeded = false;
             updateDimensions();
         }
-        drawImage(source.getCurrentImage());
+        repaint();
+        // drawImage(source.getCurrentImage());
     }
 
     @Override
@@ -203,5 +239,7 @@ public class ImagePanel extends Canvas implements ImageSourceListener {
             setReshapeNeeded();
         }
         onImage(source);
+        repaint();
     }
+
 }

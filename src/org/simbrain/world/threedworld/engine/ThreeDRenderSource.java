@@ -64,6 +64,7 @@ public class ThreeDRenderSource extends ImageSourceAdapter implements SceneProce
     /**
      * @return Return the image rendered by the engine before any filters are applied.
      */
+    @Override
     public BufferedImage getUnfilteredImage() {
         return unfilteredImage;
     }

@@ -92,7 +92,7 @@ public final class NetworkComponent extends WorkspaceComponent {
                 "getWeightVector", double[].class, true));
 
         addConsumerType(new AttributeType(this, "Neuron Input Value", "setInputValue",
-                double.class, true));
+                double.class, false));
         addConsumerType(new AttributeType(this, "Neuron Activation", "setActivation",
                 double.class, false));
         addConsumerType(new AttributeType(this, "Neuron Upper Bound", "setUpperBound",

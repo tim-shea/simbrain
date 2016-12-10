@@ -8,6 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * ImageSourceAdapter provides basic size and filter management for an ImageSource class.
+ *
  * @author Tim Shea
  */
 public abstract class ImageSourceAdapter implements ImageSource {

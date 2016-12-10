@@ -70,7 +70,7 @@ public class AddNeuronsDialog extends StandardDialog {
     private static final NeuronUpdateRule DEFAULT_NEURON = new LinearRule();
 
     /** Default number of neurons. */
-    private static final int DEFAULT_NUM_NEURONS = 25;
+    private static final int DEFAULT_NUM_NEURONS = 100;
 
     /** The network panel neurons will be added to. */
     private final NetworkPanel networkPanel;

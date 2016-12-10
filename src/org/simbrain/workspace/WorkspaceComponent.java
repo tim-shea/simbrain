@@ -165,7 +165,9 @@ public abstract class WorkspaceComponent {
     }
 
     /**
-     * Create potential producers for a particular object.
+     * Create potential producers for a particular object.  Looks potential producers
+     * mathcing a specified attribute type name.
+     *
      * @param typeName The typename to use for selecting producer types.
      * @param object The object to bind the potential producers.
      * @return Returns a list of potential producers.
@@ -179,6 +181,43 @@ public abstract class WorkspaceComponent {
         }
         return potentialConsumers;
     }
+    
+    /**
+     * Returns all annotated producers associated with an object.
+     *
+     * @param object the object to check for producers
+     * @return the potential producer object
+     */
+    public List<PotentialProducer> getPotentialProducersForObject(
+            Object object) {
+        List<PotentialProducer> potentialProducers = new ArrayList<PotentialProducer>();
+        for (Method method : object.getClass().getDeclaredMethods()) {
+            // Find methods annotated as producible
+            if (method.getAnnotation(Producible.class) != null) {
+                PotentialProducer pp = getAttributeManager()
+                        .createPotentialProducer(object, method.getName(),
+                                method.getReturnType());
+                String customDescriptionMethod = method
+                        .getAnnotation(Producible.class)
+                        .customDescriptionMethod();
+                if (!customDescriptionMethod.isEmpty()) {
+                    try {
+                        Method descriptionMethod = object.getClass()
+                                .getMethod(customDescriptionMethod, null);
+                        String customDescription = (String) descriptionMethod
+                                .invoke(object, null);
+                        pp.setCustomDescription(customDescription);
+                        potentialProducers.add(pp);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        }
+        return potentialProducers;
+    }
+
 
     /**
      * Return the potential producers associated with this component. Subclasses
@@ -192,6 +231,7 @@ public abstract class WorkspaceComponent {
 
     /**
      * Create potential producers for a particular object.
+     *
      * @param typeName The typename to use for selecting producer types.
      * @param object The object to bind the potential producers.
      * @return Returns a list of potential producers.

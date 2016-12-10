@@ -966,7 +966,7 @@ public class SimbrainDesktop {
                     (int) guiComponent.getPreferredSize().getHeight());
         } else {
             // This should be coordinated with the logic in RepositionAllWindowsSction
-            int highestComponentNumber = guiComponents.size();
+            int highestComponentNumber = guiComponents.size()+1;
             componentFrame.setBounds(
                     (int) ((highestComponentNumber * DEFAULT_WINDOW_OFFSET)
                             % (desktop.getWidth() - guiComponent

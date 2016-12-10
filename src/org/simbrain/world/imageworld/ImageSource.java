@@ -34,6 +34,13 @@ public interface ImageSource {
     BufferedImage getCurrentImage();
 
     /**
+     * Returns the unflitered image.
+     *
+     * @return the unfiltered image.
+     */
+    BufferedImage getUnfilteredImage();
+
+    /**
      * Add a filter to the chain.
      * @param imageOp The filter to apply to all future images.
      */
