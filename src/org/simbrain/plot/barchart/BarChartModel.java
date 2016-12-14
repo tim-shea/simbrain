@@ -21,6 +21,10 @@ package org.simbrain.plot.barchart;
 import java.awt.Color;
 import java.awt.EventQueue;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.simbrain.plot.ChartModel;
 
@@ -29,6 +33,8 @@ import com.thoughtworks.xstream.XStream;
 /**
  * Data for a JFreeChart pie chart.
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD) 
 public class BarChartModel extends ChartModel {
 
     /** JFreeChart dataset for bar charts. */

@@ -23,6 +23,10 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+
 import org.simbrain.plot.ChartListener;
 import org.simbrain.workspace.AttributeType;
 import org.simbrain.workspace.PotentialConsumer;
@@ -160,6 +164,19 @@ public class BarChartComponent extends WorkspaceComponent {
     @Override
     public void save(final OutputStream output, final String format) {
         BarChartModel.getXStream().toXML(model, output);
+    }
+    @Override
+    public void save2(final OutputStream output, final String format) {
+        JAXBContext jc;
+        try {
+            jc = JAXBContext.newInstance(BarChartModel.class);
+            Marshaller marshaller = jc.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(model, System.out);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override

@@ -37,6 +37,9 @@ public class PlotActionManager {
     /** Save component action. */
     private final Action savePlotAction;
 
+    // TEMP
+    private final Action savePlotAction2;
+
     /** Save component as action. */
     private final Action savePlotAsAction;
 
@@ -50,6 +53,7 @@ public class PlotActionManager {
 
         openPlotAction = new OpenPlotAction(component);
         savePlotAction = new SavePlotAction(component);
+        savePlotAction2 = new SavePlotAction2(component);
         savePlotAsAction = new SavePlotAsAction(component);
     }
 
@@ -58,7 +62,7 @@ public class PlotActionManager {
      */
     public List<Action> getOpenSavePlotActions() {
         return Arrays.asList(new Action[] { openPlotAction, savePlotAction,
-                savePlotAsAction });
+                savePlotAction2, savePlotAsAction });
     }
 
     /**

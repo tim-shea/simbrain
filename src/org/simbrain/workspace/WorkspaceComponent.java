@@ -120,6 +120,10 @@ public abstract class WorkspaceComponent {
      */
     public abstract void save(OutputStream output, String format);
 
+    //TEMP
+    public void save2(OutputStream output, String format) {
+    };
+
     /**
      * Returns a list of the formats that this component supports.
      * <p>
