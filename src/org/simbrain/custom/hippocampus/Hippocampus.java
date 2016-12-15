@@ -10,6 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.simbrain.custom.RegisteredSimulation;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Synapse;
 import org.simbrain.network.groups.NeuronGroup;
@@ -32,10 +33,7 @@ import org.simbrain.workspace.gui.SimbrainDesktop;
  *
  */
 // CHECKSTYLE:OFF
-public class Hippocampus {
-
-    /** The main simulation object. */
-    final Simulation sim;
+public class Hippocampus extends RegisteredSimulation {
 
     /** Randomizer for creating new synapse groups. */
     PolarizedRandomizer exRand = new PolarizedRandomizer(Polarity.EXCITATORY);
@@ -60,11 +58,13 @@ public class Hippocampus {
     double[] pattern3 = new double[] { 0, 0, 1, 0 };
     double[] pattern4 = new double[] { 0, 0, 0, 1 };
     
+    public Hippocampus(){super();}
+    
     /**
      * @param desktop
      */
     public Hippocampus(SimbrainDesktop desktop) {
-        sim = new Simulation(desktop);
+        super(desktop);
         exRand.setParam2(0.02); // Set up randomizer
     }
 
@@ -386,6 +386,16 @@ public class Hippocampus {
         LC2toH.setEnabled(!lesioned);
         RC1toH.setEnabled(!lesioned);
         RC2toH.setEnabled(!lesioned);
+    }
+
+    @Override
+    public String getName() {
+        return "Hippocampus";
+    }
+
+    @Override
+    public Hippocampus instantiate(SimbrainDesktop desktop) {
+        return new Hippocampus(desktop);
     }
 
 }

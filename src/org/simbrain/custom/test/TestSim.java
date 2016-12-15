@@ -5,7 +5,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.simbrain.network.NetworkComponent;
+import org.simbrain.custom.RegisteredSimulation;
 import org.simbrain.network.connections.RadialSimpleConstrainedKIn;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
@@ -26,16 +26,16 @@ import org.simbrain.workspace.gui.SimbrainDesktop;
  * Playground for testing new features. A lot of stuff is commented out but
  * should work.
  */
-public class TestSim {
+public class TestSim extends RegisteredSimulation {
 
-    /** The main simulation object. */
-    final Simulation sim;
 
+    public TestSim(){super();};
+    
     /**
      * @param desktop
      */
     public TestSim(SimbrainDesktop desktop) {
-        sim = new Simulation(desktop);
+        super(desktop);
     }
 
     /**
@@ -164,6 +164,16 @@ public class TestSim {
         network.getUpdateManager().addAction(ConcurrentBufferedUpdate
                 .createConcurrentBufferedUpdate(network));
 
+    }
+
+    @Override
+    public String getName() {
+        return "Test Sim";
+    }
+
+    @Override
+    public TestSim instantiate(SimbrainDesktop desktop) {
+        return new TestSim(desktop);
     }
 
 }

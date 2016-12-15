@@ -7,6 +7,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.simbrain.custom.RegisteredSimulation;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.NetworkTextObject;
 import org.simbrain.network.core.NetworkUpdateAction;
@@ -18,19 +19,15 @@ import org.simbrain.simulation.ControlPanel;
 import org.simbrain.simulation.NetBuilder;
 import org.simbrain.simulation.PlotBuilder;
 import org.simbrain.simulation.Simulation;
-import org.simbrain.workspace.Coupling;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 
 /**
  * TODO.
  */
 // CHECKSTYLE:OFF
-public class Cerebellum {
+public class Cerebellum extends RegisteredSimulation {
 
     // TODO: Stop button
-
-    /** The main simulation object. */
-    final Simulation sim;
 
     /** Other variables. */
     NetBuilder net;
@@ -51,11 +48,13 @@ public class Cerebellum {
 
     private Neuron output;
 
+    public Cerebellum() {super();}
+    
     /**
      * Set up the simulation object
      */
     public Cerebellum(SimbrainDesktop desktop) {
-        sim = new Simulation(desktop);
+        super(desktop);
     }
 
     /**
@@ -471,6 +470,16 @@ public class Cerebellum {
         sim.couple(net.getNetworkComponent(), output,
                 plot.getTimeSeriesComponent(), 1);
 
+    }
+
+    @Override
+    public String getName() {
+        return "Cerebellum";
+    }
+
+    @Override
+    public Cerebellum instantiate(SimbrainDesktop desktop) {
+        return new Cerebellum(desktop);
     }
 
 }

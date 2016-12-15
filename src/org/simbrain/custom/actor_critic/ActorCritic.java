@@ -2,12 +2,12 @@ package org.simbrain.custom.actor_critic;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
+import org.simbrain.custom.RegisteredSimulation;
 import org.simbrain.network.NetworkComponent;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
@@ -17,7 +17,6 @@ import org.simbrain.simulation.ControlPanel;
 import org.simbrain.simulation.NetBuilder;
 import org.simbrain.simulation.OdorWorldBuilder;
 import org.simbrain.simulation.PlotBuilder;
-import org.simbrain.simulation.Simulation;
 import org.simbrain.util.environment.SmellSource;
 import org.simbrain.util.math.SimbrainMath;
 import org.simbrain.workspace.Consumer;
@@ -35,10 +34,7 @@ import org.simbrain.world.odorworld.sensors.TileSensor;
  * Create the actor-critic simulation.
  */
 // CHECKSTYLE:OFF
-public class ActorCritic {
-
-    /** The main simulation desktop. */
-    final Simulation sim;
+public class ActorCritic extends RegisteredSimulation {
 
     /** Number of trials per run. */
     int numTrials = 5;
@@ -117,12 +113,15 @@ public class ActorCritic {
      * @param desktop
      */
     public ActorCritic(SimbrainDesktop desktop) {
-        sim = new Simulation(desktop);
+        super(desktop);
     }
+    
+    public ActorCritic(){super();}
 
     /**
      * Run the simulation!
      */
+    @Override
     public void run() {
 
         // Clear workspace
@@ -168,14 +167,17 @@ public class ActorCritic {
     private void addCustomWorkspaceUpdate() {
         // Custom workspace update rule
         UpdateAction workspaceUpdateAction = new UpdateAction() {
+            @Override
             public String getDescription() {
                 return "Actor Critic";
             }
 
+            @Override
             public String getLongDescription() {
                 return "Actor Critic";
             }
 
+            @Override
             public void invoke() {
 
                 // Update net > movement couplings
@@ -245,8 +247,8 @@ public class ActorCritic {
                     // Create corresponding neuron
                     Neuron tileNeuron = new Neuron(network, "LinearRule");
                     tileNeurons.add(tileNeuron);
-                    tileNeuron.setX(initTilesX + (double) x);
-                    tileNeuron.setY(initTilesY + (double) y);
+                    tileNeuron.setX(initTilesX + x);
+                    tileNeuron.setY(initTilesY + y);
                     network.addNeuron(tileNeuron);
 
                     // Couple tile sensor to tile neuron
@@ -398,6 +400,7 @@ public class ActorCritic {
      */
     void runTrial() {
         Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
             public void run() {
 
                 // At the beginning of each trial, load the values
@@ -479,6 +482,16 @@ public class ActorCritic {
             stop = true;
         });
 
+    }
+
+    @Override
+    public String getName() {
+        return "Actor-Critic";
+    }
+
+    @Override
+    public ActorCritic instantiate(SimbrainDesktop desktop) {
+        return new ActorCritic(desktop);
     }
 
 }

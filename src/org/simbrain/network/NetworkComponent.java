@@ -19,6 +19,8 @@ package org.simbrain.network;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -461,7 +463,7 @@ public final class NetworkComponent extends WorkspaceComponent {
     public String getXML() {
         return Network.getXStream().toXML(network);
     }
-
+    
     @Override
     public List<PotentialProducer> getAnnotatedProducers() {
         List<PotentialProducer> retList = new ArrayList<>();
@@ -471,6 +473,8 @@ public final class NetworkComponent extends WorkspaceComponent {
         return retList;
     }
 
+    
+    
     @Override
     public List<PotentialConsumer> getAnnotatedConsumers() {
         List<PotentialConsumer> retList = new ArrayList<>();

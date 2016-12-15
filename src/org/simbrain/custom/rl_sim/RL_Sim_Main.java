@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
+import org.simbrain.custom.RegisteredSimulation;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.core.Synapse;
@@ -40,10 +41,7 @@ import org.simbrain.world.odorworld.sensors.SmellSensor;
  * TODO: Add .htmlfile to folder and make docs based on that
  */
 // CHECKSTYLE:OFF
-public class RL_Sim_Main {
-
-    /** The main simulation desktop. */
-    final Simulation sim;
+public class RL_Sim_Main extends RegisteredSimulation {
 
     /** List of "sub-simulations" available from this one. */
     List<RL_Sim> simList = new ArrayList<RL_Sim>();
@@ -124,8 +122,10 @@ public class RL_Sim_Main {
      * @param desktop
      */
     public RL_Sim_Main(SimbrainDesktop desktop) {
-        sim = new Simulation(desktop);
+           super(desktop);
     }
+    
+    public RL_Sim_Main() {super();}
 
     /**
      * Run the simulation!
@@ -578,6 +578,20 @@ public class RL_Sim_Main {
             clearWeights();
         });
 
+    }
+
+    @Override
+    public String getName() {
+        return "Reward Learning Simulation";
+    }
+
+    @Override
+    public RL_Sim_Main instantiate(SimbrainDesktop desktop) {
+        return new RL_Sim_Main(desktop);
+    }
+    
+    public Simulation getSimulation() {
+        return sim;
     }
 
 }

@@ -40,6 +40,7 @@ import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Stack;
@@ -72,12 +73,7 @@ import javax.swing.event.MenuListener;
 import org.apache.log4j.Logger;
 import org.simbrain.console.ConsoleComponent;
 import org.simbrain.console.ConsoleDesktopComponent;
-import org.simbrain.custom.actor_critic.ActorCritic;
-import org.simbrain.custom.agent_trails.AgentTrails;
-import org.simbrain.custom.cerebellum.Cerebellum;
-import org.simbrain.custom.hippocampus.Hippocampus;
-import org.simbrain.custom.rl_sim.RL_Sim_Main;
-import org.simbrain.custom.test.TestSim;
+import org.simbrain.custom.RegisteredSimulation;
 import org.simbrain.docviewer.DocViewerComponent;
 import org.simbrain.docviewer.DocViewerDesktopComponent;
 import org.simbrain.network.NetworkComponent;
@@ -622,72 +618,18 @@ public class SimbrainDesktop {
         scriptMenu.add(actionManager.getShowScriptEditorAction());
         scriptMenu.addSeparator();
         scriptMenu.addMenuListener(menuListener);
-        addCustomSimulations(scriptMenu);
+        for (RegisteredSimulation rs : RegisteredSimulation.REGISTERED_SIMS) {
+            JMenuItem item = new JMenuItem(rs.getName());
+            item.addActionListener(ae -> {
+                rs.instantiate(this).run();
+            });
+            scriptMenu.add(item);
+        }
         scriptMenu.addSeparator();
         for (Action action : actionManager.getScriptActions(this)) {
             scriptMenu.add(action);
         }
         return scriptMenu;
-    }
-
-    /**
-     * Manually add custom simulations.
-     */
-    private void addCustomSimulations(final JMenu scriptMenu) {
-
-        // TODO: Replace with system that adds these based on an annotation
-        //  Below is a temporary hack.
-
-        // The RL simulation
-        JMenuItem acItem = new JMenuItem("Actor Critic");
-        acItem.addActionListener(ae -> {
-            ActorCritic acSim = new ActorCritic(this);
-            acSim.run();
-        });
-        scriptMenu.add(acItem);
-
-        // Adding the agent trail simulation
-        JMenuItem agentTrailsMenuItem = new JMenuItem("Agent Trails");
-        agentTrailsMenuItem.addActionListener(ae -> {
-            AgentTrails agentTrails = new AgentTrails(this);
-            agentTrails.run();
-        });
-        scriptMenu.add(agentTrailsMenuItem);
-
-        // Adding the cerebellum simulation
-        JMenuItem cerebellumMenuItem = new JMenuItem("Cerebellum");
-        cerebellumMenuItem.addActionListener(ae -> {
-            Cerebellum cerebellumSim = new Cerebellum(this);
-            cerebellumSim.run();
-        });
-        scriptMenu.add(cerebellumMenuItem);
-
-        // Adding the hippocampus simulation
-        JMenuItem hippocampusMenuItem = new JMenuItem("Hippocampus");
-        hippocampusMenuItem.addActionListener(ae -> {
-            Hippocampus hippo = new Hippocampus(this);
-            hippo.run();
-        });
-        scriptMenu.add(hippocampusMenuItem);
-
-        // The RL simulation
-        JMenuItem rlTest = new JMenuItem("RL Vehicles");
-        rlTest.addActionListener(ae -> {
-            RL_Sim_Main rlSim = new RL_Sim_Main(this);
-            rlSim.run();
-        });
-        scriptMenu.add(rlTest);
-
-        // Add the test simulation
-        JMenuItem test = new JMenuItem("Test (temporary)");
-        test.addActionListener(ae -> {
-            TestSim testSim = new TestSim(this);
-            testSim.run();
-        });
-        scriptMenu.add(test);
-
-        // Add more custom simulations here...
-
     }
 
     /**

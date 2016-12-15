@@ -7,8 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
+import org.simbrain.custom.RegisteredSimulation;
 import org.simbrain.network.core.NetworkUpdateAction;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.groups.NeuronGroup;
@@ -16,7 +16,6 @@ import org.simbrain.simulation.ControlPanel;
 import org.simbrain.simulation.NetBuilder;
 import org.simbrain.simulation.OdorWorldBuilder;
 import org.simbrain.simulation.PlotBuilder;
-import org.simbrain.simulation.Simulation;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 import org.simbrain.world.odorworld.entities.OdorWorldEntity;
 import org.simbrain.world.odorworld.entities.RotatingEntity;
@@ -25,10 +24,8 @@ import org.simbrain.world.odorworld.sensors.SmellSensor;
 /**
  * Todo Stop button.
  */
-public class AgentTrails {
-
-    /** The main simulation object. */
-    final Simulation sim;
+// CHECKSTYLE:OFF
+public class AgentTrails extends RegisteredSimulation {
 
     NetBuilder net;
     RotatingEntity mouse;
@@ -52,16 +49,21 @@ public class AgentTrails {
     int cheeseX = 120;
     int cheeseY = 180;
 
+    public AgentTrails() {
+        super();
+    }
+
     /**
      * @param desktop
      */
     public AgentTrails(SimbrainDesktop desktop) {
-        sim = new Simulation(desktop);
+        super(desktop);
     }
 
     /**
      * Run the simulation!
      */
+    @Override
     public void run() {
 
         // Clear workspace
@@ -206,7 +208,7 @@ public class AgentTrails {
             net.getNetwork().clearActivations();
             mouse.setLocation(cheeseX, cheeseY + dispersion);
             mouse.setHeading(90);
-            straightNeuron.forceSetActivation(1);   
+            straightNeuron.forceSetActivation(1);
             sim.iterate(50);
             rightNeuron.forceSetActivation(1.5);
             sim.iterate(25);
@@ -253,6 +255,16 @@ public class AgentTrails {
             }
         });
 
+    }
+
+    @Override
+    public String getName() {
+        return "Agent Trails";
+    }
+
+    @Override
+    public AgentTrails instantiate(SimbrainDesktop desktop) {
+        return new AgentTrails(desktop);
     }
 
 }
