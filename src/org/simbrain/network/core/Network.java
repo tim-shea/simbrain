@@ -75,7 +75,6 @@ public class Network {
     private final Set<Synapse> synapseList = new LinkedHashSet<Synapse>();
 
     /** Since groups span all levels of the hierarchy they are stored here. */
-    // @XmlTransient
     private final List<Group> groupList = new ArrayList<Group>();
 
     /** Text objects. */

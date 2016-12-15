@@ -27,6 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlIDREF;
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.simbrain.network.connections.AllToAll;
 import org.simbrain.network.connections.ConnectNeurons;
 import org.simbrain.network.connections.ConnectionUtilities;
@@ -54,6 +60,7 @@ import org.simbrain.util.randomizer.PolarizedRandomizer;
  * @author Zach Tosi
  *
  */
+@XmlAccessorType(XmlAccessType.FIELD)
 public class SynapseGroup extends Group {
 
     /**
@@ -92,6 +99,7 @@ public class SynapseGroup extends Group {
      * the group is going to continue being used after saving the values in this
      * temporary holder are used to repopulate the excitatory synapse set.
      */
+    @XmlTransient
     private Set<Synapse> exTemp;
 
     /**
@@ -100,17 +108,21 @@ public class SynapseGroup extends Group {
      * the group is going to continue being used after saving the values in this
      * temporary holder are used to repopulate the inhibitory synapse set.
      */
+    @XmlTransient
     private Set<Synapse> inTemp;
 
     /** Reference to source neuron group. */
+    @XmlTransient
     private final NeuronGroup sourceNeuronGroup;
 
     /** Reference to target neuron group. */
+    @XmlTransient
     private final NeuronGroup targetNeuronGroup;
 
     /**
      * The connect neurons object associated with this group.
      */
+    @XmlTransient
     private ConnectNeurons connectionManager;
 
     /**
@@ -149,12 +161,14 @@ public class SynapseGroup extends Group {
      * The randomizer governing excitatory synapses. If null new synapses are
      * not randomized.
      */
+    @XmlTransient  //TODO: For now
     private PolarizedRandomizer exciteRand;
 
     /**
      * The randomizer governing inhibitory synapses. If null new synapses are
      * not randomized.
      */
+    @XmlTransient  //TODO: For now
     private PolarizedRandomizer inhibRand;
 
     /**

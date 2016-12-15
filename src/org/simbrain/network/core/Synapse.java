@@ -24,11 +24,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.simbrain.network.groups.SynapseGroup;
 import org.simbrain.network.synapse_update_rules.StaticSynapseRule;
 import org.simbrain.network.synapse_update_rules.spikeresponders.JumpAndDecay;
 import org.simbrain.network.synapse_update_rules.spikeresponders.SpikeResponder;
-import org.simbrain.util.SimbrainConstants.Polarity;
 import org.simbrain.util.Utils;
 
 /**
@@ -40,6 +43,7 @@ import org.simbrain.util.Utils;
  * @author Zach Tosi
  *
  */
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Synapse {
 
     /** A default update rule for the synapse. */
@@ -58,6 +62,7 @@ public class Synapse {
      * Parent network. Can't just use getSouce().getParent() because synapses
      * and their parents can occur at different levels of the network hierarchy.
      */
+    @XmlTransient
     private Network parentNetwork;
 
     /** Neuron activation will come from. */
@@ -100,6 +105,7 @@ public class Synapse {
     private int delay;
 
     /** Parent group, if any (null if none). */
+    @XmlTransient
     private SynapseGroup parentGroup;
 
     /**

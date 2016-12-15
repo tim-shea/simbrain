@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.simbrain.network.core.Network.TimeType;
 import org.simbrain.network.groups.Group;
@@ -104,13 +106,16 @@ public class Neuron {
     private double inputValue;
 
     /** Reference to network this neuron is part of. */
+    @XmlTransient
     private final Network parent;
 
     /** List of synapses this neuron attaches to. */
+    @XmlTransient
     private Map<Neuron, Synapse> fanOut = new HashMap<Neuron, Synapse>(
             PRE_ALLOCATED_NUM_SYNAPSES);
 
     /** List of synapses attaching to this neuron. */
+    @XmlTransient
     private ArrayList<Synapse> fanIn = new ArrayList<Synapse>(
             PRE_ALLOCATED_NUM_SYNAPSES);
 
@@ -134,7 +139,6 @@ public class Neuron {
      * The polarity of this neuron (excitatory, inhibitory, or none, which is
      * null).
      */
-    // @XmlTransient
     private Polarity polarity = Polarity.BOTH;
 
     /** Target value. */
@@ -144,6 +148,7 @@ public class Neuron {
     private double lastActivation;
 
     /** Parent group, if any (null if none). */
+    @XmlTransient
     private Group parentGroup;
 
     /**
