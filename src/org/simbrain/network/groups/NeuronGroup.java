@@ -41,6 +41,7 @@ import org.simbrain.network.layouts.LineLayout.LineOrientation;
 import org.simbrain.network.neuron_update_rules.interfaces.BiasedUpdateRule;
 import org.simbrain.util.Utils;
 import org.simbrain.util.math.SimbrainMath;
+import org.simbrain.workspace.Consumible;
 import org.simbrain.workspace.Producible;
 
 /**
@@ -727,6 +728,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
      * @param inputs
      *            the input vector as a double array.
      */
+    @Consumible
     public void setActivations(double[] inputs) {
         for (int i = 0, n = size(); i < n; i++) {
             if (i >= inputs.length) {
@@ -747,6 +749,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
      * @param inputs
      *            the input vector as a double array.
      */
+    @Consumible
     public void forceSetActivations(double[] inputs) {
         for (int i = 0, n = size(); i < n; i++) {
             if (i >= inputs.length) {

@@ -465,10 +465,10 @@ public class Cerebellum extends RegisteredSimulation {
         PlotBuilder plot = sim.addTimeSeriesPlot(768, 9, 363, 285,
                 "dopamine, output");
 
-        sim.couple(net.getNetworkComponent(),
-                dopamine, plot.getTimeSeriesComponent(), 0);
-        sim.couple(net.getNetworkComponent(), output,
-                plot.getTimeSeriesComponent(), 1);
+//        sim.couple(net.getNetworkComponent(),
+//                dopamine, plot.getTimeSeriesComponent(), 0);
+//        sim.couple(net.getNetworkComponent(), output,
+//                plot.getTimeSeriesComponent(), 1);
 
     }
 

@@ -22,14 +22,20 @@ package org.simbrain.workspace;
  * Exception thrown when a coupling is created with mismatched attributes.
  *
  * @author jyoshimi
+ * @author ztosi
  *
  */
-public class UmatchedAttributesException extends Exception {
+public class MismatchedAttributesException extends Exception {
+
+    // TODO: Wire this up
+    public static enum MismatchMessage {
+        TYPE_MISMATCH, DIMENSION_MISMATCH
+    }
 
     /**
      * @param message
      */
-    public UmatchedAttributesException(final String message) {
+    public MismatchedAttributesException(final String message) {
         super(message);
     }
 

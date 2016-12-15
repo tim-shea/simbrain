@@ -1,13 +1,11 @@
 package org.simbrain.world.deviceinteraction;
 
-import org.simbrain.workspace.AttributeType;
-import org.simbrain.workspace.PotentialConsumer;
-import org.simbrain.workspace.WorkspaceComponent;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.simbrain.workspace.WorkspaceComponent;
 
 /**
  * @author Amanda Pandey <amanda.pandey@gmail.com>
@@ -47,7 +45,7 @@ public class DeviceInteractionComponent extends WorkspaceComponent {
     }
 
     private void init() {
-        addConsumerType(new AttributeType(this, KEYBOARD_DEVICE_INTERACTION_WORLD, double.class, true));
+//        addConsumerType(new AttributeType(this, KEYBOARD_DEVICE_INTERACTION_WORLD, double.class, true));
     }
 
     @Override
@@ -60,26 +58,26 @@ public class DeviceInteractionComponent extends WorkspaceComponent {
         //No implementation
     }
 
-    @Override
-    public List<PotentialConsumer> getPotentialConsumers() {
-        List<PotentialConsumer> returnList = new ArrayList<PotentialConsumer>();
-        for (AttributeType type : getVisibleConsumerTypes()) {
-
-            if (type.getTypeName().equalsIgnoreCase(KEYBOARD_DEVICE_INTERACTION_WORLD)) {
-                for (Character character : world.getTokenDictionary()) {
-                    PotentialConsumer consumer = getAttributeManager()
-                            .createPotentialConsumer(
-                                    world,
-                                    "keyPress",
-                                    new Class<?>[] {double.class, Character.class},
-                                    new Object[] {character});
-                    consumer.setCustomDescription(String.valueOf(character));
-                    returnList.add(consumer);
-                }
-            }
-        }
-        return returnList;
-    }
+//    @Override
+//    public List<PotentialConsumer> getPotentialConsumers() {
+//        List<PotentialConsumer> returnList = new ArrayList<PotentialConsumer>();
+//        for (AttributeType type : getVisibleConsumerTypes()) {
+//
+//            if (type.getTypeName().equalsIgnoreCase(KEYBOARD_DEVICE_INTERACTION_WORLD)) {
+//                for (Character character : world.getTokenDictionary()) {
+//                    PotentialConsumer consumer = getAttributeManager()
+//                            .createPotentialConsumer(
+//                                    world,
+//                                    "keyPress",
+//                                    new Class<?>[] {double.class, Character.class},
+//                                    new Object[] {character});
+//                    consumer.setCustomDescription(String.valueOf(character));
+//                    returnList.add(consumer);
+//                }
+//            }
+//        }
+//        return returnList;
+//    }
 
     public KeyboardWorld getWorld() {
         return world;

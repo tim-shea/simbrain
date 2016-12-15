@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Stack;
-import java.util.Vector;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -101,7 +100,6 @@ import org.simbrain.util.genericframe.GenericJFrame;
 import org.simbrain.util.genericframe.GenericJInternalFrame;
 import org.simbrain.util.widgets.ShowHelpAction;
 import org.simbrain.util.widgets.ToggleButton;
-import org.simbrain.workspace.Coupling;
 import org.simbrain.workspace.Workspace;
 import org.simbrain.workspace.WorkspaceComponent;
 import org.simbrain.workspace.WorkspaceListener;
@@ -351,11 +349,11 @@ public class SimbrainDesktop {
                 "Show workspace components");
 
         // List of current couplings for populating couplings panel.
-        Vector<Coupling<?>> couplings = new Vector<Coupling<?>>(
-                workspace.getCouplingManager().getCouplings());
-        bottomDock.addTab("Couplings", null,
-                new CouplingListPanel(this, couplings),
-                "Show current couplings");
+//        Vector<Coupling<?>> couplings = new Vector<Coupling<?>>(
+//                workspace.getCouplingManager().getCouplings());
+//        bottomDock.addTab("Couplings", null,
+//                new CouplingListPanel(this, couplings),
+//                "Show current couplings");
         bottomDock.addTab("Terminal", null, this.getTerminalPanel(),
                 "Simbrain terminal");
         bottomDock.addTab("Updater", null,

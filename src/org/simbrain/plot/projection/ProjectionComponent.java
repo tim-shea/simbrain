@@ -27,10 +27,7 @@ import org.simbrain.plot.ChartListener;
 import org.simbrain.util.projection.DataPoint;
 import org.simbrain.util.projection.DataPointColored;
 import org.simbrain.util.projection.Projector;
-import org.simbrain.workspace.AttributeType;
 import org.simbrain.workspace.Consumible;
-import org.simbrain.workspace.Coupling;
-import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.Producible;
 import org.simbrain.workspace.WorkspaceComponent;
 
@@ -43,10 +40,10 @@ public class ProjectionComponent extends WorkspaceComponent {
     private ProjectionModel projectionModel;
 
     /** Projection scalar consumer for one dimension. */
-    private AttributeType projectionConsumerType;
+//    private AttributeType projectionConsumerType;
 
     /** Projection vector consumer. */
-    private AttributeType projectionVectorConsumer;
+//    private AttributeType projectionVectorConsumer;
 
     // TODO: This whole construct helps link loose neurons to projection plots
     // but could become unwieldy as we move towards later networks. Consider
@@ -113,41 +110,41 @@ public class ProjectionComponent extends WorkspaceComponent {
      * Initialize consumers.
      */
     protected void initializeConsumers() {
-        dimensionList.clear();
-        projectionConsumerType = new AttributeType(this, "Single scalars",
-                "setValue", double.class, true);
-        addConsumerType(projectionConsumerType);
-        for (int i = 0; i < projectionModel.getProjector().getDimensions(); i++) {
-            addScalarDimension(i);
-        }
-        projectionVectorConsumer = new AttributeType(this, "Vector values",
-                double[].class, true);
-        addConsumerType(projectionVectorConsumer);
+//        dimensionList.clear();
+//        projectionConsumerType = new AttributeType(this, "Single scalars",
+//                "setValue", double.class, true);
+//        addConsumerType(projectionConsumerType);
+//        for (int i = 0; i < projectionModel.getProjector().getDimensions(); i++) {
+//            addScalarDimension(i);
+//        }
+//        projectionVectorConsumer = new AttributeType(this, "Vector values",
+//                double[].class, true);
+//        addConsumerType(projectionVectorConsumer);
     }
 
-    @Override
-    public List<PotentialConsumer> getPotentialConsumers() {
-        List<PotentialConsumer> returnList = new ArrayList<PotentialConsumer>();
-        if (projectionVectorConsumer.isVisible()) {
-            PotentialConsumer consumer = getAttributeManager()
-                    .createPotentialConsumer(this, "addPoint", double[].class);
-            consumer.setCustomDescription("Set point");
-            returnList.add(consumer);
-        }
-        if (projectionConsumerType.isVisible()) {
-            for (Dimension dimension : dimensionList) {
-                String description = projectionConsumerType
-                        .getSimpleDescription("Dimension "
-                                + (dimension.getDimension() + 1));
-                PotentialConsumer consumer = getAttributeManager()
-                        .createPotentialConsumer(dimension,
-                                projectionConsumerType);
-                consumer.setCustomDescription(description);
-                returnList.add(consumer);
-            }
-        }
-        return returnList;
-    }
+//    @Override
+//    public List<PotentialConsumer> getPotentialConsumers() {
+//        List<PotentialConsumer> returnList = new ArrayList<PotentialConsumer>();
+//        if (projectionVectorConsumer.isVisible()) {
+//            PotentialConsumer consumer = getAttributeManager()
+//                    .createPotentialConsumer(this, "addPoint", double[].class);
+//            consumer.setCustomDescription("Set point");
+//            returnList.add(consumer);
+//        }
+//        if (projectionConsumerType.isVisible()) {
+//            for (Dimension dimension : dimensionList) {
+//                String description = projectionConsumerType
+//                        .getSimpleDescription("Dimension "
+//                                + (dimension.getDimension() + 1));
+//                PotentialConsumer consumer = getAttributeManager()
+//                        .createPotentialConsumer(dimension,
+//                                projectionConsumerType);
+//                consumer.setCustomDescription(description);
+//                returnList.add(consumer);
+//            }
+//        }
+//        return returnList;
+//    }
 
     /**
      * Add a dimension object.
@@ -169,9 +166,9 @@ public class ProjectionComponent extends WorkspaceComponent {
      * @param numDims number of dimensions.
      */
     protected void setDimensions(int numDims) {
-        for (Dimension dimension : dimensionList) {
-            fireAttributeObjectRemoved(dimension);
-        }
+//        for (Dimension dimension : dimensionList) {
+//            fireAttributeObjectRemoved(dimension);
+//        }
         dimensionList.clear();
         for (int i = 0; i < numDims; i++) {
             addScalarDimension(i);
@@ -205,7 +202,7 @@ public class ProjectionComponent extends WorkspaceComponent {
             public void dataSourceAdded(final int dimension) {
                 if (getDimension(dimension) == null) {
                     addScalarDimension(dimension);
-                    ProjectionComponent.this.firePotentialAttributesChanged();
+//                    ProjectionComponent.this.firePotentialAttributesChanged();
                 }
             }
 
@@ -215,9 +212,9 @@ public class ProjectionComponent extends WorkspaceComponent {
             public void dataSourceRemoved(final int index) {
                 Dimension dimension = getDimension(index);
                 if (dimension != null) {
-                    fireAttributeObjectRemoved(dimension);
+//                    fireAttributeObjectRemoved(dimension);
                     dimensionList.remove(dimension);
-                    ProjectionComponent.this.firePotentialAttributesChanged();
+//                    ProjectionComponent.this.firePotentialAttributesChanged();
                 }
             }
 
@@ -226,7 +223,7 @@ public class ProjectionComponent extends WorkspaceComponent {
              */
             public void chartInitialized(int numSources) {
                 setDimensions(numSources);
-                ProjectionComponent.this.firePotentialAttributesChanged();
+//                ProjectionComponent.this.firePotentialAttributesChanged();
             }
 
         });
@@ -432,15 +429,15 @@ public class ProjectionComponent extends WorkspaceComponent {
         return projectionModel.getProjector().getCurrentPoint().getVector();
     }
 
-    @Override
-    public void couplingAdded(Coupling coupling) {
-        // When a vector coupling is added reinitialize dimension of the
-        // projector. This method does not have knowledge of the size of
-        // these vectors though,so the actual re-init happens after the first
-        // datapoint is sent in.
-        if (coupling.getProducer().getDataType() == double[].class) {
-            initializeDimensions = true;
-        }
-    }
+//    @Override
+//    public void couplingAdded(Coupling coupling) {
+//        // When a vector coupling is added reinitialize dimension of the
+//        // projector. This method does not have knowledge of the size of
+//        // these vectors though,so the actual re-init happens after the first
+//        // datapoint is sent in.
+//        if (coupling.getProducer().getDataType() == double[].class) {
+//            initializeDimensions = true;
+//        }
+//    }
 
 }

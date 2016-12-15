@@ -48,17 +48,17 @@ public abstract class WorkspaceComponent {
     /** The set of all WorkspaceComponentListeners on this component. */
     private final Collection<WorkspaceComponentListener> workspaceComponentListeners;
 
-    /** List of attribute listeners. */
-    private final Collection<AttributeListener> attributeListeners;
+//    /** List of attribute listeners. */
+//    private final Collection<AttributeListener> attributeListeners;
 
     /** Whether this component has changed since last save. */
     private boolean changedSinceLastSave = false;
 
-    /** List of producer types. */
-    private final List<AttributeType> producerTypes = new ArrayList<AttributeType>();
-
-    /** List of consumer types. */
-    private final List<AttributeType> consumerTypes = new ArrayList<AttributeType>();
+//    /** List of producer types. */
+//    private final List<AttributeType> producerTypes = new ArrayList<AttributeType>();
+//
+//    /** List of consumer types. */
+//    private final List<AttributeType> consumerTypes = new ArrayList<AttributeType>();
 
     /**
      * Whether to display the GUI for this component (obviously only relevant
@@ -82,7 +82,7 @@ public abstract class WorkspaceComponent {
     private File currentFile;
 
     /** Manage creation of attributes on this component. */
-    private final AttributeManager attributeManager;
+//    private final AttributeManager attributeManager;
 
     /**
      * If set to true, serialize this component before others. Possibly replace
@@ -96,8 +96,8 @@ public abstract class WorkspaceComponent {
      */
     {
         workspaceComponentListeners = new HashSet<WorkspaceComponentListener>();
-        attributeListeners = new HashSet<AttributeListener>();
-        attributeManager = new AttributeManager(this);
+//        attributeListeners = new HashSet<AttributeListener>();
+//        attributeManager = new AttributeManager(this);
     }
 
     /**
@@ -158,98 +158,98 @@ public abstract class WorkspaceComponent {
 
     // TODO: This is more cruft to remove
 
-    /**
-     * Return the potential consumers associated with this component. Subclasses
-     * should override this to make their consumers available.
-     *
-     * @return the consumer list.
-     */
-    public List<PotentialConsumer> getPotentialConsumers() {
-        return Collections.EMPTY_LIST;
-    }
-
-    /**
-     * Return the potential producers associated with this component. Subclasses
-     * should override this to make their producers available.
-     *
-     * @return the producer list.
-     */
-    public List<PotentialProducer> getPotentialProducers() {
-        return Collections.EMPTY_LIST;
-    }
-
-    /**
-     * Fire attribute object removed event (when the base object of an attribute
-     * is removed).
-     *
-     * @param object the object which was removed
-     */
-    public void fireAttributeObjectRemoved(Object object) {
-        for (AttributeListener listener : attributeListeners) {
-            listener.attributeObjectRemoved(object);
-        }
-    }
-
-    /**
-     * Fire potential attributes changed event.
-     */
-    public void firePotentialAttributesChanged() {
-        for (AttributeListener listener : attributeListeners) {
-            listener.potentialAttributesChanged();
-        }
-    }
-
-    /**
-     * Fire attribute type visibility changed event.
-     *
-     * @param type the type whose visibility changed.
-     */
-    public void fireAttributeTypeVisibilityChanged(AttributeType type) {
-        for (AttributeListener listener : attributeListeners) {
-            listener.attributeTypeVisibilityChanged(type);
-        }
-
-    }
-
-    /**
-     * Adds a AttributeListener to this component.
-     *
-     * @param listener the AttributeListener to add.
-     */
-    public void addAttributeListener(final AttributeListener listener) {
-        attributeListeners.add(listener);
-    }
-
-    /**
-     * Removes an AttributeListener from this component.
-     *
-     * @param listener the AttributeListener to remove.
-     */
-    public void removeAttributeListener(AttributeListener listener) {
-        attributeListeners.remove(listener);
-    }
-
-    /**
-     * Add a new type of producer.
-     *
-     * @param type type to add
-     */
-    public void addProducerType(AttributeType type) {
-        if (!producerTypes.contains(type)) {
-            producerTypes.add(type);
-        }
-    }
-
-    /**
-     * Add a new type of consumer.
-     *
-     * @param type type to add
-     */
-    public void addConsumerType(AttributeType type) {
-        if (!consumerTypes.contains(type)) {
-            consumerTypes.add(type);
-        }
-    }
+//    /**
+//     * Return the potential consumers associated with this component. Subclasses
+//     * should override this to make their consumers available.
+//     *
+//     * @return the consumer list.
+//     */
+//    public List<PotentialConsumer> getPotentialConsumers() {
+//        return Collections.EMPTY_LIST;
+//    }
+//
+//    /**
+//     * Return the potential producers associated with this component. Subclasses
+//     * should override this to make their producers available.
+//     *
+//     * @return the producer list.
+//     */
+//    public List<PotentialProducer> getPotentialProducers() {
+//        return Collections.EMPTY_LIST;
+//    }
+//
+//    /**
+//     * Fire attribute object removed event (when the base object of an attribute
+//     * is removed).
+//     *
+//     * @param object the object which was removed
+//     */
+//    public void fireAttributeObjectRemoved(Object object) {
+//        for (AttributeListener listener : attributeListeners) {
+//            listener.attributeObjectRemoved(object);
+//        }
+//    }
+//
+//    /**
+//     * Fire potential attributes changed event.
+//     */
+//    public void firePotentialAttributesChanged() {
+//        for (AttributeListener listener : attributeListeners) {
+//            listener.potentialAttributesChanged();
+//        }
+//    }
+//
+//    /**
+//     * Fire attribute type visibility changed event.
+//     *
+//     * @param type the type whose visibility changed.
+//     */
+//    public void fireAttributeTypeVisibilityChanged(AttributeType type) {
+//        for (AttributeListener listener : attributeListeners) {
+//            listener.attributeTypeVisibilityChanged(type);
+//        }
+//
+//    }
+//
+//    /**
+//     * Adds a AttributeListener to this component.
+//     *
+//     * @param listener the AttributeListener to add.
+//     */
+//    public void addAttributeListener(final AttributeListener listener) {
+//        attributeListeners.add(listener);
+//    }
+//
+//    /**
+//     * Removes an AttributeListener from this component.
+//     *
+//     * @param listener the AttributeListener to remove.
+//     */
+//    public void removeAttributeListener(AttributeListener listener) {
+//        attributeListeners.remove(listener);
+//    }
+//
+//    /**
+//     * Add a new type of producer.
+//     *
+//     * @param type type to add
+//     */
+//    public void addProducerType(AttributeType type) {
+//        if (!producerTypes.contains(type)) {
+//            producerTypes.add(type);
+//        }
+//    }
+//
+//    /**
+//     * Add a new type of consumer.
+//     *
+//     * @param type type to add
+//     */
+//    public void addConsumerType(AttributeType type) {
+//        if (!consumerTypes.contains(type)) {
+//            consumerTypes.add(type);
+//        }
+//    }
 
     /**
      * Finds objects based on a key. Used in deserializing attributes. Any class
@@ -432,26 +432,26 @@ public abstract class WorkspaceComponent {
     public Workspace getWorkspace() {
         return workspace;
     }
-
-    /**
-     * Called when a coupling attached to this component is removed. This method
-     * will only be called once if this component has both the source and the
-     * target.
-     *
-     * @param coupling The coupling that has been removed.
-     */
-    public void couplingRemoved(final Coupling<?> coupling) {
-        // No implementation.
-    }
-
-    /**
-     * Called when a coupling is attached to this component.
-     *
-     * @param coupling The coupling that is being added
-     */
-    public void couplingAdded(Coupling<?> coupling) {
-        // Override is this function is needed in a component type
-    }
+//
+//    /**
+//     * Called when a coupling attached to this component is removed. This method
+//     * will only be called once if this component has both the source and the
+//     * target.
+//     *
+//     * @param coupling The coupling that has been removed.
+//     */
+//    public void couplingRemoved(final Coupling<?> coupling) {
+//        // No implementation.
+//    }
+//
+//    /**
+//     * Called when a coupling is attached to this component.
+//     *
+//     * @param coupling The coupling that is being added
+//     */
+//    public void couplingAdded(Coupling<?> coupling) {
+//        // Override is this function is needed in a component type
+//    }
 
     /**
      * The file extension for a component type, e.g. By default, "xml".
@@ -541,56 +541,56 @@ public abstract class WorkspaceComponent {
         this.fireComponentToggleEvent();
     }
 
-    /**
-     * @return the producerTypes
-     */
-    public List<AttributeType> getProducerTypes() {
-        return Collections.unmodifiableList(producerTypes);
-    }
-
-    /**
-     * @return the consumerTypes
-     */
-    public List<AttributeType> getConsumerTypes() {
-        return Collections.unmodifiableList(consumerTypes);
-    }
-
-    /**
-     * Return visible producer types.
-     *
-     * @return the visible producerTypes
-     */
-    public List<AttributeType> getVisibleProducerTypes() {
-        List<AttributeType> returnList = new ArrayList<AttributeType>();
-        for (AttributeType type : getProducerTypes()) {
-            if (type.isVisible()) {
-                returnList.add(type);
-            }
-        }
-        return returnList;
-    }
-
-    /**
-     * Return visible consumer types.
-     *
-     * @return the visible consumerTypes
-     */
-    public List<AttributeType> getVisibleConsumerTypes() {
-        List<AttributeType> returnList = new ArrayList<AttributeType>();
-        for (AttributeType type : getConsumerTypes()) {
-            if (type.isVisible()) {
-                returnList.add(type);
-            }
-        }
-        return returnList;
-    }
-
-    /**
-     * @return the attributeManager
-     */
-    public AttributeManager getAttributeManager() {
-        return attributeManager;
-    }
+//    /**
+//     * @return the producerTypes
+//     */
+//    public List<AttributeType> getProducerTypes() {
+//        return Collections.unmodifiableList(producerTypes);
+//    }
+//
+//    /**
+//     * @return the consumerTypes
+//     */
+//    public List<AttributeType> getConsumerTypes() {
+//        return Collections.unmodifiableList(consumerTypes);
+//    }
+//
+//    /**
+//     * Return visible producer types.
+//     *
+//     * @return the visible producerTypes
+//     */
+//    public List<AttributeType> getVisibleProducerTypes() {
+//        List<AttributeType> returnList = new ArrayList<AttributeType>();
+//        for (AttributeType type : getProducerTypes()) {
+//            if (type.isVisible()) {
+//                returnList.add(type);
+//            }
+//        }
+//        return returnList;
+//    }
+//
+//    /**
+//     * Return visible consumer types.
+//     *
+//     * @return the visible consumerTypes
+//     */
+//    public List<AttributeType> getVisibleConsumerTypes() {
+//        List<AttributeType> returnList = new ArrayList<AttributeType>();
+//        for (AttributeType type : getConsumerTypes()) {
+//            if (type.isVisible()) {
+//                returnList.add(type);
+//            }
+//        }
+//        return returnList;
+//    }
+//
+//    /**
+//     * @return the attributeManager
+//     */
+//    public AttributeManager getAttributeManager() {
+//        return attributeManager;
+//    }
 
     /**
      * @return the serializePriority
@@ -609,265 +609,301 @@ public abstract class WorkspaceComponent {
     // TODO: Once annotation based coupling is done remove the next two
     // methods and as much other cruft as possible
 
-    /**
-     * Convenience method for making producers.
-     *
-     * @param baseObject the object to produce values
-     * @param methodName name of the method on that object
-     * @param dataType data type of the method
-     * @return the producer
-     */
-    public Producer<?> createProducer(Object baseObject, String methodName,
-            Class<?> dataType) {
-        PotentialProducer pp = attributeManager
-                .createPotentialProducer(baseObject, methodName, dataType);
-        return pp.createProducer();
-    }
+//    /**
+//     * Convenience method for making producers.
+//     *
+//     * @param baseObject the object to produce values
+//     * @param methodName name of the method on that object
+//     * @param dataType data type of the method
+//     * @return the producer
+//     */
+//    public Producer<?> createProducer(Object baseObject, String methodName,
+//            Class<?> dataType) {
+//        PotentialProducer pp = attributeManager
+//                .createPotentialProducer(baseObject, methodName, dataType);
+//        return pp.createProducer();
+//    }
+//
+//    /**
+//     * Convenience method for making consumers.
+//     *
+//     * @param baseObject the object to consume values
+//     * @param methodName the method name on that object
+//     * @param dataType data type of argument to that method
+//     * @return the consumer
+//     */
+//    public Consumer<?> createConsumer(Object baseObject, String methodName,
+//            Class<?> dataType) {
+//        PotentialConsumer pc = attributeManager
+//                .createPotentialConsumer(baseObject, methodName, dataType);
+//        return pc.createConsumer();
+//    }
 
-    /**
-     * Convenience method for making consumers.
-     *
-     * @param baseObject the object to consume values
-     * @param methodName the method name on that object
-     * @param dataType data type of argument to that method
-     * @return the consumer
-     */
-    public Consumer<?> createConsumer(Object baseObject, String methodName,
-            Class<?> dataType) {
-        PotentialConsumer pc = attributeManager
-                .createPotentialConsumer(baseObject, methodName, dataType);
-        return pc.createConsumer();
-    }
+//    /**
+//     * Create a producer based on a method name assumed to exist at the
+//     * workspace component level. Assumes the method has been annotated with a
+//     * potential producer annotations.
+//     *
+//     * @param methodName the method name
+//     * @return the the producer, or null if not such method could be found.
+//     */
+//    public Producer<?> createProducer(String methodName) {
+//        for (PotentialProducer pp : getAnnotatedProducers()) {
+//            if (pp.getMethodName().equalsIgnoreCase(methodName)) {
+//                return pp.createProducer();
+//            }
+//        }
+//        return null;
+//
+//    }
 
-    /**
-     * Create a producer based on a method name assumed to exist at the
-     * workspace component level. Assumes the method has been annotated with a
-     * potential producer annotations.
-     *
-     * @param methodName the method name
-     * @return the the producer, or null if not such method could be found.
-     */
-    public Producer<?> createProducer(String methodName) {
-        for (PotentialProducer pp : getAnnotatedProducers()) {
-            if (pp.getMethodName().equalsIgnoreCase(methodName)) {
-                return pp.createProducer();
-            }
-        }
-        return null;
-
-    }
-
-    /**
-     * Create a producer based on a method name assumed to exist on the provided
-     * base object. Assumes the method has been annotated with a potential
-     * producer annotation.
-     *
-     * @param baseObject the base object
-     * @param methodName the method name
-     * @return the the producer, or null if not such method could be found.
-     */
-    public Producer<?> createProducer(Object baseObject, String methodName) {
-        for (PotentialProducer pp : getAnnotatedProducers(baseObject)) {
-            if (pp.getMethodName().equalsIgnoreCase(methodName)) {
-                return pp.createProducer();
-            }
-        }
-        return null;
-
-    }
-
-    // TODO: Example in javadoc below
-    /**
-     * Create a producer based on a method name assumed to exist on the provided
-     * base object, accessed via a key (e.g. an index). Assumes the method has
-     * been annotated with a potential producer annotation.
-     *
-     * @param baseObject the base object
-     * @param methodName the method name
-     * @param key the key used to access to call the producer.
-     * @return the the producer, or null if not such method could be found.
-     */
-    public Producer<?> createProducer(Object baseObject, String methodName,
-            Object key) {
-        for (PotentialProducer pp : getAnnotatedProducers(baseObject, key)) {
-            if (pp.getArgumentValues().length > 0) {
-                if (pp.getMethodName().equalsIgnoreCase(methodName)) {
-                    pp.setArgumentValues(new Object[] { key });
-                    return pp.createProducer();
-                }
-            }
-        }
-        return null;
-
-    }
-
-    /**
-     * Create a consumer based on a method name assumed to exist at the
-     * workspace component level. Assumes the method has been annotated with a
-     * potential producer annotations.
-     *
-     * @param methodName the method name
-     * @return the the consumer, or null if not such method could be found.
-     */
-    public Consumer<?> createConsumer(String methodName) {
-        for (PotentialConsumer pp : getAnnotatedConsumers()) {
-            if (pp.getMethodName().equalsIgnoreCase(methodName)) {
-                return pp.createConsumer();
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Create a consumer based on a method name assumed to exist on the provided
-     * base object. Assumes the method has been annotated with a potential
-     * producer annotations.
-     *
-     * @param baseObject the base object
-     * @param methodName the method name
-     * @return the the consumer, or null if not such method could be found.
-     */
-    public Consumer<?> createConsumer(Object baseObject, String methodName) {
-        for (PotentialConsumer pc : getAnnotatedConsumers(baseObject)) {
-            if (pc.getMethodName().equalsIgnoreCase(methodName)) {
-                return pc.createConsumer();
-            }
-        }
-        return null;
-    }
+//    /**
+//     * Create a producer based on a method name assumed to exist on the provided
+//     * base object. Assumes the method has been annotated with a potential
+//     * producer annotation.
+//     *
+//     * @param baseObject the base object
+//     * @param methodName the method name
+//     * @return the the producer, or null if not such method could be found.
+//     */
+//    public Producer<?> createProducer(Object baseObject, String methodName) {
+//        for (PotentialProducer pp : getAnnotatedProducers(baseObject)) {
+//            if (pp.getMethodName().equalsIgnoreCase(methodName)) {
+//                return pp.createProducer();
+//            }
+//        }
+//        return null;
+//
+//    }
+//
+//    // TODO: Example in javadoc below
+//    /**
+//     * Create a producer based on a method name assumed to exist on the provided
+//     * base object, accessed via a key (e.g. an index). Assumes the method has
+//     * been annotated with a potential producer annotation.
+//     *
+//     * @param baseObject the base object
+//     * @param methodName the method name
+//     * @param key the key used to access to call the producer.
+//     * @return the the producer, or null if not such method could be found.
+//     */
+//    public Producer<?> createProducer(Object baseObject, String methodName,
+//            Object key) {
+//        for (PotentialProducer pp : getAnnotatedProducers(baseObject, key)) {
+//            if (pp.getArgumentValues().length > 0) {
+//                if (pp.getMethodName().equalsIgnoreCase(methodName)) {
+//                    pp.setArgumentValues(new Object[] { key });
+//                    return pp.createProducer();
+//                }
+//            }
+//        }
+//        return null;
+//
+//    }
+//
+//    /**
+//     * Create a consumer based on a method name assumed to exist at the
+//     * workspace component level. Assumes the method has been annotated with a
+//     * potential producer annotations.
+//     *
+//     * @param methodName the method name
+//     * @return the the consumer, or null if not such method could be found.
+//     */
+//    public Consumer<?> createConsumer(String methodName) {
+//        for (PotentialConsumer pp : getAnnotatedConsumers()) {
+//            if (pp.getMethodName().equalsIgnoreCase(methodName)) {
+//                return pp.createConsumer();
+//            }
+//        }
+//        return null;
+//    }
+//
+//    /**
+//     * Create a consumer based on a method name assumed to exist on the provided
+//     * base object. Assumes the method has been annotated with a potential
+//     * producer annotations.
+//     *
+//     * @param baseObject the base object
+//     * @param methodName the method name
+//     * @return the the consumer, or null if not such method could be found.
+//     */
+//    public Consumer<?> createConsumer(Object baseObject, String methodName) {
+//        for (PotentialConsumer pc : getAnnotatedConsumers(baseObject)) {
+//            if (pc.getMethodName().equalsIgnoreCase(methodName)) {
+//                return pc.createConsumer();
+//            }
+//        }
+//        return null;
+//    }
 
     // TODO: Consumer with key.
     // TODO: Change to getProducibles/Consumibles?
 
-    /**
-     * Returns all methods annotated as producible. Override this as in
-     * NetworkComponent.
-     * {@link org.simbrain.network.NetworkComponent#getAnnotatedProducers()}
-     *
-     * @return the resulting list of potential producers
-     */
-    public List<PotentialProducer> getAnnotatedProducers() {
-        return getAnnotatedProducers(this);
+//    /**
+//     * Returns all methods annotated as producible. Override this as in
+//     * NetworkComponent.
+//     * {@link org.simbrain.network.NetworkComponent#getAnnotatedProducers()}
+//     *
+//     * @return the resulting list of potential producers
+//     */
+//    public List<PotentialProducer> getAnnotatedProducers() {
+//        return getAnnotatedProducers(this);
+//    }
+//
+//    /**
+//     * Returns all methods annotated as producible on the provided base object.
+//     * Helper for getAnnotatedProducers.
+//     *
+//     * @param baseObject base object
+//     * @return the resulting list of potential producers
+//     */
+//    public final List<PotentialProducer> getAnnotatedProducers(
+//            Object baseObject) {
+//        return getAnnotatedProducers(baseObject, null);
+//    }
+//
+//    /**
+//     * Returns all methods annotated as producible on the provided base object,
+//     * using the provided key.
+//     *
+//     * @param baseObject base object
+//     * @param key the key used to access the producer
+//     * @return the resulting list of potential producers
+//     */
+//    public final List<PotentialProducer> getAnnotatedProducers(
+//            Object baseObject, Object key) {
+//        List<PotentialProducer> potentialProducers = new ArrayList<PotentialProducer>();
+//        for (Method method : baseObject.getClass().getMethods()) {
+//            // Find methods annotated as producible
+//            if (method.getAnnotation(Producible.class) != null) {
+//                PotentialProducer pp;
+//                if (key == null) {
+//                    if (method.getParameterTypes().length == 0) {
+//                        pp = getAttributeManager().createPotentialProducer(
+//                                baseObject, method.getName(),
+//                                method.getReturnType());
+//                        setCustomDescription(pp, baseObject, method);
+//                        potentialProducers.add(pp);
+//                    }
+//                } else {
+//                    // Find the producible with the specified key
+//                    if (method.getParameterTypes().length == 1) {
+//                        pp = getAttributeManager().createPotentialProducer(
+//                                baseObject, method.getName(),
+//                                method.getReturnType(),
+//                                new Class[] { key.getClass() },
+//                                new Object[] { key });
+//                        setCustomDescription(pp, baseObject, method);
+//                        potentialProducers.add(pp);
+//                    }
+//                }
+//
+//            }
+//        }
+//        return potentialProducers;
+//    }
+//
+//    /**
+//     * Returns all methods annotated as consumible.
+//     *
+//     * Override this
+//     *
+//     * @return the resulting list of potential consumers
+//     */
+//    public List<PotentialConsumer> getAnnotatedConsumers() {
+//        return getAnnotatedConsumers(this);
+//    }
+//
+//    /**
+//     * Returns all methods annotated as consumible on the provided base object.
+//     *
+//     * @param baseObject base object
+//     * @return the resulting list of potential consumers
+//     */
+//    public final List<PotentialConsumer> getAnnotatedConsumers(
+//            Object baseObject) {
+//
+//        List<PotentialConsumer> potentialConsumers = new ArrayList<PotentialConsumer>();
+//        for (Method method : baseObject.getClass().getMethods()) {
+//            // Find methods annotated as consumible
+//            if (method.getAnnotation(Consumible.class) != null) {
+//                PotentialConsumer pc = getAttributeManager()
+//                        .createPotentialConsumer(baseObject, method.getName(),
+//                                method.getParameterTypes()[0]);
+//                setCustomDescription(pc, baseObject, method);
+//                potentialConsumers.add(pc);
+//            }
+//        }
+//        return potentialConsumers;
+//    }
+//
+//    /**
+//     * Sets a custom description on an annotated attribute, if it has been
+//     * specified in the annotation "customDescriptionMethod" field.
+//     *
+//     * @param attribute the attribute to check
+//     * @param baseObject the base object of the method
+//     * @param method the producible or consumible method
+//     */
+//    private void setCustomDescription(PotentialAttribute attribute,
+//            Object baseObject, Method method) {
+//        String customDescriptionMethod = "";
+//        if (attribute instanceof PotentialProducer) {
+//            customDescriptionMethod = method.getAnnotation(Producible.class)
+//                    .customDescriptionMethod();
+//
+//        } else {
+//            customDescriptionMethod = method.getAnnotation(Consumible.class)
+//                    .customDescriptionMethod();
+//        }
+//        if (!customDescriptionMethod.isEmpty()) {
+//            try {
+//                // TODO: Think about below
+//                Method descriptionMethod = baseObject.getClass()
+//                        .getMethod(customDescriptionMethod, null);
+//                String customDescription = (String) descriptionMethod
+//                        .invoke(this, null);
+//                attribute.setCustomDescription(customDescription);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
+//    }
+//
+
+    //// NEW STUFF. TODO.  ////
+
+
+
+    // To override
+    public List<Producer2<?>> getProducers() {
+        return null;
     }
 
-    /**
-     * Returns all methods annotated as producible on the provided base object.
-     * Helper for getAnnotatedProducers.
-     *
-     * @param baseObject base object
-     * @return the resulting list of potential producers
-     */
-    public final List<PotentialProducer> getAnnotatedProducers(
-            Object baseObject) {
-        return getAnnotatedProducers(baseObject, null);
+    public List<Consumer2<?>> getConsumers() {
+        return null;
     }
 
-    /**
-     * Returns all methods annotated as producible on the provided base object,
-     * using the provided key.
-     *
-     * @param baseObject base object
-     * @param key the key used to access the producer
-     * @return the resulting list of potential producers
-     */
-    public final List<PotentialProducer> getAnnotatedProducers(
-            Object baseObject, Object key) {
-        List<PotentialProducer> potentialProducers = new ArrayList<PotentialProducer>();
-        for (Method method : baseObject.getClass().getMethods()) {
-            // Find methods annotated as producible
+    // Helper
+    public final List<Producer2<?>> getProducers(Object object) {
+        List<Producer2<?>> returnList = new ArrayList<>();
+        for (Method method : object.getClass().getMethods()) {
             if (method.getAnnotation(Producible.class) != null) {
-                PotentialProducer pp;
-                if (key == null) {
-                    if (method.getParameterTypes().length == 0) {
-                        pp = getAttributeManager().createPotentialProducer(
-                                baseObject, method.getName(),
-                                method.getReturnType());
-                        setCustomDescription(pp, baseObject, method);
-                        potentialProducers.add(pp);
-                    }
-                } else {
-                    // Find the producible with the specified key
-                    if (method.getParameterTypes().length == 1) {
-                        pp = getAttributeManager().createPotentialProducer(
-                                baseObject, method.getName(),
-                                method.getReturnType(),
-                                new Class[] { key.getClass() },
-                                new Object[] { key });
-                        setCustomDescription(pp, baseObject, method);
-                        potentialProducers.add(pp);
-                    }
-                }
-
+                returnList.add(new Producer2<>(object, method));
             }
         }
-        return potentialProducers;
+        return returnList;
     }
 
-    /**
-     * Returns all methods annotated as consumible.
-     *
-     * Override this
-     *
-     * @return the resulting list of potential consumers
-     */
-    public List<PotentialConsumer> getAnnotatedConsumers() {
-        return getAnnotatedConsumers(this);
-    }
-
-    /**
-     * Returns all methods annotated as consumible on the provided base object.
-     *
-     * @param baseObject base object
-     * @return the resulting list of potential consumers
-     */
-    public final List<PotentialConsumer> getAnnotatedConsumers(
-            Object baseObject) {
-
-        List<PotentialConsumer> potentialConsumers = new ArrayList<PotentialConsumer>();
-        for (Method method : baseObject.getClass().getMethods()) {
-            // Find methods annotated as consumible
+    public final List<Consumer2<?>> getConsumers(Object object) {
+        List<Consumer2<?>> returnList = new ArrayList<>();
+        for (Method method : object.getClass().getMethods()) {
             if (method.getAnnotation(Consumible.class) != null) {
-                PotentialConsumer pc = getAttributeManager()
-                        .createPotentialConsumer(baseObject, method.getName(),
-                                method.getParameterTypes()[0]);
-                setCustomDescription(pc, baseObject, method);
-                potentialConsumers.add(pc);
+                returnList.add(new Consumer2<>(object, method));
             }
         }
-        return potentialConsumers;
+        return returnList;
     }
 
-    /**
-     * Sets a custom description on an annotated attribute, if it has been
-     * specified in the annotation "customDescriptionMethod" field.
-     *
-     * @param attribute the attribute to check
-     * @param baseObject the base object of the method
-     * @param method the producible or consumible method
-     */
-    private void setCustomDescription(PotentialAttribute attribute,
-            Object baseObject, Method method) {
-        String customDescriptionMethod = "";
-        if (attribute instanceof PotentialProducer) {
-            customDescriptionMethod = method.getAnnotation(Producible.class)
-                    .customDescriptionMethod();
-
-        } else {
-            customDescriptionMethod = method.getAnnotation(Consumible.class)
-                    .customDescriptionMethod();
-        }
-        if (!customDescriptionMethod.isEmpty()) {
-            try {
-                // TODO: Think about below
-                Method descriptionMethod = baseObject.getClass()
-                        .getMethod(customDescriptionMethod, null);
-                String customDescription = (String) descriptionMethod
-                        .invoke(this, null);
-                attribute.setCustomDescription(customDescription);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-    }
 }

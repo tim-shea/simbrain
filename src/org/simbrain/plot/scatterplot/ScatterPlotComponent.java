@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.simbrain.plot.ChartListener;
-import org.simbrain.workspace.AttributeType;
-import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.WorkspaceComponent;
 
 /**
@@ -37,10 +35,10 @@ public class ScatterPlotComponent extends WorkspaceComponent {
     private ScatterPlotModel model;
 
     /** x attribute type. */
-    private AttributeType xAttributeType;
+//    private AttributeType xAttributeType;
 
     /** y attribute type. */
-    private AttributeType yAttributeType;
+//    private AttributeType yAttributeType;
 
     /** Objects which can be used to set the scatter plot. */
     private List<ScatterPlotSetter> setterList = new ArrayList<ScatterPlotSetter>();
@@ -91,42 +89,42 @@ public class ScatterPlotComponent extends WorkspaceComponent {
      * Initialize consuming attributes.
      */
     private void initializeAttributes() {
-        xAttributeType = new AttributeType(this, "Point", "setX", double.class,
-                true);
-        yAttributeType = new AttributeType(this, "Point", "setY", double.class,
-                true);
-        addConsumerType(xAttributeType);
-        addConsumerType(yAttributeType);
-        // TODO: What if called more than once?
-        for (int i = 0; i < model.getDataset().getSeriesCount(); i++) {
-            addSetter(i);
-        }
+//        xAttributeType = new AttributeType(this, "Point", "setX", double.class,
+//                true);
+//        yAttributeType = new AttributeType(this, "Point", "setY", double.class,
+//                true);
+//        addConsumerType(xAttributeType);
+//        addConsumerType(yAttributeType);
+//        // TODO: What if called more than once?
+//        for (int i = 0; i < model.getDataset().getSeriesCount(); i++) {
+//            addSetter(i);
+//        }
     }
 
-    @Override
-    public List<PotentialConsumer> getPotentialConsumers() {
-
-        List<PotentialConsumer> returnList = new ArrayList<PotentialConsumer>();
-        for (ScatterPlotSetter setter : setterList) {
-            if (xAttributeType.isVisible()) {
-                String xDesc = xAttributeType.getSimpleDescription("Point "
-                        + (setter.getIndex() + 1) + "[X]");
-                PotentialConsumer xConsumer = getAttributeManager()
-                        .createPotentialConsumer(setter, xAttributeType);
-                xConsumer.setCustomDescription(xDesc);
-                returnList.add(xConsumer);
-            }
-            if (yAttributeType.isVisible()) {
-                String yDesc = yAttributeType.getSimpleDescription("Point "
-                        + (setter.getIndex() + 1) + "[Y]");
-                PotentialConsumer yConsumer = getAttributeManager()
-                        .createPotentialConsumer(setter, yAttributeType);
-                yConsumer.setCustomDescription(yDesc);
-                returnList.add(yConsumer);
-            }
-        }
-        return returnList;
-    }
+//    @Override
+//    public List<PotentialConsumer> getPotentialConsumers() {
+//
+//        List<PotentialConsumer> returnList = new ArrayList<PotentialConsumer>();
+//        for (ScatterPlotSetter setter : setterList) {
+//            if (xAttributeType.isVisible()) {
+//                String xDesc = xAttributeType.getSimpleDescription("Point "
+//                        + (setter.getIndex() + 1) + "[X]");
+//                PotentialConsumer xConsumer = getAttributeManager()
+//                        .createPotentialConsumer(setter, xAttributeType);
+//                xConsumer.setCustomDescription(xDesc);
+//                returnList.add(xConsumer);
+//            }
+//            if (yAttributeType.isVisible()) {
+//                String yDesc = yAttributeType.getSimpleDescription("Point "
+//                        + (setter.getIndex() + 1) + "[Y]");
+//                PotentialConsumer yConsumer = getAttributeManager()
+//                        .createPotentialConsumer(setter, yAttributeType);
+//                yConsumer.setCustomDescription(yDesc);
+//                returnList.add(yConsumer);
+//            }
+//        }
+//        return returnList;
+//    }
 
     /**
      * Return the setter with specified index, or null if none found.
@@ -169,7 +167,7 @@ public class ScatterPlotComponent extends WorkspaceComponent {
             public void dataSourceAdded(final int index) {
                 if (getSetter(index) == null) {
                     addSetter(index);
-                    firePotentialAttributesChanged();
+//                    firePotentialAttributesChanged();
                 }
             }
 
@@ -178,9 +176,9 @@ public class ScatterPlotComponent extends WorkspaceComponent {
              */
             public void dataSourceRemoved(final int index) {
                 ScatterPlotSetter setter = getSetter(index);
-                fireAttributeObjectRemoved(setter);
+//                fireAttributeObjectRemoved(setter);
                 setterList.remove(setter);
-                firePotentialAttributesChanged();
+//                firePotentialAttributesChanged();
             }
 
             /**

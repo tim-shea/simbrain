@@ -20,11 +20,7 @@ package org.simbrain.world.visionworld;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.simbrain.workspace.AttributeType;
-import org.simbrain.workspace.PotentialProducer;
 import org.simbrain.workspace.WorkspaceComponent;
 
 /**
@@ -61,44 +57,44 @@ public final class VisionWorldComponent extends WorkspaceComponent {
      * Initialize attributes.
      */
     private void initAttributes() {
-        if (getProducerTypes().size() == 0) {
-            addProducerType(new AttributeType(this, "Sensor", "getValue",
-                    double.class, true));
-        }
-        visionWorld.getModel().addModelListener(new VisionWorldModelListener() {
-
-            public void pixelMatrixChanged(VisionWorldModelEvent event) {
-            }
-
-            public void sensorMatrixChanged(VisionWorldModelEvent event) {
-                VisionWorldComponent.this.firePotentialAttributesChanged();
-            }
-
-        });
+//        if (getProducerTypes().size() == 0) {
+//            addProducerType(new AttributeType(this, "Sensor", "getValue",
+//                    double.class, true));
+//        }
+//        visionWorld.getModel().addModelListener(new VisionWorldModelListener() {
+//
+//            public void pixelMatrixChanged(VisionWorldModelEvent event) {
+//            }
+//
+//            public void sensorMatrixChanged(VisionWorldModelEvent event) {
+//                VisionWorldComponent.this.firePotentialAttributesChanged();
+//            }
+//
+//        });
     }
 
-    @Override
-    public List<PotentialProducer> getPotentialProducers() {
-        List<PotentialProducer> returnList = new ArrayList<PotentialProducer>();
-        for (AttributeType type : getVisibleProducerTypes()) {
-            if (type.getTypeName().equalsIgnoreCase("Sensor")) {
-                SensorMatrix sensorMatrix = getVisionWorld().getModel()
-                        .getSensorMatrix();
-                for (int row = 0, rows = sensorMatrix.rows(); row < rows; row++) {
-                    for (int column = 0, columns = sensorMatrix.columns(); column < columns; column++) {
-                        Sensor sensor = sensorMatrix.getSensor(row, column);
-                        String description = type.getDescription(sensor
-                                .getKey());
-                        PotentialProducer producer = getAttributeManager()
-                                .createPotentialProducer(sensor, type);
-                        producer.setCustomDescription(description);
-                        returnList.add(producer);
-                    }
-                }
-            }
-        }
-        return returnList;
-    }
+//    @Override
+//    public List<PotentialProducer> getPotentialProducers() {
+//        List<PotentialProducer> returnList = new ArrayList<PotentialProducer>();
+//        for (AttributeType type : getVisibleProducerTypes()) {
+//            if (type.getTypeName().equalsIgnoreCase("Sensor")) {
+//                SensorMatrix sensorMatrix = getVisionWorld().getModel()
+//                        .getSensorMatrix();
+//                for (int row = 0, rows = sensorMatrix.rows(); row < rows; row++) {
+//                    for (int column = 0, columns = sensorMatrix.columns(); column < columns; column++) {
+//                        Sensor sensor = sensorMatrix.getSensor(row, column);
+//                        String description = type.getDescription(sensor
+//                                .getKey());
+//                        PotentialProducer producer = getAttributeManager()
+//                                .createPotentialProducer(sensor, type);
+//                        producer.setCustomDescription(description);
+//                        returnList.add(producer);
+//                    }
+//                }
+//            }
+//        }
+//        return returnList;
+//    }
 
     @Override
     public Object getObjectFromKey(String objectKey) {

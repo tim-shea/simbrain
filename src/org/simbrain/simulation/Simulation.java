@@ -1,6 +1,8 @@
 package org.simbrain.simulation;
 
 import java.io.File;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Hashtable;
 import java.util.concurrent.CountDownLatch;
 
@@ -9,24 +11,13 @@ import javax.swing.JInternalFrame;
 import org.simbrain.docviewer.DocViewerComponent;
 import org.simbrain.network.NetworkComponent;
 import org.simbrain.network.core.Network;
-import org.simbrain.network.core.Neuron;
-import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.plot.projection.ProjectionComponent;
 import org.simbrain.plot.timeseries.TimeSeriesPlotComponent;
 import org.simbrain.util.Utils;
-import org.simbrain.workspace.Consumer;
-import org.simbrain.workspace.Coupling;
-import org.simbrain.workspace.PotentialConsumer;
-import org.simbrain.workspace.PotentialProducer;
-import org.simbrain.workspace.Producer;
-import org.simbrain.workspace.UmatchedAttributesException;
 import org.simbrain.workspace.Workspace;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 import org.simbrain.world.odorworld.OdorWorld;
 import org.simbrain.world.odorworld.OdorWorldComponent;
-import org.simbrain.world.odorworld.effectors.Effector;
-import org.simbrain.world.odorworld.entities.RotatingEntity;
-import org.simbrain.world.odorworld.sensors.SmellSensor;
 
 /**
  * A simulation is used to create full Simbrain simulations. Primarily
@@ -39,10 +30,10 @@ import org.simbrain.world.odorworld.sensors.SmellSensor;
 public class Simulation {
 
     /** Reference to parent desktop. */
-    final SimbrainDesktop desktop;
+    SimbrainDesktop desktop;
 
     /** Reference to parent workspace. */
-    final Workspace workspace;
+    Workspace workspace;
 
     /**
      * Associate networks and worlds with their respective components. Entries
@@ -57,8 +48,8 @@ public class Simulation {
      */
     public Simulation(SimbrainDesktop desktop) {
         super();
-        this.desktop = desktop;
-        this.workspace = desktop.getWorkspace();
+        // this.desktop = desktop;
+        // this.workspace = desktop.getWorkspace();
     }
 
     /**
@@ -194,142 +185,145 @@ public class Simulation {
         return frame;
     }
 
-    // TODO: Move to workspace level and improve exception handling.
-    /**
-     * Convenience method to add couplings and deal with exceptions (rather
-     * poorly for now).
-     *
-     * @param coupling
-     */
-    public void addCoupling(Coupling coupling) {
-        try {
-            workspace.getCouplingManager().addCoupling(coupling);
-        } catch (UmatchedAttributesException e) {
-            System.err.println("Unmatched attributes");
-            e.printStackTrace();
-        }
-    }
-
-    // Neurons to agent. So far just one to one
-    public void couple(NeuronGroup ng, RotatingEntity entity) {
-        NetworkComponent nc = netMap.get(ng.getParentNetwork());
-        OdorWorldComponent ow = odorMap.get(entity.getParentWorld());
-
-        Producer straightProducer = nc.createProducer(ng.getNeuronList().get(0),
-                "getActivation");
-        Producer leftProducer = nc.createProducer(ng.getNeuronList().get(1),
-                "getActivation");
-        Producer rightProducer = nc.createProducer(ng.getNeuronList().get(2),
-                "getActivation");
-
-        Consumer straightConsumer = ow.createConsumer(entity, "goStraight");
-        Consumer leftConsumer = ow.createConsumer(entity, "turnLeft");
-        Consumer rightConsumer = ow.createConsumer(entity, "turnRight");
-
-        Coupling straightCoupling = new Coupling<Double>(straightProducer,
-                straightConsumer);
-        Coupling leftCoupling = new Coupling<Double>(leftProducer,
-                leftConsumer);
-        Coupling rightCoupling = new Coupling<Double>(rightProducer,
-                rightConsumer);
-        addCoupling(straightCoupling);
-        addCoupling(leftCoupling);
-        addCoupling(rightCoupling);
-
-    }
-
-
-    /**
-     * Couple a specific neuron to a specific time series in a time series plot.
-     *
-     * @param network the network with the neuron
-     * @param neuron the neuron to couple
-     * @param plot the plot component
-     * @param index the index of the time series to write to
-     * @return the coupling
-     */
-    public Coupling couple(NetworkComponent network, Neuron neuron,
-            TimeSeriesPlotComponent plot, int index) {
-        PotentialProducer neuronProducer = network.getAttributeManager()
-                .createPotentialProducer(neuron, "getActivation", double.class);
-        PotentialConsumer timeSeriesConsumer1 = plot.getPotentialConsumers()
-                .get(index);
-        Coupling coupling = new Coupling<double[]>(neuronProducer, timeSeriesConsumer1);
-        addCoupling(coupling);
-        return coupling;
-
-    }
-
-    /**
-     * Coupling a neuron group to a projection plot.
-     */
-    public void couple(NetworkComponent network, NeuronGroup ng,
-            ProjectionComponent plot) {
-        // TODO: Best way to handle generics around here?
-        Producer ngProducer = network.createProducer(ng, "getActivations");
-        Consumer projConsumer = plot.createConsumer("addPoint");
-
-        addCoupling(new Coupling<double[]>(ngProducer, projConsumer));
-    }
-
-    /**
-     * Create a coupling from a smell sensor to a neuron group.
-     *
-     * @param sensor the smell sensor
-     * @param ng the neuron group
-     */
-    public void couple(SmellSensor sensor, NeuronGroup ng) {
-        NetworkComponent nc = netMap.get(ng.getParentNetwork());
-        OdorWorldComponent ow = odorMap
-                .get(sensor.getParent().getParentWorld());
-
-        Producer sensoryProducer = ow.createProducer(sensor, "getCurrentValue");
-        Consumer sensoryConsumer = nc.createConsumer(ng, "forceSetActivations",
-                double[].class);
-
-        addCoupling(new Coupling(sensoryProducer, sensoryConsumer));
-    }
-
-    /**
-     * Make a coupling from a smell sensor to a neuron. Couples the provided
-     * smell sensor one the indicated dimension to the provided neuron.
-     *
-     * @param producingSensor the smell sensor. Takes a scalar value.
-     * @param stimulusDimension Which component of the smell vector on the agent
-     *            to "smell", beginning at index "0"
-     * @param consumingNeuron the neuron to write the values to
-     */
-    public void couple(SmellSensor producingSensor, int stimulusDimension,
-            Neuron consumingNeuron) {
-
-        NetworkComponent nc = netMap.get(consumingNeuron.getNetwork());
-        OdorWorldComponent ow = odorMap
-                .get(producingSensor.getParent().getParentWorld());
-
-        Producer agentSensor = ow.createProducer(producingSensor,
-                "getCurrentValue", stimulusDimension);
-        Consumer sensoryNeuron = nc.createConsumer(consumingNeuron,
-                "forceSetActivation");
-
-        addCoupling(new Coupling(agentSensor, sensoryNeuron));
-
-    }
-
-    /**
-     * Coupled a neuron to an effector on an odor world agent.
-     */
-    public void couple(Neuron neuron, Effector effector) {
-
-        NetworkComponent nc = netMap.get(neuron.getNetwork());
-        OdorWorldComponent ow = odorMap
-                .get(effector.getParent().getParentWorld());
-
-        Producer effectorNeuron = nc.createProducer(neuron, "getActivation");
-
-        Consumer agentEffector = ow.createConsumer(effector, "addAmount");
-
-        addCoupling(new Coupling(effectorNeuron, agentEffector));
-    }
+    // // TODO: Move to workspace level and improve exception handling.
+    // /**
+    // * Convenience method to add couplings and deal with exceptions (rather
+    // * poorly for now).
+    // *
+    // * @param coupling
+    // */
+    // public void addCoupling(Coupling coupling) {
+    // try {
+    // workspace.getCouplingManager().addCoupling(coupling);
+    // } catch (MismatchedAttributesException e) {
+    // System.err.println("Unmatched attributes");
+    // e.printStackTrace();
+    // }
+    // }
+    //
+    // // Neurons to agent. So far just one to one
+    // public void couple(NeuronGroup ng, RotatingEntity entity) {
+    // NetworkComponent nc = netMap.get(ng.getParentNetwork());
+    // OdorWorldComponent ow = odorMap.get(entity.getParentWorld());
+    //
+    // Producer straightProducer = nc.createProducer(ng.getNeuronList().get(0),
+    // "getActivation");
+    // Producer leftProducer = nc.createProducer(ng.getNeuronList().get(1),
+    // "getActivation");
+    // Producer rightProducer = nc.createProducer(ng.getNeuronList().get(2),
+    // "getActivation");
+    //
+    // Consumer straightConsumer = ow.createConsumer(entity, "goStraight");
+    // Consumer leftConsumer = ow.createConsumer(entity, "turnLeft");
+    // Consumer rightConsumer = ow.createConsumer(entity, "turnRight");
+    //
+    // Coupling straightCoupling = new Coupling<Double>(straightProducer,
+    // straightConsumer);
+    // Coupling leftCoupling = new Coupling<Double>(leftProducer,
+    // leftConsumer);
+    // Coupling rightCoupling = new Coupling<Double>(rightProducer,
+    // rightConsumer);
+    // addCoupling(straightCoupling);
+    // addCoupling(leftCoupling);
+    // addCoupling(rightCoupling);
+    //
+    // }
+    //
+    //
+    // /**
+    // * Couple a specific neuron to a specific time series in a time series
+    // plot.
+    // *
+    // * @param network the network with the neuron
+    // * @param neuron the neuron to couple
+    // * @param plot the plot component
+    // * @param index the index of the time series to write to
+    // * @return the coupling
+    // */
+    // public Coupling couple(NetworkComponent network, Neuron neuron,
+    // TimeSeriesPlotComponent plot, int index) {
+    // PotentialProducer neuronProducer = network.getAttributeManager()
+    // .createPotentialProducer(neuron, "getActivation", double.class);
+    // PotentialConsumer timeSeriesConsumer1 = plot.getPotentialConsumers()
+    // .get(index);
+    // Coupling coupling = new Coupling<double[]>(neuronProducer,
+    // timeSeriesConsumer1);
+    // addCoupling(coupling);
+    // return coupling;
+    //
+    // }
+    //
+    // /**
+    // * Coupling a neuron group to a projection plot.
+    // */
+    // public void couple(NetworkComponent network, NeuronGroup ng,
+    // ProjectionComponent plot) {
+    // // TODO: Best way to handle generics around here?
+    // Producer ngProducer = network.createProducer(ng, "getActivations");
+    // Consumer projConsumer = plot.createConsumer("addPoint");
+    //
+    // addCoupling(new Coupling<double[]>(ngProducer, projConsumer));
+    // }
+    //
+    // /**
+    // * Create a coupling from a smell sensor to a neuron group.
+    // *
+    // * @param sensor the smell sensor
+    // * @param ng the neuron group
+    // */
+    // public void couple(SmellSensor sensor, NeuronGroup ng) {
+    // NetworkComponent nc = netMap.get(ng.getParentNetwork());
+    // OdorWorldComponent ow = odorMap
+    // .get(sensor.getParent().getParentWorld());
+    //
+    // Producer sensoryProducer = ow.createProducer(sensor, "getCurrentValue");
+    // Consumer sensoryConsumer = nc.createConsumer(ng, "forceSetActivations",
+    // double[].class);
+    //
+    // addCoupling(new Coupling(sensoryProducer, sensoryConsumer));
+    // }
+    //
+    // /**
+    // * Make a coupling from a smell sensor to a neuron. Couples the provided
+    // * smell sensor one the indicated dimension to the provided neuron.
+    // *
+    // * @param producingSensor the smell sensor. Takes a scalar value.
+    // * @param stimulusDimension Which component of the smell vector on the
+    // agent
+    // * to "smell", beginning at index "0"
+    // * @param consumingNeuron the neuron to write the values to
+    // */
+    // public void couple(SmellSensor producingSensor, int stimulusDimension,
+    // Neuron consumingNeuron) {
+    //
+    // NetworkComponent nc = netMap.get(consumingNeuron.getNetwork());
+    // OdorWorldComponent ow = odorMap
+    // .get(producingSensor.getParent().getParentWorld());
+    //
+    // Producer agentSensor = ow.createProducer(producingSensor,
+    // "getCurrentValue", stimulusDimension);
+    // Consumer sensoryNeuron = nc.createConsumer(consumingNeuron,
+    // "forceSetActivation");
+    //
+    // addCoupling(new Coupling(agentSensor, sensoryNeuron));
+    //
+    // }
+    //
+    // /**
+    // * Coupled a neuron to an effector on an odor world agent.
+    // */
+    // public void couple(Neuron neuron, Effector effector) {
+    //
+    // NetworkComponent nc = netMap.get(neuron.getNetwork());
+    // OdorWorldComponent ow = odorMap
+    // .get(effector.getParent().getParentWorld());
+    //
+    // Producer effectorNeuron = nc.createProducer(neuron, "getActivation");
+    //
+    // Consumer agentEffector = ow.createConsumer(effector, "addAmount");
+    //
+    // addCoupling(new Coupling(effectorNeuron, agentEffector));
+    // }
 
     /**
      * Iterate the simulation once.

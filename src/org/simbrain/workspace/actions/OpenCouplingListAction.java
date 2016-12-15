@@ -21,14 +21,12 @@ package org.simbrain.workspace.actions;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
-import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import org.simbrain.resource.ResourceManager;
-import org.simbrain.workspace.gui.CouplingListPanel;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 
 /**
@@ -59,11 +57,12 @@ public final class OpenCouplingListAction extends AbstractAction {
      */
     public void actionPerformed(final ActionEvent event) {
         final JFrame frame = new JFrame("Coupling List");
-        JComponent cl = new CouplingListPanel(desktop, new Vector(desktop
-                .getWorkspace().getCouplingManager().getCouplings()));
+        //TODO
+//        JComponent cl = new CouplingListPanel(desktop, new Vector(desktop
+//                .getWorkspace().getCouplingManager().getCouplings()));
         // JComponent cl = new AttributePanel(desktop);
         MyGlassPane pane = new MyGlassPane();
-        frame.setContentPane(cl);
+//        frame.setContentPane(cl);
         frame.setGlassPane(pane);
         frame.pack();
         pane.repaint();

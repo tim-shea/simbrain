@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.simbrain.workspace.Coupling;
-import org.simbrain.workspace.CouplingListener;
 import org.simbrain.workspace.WorkspaceComponent;
 import org.simbrain.workspace.WorkspaceListener;
 
@@ -60,7 +58,7 @@ public class UpdateActionManager {
      * Keep track of relations between coupling and coupling actions so they can
      * be cleaned up.
      */
-    private HashMap<Coupling<?>, UpdateCoupling> couplingActionMap = new HashMap<Coupling<?>, UpdateCoupling>();
+//    private HashMap<Coupling<?>, UpdateCoupling> couplingActionMap = new HashMap<Coupling<?>, UpdateCoupling>();
 
     /**
      * Keep track of relations between component and component actions so they
@@ -127,26 +125,26 @@ public class UpdateActionManager {
         });
 
         // Add / remove coupling actions as needed
-        workspaceUpdater.getWorkspace().getCouplingManager()
-                .addCouplingListener(new CouplingListener() {
-
-                    @Override
-                    public void couplingAdded(Coupling<?> coupling) {
-                        UpdateCoupling couplingAction = new UpdateCoupling(
-                                coupling);
-                        couplingActionMap.put(coupling, couplingAction);
-                        // System.out.println("Added coupling " +
-                        // couplingActionMap.size());
-                    }
-
-                    @Override
-                    public void couplingRemoved(Coupling<?> coupling) {
-                        removeAction(couplingActionMap.remove(coupling));
-                        // System.out.println("Removed coupling " +
-                        // couplingActionMap.size());
-                    }
-
-                });
+//        workspaceUpdater.getWorkspace().getCouplingManager()
+//                .addCouplingListener(new CouplingListener() {
+//
+//                    @Override
+//                    public void couplingAdded(Coupling<?> coupling) {
+//                        UpdateCoupling couplingAction = new UpdateCoupling(
+//                                coupling);
+//                        couplingActionMap.put(coupling, couplingAction);
+//                        // System.out.println("Added coupling " +
+//                        // couplingActionMap.size());
+//                    }
+//
+//                    @Override
+//                    public void couplingRemoved(Coupling<?> coupling) {
+//                        removeAction(couplingActionMap.remove(coupling));
+//                        // System.out.println("Removed coupling " +
+//                        // couplingActionMap.size());
+//                    }
+//
+//                });
     }
 
     /**
@@ -304,10 +302,10 @@ public class UpdateActionManager {
         }
 
         // Add update actions for all components available
-        for (Coupling coupling : workspaceUpdater.getWorkspace()
-                .getCouplingManager().getCouplings()) {
-            availableActionList.add(new UpdateCoupling(coupling));
-        }
+//        for (Coupling coupling : workspaceUpdater.getWorkspace()
+//                .getCouplingManager().getCouplings()) {
+//            availableActionList.add(new UpdateCoupling(coupling));
+//        }
 
         return availableActionList;
     }

@@ -19,9 +19,6 @@ import org.simbrain.simulation.OdorWorldBuilder;
 import org.simbrain.simulation.PlotBuilder;
 import org.simbrain.util.environment.SmellSource;
 import org.simbrain.util.math.SimbrainMath;
-import org.simbrain.workspace.Consumer;
-import org.simbrain.workspace.Coupling;
-import org.simbrain.workspace.Producer;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 import org.simbrain.workspace.updater.UpdateAction;
 import org.simbrain.world.odorworld.OdorWorld;
@@ -89,8 +86,8 @@ public class ActorCritic extends RegisteredSimulation {
     BasicEntity cheese; // TODO: Change to goal or generify like RL_Sim?
 
     /** Couplings. */
-    List<Coupling<?>> effectorCouplings;
-    List<Coupling<?>> sensorCouplings;
+//    List<Coupling<?>> effectorCouplings;
+//    List<Coupling<?>> sensorCouplings;
 
     /** Neural net variables. */
     Network network;
@@ -181,15 +178,15 @@ public class ActorCritic extends RegisteredSimulation {
             public void invoke() {
 
                 // Update net > movement couplings
-                sim.getWorkspace().getCouplingManager()
-                        .updateCouplings(effectorCouplings);
+//                sim.getWorkspace().getCouplingManager()
+//                        .updateCouplings(effectorCouplings);
 
                 // Update world
                 ob.getOdorWorldComponent().update();
 
                 // Update world > tile neurons and plot couplings
-                sim.getWorkspace().getCouplingManager()
-                        .updateCouplings(sensorCouplings);
+//                sim.getWorkspace().getCouplingManager()
+//                        .updateCouplings(sensorCouplings);
 
                 // Fourth: update network
                 net.getNetworkComponent().update();
@@ -230,7 +227,7 @@ public class ActorCritic extends RegisteredSimulation {
         NetworkComponent nc = net.getNetworkComponent();
 
         tileNeurons = new ArrayList<Neuron>();
-        sensorCouplings = new ArrayList<Coupling<?>>();
+//        sensorCouplings = new ArrayList<Coupling<?>>();
         for (int i = 0; i < tileSets; i++) {
             for (int j = 0; j < numTiles; j++) {
                 for (int k = 0; k < numTiles; k++) {
@@ -252,16 +249,16 @@ public class ActorCritic extends RegisteredSimulation {
                     network.addNeuron(tileNeuron);
 
                     // Couple tile sensor to tile neuron
-                    Producer tileProducer = oc.createProducer(sensor,
-                            "getValue");
-                    // tileProducer.setCustomDescription(sensor.getLabel());
-                    Consumer neuronConsumer = nc.createConsumer(tileNeuron,
-                            "forceSetActivation");
-                    // neuronConsumer.setCustomDescription(tileNeuron.getId());
-                    Coupling tileCoupling = new Coupling(tileProducer,
-                            neuronConsumer);
-                    sensorCouplings.add(tileCoupling);
-                    sim.addCoupling(tileCoupling);
+//                    Producer tileProducer = oc.createProducer(sensor,
+//                            "getValue");
+//                    // tileProducer.setCustomDescription(sensor.getLabel());
+//                    Consumer neuronConsumer = nc.createConsumer(tileNeuron,
+//                            "forceSetActivation");
+//                    // neuronConsumer.setCustomDescription(tileNeuron.getId());
+//                    Coupling tileCoupling = new Coupling(tileProducer,
+//                            neuronConsumer);
+//                    sensorCouplings.add(tileCoupling);
+//                    sim.addCoupling(tileCoupling);
 
                     // TODO: Put in group and use sim.connectAllToAll
                     // why does using 0 make weights non-existent
@@ -288,78 +285,78 @@ public class ActorCritic extends RegisteredSimulation {
      * @param nc network component
      */
     private void setCouplings(OdorWorldComponent oc, NetworkComponent nc) {
-        effectorCouplings = new ArrayList();
-
-        // Absolute movement couplings
-        outputs.getNeuronList().get(0).setLabel("North");
-        Producer northProducer = nc.createProducer(
-                outputs.getNeuronList().get(0), "getActivation");
-        Consumer northMovement = oc.createConsumer(mouse, "moveNorth");
-        // northMovement.setCustomDescription("North");
-        Coupling northCoupling = new Coupling(northProducer, northMovement);
-        effectorCouplings.add(northCoupling);
-        sim.addCoupling(northCoupling);
-
-        outputs.getNeuronList().get(1).setLabel("South");
-        Producer southProducer = nc.createProducer(
-                outputs.getNeuronList().get(1), "getActivation", double.class);
-        Consumer southMovement = oc.createConsumer(mouse, "moveSouth",
-                double.class);
-        // southMovement.setCustomDescription("South");
-        Coupling southCoupling = new Coupling(southProducer, southMovement);
-        effectorCouplings.add(southCoupling);
-        sim.addCoupling(southCoupling);
-
-        outputs.getNeuronList().get(2).setLabel("East");
-        Producer eastProducer = nc.createProducer(
-                outputs.getNeuronList().get(2), "getActivation", double.class);
-        Consumer eastMovement = oc.createConsumer(mouse, "moveEast",
-                double.class);
-        // eastMovement.setCustomDescription("East");
-        Coupling eastCoupling = new Coupling(eastProducer, eastMovement);
-        effectorCouplings.add(eastCoupling);
-        sim.addCoupling(eastCoupling);
-
-        outputs.getNeuronList().get(3).setLabel("West");
-        Producer westProducer = nc.createProducer(
-                outputs.getNeuronList().get(3), "getActivation", double.class);
-        Consumer westMovement = oc.createConsumer(mouse, "moveWest",
-                double.class);
-        // westMovement.setCustomDescription("West");
-        Coupling westCoupling = new Coupling(westProducer, westMovement);
-        effectorCouplings.add(westCoupling);
-        sim.addCoupling(westCoupling);
-
-        // Add reward smell coupling
-        Producer smell = oc.createProducer(mouse.getSensor("Smell-Center"),
-                "getCurrentValue", 0);
-        // smell.setCustomDescription("Reward");
-        Consumer rewardConsumer = nc.createConsumer(reward,
-                "forceSetActivation");
-        // reward.setCustomDescription("Reward neuron");
-        Coupling rewardCoupling = new Coupling(smell, rewardConsumer);
-        sensorCouplings.add(rewardCoupling);
-        sim.addCoupling(rewardCoupling);
+//        effectorCouplings = new ArrayList();
+//
+//        // Absolute movement couplings
+//        outputs.getNeuronList().get(0).setLabel("North");
+//        Producer northProducer = nc.createProducer(
+//                outputs.getNeuronList().get(0), "getActivation");
+//        Consumer northMovement = oc.createConsumer(mouse, "moveNorth");
+//        // northMovement.setCustomDescription("North");
+//        Coupling northCoupling = new Coupling(northProducer, northMovement);
+//        effectorCouplings.add(northCoupling);
+//        sim.addCoupling(northCoupling);
+//
+//        outputs.getNeuronList().get(1).setLabel("South");
+//        Producer southProducer = nc.createProducer(
+//                outputs.getNeuronList().get(1), "getActivation", double.class);
+//        Consumer southMovement = oc.createConsumer(mouse, "moveSouth",
+//                double.class);
+//        // southMovement.setCustomDescription("South");
+//        Coupling southCoupling = new Coupling(southProducer, southMovement);
+//        effectorCouplings.add(southCoupling);
+//        sim.addCoupling(southCoupling);
+//
+//        outputs.getNeuronList().get(2).setLabel("East");
+//        Producer eastProducer = nc.createProducer(
+//                outputs.getNeuronList().get(2), "getActivation", double.class);
+//        Consumer eastMovement = oc.createConsumer(mouse, "moveEast",
+//                double.class);
+//        // eastMovement.setCustomDescription("East");
+//        Coupling eastCoupling = new Coupling(eastProducer, eastMovement);
+//        effectorCouplings.add(eastCoupling);
+//        sim.addCoupling(eastCoupling);
+//
+//        outputs.getNeuronList().get(3).setLabel("West");
+//        Producer westProducer = nc.createProducer(
+//                outputs.getNeuronList().get(3), "getActivation", double.class);
+//        Consumer westMovement = oc.createConsumer(mouse, "moveWest",
+//                double.class);
+//        // westMovement.setCustomDescription("West");
+//        Coupling westCoupling = new Coupling(westProducer, westMovement);
+//        effectorCouplings.add(westCoupling);
+//        sim.addCoupling(westCoupling);
+//
+//        // Add reward smell coupling
+//        Producer smell = oc.createProducer(mouse.getSensor("Smell-Center"),
+//                "getCurrentValue", 0);
+//        // smell.setCustomDescription("Reward");
+//        Consumer rewardConsumer = nc.createConsumer(reward,
+//                "forceSetActivation");
+//        // reward.setCustomDescription("Reward neuron");
+//        Coupling rewardCoupling = new Coupling(smell, rewardConsumer);
+//        sensorCouplings.add(rewardCoupling);
+//        sim.addCoupling(rewardCoupling);
     }
 
     /**
      * Set up the time series plot.
      */
     private void setUpPlot(NetBuilder net) {
-        // Create a time series plot
-        plot = sim.addTimeSeriesPlot(759,377,363,285, "Reward, TD Error");
-        Coupling rewardCoupling = sim.couple(net.getNetworkComponent(), reward,
-                plot.getTimeSeriesComponent(), 0);
-        Coupling tdCoupling = sim.couple(net.getNetworkComponent(), tdError,
-                plot.getTimeSeriesComponent(), 1);
-        Coupling valueCoupling = sim.couple(net.getNetworkComponent(), value,
-                plot.getTimeSeriesComponent(), 2);
-        plot.getTimeSeriesModel().setAutoRange(false);
-        plot.getTimeSeriesModel().setRangeUpperBound(2);
-        plot.getTimeSeriesModel().setRangeLowerBound(-1);
-        sensorCouplings.add(rewardCoupling);
-        sensorCouplings.add(tdCoupling);
-        sensorCouplings.add(valueCoupling);
+//        // Create a time series plot
+//        plot = sim.addTimeSeriesPlot(759,377,363,285, "Reward, TD Error");
+//        Coupling rewardCoupling = sim.couple(net.getNetworkComponent(), reward,
+//                plot.getTimeSeriesComponent(), 0);
+//        Coupling tdCoupling = sim.couple(net.getNetworkComponent(), tdError,
+//                plot.getTimeSeriesComponent(), 1);
+//        Coupling valueCoupling = sim.couple(net.getNetworkComponent(), value,
+//                plot.getTimeSeriesComponent(), 2);
+//        plot.getTimeSeriesModel().setAutoRange(false);
+//        plot.getTimeSeriesModel().setRangeUpperBound(2);
+//        plot.getTimeSeriesModel().setRangeLowerBound(-1);
+//        sensorCouplings.add(rewardCoupling);
+//        sensorCouplings.add(tdCoupling);
+//        sensorCouplings.add(valueCoupling);
     }
 
     /**

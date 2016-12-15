@@ -20,12 +20,8 @@ package org.simbrain.plot.histogram;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.simbrain.plot.ChartListener;
-import org.simbrain.workspace.AttributeType;
-import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.WorkspaceComponent;
 
 /**
@@ -38,7 +34,7 @@ public class HistogramComponent extends WorkspaceComponent {
     private HistogramModel model;
 
     /** Neuron group consumer type. */
-    private AttributeType histogramConsumer;
+//    private AttributeType histogramConsumer;
 
     /**
      * Create new Histogram Component.
@@ -74,9 +70,9 @@ public class HistogramComponent extends WorkspaceComponent {
      */
     private void init() {
 
-        histogramConsumer = new AttributeType(this, "Histogram", "getValue",
-                double[].class, true);
-        addConsumerType(histogramConsumer);
+//        histogramConsumer = new AttributeType(this, "Histogram", "getValue",
+//                double[].class, true);
+//        addConsumerType(histogramConsumer);
 
     }
 
@@ -91,14 +87,14 @@ public class HistogramComponent extends WorkspaceComponent {
              * {@inheritDoc}
              */
             public void dataSourceAdded(final int index) {
-                firePotentialAttributesChanged();
+//                firePotentialAttributesChanged();
             }
 
             /**
              * {@inheritDoc}
              */
             public void dataSourceRemoved(final int index) {
-                firePotentialAttributesChanged();
+//                firePotentialAttributesChanged();
             }
 
             /**
@@ -161,21 +157,21 @@ public class HistogramComponent extends WorkspaceComponent {
         return HistogramModel.getXStream().toXML(model);
     }
 
-    @Override
-    public List<PotentialConsumer> getPotentialConsumers() {
-        List<PotentialConsumer> returnList = new ArrayList<PotentialConsumer>();
-        if (histogramConsumer.isVisible()) {
-            for (int i = 0; i < model.getData().size(); i++) {
-                String description = "Histogram " + (i + 1);
-                PotentialConsumer consumer = getAttributeManager()
-                        .createPotentialConsumer(model, "addData",
-                                new Class[] { double[].class, Integer.class },
-                                new Object[] { i });
-                consumer.setCustomDescription(description);
-                returnList.add(consumer);
-            }
-        }
-        return returnList;
-    }
+//    @Override
+//    public List<PotentialConsumer> getPotentialConsumers() {
+//        List<PotentialConsumer> returnList = new ArrayList<PotentialConsumer>();
+//        if (histogramConsumer.isVisible()) {
+//            for (int i = 0; i < model.getData().size(); i++) {
+//                String description = "Histogram " + (i + 1);
+//                PotentialConsumer consumer = getAttributeManager()
+//                        .createPotentialConsumer(model, "addData",
+//                                new Class[] { double[].class, Integer.class },
+//                                new Object[] { i });
+//                consumer.setCustomDescription(description);
+//                returnList.add(consumer);
+//            }
+//        }
+//        return returnList;
+//    }
 
 }
