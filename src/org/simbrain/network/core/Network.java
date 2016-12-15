@@ -28,6 +28,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.simbrain.network.connections.ConnectNeurons;
 import org.simbrain.network.connections.Sparse;
 import org.simbrain.network.groups.Group;
@@ -58,15 +63,19 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
  * connecting them. Most update and learning logic occurs in the neurons and
  * weights themselves, as well as in special groups.
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Network {
 
     /** Array list of neurons. */
     private final List<Neuron> neuronList = new ArrayList<Neuron>();
 
     /** Array list of synapses. */
+    @XmlTransient //TODO
     private final Set<Synapse> synapseList = new LinkedHashSet<Synapse>();
 
     /** Since groups span all levels of the hierarchy they are stored here. */
+    @XmlTransient // TODO
     private final List<Group> groupList = new ArrayList<Group>();
 
     /** Text objects. */
@@ -108,21 +117,26 @@ public class Network {
     private TimeType timeType = TimeType.DISCRETE;
 
     /** List of objects registered to observe general network events. */
+    @XmlTransient
     private List<NetworkListener> networkListeners =
             new ArrayList<NetworkListener>();
 
     /** List of objects registered to observe neuron-related network events. */
+    @XmlTransient
     private List<NeuronListener> neuronListeners =
             new ArrayList<NeuronListener>();
 
     /** List of objects registered to observe synapse-related network events. */
+    @XmlTransient
     private List<SynapseListener> synapseListeners =
             new ArrayList<SynapseListener>();
 
     /** List of objects registered to observe group-related network events. */
+    @XmlTransient
     private List<GroupListener> groupListeners = new ArrayList<GroupListener>();
 
     /** List of objects registered to observe text-related network events. */
+    @XmlTransient
     private List<TextListener> textListeners = new ArrayList<TextListener>();
 
     /** Whether network has been updated yet; used by thread. */
@@ -132,9 +146,11 @@ public class Network {
      * List of neurons sorted by their update priority. Used in priority based
      * update.
      */
+    @XmlTransient
     private List<Neuron> prioritySortedNeuronList;
 
     /** Comparator used for sorting the priority sorted neuron list. */
+    @XmlTransient
     private PriorityComparator priorityComparator = new PriorityComparator();
 
     /** Neuron Id generator. */

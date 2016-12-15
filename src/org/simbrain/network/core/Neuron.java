@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.simbrain.network.core.Network.TimeType;
 import org.simbrain.network.groups.Group;
 import org.simbrain.network.neuron_update_rules.LinearRule;

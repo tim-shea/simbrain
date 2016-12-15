@@ -123,7 +123,7 @@ public abstract class WorkspaceComponent {
      */
     public abstract void save(OutputStream output, String format);
 
-    // TEMP
+    // TEMP.  Override.
     public void save2(OutputStream output, String format) {
     };
 

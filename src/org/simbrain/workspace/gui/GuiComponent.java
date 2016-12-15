@@ -247,13 +247,7 @@ public abstract class GuiComponent<E extends WorkspaceComponent> extends JPanel 
 
     //TEMP
     public void save2() {
-        try {
-            FileOutputStream stream = new FileOutputStream(
-                    new File("temp.xml"));
-            workspaceComponent.save2(stream, null);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        workspaceComponent.save2(null, null);
     }
 
     /**

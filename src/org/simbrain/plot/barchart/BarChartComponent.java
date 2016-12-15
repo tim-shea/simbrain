@@ -176,7 +176,6 @@ public class BarChartComponent extends WorkspaceComponent {
         } catch (JAXBException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
