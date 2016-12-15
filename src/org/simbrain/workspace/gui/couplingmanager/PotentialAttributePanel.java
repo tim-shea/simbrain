@@ -35,11 +35,14 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.simbrain.workspace.AttributeListener;
 import org.simbrain.workspace.Consumer2;
 import org.simbrain.workspace.Producer2;
 import org.simbrain.workspace.Workspace;
 import org.simbrain.workspace.WorkspaceComponent;
 import org.simbrain.workspace.WorkspaceListener;
+
+import com.sun.xml.internal.bind.v2.schemagen.xmlschema.AttributeType;
 
 /**
  * Displays a panel with a JComboBox, which the user uses to select a component,
@@ -141,29 +144,29 @@ public class PotentialAttributePanel extends JPanel
      */
     private void addAttributeListener(final WorkspaceComponent component) {
 
-        // TODO
-        // component.addAttributeListener(new AttributeListener() {
-        //
-        // public void attributeTypeVisibilityChanged(AttributeType type) {
-        // if (isSelectedComponent(component)) {
-        // if (component == type.getParentComponent()) { // Not sure if
-        // // this is
-        // // needed
-        // refresh(component);
-        // }
-        // }
-        // }
-        //
-        // public void attributeObjectRemoved(Object object) {
-        // // No implementation
-        // }
-        //
-        // public void potentialAttributesChanged() {
-        // if (isSelectedComponent(component)) {
-        // refresh(component);
-        // }
-        // }
-        // });
+        component.addAttributeListener(new AttributeListener() {
+
+            public void attributeTypeVisibilityChanged(AttributeType type) {
+                if (isSelectedComponent(component)) {
+                    // if (component == type.getParentComponent()) { // Not sure
+                    // if
+                    // // this is
+                    // // needed
+                    refresh(component);
+                    // }
+                }
+            }
+
+            public void attributeObjectRemoved(Object object) {
+                // No implementation
+            }
+
+            public void potentialAttributesChanged() {
+                if (isSelectedComponent(component)) {
+                    refresh(component);
+                }
+            }
+        });
 
     }
 
@@ -200,13 +203,16 @@ public class PotentialAttributePanel extends JPanel
      */
     private void refresh(final WorkspaceComponent component) {
 
-        if (producerOrConsumer == ProducerOrConsumer.Producing) {
-            for (Producer2<?> producer : component.getProducers()) {
-                model.addElement(producer);
-            }
-        } else {
-            for (Consumer2<?> consumer : component.getConsumers()) {
-                model.addElement(consumer);
+        if (component != null) {
+            model.clear();
+            if (producerOrConsumer == ProducerOrConsumer.Producing) {
+                for (Producer2<?> producer : component.getProducers()) {
+                    model.addElement(producer);
+                }
+            } else {
+                for (Consumer2<?> consumer : component.getConsumers()) {
+                    model.addElement(consumer);
+                }
             }
         }
 

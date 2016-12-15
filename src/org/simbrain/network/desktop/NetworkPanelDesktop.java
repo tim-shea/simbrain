@@ -26,6 +26,7 @@ import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
+import org.simbrain.network.NetworkComponent;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.core.Synapse;
@@ -54,7 +55,12 @@ import org.simbrain.util.StandardDialog;
 import org.simbrain.util.genericframe.GenericFrame;
 import org.simbrain.util.genericframe.GenericJInternalFrame;
 import org.simbrain.util.widgets.ShowHelpAction;
+import org.simbrain.workspace.Consumer2;
+import org.simbrain.workspace.Producer2;
 import org.simbrain.workspace.Workspace;
+import org.simbrain.workspace.WorkspaceComponent;
+import org.simbrain.workspace.gui.CouplingMenuConsumer;
+import org.simbrain.workspace.gui.CouplingMenuProducer;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 
 /**
@@ -287,16 +293,16 @@ public class NetworkPanelDesktop extends NetworkPanel {
         Workspace workspace = component.getWorkspaceComponent().getWorkspace();
         if (getSelectedNeurons().size() == 1) {
             contextMenu.addSeparator();
-//            PotentialProducer producer = NetworkComponent.getNeuronProducer(
-//                    component.getWorkspaceComponent(), neuron, "getActivation");
-//            PotentialConsumer consumer = NetworkComponent.getNeuronConsumer(
-//                    component.getWorkspaceComponent(), neuron, "setInputValue");
-//            JMenu producerMenu = new CouplingMenuProducer(
-//                    "Send Scalar Coupling to", workspace, producer);
-//            contextMenu.add(producerMenu);
-//            JMenu consumerMenu = new CouplingMenuConsumer(
-//                    "Receive Scalar Coupling from", workspace, consumer);
-//            contextMenu.add(consumerMenu);
+            Producer2 producer = WorkspaceComponent.getProducer(neuron,
+                    "getActivation");
+            Consumer2 consumer = NetworkComponent.getConsumer(neuron,
+                    "setInputValue", new Class[]{double.class});
+            JMenu producerMenu = new CouplingMenuProducer(
+                    "Send Scalar Coupling to", workspace, producer);
+            contextMenu.add(producerMenu);
+            JMenu consumerMenu = new CouplingMenuConsumer(
+                    "Receive Scalar Coupling from", workspace, consumer);
+            contextMenu.add(consumerMenu);
         }
         return contextMenu;
     }

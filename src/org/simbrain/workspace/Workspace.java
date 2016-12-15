@@ -25,10 +25,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 
@@ -201,17 +202,17 @@ public class Workspace {
      * @exception MismatchedAttributesException
      */
     @SuppressWarnings("unchecked")
-    public void coupleOneToOne(final List<Producer2> producers,
-            final List<Consumer2> consumers)
+    public void coupleOneToOne(final List<Producer2<?>> producers,
+            final List<Consumer2<?>> consumers)
             throws MismatchedAttributesException {
 
-        Iterator<Consumer2> consumerIterator = consumers.iterator();
+        Iterator<Consumer2<?>> consumerIterator = consumers.iterator();
         for (Producer2<?> producer : producers) {
             if (consumerIterator.hasNext()) {
                 Coupling2 coupling = new Coupling2(producer,
                         consumerIterator.next());
                 couplings.add(coupling);
-                break;
+                continue;
             }
         }
 
@@ -264,6 +265,7 @@ public class Workspace {
         }
 
         fireWorkspaceComponentAdded(component);
+
 
     }
 
@@ -679,7 +681,7 @@ public class Workspace {
     //
 
     /** All couplings for the workspace. */
-    private final List<Coupling2<?>> couplings = new CopyOnWriteArrayList<Coupling2<?>>();
+    private final List<Coupling2<?>> couplings = new ArrayList<Coupling2<?>>();
 
     public void addCoupling(Coupling2<?> coupling) {
         couplings.add(coupling);
@@ -759,5 +761,7 @@ public class Workspace {
         this.couplings.removeAll(couplings);
         this.fireCouplingsRemoved();
     }
+
+
 
 }

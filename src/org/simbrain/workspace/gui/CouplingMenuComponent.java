@@ -110,15 +110,14 @@ public class CouplingMenuComponent extends JMenu implements WorkspaceListener {
                     targetComponent.getName());
             componentMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-//                    try {
-//                        workspace.coupleOneToOne(
-//                                sourceComponent.getAnnotatedProducers(),
-//                                targetComponent.getAnnotatedConsumers());
-//                    } catch (MismatchedAttributesException e1) {
-//                        JOptionPane.showMessageDialog(null, e1.getMessage(),
-//                                "Unmatched Attributes",
-//                                JOptionPane.WARNING_MESSAGE, null);
-//                    }
+                    try {
+                        workspace.coupleOneToOne(sourceComponent.getProducers(),
+                                targetComponent.getConsumers());
+                    } catch (MismatchedAttributesException e1) {
+                        JOptionPane.showMessageDialog(null, e1.getMessage(),
+                                "Unmatched Attributes",
+                                JOptionPane.WARNING_MESSAGE, null);
+                    }
                 }
             });
             this.add(componentMenuItem);

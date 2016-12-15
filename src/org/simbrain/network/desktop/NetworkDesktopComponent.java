@@ -126,7 +126,7 @@ public final class NetworkDesktopComponent extends
 
     /**
      * Create and return a new File menu for this Network panel.
-     * 
+     *
      * @return a new File menu for this Network panel
      */
     JMenu createFileMenu() {
@@ -166,7 +166,7 @@ public final class NetworkDesktopComponent extends
 
     /**
      * Return the network panel for this network frame.
-     * 
+     *
      * @return the network panel for this network frame
      */
     public NetworkPanel getNetworkPanel() {
@@ -195,7 +195,7 @@ public final class NetworkDesktopComponent extends
     /**
      * If at least one synapse group has a large number of synapses that are not
      * going to be saved using compression, show the user a warning.
-     * 
+     *
      * @return true if the save operation should proceed, false if the save
      *         operation should be cancelled.
      */

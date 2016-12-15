@@ -58,8 +58,8 @@ public class Neuron {
      * Pre-allocates the number of bins in this neuron's fanIn/Out for
      * efficiency.
      */
-    public static final int PRE_ALLOCATED_NUM_SYNAPSES = (int) Math.ceil(500
-            / 0.75);
+    public static final int PRE_ALLOCATED_NUM_SYNAPSES = (int) Math
+            .ceil(500 / 0.75);
 
     /**
      * The update method of this neuron, which corresponds to what kind of
@@ -134,7 +134,7 @@ public class Neuron {
 
     /** Target value. */
     private double targetValue;
-    
+
     /** Memory of last activation. */
     private double lastActivation;
 
@@ -153,14 +153,13 @@ public class Neuron {
      * values can be useful in scripts.
      */
     private double auxValue;
-    
+
     /**
      * Construct a neuron with all default values in the specified network.
      * Sometimes used as the basis for a template neuron which will be edited
      * and then copied. Also used in scripts.
      *
-     * @param parent
-     *            The parent network of this neuron.
+     * @param parent The parent network of this neuron.
      */
     public Neuron(final Network parent) {
         this.parent = parent;
@@ -170,11 +169,9 @@ public class Neuron {
     /**
      * Construct a specific type of neuron from a string description.
      *
-     * @param parent
-     *            The parent network. Be careful not to set this to root network
-     *            if the root network is not the parent.
-     * @param updateRule
-     *            the update method
+     * @param parent The parent network. Be careful not to set this to root
+     *            network if the root network is not the parent.
+     * @param updateRule the update method
      */
     public Neuron(final Network parent, final String updateRule) {
         this.parent = parent;
@@ -184,11 +181,9 @@ public class Neuron {
     /**
      * Construct a specific type of neuron.
      *
-     * @param parent
-     *            The parent network. Be careful not to set this to root network
-     *            if the root network is not the parent.
-     * @param updateRule
-     *            the update method
+     * @param parent The parent network. Be careful not to set this to root
+     *            network if the root network is not the parent.
+     * @param updateRule the update method
      */
     public Neuron(final Network parent, final NeuronUpdateRule updateRule) {
         this.parent = parent;
@@ -198,11 +193,9 @@ public class Neuron {
     /**
      * Copy constructor.
      *
-     * @param parent
-     *            The parent network. Be careful not to set this to root network
-     *            if the root network is not the parent.
-     * @param n
-     *            Neuron
+     * @param parent The parent network. Be careful not to set this to root
+     *            network if the root network is not the parent.
+     * @param n Neuron
      */
     public Neuron(final Network parent, final Neuron n) {
         this.parent = parent;
@@ -272,14 +265,13 @@ public class Neuron {
      * Sets the update rule using a String description. The provided description
      * must match the class name. E.g. "BinaryNeuron" for "BinaryNeuron.java".
      *
-     * @param name
-     *            the "simple name" of the class associated with the neuron rule
-     *            to set.
+     * @param name the "simple name" of the class associated with the neuron
+     *            rule to set.
      */
     public void setUpdateRule(String name) {
         try {
-            NeuronUpdateRule newRule = (NeuronUpdateRule) Class.forName(
-                    "org.simbrain.network.neuron_update_rules." + name)
+            NeuronUpdateRule newRule = (NeuronUpdateRule) Class
+                    .forName("org.simbrain.network.neuron_update_rules." + name)
                     .newInstance();
             setUpdateRule(newRule);
         } catch (ClassNotFoundException e) {
@@ -295,8 +287,7 @@ public class Neuron {
     /**
      * Set a new update rule. Essentially like changing the type of the network.
      *
-     * @param updateRule
-     *            the neuronUpdateRule to set
+     * @param updateRule the neuronUpdateRule to set
      */
     public void setUpdateRule(final NeuronUpdateRule updateRule) {
         NeuronUpdateRule oldRule = updateRule;
@@ -326,8 +317,7 @@ public class Neuron {
      * forceSetActivation(double)}. Under normal circumstances model classes
      * will use this method.
      *
-     * @param act
-     *            Activation
+     * @param act Activation
      */
     public void setActivation(final double act) {
         lastActivation = getActivation();
@@ -341,8 +331,7 @@ public class Neuron {
     /**
      * A general purpose method that moves all relevant values from this
      * neuron's buffer to its main values. Must be used to ensure that spikes
-     * update synchronously in the same way activations do for buffered
-     * updates.
+     * update synchronously in the same way activations do for buffered updates.
      */
     public void setToBufferVals() {
         setActivation(getBuffer());
@@ -355,10 +344,9 @@ public class Neuron {
      * the neuron's activation to take a specific value. Used primarily by the
      * GUI (e.g. when externally setting the values of clamped input neurons).
      *
-     * @param act
-     *            the new activation value
+     * @param act the new activation value
      */
-    @Consumible
+    @Consumible(customDescriptionMethod = "getId", visible = false)
     public void forceSetActivation(final double act) {
         lastActivation = getActivation();
         activation = act;
@@ -367,7 +355,7 @@ public class Neuron {
     /**
      * @return the level of activation.
      */
-    @Producible
+    @Producible(customDescriptionMethod = "getId")
     public double getActivation() {
         return activation;
     }
@@ -382,8 +370,7 @@ public class Neuron {
     /**
      * Sets the id of the neuron.
      *
-     * @param theName
-     *            Neuron id
+     * @param theName Neuron id
      */
     public void setId(final String theName) {
         id = theName;
@@ -430,8 +417,7 @@ public class Neuron {
     /**
      * Remove this neuron from target neuron via a weight.
      *
-     * @param synapse
-     *            the connection between this neuron and a target neuron
+     * @param synapse the connection between this neuron and a target neuron
      */
     public void removeEfferent(final Synapse synapse) {
         if (fanOut != null) {
@@ -445,7 +431,7 @@ public class Neuron {
      * intermediate bodies.
      *
      * @param source adds source as a synapse for which this neuron is the
-     * target.
+     *            target.
      */
     public void addAfferent(final Synapse source) {
         if (fanIn != null) {
@@ -456,8 +442,7 @@ public class Neuron {
     /**
      * Remove this neuron from source neuron via a weight.
      *
-     * @param synapse
-     *            the connection between this neuron and a source neuron
+     * @param synapse the connection between this neuron and a source neuron
      */
     public void removeAfferent(final Synapse synapse) {
         if (fanIn != null) {
@@ -476,7 +461,7 @@ public class Neuron {
     public double getWeightedInputs() {
         double wtdSum = inputValue;
         for (int i = 0, n = fanIn.size(); i < n; i++) {
-        	wtdSum += fanIn.get(i).calcWeightedSum();
+            wtdSum += fanIn.get(i).calcWeightedSum();
         }
         return wtdSum;
     }
@@ -487,13 +472,13 @@ public class Neuron {
      * biological model neurons.
      *
      * @return the sum of the post-synaptic responses (synapse values in
-     * response to spikes and mediated by spike responders) impinging on this
-     * neuron.
+     *         response to spikes and mediated by spike responders) impinging on
+     *         this neuron.
      */
     public double getSynapticInput() {
         double wtdSum = inputValue;
         for (int i = 0, n = fanIn.size(); i < n; i++) {
-        	wtdSum += fanIn.get(i).calcPSR();
+            wtdSum += fanIn.get(i).calcPSR();
         }
         return wtdSum;
     }
@@ -503,8 +488,8 @@ public class Neuron {
      * and calls their update functions.
      */
     public void updateFanIn() {
-    	for (int i = 0, n = fanIn.size(); i < n; i++) {
-        	fanIn.get(i).update();
+        for (int i = 0, n = fanIn.size(); i < n; i++) {
+            fanIn.get(i).update();
         }
     }
 
@@ -531,7 +516,7 @@ public class Neuron {
             }
         }
     }
-    
+
     public void normalizeInhibitoryFanIn() {
         double sum = 0;
         double str = 0;
@@ -577,7 +562,7 @@ public class Neuron {
             }
         }
     }
-    
+
     /**
      * Randomize this neuron to a value between upperBound and lowerBound.
      */
@@ -626,8 +611,7 @@ public class Neuron {
      * Temporary buffer which can be used for algorithms which should not depend
      * on the order in which neurons are updated.
      *
-     * @param d
-     *            temporary value
+     * @param d temporary value
      */
     public void setBuffer(final double d) {
         lastActivation = getActivation();
@@ -654,10 +638,9 @@ public class Neuron {
      * external components (like input tables) send activation to the network
      * they should use this.
      *
-     * @param inputValue
-     *            The inputValue to set.
+     * @param inputValue The inputValue to set.
      */
-    @Consumible
+    @Consumible(customDescriptionMethod = "getId")
     public void setInputValue(final double inputValue) {
         this.inputValue = inputValue;
     }
@@ -693,8 +676,7 @@ public class Neuron {
      * Returns the number of neurons attaching to this one which have activity
      * above a specified threshold.
      *
-     * @param threshold
-     *            value above which neurons are considered "active."
+     * @param threshold value above which neurons are considered "active."
      * @return number of "active" neurons
      */
     public int getNumberOfActiveInputs(final int threshold) {
@@ -731,8 +713,7 @@ public class Neuron {
     /**
      * True if the synapse is connected to this neuron, false otherwise.
      *
-     * @param s
-     *            the synapse to check.
+     * @param s the synapse to check.
      * @return true if synapse is connected, false otherwise.
      */
     public boolean isConnected(final Synapse s) {
@@ -761,8 +742,7 @@ public class Neuron {
     }
 
     /**
-     * @param x
-     *            The x coordinate to set.
+     * @param x The x coordinate to set.
      */
     public void setX(final double x) {
         this.x = x;
@@ -774,8 +754,7 @@ public class Neuron {
     }
 
     /**
-     * @param y
-     *            The y coordinate to set.
+     * @param y The y coordinate to set.
      */
     public void setY(final double y) {
         this.y = y;
@@ -786,8 +765,7 @@ public class Neuron {
 
     /**
      *
-     * @param z
-     *            The z coordinate to set.
+     * @param z The z coordinate to set.
      */
     public void setZ(final double z) {
         this.z = z;
@@ -799,10 +777,8 @@ public class Neuron {
     /**
      * Set x, y position of a neuron.
      *
-     * @param x
-     *            x coordinate for neuron
-     * @param y
-     *            y coordinate for neuron
+     * @param x x coordinate for neuron
+     * @param y y coordinate for neuron
      */
     public void setLocation(final double x, final double y) {
         setX(x);
@@ -812,10 +788,8 @@ public class Neuron {
     /**
      * Translate the neuron by a specified amount.
      *
-     * @param delta_x
-     *            x amount to translate neuron
-     * @param delta_y
-     *            y amount to translate neuron
+     * @param delta_x x amount to translate neuron
+     * @param delta_y y amount to translate neuron
      */
     public void offset(final double delta_x, final double delta_y) {
         setX(getX() + delta_x);
@@ -841,8 +815,8 @@ public class Neuron {
      */
     public List<Synapse> getFanInList() {
         // Pre-allocating for speed
-        List<Synapse> syns =
-                new ArrayList<Synapse>((int) (fanIn.size() / 0.75));
+        List<Synapse> syns = new ArrayList<Synapse>(
+                (int) (fanIn.size() / 0.75));
         for (Synapse s : fanIn) {
             syns.add(s);
         }
@@ -925,8 +899,7 @@ public class Neuron {
     /**
      * Set target value.
      *
-     * @param targetValue
-     *            value to set.
+     * @param targetValue value to set.
      */
     public void setTargetValue(final double targetValue) {
         this.targetValue = targetValue;
@@ -940,8 +913,7 @@ public class Neuron {
     }
 
     /**
-     * @param updatePriority
-     *            to set.
+     * @param updatePriority to set.
      */
     public void setUpdatePriority(final int updatePriority) {
         this.updatePriority = updatePriority;
@@ -962,8 +934,7 @@ public class Neuron {
     /**
      * Toggles whether this neuron is clamped.
      *
-     * @param clamped
-     *            Whether this neuron is to be clamped.
+     * @param clamped Whether this neuron is to be clamped.
      */
     public void setClamped(final boolean clamped) {
         this.clamped = clamped;
@@ -977,8 +948,7 @@ public class Neuron {
     }
 
     /**
-     * @param label
-     *            the label to set
+     * @param label the label to set
      */
     public void setLabel(final String label) {
         this.label = label;
@@ -997,8 +967,7 @@ public class Neuron {
     /**
      * Set position of neuron using a point object.
      *
-     * @param position
-     *            point location of neuron
+     * @param position point location of neuron
      */
     public void setPosition(Point2D position) {
         this.setX(position.getX());
@@ -1009,15 +978,13 @@ public class Neuron {
      * If this neuron has a bias field, randomize it within the specified
      * bounds.
      *
-     * @param lower
-     *            lower bound for randomization.
-     * @param upper
-     *            upper bound for randomization.
-     * */
+     * @param lower lower bound for randomization.
+     * @param upper upper bound for randomization.
+     */
     public void randomizeBias(double lower, double upper) {
         if (this.getUpdateRule() instanceof BiasedUpdateRule) {
-            ((BiasedUpdateRule) this.getUpdateRule()).setBias((upper - lower)
-                    * Math.random() + lower);
+            ((BiasedUpdateRule) this.getUpdateRule())
+                    .setBias((upper - lower) * Math.random() + lower);
         }
     }
 
@@ -1044,8 +1011,8 @@ public class Neuron {
      * A method that returns a list of all the neuron update rules associated
      * with a list of neurons.
      *
-     * @param neuronList
-     *            The list of neurons whose update rules we want to query.
+     * @param neuronList The list of neurons whose update rules we want to
+     *            query.
      * @return Returns a list of neuron update rules associated with a group of
      *         neurons
      */
@@ -1064,8 +1031,7 @@ public class Neuron {
     }
 
     /**
-     * @param parentGroup
-     *            the parentGroup to set
+     * @param parentGroup the parentGroup to set
      */
     public void setParentGroup(Group parentGroup) {
         this.parentGroup = parentGroup;
@@ -1075,8 +1041,7 @@ public class Neuron {
      * Convenience method to set upper bound on the neuron's update rule, if it
      * is a bounded update rule.
      *
-     * @param upperBound
-     *            upper bound to set.
+     * @param upperBound upper bound to set.
      */
     public void setUpperBound(final double upperBound) {
         if (updateRule instanceof BoundedUpdateRule) {
@@ -1088,8 +1053,7 @@ public class Neuron {
      * Convenience method to set lower bound on the neuron's update rule, if it
      * is a bounded update rule.
      *
-     * @param lowerBound
-     *            lower bound to set.
+     * @param lowerBound lower bound to set.
      */
     public void setLowerBound(final double lowerBound) {
         if (updateRule instanceof BoundedUpdateRule) {
@@ -1128,8 +1092,7 @@ public class Neuron {
     /**
      * Convenience method to set increment on the neuron's update rule.
      *
-     * @param increment
-     *            increment to set
+     * @param increment increment to set
      */
     public void setIncrement(final double increment) {
         updateRule.setIncrement(increment);
@@ -1143,8 +1106,7 @@ public class Neuron {
     }
 
     /**
-     * @param auxValue
-     *            the auxValue to set
+     * @param auxValue the auxValue to set
      */
     public void setAuxValue(double auxValue) {
         this.auxValue = auxValue;

@@ -20,6 +20,7 @@ import java.util.List;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.simbrain.plot.ChartModel;
 import org.simbrain.plot.histogram.OverwritableHistogramDataset.ColoredDataSeries;
+import org.simbrain.workspace.Consumible;
 
 /**
  * Underlying model for the histogram data, in the form of a list of double
@@ -42,6 +43,8 @@ public class HistogramModel extends ChartModel {
      * An array containing all the data series to be plotted. This is redundant
      * with the dataset object for JFreeChart, but must be kept in case the
      * number of bins is changed.
+     *
+     * TODO: Transient?
      */
     private List<double[]> data = new ArrayList<double[]>();
 
@@ -71,7 +74,7 @@ public class HistogramModel extends ChartModel {
         this.addDataSources(numSources);
         redraw();
     }
-    
+
     public HistogramModel(int numSources, int bins) {
     	this(numSources);
     	this.bins = bins;
@@ -157,6 +160,12 @@ public class HistogramModel extends ChartModel {
 
     }
 
+    //TODO:
+    @Consumible
+    public void addData(double[] histData) {
+        addData(histData,0);
+    }
+
     /**
      * Add double array data to a specified data series. This is the main method
      * used to dynamically add data when the histogram is used as a plot
@@ -184,7 +193,7 @@ public class HistogramModel extends ChartModel {
     /**
      * Reset the data in the model.
      * @param data the data to set
-     * @param names 
+     * @param names
      */
     public void resetData(List<double[]> data, List<String> names) {
         this.data = data;

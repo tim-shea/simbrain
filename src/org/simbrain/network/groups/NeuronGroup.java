@@ -764,7 +764,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
      *
      * @return the activation array
      */
-    @Producible
+    @Producible(customDescriptionMethod = "getId")
     public double[] getActivations() {
         double[] retArray = new double[neuronList.size()];
         int i = 0;

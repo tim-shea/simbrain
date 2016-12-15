@@ -12,9 +12,16 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Producible { 
-    
-    /** The name of a method that returns a customized description for this producible.  */
+public @interface Producible {
+
+    //TODO: Rename
+    /**
+     * The name of a method that returns a customized description for this
+     * producible.
+     */
     String customDescriptionMethod() default "";
+
+    //TODO:
+    boolean visible() default true;
 
 }

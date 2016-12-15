@@ -19,8 +19,6 @@ package org.simbrain.network;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +27,7 @@ import org.simbrain.network.core.Neuron;
 import org.simbrain.network.core.NeuronUpdateRule;
 import org.simbrain.network.core.Synapse;
 import org.simbrain.network.core.SynapseUpdateRule;
+import org.simbrain.network.groups.Group;
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.network.groups.SynapseGroup;
 import org.simbrain.network.listeners.NetworkEvent;
@@ -114,7 +113,7 @@ public final class NetworkComponent extends WorkspaceComponent {
              */
             public void neuronAdded(NetworkEvent<Neuron> e) {
                 setChangedSinceLastSave(true);
-//                firePotentialAttributesChanged();
+                firePotentialAttributesChanged();
             }
 
             /**
@@ -136,8 +135,8 @@ public final class NetworkComponent extends WorkspaceComponent {
              */
             public void neuronRemoved(NetworkEvent<Neuron> e) {
                 setChangedSinceLastSave(true);
-//                firePotentialAttributesChanged();
-//                fireAttributeObjectRemoved(e.getObject());
+                firePotentialAttributesChanged();
+                fireAttributeObjectRemoved(e.getObject());
             }
 
             @Override
@@ -155,17 +154,17 @@ public final class NetworkComponent extends WorkspaceComponent {
 
             public void synapseAdded(NetworkEvent<Synapse> networkEvent) {
                 setChangedSinceLastSave(true);
-//                firePotentialAttributesChanged();
+                firePotentialAttributesChanged();
             }
 
             public void synapseChanged(NetworkEvent<Synapse> networkEvent) {
                 setChangedSinceLastSave(true);
-//                firePotentialAttributesChanged();
+                firePotentialAttributesChanged();
             }
 
             public void synapseRemoved(NetworkEvent<Synapse> networkEvent) {
                 setChangedSinceLastSave(true);
-//                firePotentialAttributesChanged();
+                firePotentialAttributesChanged();
             }
 
             public void synapseTypeChanged(
@@ -468,6 +467,9 @@ public final class NetworkComponent extends WorkspaceComponent {
         for (Neuron neuron : network.getLooseNeurons()) {
             retList.addAll(super.getProducers(neuron));
         }
+        for (Group group: network.getFlatGroupList()) {
+            retList.addAll(super.getProducers(group));
+        }
         return retList;
     }
 
@@ -476,6 +478,9 @@ public final class NetworkComponent extends WorkspaceComponent {
         List<Consumer2<?>> retList = new ArrayList<>();
         for (Neuron neuron : network.getLooseNeurons()) {
             retList.addAll(super.getConsumers(neuron));
+        }
+        for (Group group: network.getFlatGroupList()) {
+            retList.addAll(super.getConsumers(group));
         }
         return retList;
     }

@@ -20,8 +20,17 @@ package org.simbrain.plot.histogram;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.simbrain.network.core.Neuron;
+import org.simbrain.network.groups.Group;
 import org.simbrain.plot.ChartListener;
+import org.simbrain.workspace.Consumer2;
 import org.simbrain.workspace.WorkspaceComponent;
 
 /**
@@ -34,13 +43,12 @@ public class HistogramComponent extends WorkspaceComponent {
     private HistogramModel model;
 
     /** Neuron group consumer type. */
-//    private AttributeType histogramConsumer;
+    // private AttributeType histogramConsumer;
 
     /**
      * Create new Histogram Component.
      *
-     * @param name
-     *            chart name
+     * @param name chart name
      */
     public HistogramComponent(final String name) {
         super(name);
@@ -53,10 +61,8 @@ public class HistogramComponent extends WorkspaceComponent {
      * Create new Histogram Component from a specified model. Used in
      * deserializing.
      *
-     * @param name
-     *            chart name
-     * @param model
-     *            chart model
+     * @param name chart name
+     * @param model chart model
      */
     public HistogramComponent(final String name, final HistogramModel model) {
         super(name);
@@ -70,9 +76,9 @@ public class HistogramComponent extends WorkspaceComponent {
      */
     private void init() {
 
-//        histogramConsumer = new AttributeType(this, "Histogram", "getValue",
-//                double[].class, true);
-//        addConsumerType(histogramConsumer);
+        // histogramConsumer = new AttributeType(this, "Histogram", "getValue",
+        // double[].class, true);
+        // addConsumerType(histogramConsumer);
 
     }
 
@@ -87,14 +93,14 @@ public class HistogramComponent extends WorkspaceComponent {
              * {@inheritDoc}
              */
             public void dataSourceAdded(final int index) {
-//                firePotentialAttributesChanged();
+                firePotentialAttributesChanged();
             }
 
             /**
              * {@inheritDoc}
              */
             public void dataSourceRemoved(final int index) {
-//                firePotentialAttributesChanged();
+                firePotentialAttributesChanged();
             }
 
             /**
@@ -123,12 +129,9 @@ public class HistogramComponent extends WorkspaceComponent {
     /**
      * Opens a saved bar chart.
      *
-     * @param input
-     *            stream
-     * @param name
-     *            name of file
-     * @param format
-     *            format
+     * @param input stream
+     * @param name name of file
+     * @param format format
      * @return bar chart component to be opened
      */
     public static HistogramComponent open(final InputStream input,
@@ -157,21 +160,30 @@ public class HistogramComponent extends WorkspaceComponent {
         return HistogramModel.getXStream().toXML(model);
     }
 
-//    @Override
-//    public List<PotentialConsumer> getPotentialConsumers() {
-//        List<PotentialConsumer> returnList = new ArrayList<PotentialConsumer>();
-//        if (histogramConsumer.isVisible()) {
-//            for (int i = 0; i < model.getData().size(); i++) {
-//                String description = "Histogram " + (i + 1);
-//                PotentialConsumer consumer = getAttributeManager()
-//                        .createPotentialConsumer(model, "addData",
-//                                new Class[] { double[].class, Integer.class },
-//                                new Object[] { i });
-//                consumer.setCustomDescription(description);
-//                returnList.add(consumer);
-//            }
-//        }
-//        return returnList;
-//    }
+    @Override
+    public List<Consumer2<?>> getConsumers() {
+        List<Consumer2<?>> retList = new ArrayList<>();
+        retList.addAll(super.getConsumers(model)); // vector coupling
+        // for (int i = 0; i < model.getData().size(); i++) {
+        //// String description = "Histogram " + (i + 1);
+        // }
+        return retList;
+    }
+    // @Override
+    // public List<PotentialConsumer> getPotentialConsumers() {
+    // List<PotentialConsumer> returnList = new ArrayList<PotentialConsumer>();
+    // if (histogramConsumer.isVisible()) {
+    // for (int i = 0; i < model.getData().size(); i++) {
+    // String description = "Histogram " + (i + 1);
+    // PotentialConsumer consumer = getAttributeManager()
+    // .createPotentialConsumer(model, "addData",
+    // new Class[] { double[].class, Integer.class },
+    // new Object[] { i });
+    // consumer.setCustomDescription(description);
+    // returnList.add(consumer);
+    // }
+    // }
+    // return returnList;
+    // }
 
 }
