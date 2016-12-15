@@ -30,6 +30,10 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.core.NeuronUpdateRule;
@@ -49,6 +53,7 @@ import org.simbrain.workspace.Producible;
  * Layers in feed-forward networks are neuron groups. Self-organizing-maps
  * subclass this class. Etc.
  */
+@XmlAccessorType(XmlAccessType.FIELD)
 public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
 
     /**
@@ -78,16 +83,23 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
     public static final Layout DEFAULT_LAYOUT = new LineLayout(50,
             LineOrientation.HORIZONTAL);
 
+    // @XmlJavaTypeAdapter(NeuronGroupAdapter.class)
+    // private byte[] byteData;
+
     /** The layout for the neurons in this group. */
+    // TODO: Get rid of layout objects
+    @XmlTransient
     private Layout layout = DEFAULT_LAYOUT;
 
     /** Set of incoming synapse groups. */
+    @XmlTransient
     private final HashSet<SynapseGroup> incomingSgs =
-            new HashSet<SynapseGroup>();
+    new HashSet<SynapseGroup>();
 
     /** Set of outgoing synapse groups. */
+    @XmlTransient
     private final HashSet<SynapseGroup> outgoingSgs =
-            new HashSet<SynapseGroup>();
+    new HashSet<SynapseGroup>();
 
     /**
      * In method setLayoutBasedOnSize, this is used as the threshold number of
@@ -868,7 +880,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
             if (dist <= radius && dist != 0) {
                 ret.add(potN);
             }
-         }
+        }
         return ret;
     }
 
@@ -1630,4 +1642,21 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
         }
         return null;
     }
+
+    // static class NeuronGroupAdapter
+    // extends XmlAdapter<NeuronGroup, byte[]> {
+    //
+    // @Override
+    // public byte[] unmarshal(NeuronGroup v) throws Exception {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
+    //
+    // @Override
+    // public NeuronGroup marshal(byte[] v) throws Exception {
+    // System.out.println("Hello!!!");
+    // return null;
+    // }
+    //
+    // }
 }

@@ -27,7 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 
 import org.simbrain.network.core.Network.TimeType;
 import org.simbrain.network.groups.Group;
@@ -47,6 +48,7 @@ import org.simbrain.workspace.Producible;
  * @author Zach Tosi
  *
  */
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Neuron {
 
     /**
@@ -132,6 +134,7 @@ public class Neuron {
      * The polarity of this neuron (excitatory, inhibitory, or none, which is
      * null).
      */
+    // @XmlTransient
     private Polarity polarity = Polarity.BOTH;
 
     /** Target value. */
@@ -279,8 +282,8 @@ public class Neuron {
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException(
                     "The provided neuron rule name, \"" + name
-                            + "\", does not correspond to a known neuron type."
-                            + "\n Could not find " + e.getMessage());
+                    + "\", does not correspond to a known neuron type."
+                    + "\n Could not find " + e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -986,7 +989,7 @@ public class Neuron {
     public void randomizeBias(double lower, double upper) {
         if (this.getUpdateRule() instanceof BiasedUpdateRule) {
             ((BiasedUpdateRule) this.getUpdateRule())
-                    .setBias((upper - lower) * Math.random() + lower);
+            .setBias((upper - lower) * Math.random() + lower);
         }
     }
 

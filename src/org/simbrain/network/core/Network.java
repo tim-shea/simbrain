@@ -75,7 +75,7 @@ public class Network {
     private final Set<Synapse> synapseList = new LinkedHashSet<Synapse>();
 
     /** Since groups span all levels of the hierarchy they are stored here. */
-    @XmlTransient // TODO
+    // @XmlTransient
     private final List<Group> groupList = new ArrayList<Group>();
 
     /** Text objects. */
@@ -119,17 +119,17 @@ public class Network {
     /** List of objects registered to observe general network events. */
     @XmlTransient
     private List<NetworkListener> networkListeners =
-            new ArrayList<NetworkListener>();
+    new ArrayList<NetworkListener>();
 
     /** List of objects registered to observe neuron-related network events. */
     @XmlTransient
     private List<NeuronListener> neuronListeners =
-            new ArrayList<NeuronListener>();
+    new ArrayList<NeuronListener>();
 
     /** List of objects registered to observe synapse-related network events. */
     @XmlTransient
     private List<SynapseListener> synapseListeners =
-            new ArrayList<SynapseListener>();
+    new ArrayList<SynapseListener>();
 
     /** List of objects registered to observe group-related network events. */
     @XmlTransient
@@ -197,8 +197,8 @@ public class Network {
      * Used to create an instance of network (Default constructor).
      */
     public Network() {
-    	name = "Network"+current_id;
-    	current_id++;
+        name = "Network"+current_id;
+        current_id++;
         updateManager = new NetworkUpdateManager(this);
         prioritySortedNeuronList = new ArrayList<Neuron>();
     }
@@ -208,23 +208,23 @@ public class Network {
      * function on each neuron, decays all the neurons, and checks their bounds.
      */
     public void update() {
-    	for (int i = 0, n = networkListeners.size(); i < n; i++) {
-    		networkListeners.get(i).setUpdateComplete(false);
-    	}
+        for (int i = 0, n = networkListeners.size(); i < n; i++) {
+            networkListeners.get(i).setUpdateComplete(false);
+        }
         // Perform update
-    	for (int i = 0, n = updateManager.getActionList().size(); i < n;
-    			i++) {
-    		updateManager.getActionList().get(i).invoke();
-    	}
+        for (int i = 0, n = updateManager.getActionList().size(); i < n;
+                i++) {
+            updateManager.getActionList().get(i).invoke();
+        }
 
-    	if (fireUpdates) {
-    	    // Fire update events for GUI update. Loose items, then groups.
-    	    fireSynapsesUpdated(synapseList); // Loose synapses
-    	    fireNeuronsUpdated(neuronList); // Loose neurons
-    	    for (int i = 0, n = groupList.size(); i < n; i++) {
-    	        fireGroupUpdated(groupList.get(i)); // Groups
-    	    }
-    	}
+        if (fireUpdates) {
+            // Fire update events for GUI update. Loose items, then groups.
+            fireSynapsesUpdated(synapseList); // Loose synapses
+            fireNeuronsUpdated(neuronList); // Loose neurons
+            for (int i = 0, n = groupList.size(); i < n; i++) {
+                fireGroupUpdated(groupList.get(i)); // Groups
+            }
+        }
 
         // Clear input nodes
         clearInputs();
@@ -924,24 +924,24 @@ public class Network {
      * @return the flat list
      */
     public List<Group> getFlatGroupListNoSubnets() {
-    	List<Group> groups = new ArrayList<Group>();
-    	for (Group g : groupList) {
-    		if (g instanceof Subnetwork) {
-    			List<NeuronGroup> ng = ((Subnetwork)g).getNeuronGroupList();
-    			List<SynapseGroup> sg = ((Subnetwork)g).getSynapseGroupList();
-    			if (!ng.isEmpty()) {
-    				groups.addAll(ng);
-    			}
-    			if (!sg.isEmpty()) {
-    				groups.addAll(sg);
-    			}
-    		} else {
-    			if (!g.isEmpty()) {
-    				groups.add(g);
-    			}
-    		}
-    	}
-    	return groups;
+        List<Group> groups = new ArrayList<Group>();
+        for (Group g : groupList) {
+            if (g instanceof Subnetwork) {
+                List<NeuronGroup> ng = ((Subnetwork)g).getNeuronGroupList();
+                List<SynapseGroup> sg = ((Subnetwork)g).getSynapseGroupList();
+                if (!ng.isEmpty()) {
+                    groups.addAll(ng);
+                }
+                if (!sg.isEmpty()) {
+                    groups.addAll(sg);
+                }
+            } else {
+                if (!g.isEmpty()) {
+                    groups.add(g);
+                }
+            }
+        }
+        return groups;
     }
 
     /**
@@ -1056,7 +1056,7 @@ public class Network {
      */
     private Object readResolve() {
 
-    	fireUpdates = true;
+        fireUpdates = true;
 
         // Initialize listener lists
         networkListeners = new ArrayList<NetworkListener>();
@@ -1139,17 +1139,17 @@ public class Network {
      *            the current time
      */
     public void setTime(final double i) {
-    	if (i < time) {
-    		for (Neuron n : this.getFlatNeuronList()) {
-    			NeuronUpdateRule nur = n.getUpdateRule();
-    			if (nur.isSpikingNeuron()) {
-    				SpikingNeuronUpdateRule snur =
-    						(SpikingNeuronUpdateRule) nur;
-    				double diff = i - (time - snur.getLastSpikeTime());
-    				snur.setLastSpikeTime(diff < 0 ? 0 : diff);
-    			}
-    		}
-    	}
+        if (i < time) {
+            for (Neuron n : this.getFlatNeuronList()) {
+                NeuronUpdateRule nur = n.getUpdateRule();
+                if (nur.isSpikingNeuron()) {
+                    SpikingNeuronUpdateRule snur =
+                            (SpikingNeuronUpdateRule) nur;
+                    double diff = i - (time - snur.getLastSpikeTime());
+                    snur.setLastSpikeTime(diff < 0 ? 0 : diff);
+                }
+            }
+        }
         time = i;
     }
 
@@ -1208,6 +1208,7 @@ public class Network {
      * Comparator for sorting neurons by update priority.
      */
     protected class PriorityComparator implements Comparator<Neuron> {
+        @Override
         public int compare(Neuron neuron1, Neuron neuron2) {
             Integer priority1 = neuron1.getUpdatePriority();
             Integer priority2 = neuron2.getUpdatePriority();
@@ -1263,9 +1264,9 @@ public class Network {
      *            the neurons whose state has changed
      */
     public void fireNeuronsUpdated(Collection<Neuron> neurons) {
-    	for (int i = 0, n = networkListeners.size(); i < n; i++) {
-    		networkListeners.get(i).updateNeurons(neurons);
-    	}
+        for (int i = 0, n = networkListeners.size(); i < n; i++) {
+            networkListeners.get(i).updateNeurons(neurons);
+        }
     }
 
     /**
@@ -1287,9 +1288,9 @@ public class Network {
      *            the synapses whose state has changed
      */
     public void fireSynapsesUpdated(Collection<Synapse> synapses) {
-    	for (int i = 0, n = networkListeners.size(); i < n; i++) {
-    		networkListeners.get(i).updateSynapses(synapses);
-    	}
+        for (int i = 0, n = networkListeners.size(); i < n; i++) {
+            networkListeners.get(i).updateSynapses(synapses);
+        }
     }
 
     /**
@@ -1535,10 +1536,10 @@ public class Network {
      * @param changeDescription A change of description for the group
      */
     public void fireGroupChanged(final Group group,
-    		final String changeDescription) {
+            final String changeDescription) {
         for (GroupListener listener : groupListeners) {
             listener.groupChanged(new NetworkEvent<Group>(this, group),
-            		changeDescription);
+                    changeDescription);
         }
     }
 
@@ -1918,11 +1919,11 @@ public class Network {
     }
 
     public String getName() {
-    	return name;
+        return name;
     }
 
     public void setName(String name) {
-    	this.name = name;
+        this.name = name;
     }
 
 }
