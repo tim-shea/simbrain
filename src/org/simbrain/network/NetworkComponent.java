@@ -477,10 +477,10 @@ public final class NetworkComponent extends WorkspaceComponent {
     public List<Consumer2<?>> getConsumers() {
         List<Consumer2<?>> retList = new ArrayList<>();
         for (Neuron neuron : network.getLooseNeurons()) {
-            retList.addAll(super.getConsumers(neuron));
+            retList.addAll(WorkspaceComponent.getConsumers(neuron));
         }
         for (Group group: network.getFlatGroupList()) {
-            retList.addAll(super.getConsumers(group));
+            retList.addAll(WorkspaceComponent.getConsumers(group));
         }
         return retList;
     }

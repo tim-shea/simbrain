@@ -163,7 +163,7 @@ public class HistogramComponent extends WorkspaceComponent {
     @Override
     public List<Consumer2<?>> getConsumers() {
         List<Consumer2<?>> retList = new ArrayList<>();
-        retList.addAll(super.getConsumers(model)); // vector coupling
+        retList.addAll(WorkspaceComponent.getConsumers(model)); // vector coupling
         // for (int i = 0; i < model.getData().size(); i++) {
         //// String description = "Histogram " + (i + 1);
         // }

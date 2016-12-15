@@ -10,7 +10,7 @@ public abstract class Attribute2 {
     private String description = "";
 
     Object[] keys;
-    
+
     public abstract Type getType();
 
     @Override
@@ -44,5 +44,19 @@ public abstract class Attribute2 {
      */
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    /**
+     * @return the baseObject
+     */
+    public Object getBaseObject() {
+        return baseObject;
+    }
+
+    /**
+     * @return the method
+     */
+    public Method getMethod() {
+        return method;
     }
 }

@@ -885,28 +885,24 @@ public abstract class WorkspaceComponent {
 
     // Helper
     // TODO: Rename to getProduersOnObject... to clarify it's a service / helper
-    public final List<Producer2<?>> getProducers(Object object) {
+    public static final List<Producer2<?>> getProducers(Object object) {
         List<Producer2<?>> returnList = new ArrayList<>();
         for (Method method : object.getClass().getMethods()) {
             if (method.getAnnotation(Producible.class) != null) {
                 Producer2<?> producer = new Producer2<>(object, method);
-                setCustomDescription(producer, object, method); // TODO: Can do
-                                                                // this just
-                                                                // with producer
+                setCustomDescription(producer);
                 returnList.add(producer);
             }
         }
         return returnList;
     }
 
-    public final List<Consumer2<?>> getConsumers(Object object) {
+    public static final List<Consumer2<?>> getConsumers(Object object) {
         List<Consumer2<?>> returnList = new ArrayList<>();
         for (Method method : object.getClass().getMethods()) {
             if (method.getAnnotation(Consumible.class) != null) {
                 Consumer2<?> consumer = new Consumer2<>(object, method);
-                setCustomDescription(consumer, object, method); // TODO: Can do
-                                                                // this just
-                                                                // with producer
+                setCustomDescription(consumer);
                 returnList.add(consumer);
             }
         }
@@ -918,27 +914,24 @@ public abstract class WorkspaceComponent {
      * specified in the annotation "customDescriptionMethod" field.
      *
      * @param attribute the attribute to check
-     * @param baseObject the base object of the method
-     * @param method the producible or consumible method
      */
-    private void setCustomDescription(Attribute2 attribute, Object baseObject,
-            Method method) {
+    private static void setCustomDescription(Attribute2 attribute) {
         String customDescriptionMethod = "";
         if (attribute instanceof Producer2) {
-            customDescriptionMethod = method.getAnnotation(Producible.class)
-                    .customDescriptionMethod();
+            customDescriptionMethod = attribute.getMethod()
+                    .getAnnotation(Producible.class).customDescriptionMethod();
 
         } else {
-            customDescriptionMethod = method.getAnnotation(Consumible.class)
-                    .customDescriptionMethod();
+            customDescriptionMethod = attribute.getMethod()
+                    .getAnnotation(Consumible.class).customDescriptionMethod();
         }
         if (!customDescriptionMethod.isEmpty()) {
             try {
                 // TODO: Think about below
-                Method descriptionMethod = baseObject.getClass()
+                Method descriptionMethod = attribute.getBaseObject().getClass()
                         .getMethod(customDescriptionMethod, null);
                 String customDescription = (String) descriptionMethod
-                        .invoke(baseObject, null);
+                        .invoke(attribute.getBaseObject(), null);
                 attribute.setDescription(customDescription);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -948,6 +941,8 @@ public abstract class WorkspaceComponent {
     }
 
     // Helpers to make consumers and producers
+    // TODO: These should call he annotation based methods or check for
+    // annotations
     public static Consumer2<?> getConsumer(Object object, String methodName) {
         try {
             Consumer2<?> ret = new Consumer2<>(object,
@@ -960,14 +955,14 @@ public abstract class WorkspaceComponent {
     }
 
     // Create a consumer that using a method name and a parameter signature
-    // TODO: A way to make this automatic?   See callers.  Also perhaps there
-    // is  a way to use annotations for this, or at least check they are there.
+    // TODO: A way to make this automatic? See callers. Also perhaps there
+    // is a way to use annotations for this, or at least check they are there.
     // See old cold
     public static Consumer2<?> getConsumer(Object object, String methodName,
             Class[] params) {
         try {
             Consumer2<?> ret = new Consumer2<>(object,
-                    object.getClass().getMethod(methodName,params));
+                    object.getClass().getMethod(methodName, params));
             return ret;
         } catch (NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
@@ -975,13 +970,12 @@ public abstract class WorkspaceComponent {
         return null;
     }
 
-    // Get a consumer that uses parameters and a fixed key. 
+    // Get a consumer that uses parameters and a fixed key.
     public static Consumer2<?> getConsumer(Object object, String methodName,
             Object key) {
         try {
             Consumer2<?> ret = new Consumer2<>(object,
-                    object.getClass().getMethod(methodName,
-                            new Class<?>[] { key.getClass() }),
+                    object.getClass().getMethod(methodName),
                     new Object[] { key });
             return ret;
         } catch (NoSuchMethodException | SecurityException e) {
