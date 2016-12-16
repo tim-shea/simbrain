@@ -122,10 +122,11 @@ public abstract class WorkspaceComponent {
      */
     public abstract void save(OutputStream output, String format);
 
-    // TEMP.  Override.
+    // TEMP. Override.
     public void save2(OutputStream output, String format) {
     };
-    //TODO: TEMP
+
+    // TODO: TEMP
     public void open2() {
     }
 
@@ -943,59 +944,34 @@ public abstract class WorkspaceComponent {
     }
 
     // Helpers to make consumers and producers
-    // TODO: These should call he annotation based methods or check for
-    // annotations
-    public static Consumer2<?> getConsumer(Object object, String methodName) {
-        try {
-            Consumer2<?> ret = new Consumer2<>(object,
-                    object.getClass().getMethod(methodName));
-            return ret;
-        } catch (NoSuchMethodException | SecurityException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     // Create a consumer that using a method name and a parameter signature
-    // TODO: A way to make this automatic? See callers. Also perhaps there
-    // is a way to use annotations for this, or at least check they are there.
-    // See old cold
-    public static Consumer2<?> getConsumer(Object object, String methodName,
-            Class[] params) {
-        try {
-            Consumer2<?> ret = new Consumer2<>(object,
-                    object.getClass().getMethod(methodName, params));
-            return ret;
-        } catch (NoSuchMethodException | SecurityException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public static Consumer2<?> getConsumer(Object object, String methodName) {
+        return getConsumers(object).stream().filter(
+                c -> c.getMethod().getName().equalsIgnoreCase(methodName))
+                .findFirst().get();
+    }
+
+    public static Producer2<?> getProducer(Object object, String methodName) {
+        return getProducers(object).stream().filter(
+                p -> p.getMethod().getName().equalsIgnoreCase(methodName))
+                .findFirst().get();
     }
 
     // Get a consumer that uses parameters and a fixed key.
     public static Consumer2<?> getConsumer(Object object, String methodName,
             Object key) {
-        try {
-            Consumer2<?> ret = new Consumer2<>(object,
-                    object.getClass().getMethod(methodName),
-                    new Object[] { key });
-            return ret;
-        } catch (NoSuchMethodException | SecurityException e) {
-            e.printStackTrace();
-        }
-        return null;
+        Consumer2<?> consumer = getConsumer(object, methodName);
+        consumer.key = key;
+        return consumer;
     }
 
-    public static Producer2<?> getProducer(Object object, String methodName) {
-        try {
-            Producer2<?> ret = new Producer2<>(object,
-                    object.getClass().getDeclaredMethod(methodName));
-            return ret;
-        } catch (NoSuchMethodException | SecurityException e) {
-            e.printStackTrace();
-        }
-        return null;
+    // TODO: This one not tested yet
+    public static Producer2<?> getProducer(Object object, String methodName,
+            Object key) {
+        Producer2<?> producer = getProducer(object, methodName);
+        producer.key = key;
+        return producer;
     }
-
 
 }

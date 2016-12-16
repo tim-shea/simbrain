@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -39,12 +40,6 @@ public class BarChartComponent extends WorkspaceComponent {
     /** Data model. */
     private BarChartModel model;
 
-    // /** Bar chart scalar consumer type (for one "bar"). */
-    // private AttributeType barChartConsumer;
-    //
-    // /** Bar chart vector consumer type (for all "bars" at once). */
-    // private AttributeType barChartVectorConsumer;
-
     /**
      * Create new BarChart Component.
      *
@@ -54,7 +49,6 @@ public class BarChartComponent extends WorkspaceComponent {
         super(name);
         model = new BarChartModel();
         model.defaultInit();
-        init();
         addListener();
     }
 
@@ -68,37 +62,7 @@ public class BarChartComponent extends WorkspaceComponent {
     public BarChartComponent(final String name, final BarChartModel model) {
         super(name);
         this.model = model;
-        init();
         addListener();
-    }
-
-    /**
-     * Initializes a jfreechart with specific number of data sources.
-     *
-     * @param name name of component
-     * @param numDataSources number of data sources to initialize plot with
-     */
-    public BarChartComponent(final String name, final int numDataSources) {
-        super(name);
-        model = new BarChartModel();
-        model.addDataSources(numDataSources);
-        init();
-        addListener();
-    }
-
-    /**
-     * Initialize component.
-     */
-    private void init() {
-
-        // barChartConsumer = new AttributeType(this, "Bar", "setValue",
-        // double.class, true);
-        // addConsumerType(barChartConsumer);
-        //
-        // barChartVectorConsumer = new AttributeType(this, "BarVector",
-        // double[].class, true);
-        // addConsumerType(barChartVectorConsumer);
-
     }
 
     /**
@@ -108,23 +72,17 @@ public class BarChartComponent extends WorkspaceComponent {
 
         model.addListener(new ChartListener() {
 
-            /**
-             * {@inheritDoc}
-             */
+            @Override
             public void dataSourceAdded(final int index) {
                 firePotentialAttributesChanged();
             }
 
-            /**
-             * {@inheritDoc}
-             */
+            @Override
             public void dataSourceRemoved(final int index) {
                 firePotentialAttributesChanged();
             }
 
-            /**
-             * {@inheritDoc}
-             */
+            @Override
             public void chartInitialized(int numSources) {
                 // No implementation yet (not used in this component thus far).
             }
@@ -195,79 +153,16 @@ public class BarChartComponent extends WorkspaceComponent {
     @Override
     public List<Consumer2<?>> getConsumers() {
         List<Consumer2<?>> retList = new ArrayList<>();
-        retList.addAll(WorkspaceComponent.getConsumers(model)); // Vector coupling
+        // Vector coupling
+        retList.add(WorkspaceComponent.getConsumer(model, "setBars"));
+        // Scalar couplings
         for (int i = 0; i < model.getDataset().getColumnCount(); i++) {
-            // TODO: Scalar Couplings
-            //retList.add(WorkspaceComponent.getConsumer(model, "setValue", i));
+            Consumer2<?> consumer = WorkspaceComponent.getConsumer(model,
+                    "setValue", i);
+            consumer.setDescription("Bar " + (i + 1));
+            retList.add(consumer);
         }
-        // String description = barChartConsumer
-        // .getSimpleDescription("Bar " + (i + 1));
-        // PotentialConsumer consumer = getAttributeManager()
-        // .createPotentialConsumer(model, "setValue",
-        // new Class[] { double.class, Integer.class },
-        // new Object[] { i });
-        // consumer.setCustomDescription(description);
-        // retList.add(consumer);
         return retList;
-    }
-
-    // @Override
-    // public List<PotentialConsumer> getPotentialConsumers() {
-    // List<PotentialConsumer> returnList = new ArrayList<PotentialConsumer>();
-    // if (barChartConsumer.isVisible()) {
-    // for (int i = 0; i < model.getDataset().getColumnCount(); i++) {
-    // String description = barChartConsumer
-    // .getSimpleDescription("Bar " + (i + 1));
-    // PotentialConsumer consumer = getAttributeManager()
-    // .createPotentialConsumer(model, "setValue",
-    // new Class[] { double.class, Integer.class },
-    // new Object[] { i });
-    // consumer.setCustomDescription(description);
-    // returnList.add(consumer);
-    // }
-    // }
-    // if (barChartVectorConsumer.isVisible()) {
-    // PotentialConsumer consumer = getAttributeManager()
-    // .createPotentialConsumer(model, "setBars", double[].class);
-    // consumer.setCustomDescription("Set bars");
-    // returnList.add(consumer);
-    // }
-    // return returnList;
-    // }
-
-    // TODO: Below is cruft!
-    /**
-     * Object which sets a value of one bar in a bar chart.
-     */
-    public class BarChartSetter {
-
-        /** Index. */
-        private int index;
-
-        /**
-         * Construct a setter object.
-         *
-         * @param index index of the bar to set
-         */
-        public BarChartSetter(final int index) {
-            this.index = index;
-        }
-
-        /**
-         * Set the value.
-         *
-         * @param val value for the bar
-         */
-        public void setValue(final double val) {
-            model.setValue(val, index);
-        }
-
-        /**
-         * @return the index
-         */
-        public int getIndex() {
-            return index;
-        }
     }
 
 }

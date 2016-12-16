@@ -20,12 +20,9 @@ package org.simbrain.plot.barchart;
 
 import java.awt.Color;
 import java.awt.EventQueue;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -101,7 +98,7 @@ public class BarChartModel extends ChartModel {
 
     /**
      * Adds a new column to the dataset.
-     * 
+     *
      * @param index
      */
     public void addColumn(final int index) {
@@ -140,20 +137,6 @@ public class BarChartModel extends ChartModel {
     public static XStream getXStream() {
         XStream xstream = ChartModel.getXStream();
         return xstream;
-    }
-
-    /**
-     * Set value of a specified bar.
-     *
-     * @param value value of bar
-     * @param index which bar value to set
-     */
-    public void setValue(final double value, final Integer index) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                getDataset().setValue(value, new Integer(1), index);
-            }
-        });
     }
 
     /**
@@ -261,6 +244,17 @@ public class BarChartModel extends ChartModel {
         for (int i = 0; i < input.length; i++) {
             getDataset().setValue((Number) input[i], new Integer(1), i);
         }
+    }
+
+    /**
+     * Set value of a specified bar.
+     *
+     * @param value value of bar
+     * @param index which bar value to set
+     */
+    @Consumible
+    public void setValue(final double value, final Integer index) {
+        getDataset().setValue(value, new Integer(1), index);
     }
 
     static class ChartDataAdapter

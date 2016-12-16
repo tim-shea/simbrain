@@ -11,14 +11,14 @@ public class Producer2<V> extends Attribute2 {
         this.method = method;
     }
 
-    public Producer2(Object baseObject, Method method, Object[] keys) {
-        this(baseObject, method);
-        this.keys = keys;
-    }
-
     V getValue() {
         try {
-            return (V) method.invoke(baseObject, keys);
+            if (key == null) {
+                return (V) method.invoke(baseObject);
+            } else {
+                // TODO: Not yet tested.
+                return (V) method.invoke(baseObject, new Object[] { key });
+            }
         } catch (IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             e.printStackTrace();

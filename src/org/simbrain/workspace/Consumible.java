@@ -7,8 +7,10 @@ import java.lang.annotation.Target;
 
 /**
  * Consumible annotation marks a method as a potential consumer for a coupling.
+ * These will generally be setters
  *
  * @author Tim Shea
+ * @author Jeff Yoshimi
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -17,7 +19,7 @@ public @interface Consumible {
     //TODO: Rename?
     /**
      * The name of a method that returns a customized description for this
-     * producible.
+     * producible. 
      */
     String customDescriptionMethod() default "";
 

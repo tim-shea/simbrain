@@ -5,21 +5,25 @@ import java.lang.reflect.Type;
 
 public abstract class Attribute2 {
 
-    Object baseObject;
-    Method method;
+    protected Object baseObject;
+    protected Method method;
     private String description = "";
 
-    Object[] keys;
+    /**
+     * For case where the getter or setter has an additional keyed argument,
+     * e.g. getValue(key) or setValue(value, key).
+     */
+    protected Object key;
 
     public abstract Type getType();
 
     @Override
     public String toString() {
 
-        //TODO: Not working
         String typeName;
-        if (getType().getClass().isArray()) {
-            typeName = "Array[" + getType().getClass().getComponentType() + "]";
+        if (((Class<?>) getType()).isArray()) {
+            typeName = "array[" + ((Class<?>) getType()).getComponentType()
+                    + "]";
         } else {
             typeName = getType().toString();
         }
@@ -28,8 +32,19 @@ public abstract class Attribute2 {
             description = baseObject.getClass().getSimpleName();
         }
 
-        return description + ":" + method.getName()
-                + "<" + typeName + ">";
+        return description + ":" + method.getName() + "<" + typeName + ">";
+    }
+
+    // TODO: Not tested yet
+    /**
+     * If the method requires a key to produce or consume a value, return true.
+     */
+    public boolean usesKey() {
+        if (this instanceof Producer2) {
+            return method.getParameterCount() > 0;
+        } else {
+            return method.getParameterCount() > 1;
+        }
     }
 
     /**
