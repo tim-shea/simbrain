@@ -33,14 +33,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.core.NeuronUpdateRule;
 import org.simbrain.network.core.Synapse;
-import org.simbrain.network.groups.SynapseGroup.SynapseGroupDataHolder;
 import org.simbrain.network.layouts.GridLayout;
 import org.simbrain.network.layouts.Layout;
 import org.simbrain.network.layouts.LineLayout;
@@ -92,7 +90,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
     private Layout layout = DEFAULT_LAYOUT;
 
     /** Set of incoming synapse groups. */
-    @XmlJavaTypeAdapter(SynapseGroupAdapter.class)
+    @XmlTransient
     private final HashSet<SynapseGroup> incomingSgs = new HashSet<SynapseGroup>();
 
     /** Set of outgoing synapse groups. */
@@ -163,8 +161,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
      */
     @Deprecated
     private int fileNum = 0;
-    
-    
+
     //TODO
     public NeuronGroup() {
         super(null);
@@ -1655,36 +1652,5 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
         return null;
     }
 
-    static class SynapseGroupAdapter
-    extends XmlAdapter<SynapseGroupDataHolder[], HashSet<SynapseGroup>> {
-
-        @Override
-        public HashSet<SynapseGroup> unmarshal(SynapseGroupDataHolder[] v)
-                throws Exception {
-            for (SynapseGroupDataHolder sgdh : v) {
-                // TODO: Move to network and implement
-                // SynapseGroup syngrp =
-                // SynapseGroup.reconstituteSynapseGroup(sgdh, source, target)
-            }
-
-            return null;
-        }
-
-        @Override
-        public SynapseGroupDataHolder[] marshal(HashSet<SynapseGroup> v)
-                throws Exception {
-            SynapseGroupDataHolder[] ret = new SynapseGroupDataHolder[v.size()];
-            int i = 0;
-            for (SynapseGroup sg : v) {
-                sg.preSaveInitFull();
-                ret[i] = new SynapseGroupDataHolder(sg.getSourceNeuronGroup()
-                        .getId(), sg.getTargetNeuronGroup().getId(),
-                        sg.getFullSynapseRep(), sg.getExcitatoryPrototype(),
-                        sg.getInhibitoryPrototype());
-                i++;
-            }
-            return ret;
-        }
-    }
 
 }

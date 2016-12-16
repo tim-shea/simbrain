@@ -27,10 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlTransient;
-
 import org.simbrain.network.connections.AllToAll;
 import org.simbrain.network.connections.ConnectNeurons;
 import org.simbrain.network.connections.ConnectionUtilities;
@@ -43,8 +39,7 @@ import org.simbrain.network.core.Synapse;
 import org.simbrain.network.core.SynapseUpdateRule;
 import org.simbrain.network.synapse_update_rules.StaticSynapseRule;
 import org.simbrain.network.synapse_update_rules.spikeresponders.SpikeResponder;
-import org.simbrain.network.util.io_utilities.GroupSerializer;
-import org.simbrain.network.util.io_utilities.GroupSerializer.Precision;
+import org.simbrain.network.util.io_utilities.GroupDeserializer;
 import org.simbrain.util.SimbrainConstants;
 import org.simbrain.util.SimbrainConstants.Polarity;
 import org.simbrain.util.Utils;
@@ -57,7 +52,6 @@ import org.simbrain.util.randomizer.PolarizedRandomizer;
  * @author Zach Tosi
  *
  */
-@XmlAccessorType(XmlAccessType.FIELD)
 public class SynapseGroup extends Group {
 
     /**
@@ -84,43 +78,37 @@ public class SynapseGroup extends Group {
     public static final ConnectNeurons DEFAULT_CONNECTION_MANAGER = new AllToAll();
 
     /** A set containing all the excitatory (wt > 0) synapses in the group. */
-    @XmlTransient
     private Set<Synapse> exSynapseSet = new HashSet<Synapse>();
 
     /** A set containing all the inhibitory (wt < 0) synapses in the group. */
-    @XmlTransient
     private Set<Synapse> inSynapseSet = new HashSet<Synapse>();
 
-    /**
-     * A temporary set containing all the excitatory synapses in the group. Used
-     * when saving synapse groups since the regular set is destroyed. If the
-     * group is going to continue being used after saving the values in this
-     * temporary holder are used to repopulate the excitatory synapse set.
-     */
-    @XmlTransient
-    private Set<Synapse> exTemp;
-
-    /**
-     * A temporary set containing all the inhibitory synapses in the group. Used
-     * when saving synapse groups since the regular set is destroyed. If the
-     * group is going to continue being used after saving the values in this
-     * temporary holder are used to repopulate the inhibitory synapse set.
-     */
-    @XmlTransient
-    private Set<Synapse> inTemp;
+//
+//    /**
+//     * A temporary set containing all the excitatory synapses in the group. Used
+//     * when saving synapse groups since the regular set is destroyed. If the
+//     * group is going to continue being used after saving the values in this
+//     * temporary holder are used to repopulate the excitatory synapse set.
+//     */
+//    private transient Set<Synapse> exTemp;
+//
+//    /**
+//     * A temporary set containing all the inhibitory synapses in the group. Used
+//     * when saving synapse groups since the regular set is destroyed. If the
+//     * group is going to continue being used after saving the values in this
+//     * temporary holder are used to repopulate the inhibitory synapse set.
+//     */
+//    private transient Set<Synapse> inTemp;
 
     /** Reference to source neuron group. */
-    @XmlTransient
     private final NeuronGroup sourceNeuronGroup;
 
     /** Reference to target neuron group. */
-    @XmlTransient
     private final NeuronGroup targetNeuronGroup;
 
     /**
      * The connect neurons object associated with this group.
      */
-    @XmlTransient
     // TODO redesign/figure out...
     private ConnectNeurons connectionManager;
 
@@ -142,7 +130,6 @@ public class SynapseGroup extends Group {
      * group will however attempt to get as close to this ratio as possible
      * without ever assigning a synapse to a source neuron of opposing polarity.
      */
-    @XmlTransient
     private double excitatoryRatio = DEFAULT_EXCITATORY_RATIO;
 
     /**
@@ -161,14 +148,12 @@ public class SynapseGroup extends Group {
      * The randomizer governing excitatory synapses. If null new synapses are
      * not randomized.
      */
-     @XmlTransient //TODO: For now
     private PolarizedRandomizer exciteRand;
 
     /**
      * The randomizer governing inhibitory synapses. If null new synapses are
      * not randomized.
      */
-     @XmlTransient //TODO: For now
     private PolarizedRandomizer inhibRand;
 
     /**
@@ -230,8 +215,7 @@ public class SynapseGroup extends Group {
      * group's weight matrix. If compression is on (i.e. group level settings
      * are on) it is populated just before saving. Else it is null.
      */
-    @XmlTransient
-    private byte[] compressedMatrixRep = null;
+    private transient byte[] compressedMatrixRep = null;
 
     /**
      * A byte-encoded representation of all relevant synapse parameters of all
@@ -375,7 +359,7 @@ public class SynapseGroup extends Group {
     private SynapseGroup(SynapseGroupDataHolder sgdh, final NeuronGroup source,
             final NeuronGroup target) {
         this(source, target);
-        this.fullSynapseRep = sgdh.fullrep;
+        this.fullSynapseRep = sgdh.compressedParams;
         this.excitatoryPrototype = sgdh.excPrototype;
         this.inhibitoryPrototype = sgdh.inhPrototype;
     }
@@ -530,15 +514,11 @@ public class SynapseGroup extends Group {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public int size() {
         return exSynapseSet.size() + inSynapseSet.size();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isEmpty() {
         return exSynapseSet.isEmpty() && inSynapseSet.isEmpty();
@@ -1919,92 +1899,94 @@ public class SynapseGroup extends Group {
         this.useFullRepOnSave = useFullRepOnSave;
     }
 
-    /**
-     * Perform operations required before saving a synapse group.
-     */
-    public void preSaveInit() {
-        if (isUseFullRepOnSave()) {
-            preSaveInitFull();
-            return;
-        }
-        if (isUseGroupLevelSettings()) {
-            long[] rowCompression = getRowCompressedMatrixRepresentation();
-            // long start = System.nanoTime();
-            // System.out.println("Begin Serialization... ");
-            compressedMatrixRep = GroupSerializer.rowCompMat2CompByteArray(
-                    rowCompression, Precision.FLOAT_32);
-            // long end = System.nanoTime();
-            // System.out.println("Serialization Time: "
-            // + SimbrainMath.roundDouble((end - start) / Math.pow(10, 9),
-            // 4) + " secs.");
-
-            // Don't explicitly save the synapses.
-            inTemp = inSynapseSet;
-            exTemp = exSynapseSet;
-            inSynapseSet = null;
-            exSynapseSet = null;
-
-        } else {
-            compressedMatrixRep = null;
-        }
-    }
+    // TODO: Temp
+    // /**
+    // * Perform operations required before saving a synapse group.
+    // */
+    // public void preSaveInit() {
+    // if (isUseFullRepOnSave()) {
+    // preSaveInitFull();
+    // return;
+    // }
+    // if (isUseGroupLevelSettings()) {
+    // long[] rowCompression = getRowCompressedMatrixRepresentation();
+    // // long start = System.nanoTime();
+    // // System.out.println("Begin Serialization... ");
+    // compressedMatrixRep = GroupSerializer.rowCompMat2CompByteArray(
+    // rowCompression, Precision.FLOAT_32);
+    // // long end = System.nanoTime();
+    // // System.out.println("Serialization Time: "
+    // // + SimbrainMath.roundDouble((end - start) / Math.pow(10, 9),
+    // // 4) + " secs.");
+    //
+    // // Don't explicitly save the synapses.
+    // inTemp = inSynapseSet;
+    // exTemp = exSynapseSet;
+    // inSynapseSet = null;
+    // exSynapseSet = null;
+    //
+    // } else {
+    // compressedMatrixRep = null;
+    // }
+    // }
 
     /**
      * The pre-save init to be used to save all relevant synapse parameters in
      * the byte array.
      */
-    public void preSaveInitFull() {
-//        Map<Neuron, Integer> srcMap = new HashMap<Neuron, Integer>(
-//                (int) (sourceNeuronGroup.size() / 0.75));
-//        Map<Neuron, Integer> tarMap = new HashMap<Neuron, Integer>(
-//                (int) (targetNeuronGroup.size() / 0.75));
-//        int i = 0;
-//        for (Neuron n : sourceNeuronGroup.getNeuronList()) {
-//            srcMap.put(n, i++);
-//        }
-//        i = 0;
-//        for (Neuron n : targetNeuronGroup.getNeuronList()) {
-//            tarMap.put(n, i++);
-//        }
-//        byte[][] synBytes = new byte[size()][];
-//        i = 0;
-//        int totalBytes = 0;
-//        for (Synapse s : this.getAllSynapses()) {
-//            byte[] synCode = s.getNumericValuesAsByteArray();
-//            ByteBuffer indices = ByteBuffer.allocate(8);
-//            indices.putInt(srcMap.get(s.getSource()).intValue());
-//            indices.putInt(tarMap.get(s.getTarget()).intValue());
-//            int index = synCode.length - 8;
-//            for (int j = index, n = synCode.length; j < n; j++) {
-//                synCode[j] = indices.array()[j - index];
-//            }
-//            synBytes[i++] = synCode;
-//            totalBytes += synCode.length;
-//        }
-//        ByteBuffer buff = ByteBuffer.allocate(totalBytes);
-//        for (byte[] synCodes : synBytes) {
-//            buff.put(synCodes);
-//        }
-//        fullSynapseRep = buff.array();
-//        inTemp = inSynapseSet;
-//        exTemp = exSynapseSet;
-//        inSynapseSet = null;
-//        exSynapseSet = null;
+    public void preSaveInit() {
+        Map<Neuron, Integer> srcMap = new HashMap<Neuron, Integer>(
+                (int) (sourceNeuronGroup.size() / 0.75));
+        Map<Neuron, Integer> tarMap = new HashMap<Neuron, Integer>(
+                (int) (targetNeuronGroup.size() / 0.75));
+        int i = 0;
+        for (Neuron n : sourceNeuronGroup.getNeuronList()) {
+            srcMap.put(n, i++);
+        }
+        i = 0;
+        for (Neuron n : targetNeuronGroup.getNeuronList()) {
+            tarMap.put(n, i++);
+        }
+        byte[][] synBytes = new byte[size()][];
+        i = 0;
+        int totalBytes = 0;
+        for (Synapse s : this.getAllSynapses()) {
+            byte[] synCode = s.getNumericValuesAsByteArray();
+            ByteBuffer indices = ByteBuffer.allocate(8);
+            indices.putInt(srcMap.get(s.getSource()).intValue());
+            indices.putInt(tarMap.get(s.getTarget()).intValue());
+            int index = synCode.length - 8;
+            for (int j = index, n = synCode.length; j < n; j++) {
+                synCode[j] = indices.array()[j - index];
+            }
+            synBytes[i++] = synCode;
+            totalBytes += synCode.length;
+        }
+        ByteBuffer buff = ByteBuffer.allocate(totalBytes);
+        for (byte[] synCodes : synBytes) {
+            buff.put(synCodes);
+        }
+        fullSynapseRep = buff.array();
+        //TODO
+        // inTemp = inSynapseSet;
+        // exTemp = exSynapseSet;
+        // inSynapseSet = null;
+        // exSynapseSet = null;
     }
 
-    /**
-     * A post initialization which must be done if the user wants to save the
-     * network, but continue using the network after saving (since the saving
-     * process sets the synapse sets to null.
-     */
-    public void postSaveReInit() {
-        if (isUseGroupLevelSettings()) {
-            inSynapseSet = inTemp;
-            exSynapseSet = exTemp;
-            inTemp = null;
-            exTemp = null;
-        }
-    }
+//    /**
+//     * A post initialization which must be done if the user wants to save the
+//     * network, but continue using the network after saving (since the saving
+//     * process sets the synapse sets to null.
+//     */
+//    public void postSaveReInit() {
+//        if (isUseGroupLevelSettings()) {
+//            inSynapseSet = inTemp;
+//            exSynapseSet = exTemp;
+//            inTemp = null;
+//            exTemp = null;
+//        }
+//    }
 
     /**
      * Returns the full representation of the synapse group as a byte array with
@@ -2026,71 +2008,70 @@ public class SynapseGroup extends Group {
      */
     public void postUnmarshallingInit() {
 
-        // TODO
-        // // Rebuild weight matrix if needed.
-        // if (this.isUseGroupLevelSettings() && compressedMatrixRep != null) {
-        // exSynapseSet = new HashSet<Synapse>();
-        // inSynapseSet = new HashSet<Synapse>();
-        // GroupDeserializer.reconstructCompressedSynapseStrengths(
-        // this.compressedMatrixRep, this);
-        // this.compressedMatrixRep = null;
-        // setAndConformToTemplate(excitatoryPrototype, Polarity.EXCITATORY);
-        // setAndConformToTemplate(inhibitoryPrototype, Polarity.INHIBITORY);
-        // } else if (fullSynapseRep != null) {
-        // exSynapseSet = new HashSet<Synapse>();
-        // inSynapseSet = new HashSet<Synapse>();
-        // Map<Integer, Neuron> srcMap = new HashMap<Integer, Neuron>(
-        // (int) (sourceNeuronGroup.size() / 0.75));
-        // Map<Integer, Neuron> tarMap = new HashMap<Integer, Neuron>(
-        // (int) (targetNeuronGroup.size() / 0.75));
-        // int i = 0;
-        // for (Neuron n : sourceNeuronGroup.getNeuronList()) {
-        // srcMap.put(i++, n);
-        // }
-        // i = 0;
-        // for (Neuron n : targetNeuronGroup.getNeuronList()) {
-        // tarMap.put(i++, n);
-        // }
-        // ByteBuffer bigBuff = ByteBuffer.wrap(fullSynapseRep);
-        // while (bigBuff.hasRemaining()) {
-        // int delay = bigBuff.getInt();
-        // int codeBuffSize = 20 + (delay * 8) + 4 + 1;
-        // ByteBuffer codeBuff = ByteBuffer.allocate(codeBuffSize);
-        // codeBuff.putInt(delay);
-        // byte [] data = new byte[codeBuffSize - 4];
-        // bigBuff.get(data);
-        // codeBuff.put(data);
-        // Neuron src = srcMap.get(bigBuff.getInt());
-        // Neuron tar = tarMap.get(bigBuff.getInt());
-        // Synapse s = new Synapse(src, tar);
-        // s.decodeNumericByteArray(ByteBuffer.wrap(codeBuff.array()));
-        // addSynapseUnsafe(s);
-        // }
-        // setIncrement(excitatoryPrototype.getIncrement(),
-        // Polarity.EXCITATORY);
-        // setLearningRule(excitatoryPrototype.getLearningRule(),
-        // Polarity.EXCITATORY);
-        // setSpikeResponder(excitatoryPrototype.getSpikeResponder(),
-        // Polarity.EXCITATORY);
-        // setLowerBound(excitatoryPrototype.getLowerBound(),
-        // Polarity.EXCITATORY);
-        // setUpperBound(excitatoryPrototype.getUpperBound(),
-        // Polarity.EXCITATORY);
-        // setIncrement(inhibitoryPrototype.getIncrement(),
-        // Polarity.INHIBITORY);
-        // setLearningRule(inhibitoryPrototype.getLearningRule(),
-        // Polarity.INHIBITORY);
-        // setSpikeResponder(inhibitoryPrototype.getSpikeResponder(),
-        // Polarity.INHIBITORY);
-        // setLowerBound(inhibitoryPrototype.getLowerBound(),
-        // Polarity.INHIBITORY);
-        // setUpperBound(inhibitoryPrototype.getUpperBound(),
-        // Polarity.INHIBITORY);
-        // fullSynapseRep = null;
-        // } else {
-
-        for (Synapse synapse : this.getAllSynapses()) {
-            synapse.postUnmarshallingInit();
+        // Rebuild weight matrix if needed.
+        if (this.isUseGroupLevelSettings() && compressedMatrixRep != null) {
+            exSynapseSet = new HashSet<Synapse>();
+            inSynapseSet = new HashSet<Synapse>();
+            GroupDeserializer.reconstructCompressedSynapseStrengths(
+                    this.compressedMatrixRep, this);
+            this.compressedMatrixRep = null;
+            setAndConformToTemplate(excitatoryPrototype, Polarity.EXCITATORY);
+            setAndConformToTemplate(inhibitoryPrototype, Polarity.INHIBITORY);
+        } else if (fullSynapseRep != null) {
+            exSynapseSet = new HashSet<Synapse>();
+            inSynapseSet = new HashSet<Synapse>();
+            Map<Integer, Neuron> srcMap = new HashMap<Integer, Neuron>(
+                    (int) (sourceNeuronGroup.size() / 0.75));
+            Map<Integer, Neuron> tarMap = new HashMap<Integer, Neuron>(
+                    (int) (targetNeuronGroup.size() / 0.75));
+            int i = 0;
+            for (Neuron n : sourceNeuronGroup.getNeuronList()) {
+                srcMap.put(i++, n);
+            }
+            i = 0;
+            for (Neuron n : targetNeuronGroup.getNeuronList()) {
+                tarMap.put(i++, n);
+            }
+            ByteBuffer bigBuff = ByteBuffer.wrap(fullSynapseRep);
+            while (bigBuff.hasRemaining()) {
+                int delay = bigBuff.getInt();
+                int codeBuffSize = 20 + (delay * 8) + 4 + 1;
+                ByteBuffer codeBuff = ByteBuffer.allocate(codeBuffSize);
+                codeBuff.putInt(delay);
+                byte[] data = new byte[codeBuffSize - 4];
+                bigBuff.get(data);
+                codeBuff.put(data);
+                Neuron src = srcMap.get(bigBuff.getInt());
+                Neuron tar = tarMap.get(bigBuff.getInt());
+                Synapse s = new Synapse(src, tar);
+                s.decodeNumericByteArray(ByteBuffer.wrap(codeBuff.array()));
+                addSynapseUnsafe(s);
+            }
+            setIncrement(excitatoryPrototype.getIncrement(),
+                    Polarity.EXCITATORY);
+            setLearningRule(excitatoryPrototype.getLearningRule(),
+                    Polarity.EXCITATORY);
+            setSpikeResponder(excitatoryPrototype.getSpikeResponder(),
+                    Polarity.EXCITATORY);
+            setLowerBound(excitatoryPrototype.getLowerBound(),
+                    Polarity.EXCITATORY);
+            setUpperBound(excitatoryPrototype.getUpperBound(),
+                    Polarity.EXCITATORY);
+            setIncrement(inhibitoryPrototype.getIncrement(),
+                    Polarity.INHIBITORY);
+            setLearningRule(inhibitoryPrototype.getLearningRule(),
+                    Polarity.INHIBITORY);
+            setSpikeResponder(inhibitoryPrototype.getSpikeResponder(),
+                    Polarity.INHIBITORY);
+            setLowerBound(inhibitoryPrototype.getLowerBound(),
+                    Polarity.INHIBITORY);
+            setUpperBound(inhibitoryPrototype.getUpperBound(),
+                    Polarity.INHIBITORY);
+            fullSynapseRep = null;
+        } else {
+            for (Synapse synapse : this.getAllSynapses()) {
+                synapse.postUnmarshallingInit();
+            }
         }
 
         if (connectionManager instanceof Sparse) {
@@ -2106,16 +2087,16 @@ public class SynapseGroup extends Group {
     public static class SynapseGroupDataHolder {
         public final String srcID;
         public final String tarID;
-        public final byte[] fullrep;
+        public final byte[] compressedParams;
         public final Synapse excPrototype;
         public final Synapse inhPrototype;
 
         public SynapseGroupDataHolder(final String srcID, final String tarID,
-                final byte[] fullrep, final Synapse excPrototype,
+                final byte[] compressedParams, final Synapse excPrototype,
                 final Synapse inhPrototype) {
             this.srcID = srcID;
             this.tarID = tarID;
-            this.fullrep = fullrep;
+            this.compressedParams = compressedParams;
             this.excPrototype = excPrototype;
             this.inhPrototype = inhPrototype;
         }

@@ -189,7 +189,7 @@ public class NetworkPanel extends JPanel {
     private Network network;
 
     /** The Network hierarchy panel. */
-    private NetworkHierarchyPanel networkHierarchyPanel;
+    //private NetworkHierarchyPanel networkHierarchyPanel;
 
     /** Main splitter pane: network in middle, hierarchy on left. */
     private JSplitPane splitPane;
@@ -2744,24 +2744,24 @@ public class NetworkPanel extends JPanel {
         }
     }
 
-    /**
-     * Set the visibility of the hiearchy panel.
-     *
-     * @param showIt whether it should be visible or not
-     */
-    public void setHierarchyPanelVisible(boolean showIt) {
-        this.showNetworkHierarchyPanel = showIt;
-        actionManager.getShowNetworkHierarchyPanel().setState(
-            showNetworkHierarchyPanel);
-        if (!showNetworkHierarchyPanel) {
-            splitPane.setLeftComponent(null);
-            splitPane.setDividerSize(0);
-        } else {
-            splitPane.setLeftComponent(networkHierarchyPanel);
-            splitPane.setDividerSize(4);
-        }
-        networkHierarchyPanel.setVisible(showNetworkHierarchyPanel);
-    }
+//    /**
+//     * Set the visibility of the hiearchy panel.
+//     *
+//     * @param showIt whether it should be visible or not
+//     */
+//    public void setHierarchyPanelVisible(boolean showIt) {
+//        this.showNetworkHierarchyPanel = showIt;
+//        actionManager.getShowNetworkHierarchyPanel().setState(
+//            showNetworkHierarchyPanel);
+//        if (!showNetworkHierarchyPanel) {
+//            splitPane.setLeftComponent(null);
+//            splitPane.setDividerSize(0);
+//        } else {
+//            splitPane.setLeftComponent(networkHierarchyPanel);
+//            splitPane.setDividerSize(4);
+//        }
+//        //networkHierarchyPanel.setVisible(showNetworkHierarchyPanel);
+//    }
 
     /**
      * @return the prioritiesVisible

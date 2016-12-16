@@ -447,9 +447,7 @@ public final class NetworkComponent extends WorkspaceComponent {
 
     @Override
     public void save(final OutputStream output, final String format) {
-        network.preSaveInit();
         Network.getXStream().toXML(network, output);
-        network.postSaveReInit();
     }
 
     /**
@@ -503,7 +501,6 @@ public final class NetworkComponent extends WorkspaceComponent {
     //TODO: Temp
     @Override
     public void save2(OutputStream output, String format) {
-        network.preSaveInit(); //TODO: Check!
         JAXBContext jc;
         try {
             jc = JAXBContext.newInstance(Network.class);
@@ -514,7 +511,6 @@ public final class NetworkComponent extends WorkspaceComponent {
         } catch (JAXBException e) {
             e.printStackTrace();
         }
-        network.postSaveReInit(); // TODOs
     }
 
 
