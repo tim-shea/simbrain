@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.simbrain.network.core.Network.TimeType;
@@ -74,6 +74,7 @@ public class Neuron {
     private NeuronUpdateRule updateRule;
 
     /** A unique id for this neuron. */
+    @XmlID
     private String id;
 
     /** An optional String description associated with this neuron. */
@@ -164,6 +165,11 @@ public class Neuron {
      */
     private double auxValue;
 
+    //TODO
+    public Neuron(){
+        this.parent = null;
+    };
+    
     /**
      * Construct a neuron with all default values in the specified network.
      * Sometimes used as the basis for a template neuron which will be edited
@@ -237,6 +243,7 @@ public class Neuron {
      * parent network has been added.
      */
     public void postUnmarshallingInit() {
+        
         fanOut = new HashMap<Neuron, Synapse>();
         fanIn = new ArrayList<Synapse>();
         if (polarity == null) {
@@ -1167,5 +1174,4 @@ public class Neuron {
     public double getLastActivation() {
         return lastActivation;
     }
-
 }

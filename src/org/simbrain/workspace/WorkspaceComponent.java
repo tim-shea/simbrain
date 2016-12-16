@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.simbrain.plot.barchart.BarChartModel;
 import org.simbrain.workspace.gui.ComponentPanel;
 import org.simbrain.workspace.gui.GuiComponent;
 
@@ -126,6 +125,9 @@ public abstract class WorkspaceComponent {
     // TEMP.  Override.
     public void save2(OutputStream output, String format) {
     };
+    //TODO: TEMP
+    public void open2() {
+    }
 
     /**
      * Returns a list of the formats that this component supports.
@@ -994,5 +996,6 @@ public abstract class WorkspaceComponent {
         }
         return null;
     }
+
 
 }

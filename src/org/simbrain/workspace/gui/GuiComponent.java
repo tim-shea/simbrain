@@ -165,6 +165,7 @@ public abstract class GuiComponent<E extends WorkspaceComponent> extends JPanel 
         File theFile = chooser.showOpenDialog();
         if (theFile != null) {
             try {
+                //TODO: Why is this stuff here?
                 Rectangle bounds = this.getParentFrame().getBounds();
                 Workspace workspace = workspaceComponent.getWorkspace();
                 workspace.removeWorkspaceComponent(workspaceComponent);
@@ -433,5 +434,7 @@ public abstract class GuiComponent<E extends WorkspaceComponent> extends JPanel 
             SimbrainPreferences.putString("workspaceBaseDirectory", dir);
         }
     }
+
+
 
 }

@@ -26,6 +26,8 @@ import java.util.Properties;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.simbrain.network.groups.SynapseGroup;
@@ -45,6 +47,9 @@ import org.simbrain.util.Utils;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Synapse {
+
+    /** Synapse id. */
+    private String id = "";
 
     /** A default update rule for the synapse. */
     private static final SynapseUpdateRule DEFAULT_LEARNING_RULE = new StaticSynapseRule();
@@ -66,22 +71,23 @@ public class Synapse {
     private Network parentNetwork;
 
     /** Neuron activation will come from. */
+    @XmlIDREF
     private Neuron source;
 
     /** Neuron to which the synapse is attached. */
+    @XmlIDREF
     private Neuron target;
 
     /**
      * The update method of this synapse, which corresponds to what kind of
      * synapse it is.
      */
+    @XmlTransient //TODO
     private SynapseUpdateRule learningRule = DEFAULT_LEARNING_RULE;
 
     /** Only used of source neuron is a spiking neuron. */
+    @XmlTransient //TODO
     private SpikeResponder spikeResponder = DEFAULT_SPIKE_RESPONDER;
-
-    /** Synapse id. */
-    private String id = "";
 
     /** The maximum number of digits to display in the tool tip. */
     private static final int MAX_DIGITS = 2;
@@ -155,6 +161,13 @@ public class Synapse {
 
         }
 
+    }
+    
+    //TODO
+    public Synapse() {
+        this.target = null;
+        this.source = null;
+        this.isTemplate = false;
     }
 
     /**

@@ -18,7 +18,10 @@
  */
 package org.simbrain.network.core;
 
+import javax.xml.bind.annotation.XmlSeeAlso;
+
 import org.simbrain.network.core.Network.TimeType;
+import org.simbrain.network.neuron_update_rules.LinearRule;
 import org.simbrain.network.neuron_update_rules.interfaces.BoundedUpdateRule;
 import org.simbrain.util.Utils;
 
@@ -27,6 +30,7 @@ import org.simbrain.util.Utils;
  *
  * @author jyoshimi
  */
+@XmlSeeAlso({ LinearRule.class })
 public abstract class NeuronUpdateRule {
 
     /**

@@ -26,8 +26,7 @@ import org.simbrain.network.core.Network;
  * <b>Group</b>: a logical group of neurons and / or synapses. Its gui
  * representation is {@link org.simbrain.network.gui.nodes.GroupNode}.
  */
-@XmlSeeAlso({ NeuronGroup.class })
-// , SynapseGroup.class, Subnetwork.class })
+@XmlSeeAlso({ NeuronGroup.class, SynapseGroup.class, Subnetwork.class })
 public abstract class Group {
 
     /** Reference to the network this group is a part of. */

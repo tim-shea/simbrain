@@ -18,6 +18,10 @@
  */
 package org.simbrain.network.neuron_update_rules;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.simbrain.network.core.Network.TimeType;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.core.NeuronUpdateRule;
@@ -31,6 +35,7 @@ import org.simbrain.util.randomizer.Randomizer;
 /**
  * <b>LinearNeuron</b> is a standard linear neuron.
  */
+@XmlAccessorType(XmlAccessType.FIELD)
 public class LinearRule extends NeuronUpdateRule implements BiasedUpdateRule,
     DifferentiableUpdateRule, BoundedUpdateRule, ClippableUpdateRule,
     NoisyUpdateRule {

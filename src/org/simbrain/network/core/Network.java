@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -71,7 +72,6 @@ public class Network {
     private final List<Neuron> neuronList = new ArrayList<Neuron>();
 
     /** Array list of synapses. */
-    @XmlTransient //TODO
     private final Set<Synapse> synapseList = new LinkedHashSet<Synapse>();
 
     /** Since groups span all levels of the hierarchy they are stored here. */
@@ -82,6 +82,7 @@ public class Network {
             new ArrayList<NetworkTextObject>();
 
     /** The update manager for this network. */
+    @XmlTransient
     private NetworkUpdateManager updateManager;
 
     /** The initial time-step for the network. */
@@ -139,6 +140,7 @@ public class Network {
     private List<TextListener> textListeners = new ArrayList<TextListener>();
 
     /** Whether network has been updated yet; used by thread. */
+    @XmlTransient
     private AtomicBoolean updateCompleted = new AtomicBoolean(false);
 
     /**
@@ -153,12 +155,15 @@ public class Network {
     private PriorityComparator priorityComparator = new PriorityComparator();
 
     /** Neuron Id generator. */
+    @XmlTransient
     private SimpleId neuronIdGenerator = new SimpleId("Neuron", 1);
 
     /** Synapse Id generator. */
+    @XmlTransient
     private SimpleId synapseIdGenerator = new SimpleId("Synapse", 1);
 
     /** Group Id generator. */
+    @XmlTransient
     private SimpleId groupIdGenerator = new SimpleId("Group", 1);
 
     /**
@@ -1070,6 +1075,7 @@ public class Network {
         // Initialize neurons
         for (Neuron neuron : this.getFlatNeuronList()) {
             neuron.postUnmarshallingInit();
+            // TODO: set parent ref? 
         }
 
         // Uncompress compressed matrix rep if needed
@@ -1924,5 +1930,18 @@ public class Network {
     public void setName(String name) {
         this.name = name;
     }
+    
+    //TODO: 
+    
+    void beforeUnmarshal(Unmarshaller u, Object network) {
+        // network is null
+        System.out.println("Before");       
+    }
+    
+    void afterUnmarshal(Unmarshaller u, Object network) {
+        // network is not null
+        readResolve();
+        System.out.println("After");       
+      }
 
 }

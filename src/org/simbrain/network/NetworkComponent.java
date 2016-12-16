@@ -17,6 +17,7 @@
  */
 package org.simbrain.network;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
@@ -498,17 +500,38 @@ public final class NetworkComponent extends WorkspaceComponent {
         return retList;
     }
 
+    //TODO: Temp
     @Override
     public void save2(OutputStream output, String format) {
+        network.preSaveInit(); //TODO: Check!
         JAXBContext jc;
         try {
             jc = JAXBContext.newInstance(Network.class);
             Marshaller marshaller = jc.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(this.getNetwork(), new File("jaxb_test.xml"));
             marshaller.marshal(this.getNetwork(), System.out);
         } catch (JAXBException e) {
             e.printStackTrace();
         }
+        network.postSaveReInit(); // TODOs
     }
+
+
+    @Override
+    public void open2() {
+        //TODO: Hard-coded test for now
+        File file = new File("jaxb_test.xml");
+        Unmarshaller jaxbUnmarshaller;
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(Network.class);
+            jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            Network network = (Network) jaxbUnmarshaller.unmarshal(file);
+            System.out.println(network);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }

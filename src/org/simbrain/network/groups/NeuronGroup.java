@@ -163,6 +163,12 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
      */
     @Deprecated
     private int fileNum = 0;
+    
+    
+    //TODO
+    public NeuronGroup() {
+        super(null);
+    }
 
     /**
      * Construct a new neuron group from a list of neurons.
@@ -1647,23 +1653,6 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
             }
         }
         return null;
-    }
-
-    // Adapt from X to Y; Value (jaxb can handle, e.g. a string) adapted to
-    // Bound (jaxb can't deal)
-    // Make these on a per field basis
-    static class ByteArrayAdapter extends XmlAdapter<String, byte[]> {
-
-        @Override
-        public byte[] unmarshal(String v) throws Exception {
-            return null;
-        }
-
-        @Override
-        public String marshal(byte[] v) throws Exception {
-            return "Hello!";
-        }
-
     }
 
     static class SynapseGroupAdapter
