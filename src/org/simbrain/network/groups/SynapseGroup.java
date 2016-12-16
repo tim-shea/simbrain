@@ -27,10 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlID;
-import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.simbrain.network.connections.AllToAll;
@@ -60,7 +56,7 @@ import org.simbrain.util.randomizer.PolarizedRandomizer;
  * @author Zach Tosi
  *
  */
-@XmlAccessorType(XmlAccessType.FIELD)
+// @XmlAccessorType(XmlAccessType.FIELD)
 public class SynapseGroup extends Group {
 
     /**
@@ -88,9 +84,11 @@ public class SynapseGroup extends Group {
             new AllToAll();
 
     /** A set containing all the excitatory (wt > 0) synapses in the group. */
+    @XmlTransient
     private Set<Synapse> exSynapseSet = new HashSet<Synapse>();
 
     /** A set containing all the inhibitory (wt < 0) synapses in the group. */
+    @XmlTransient
     private Set<Synapse> inSynapseSet = new HashSet<Synapse>();
 
     /**
@@ -123,6 +121,7 @@ public class SynapseGroup extends Group {
      * The connect neurons object associated with this group.
      */
     @XmlTransient
+    // TODO redesign/figure out...
     private ConnectNeurons connectionManager;
 
     /**
@@ -143,6 +142,7 @@ public class SynapseGroup extends Group {
      * group will however attempt to get as close to this ratio as possible
      * without ever assigning a synapse to a source neuron of opposing polarity.
      */
+    @XmlTransient
     private double excitatoryRatio = DEFAULT_EXCITATORY_RATIO;
 
     /**
@@ -161,14 +161,14 @@ public class SynapseGroup extends Group {
      * The randomizer governing excitatory synapses. If null new synapses are
      * not randomized.
      */
-    @XmlTransient  //TODO: For now
+    // @XmlTransient //TODO: For now
     private PolarizedRandomizer exciteRand;
 
     /**
      * The randomizer governing inhibitory synapses. If null new synapses are
      * not randomized.
      */
-    @XmlTransient  //TODO: For now
+    // @XmlTransient //TODO: For now
     private PolarizedRandomizer inhibRand;
 
     /**
@@ -230,6 +230,7 @@ public class SynapseGroup extends Group {
      * group's weight matrix. If compression is on (i.e. group level settings
      * are on) it is populated just before saving. Else it is null.
      */
+    @XmlTransient
     private byte[] compressedMatrixRep = null;
 
     /**
@@ -243,7 +244,7 @@ public class SynapseGroup extends Group {
     private byte [] fullSynapseRep = null;
 
     /** Whether or not to use the compressed rep or the full rep. */
-    private boolean useFullRepOnSave = false;
+    private boolean useFullRepOnSave = true;
 
     /**
      * Completely creates a synapse group between the two neuron groups with all
@@ -339,6 +340,14 @@ public class SynapseGroup extends Group {
         return synGroup;
     }
 
+    public static SynapseGroup reconstituteSynapseGroup(
+            SynapseGroupDataHolder sgdh, final NeuronGroup source,
+            final NeuronGroup target) {
+        SynapseGroup syngrp = new SynapseGroup(sgdh, source, target);
+        syngrp.postUnmarshallingInit();
+        return syngrp;
+    }
+
     /**
      * Creates a blank synapse group between a source and target neuron group
      * using the default connection manager. Until {@link #makeConnections()} is
@@ -355,6 +364,14 @@ public class SynapseGroup extends Group {
         this.targetNeuronGroup = target;
         recurrent = testRecurrent();
         initializeSynapseVisibility();
+    }
+
+    private SynapseGroup(SynapseGroupDataHolder sgdh, final NeuronGroup source,
+            final NeuronGroup target) {
+        this(source, target);
+        this.fullSynapseRep = sgdh.fullrep;
+        this.excitatoryPrototype = sgdh.excPrototype;
+        this.inhibitoryPrototype = sgdh.inhPrototype;
     }
 
     /**
@@ -466,10 +483,11 @@ public class SynapseGroup extends Group {
      * Update group. Override for special updating. Recommended that overrides
      * call super.update() some time during the custom update.
      */
+    @Override
     public void update() {
         if (useGroupLevelSettings) {
             if (!exStatic) { // Only iterate if excitatory synapses aren't
-                             // static
+                // static
                 // Assuming they're not static, only iterate if they aren't
                 // frozen.
                 if (!isFrozen(Polarity.EXCITATORY)) {
@@ -478,7 +496,7 @@ public class SynapseGroup extends Group {
             }
 
             if (!inStatic) { // Only iterate if inhibitory synapses aren't
-                             // static
+                // static
                 // Assuming they're not static, only iterate if they aren't
                 // frozen.
                 if (!isFrozen(Polarity.INHIBITORY)) {
@@ -510,6 +528,7 @@ public class SynapseGroup extends Group {
     }
 
     /** {@inheritDoc} */
+    @Override
     public int size() {
         return exSynapseSet.size() + inSynapseSet.size();
     }
@@ -988,7 +1007,7 @@ public class SynapseGroup extends Group {
 
     //TODO: Consider putting some of the below methods or part of their bodies
     // into SimbrainMath or Utils
-    
+
     /**
      * For large, sparse synapse groups this will cause a heap overflow. Use
      * {@link #getRowCompressedMatrixRepresentation()} instead.
@@ -999,7 +1018,7 @@ public class SynapseGroup extends Group {
     public double[][] getWeightMatrix() {
         double[][] weightMatrix =
                 new double[getSourceNeurons().size()][getTargetNeurons()
-                        .size()];
+                                                      .size()];
         int i = 0;
         int j = 0;
         // Create numbers for neurons... less expensive than constant
@@ -1025,7 +1044,7 @@ public class SynapseGroup extends Group {
         }
         return weightMatrix;
     }
-    
+
     /**
      * A more compressed version of a weight matrix for cases where a weight
      * matrix is needed, but may cause memory issues if fully instantiated. Eg,
@@ -1034,7 +1053,7 @@ public class SynapseGroup extends Group {
      * synapses and a number of columns equal to 3. Each row contains the
      * the source index number, the target index number, and the strength in
      * that order. This array is then sorted by source index then target index.
-     * Ex:  
+     * Ex:
      *      1   2   .9
      *      0   3   5.3
      *      0   1   -.1
@@ -1063,7 +1082,7 @@ public class SynapseGroup extends Group {
         }
         // Put each synapse strength into a table [i, j, w], where i is the
         // source neuron index in a weight matrix, j is the target index and
-        // w is the synapse strength. 
+        // w is the synapse strength.
         int k = 0;
         for (Synapse s : getAllSynapses()) {
             pairs[k++] = new double[] { sourceMap.get(s.getSource()),
@@ -1093,7 +1112,7 @@ public class SynapseGroup extends Group {
         Arrays.sort(pairs, rowColOrderer);
         return pairs;
     }
-    
+
     /**
      * A more compressed version of a weight matrix for cases where a weight
      * matrix is needed, but may cause memory issues if fully instantiated. Eg,
@@ -1102,7 +1121,7 @@ public class SynapseGroup extends Group {
      * synapses and a number of columns equal to 3. Each row contains the
      * the source index number, the target index number, and the strength in
      * that order. This array is then sorted by source index then target index.
-     * Ex:  
+     * Ex:
      *      1   2   .9
      *      0   3   5.3
      *      0   1   -.1
@@ -1131,7 +1150,7 @@ public class SynapseGroup extends Group {
         }
         // Put each synapse strength into a table [i, j, w], where i is the
         // source neuron index in a weight matrix, j is the target index and
-        // w is the synapse strength. 
+        // w is the synapse strength.
         int k = 0;
         for (Synapse s : getAllSynapses()) {
             pairs[k++] = new Number[] { sourceMap.get(s.getSource()),
@@ -1195,15 +1214,15 @@ public class SynapseGroup extends Group {
     /**
      * Saves the synapse group to a file in linked list format which can be
      * read by most graph analysis software, in particular as of 6/27/2015
-     * the author is aware of both OSLOM and Infomap which can interpret the 
-     * linked list format. 
-     * 
+     * the author is aware of both OSLOM and Infomap which can interpret the
+     * linked list format.
+     *
      * Format is as follows:
      * source index    target index    weight
-     * 
+     *
      * By default ".dat" is appended to the given filename since .dat is the
      * standard extension for linked lists.
-     * 
+     *
      * @param filename the name to be given to the file
      */
     public void saveToFileAsLinkedList(String filename) {
@@ -1223,7 +1242,7 @@ public class SynapseGroup extends Group {
             System.out.println("Synapse group linked-list write failed.");
         }
     }
-    
+
     /**
      * See: {@link #saveToFileAsLinkedList(String)}
      * Uses the default name which is: label + date & time
@@ -1231,7 +1250,7 @@ public class SynapseGroup extends Group {
     public void saveToFileAsLinkedList() {
         saveToFileAsLinkedList(getLabel() + "_" + Utils.getTimeString());
     }
-    
+
     /**
      * Saves the weight matrix represented by this synapse group to a file.
      * @param filename the name of the file to be used
@@ -1241,7 +1260,7 @@ public class SynapseGroup extends Group {
     public void saveToFileAsMatrix(String filename) throws OutOfMemoryError {
         try (FileWriter fw = new FileWriter(filename);
                 PrintWriter pw = new PrintWriter(fw);)
-        {
+                {
             double [][] wtMat = getWeightMatrix();
             for (double [] row : wtMat) {
                 for (double col : row) {
@@ -1249,11 +1268,11 @@ public class SynapseGroup extends Group {
                 }
                 pw.println();
             }
-        } catch (IOException ie) {
-            System.err.println("Failed to save Synapse Group " + getLabel()
-                    + " as matrix. File IO issue.");
-            ie.printStackTrace();
-        }
+                } catch (IOException ie) {
+                    System.err.println("Failed to save Synapse Group " + getLabel()
+                            + " as matrix. File IO issue.");
+                    ie.printStackTrace();
+                }
     }
 
     /**
@@ -1371,7 +1390,7 @@ public class SynapseGroup extends Group {
     }
 
     /**
-     * @param excitatoryRandomizer 
+     * @param excitatoryRandomizer
      * @param inhibitoryRandomizer
      */
     public void setRandomizers(PolarizedRandomizer excitatoryRandomizer,
@@ -1515,7 +1534,7 @@ public class SynapseGroup extends Group {
     /**
      *
      * @param template the set synapse template
-     * @param polarity 
+     * @param polarity
      */
     public void setAndConformToTemplate(Synapse template, Polarity polarity) {
         setDelay(template.getDelay(), polarity);
@@ -1998,6 +2017,21 @@ public class SynapseGroup extends Group {
     }
 
     /**
+     * Returns the full representation of the synapse group as a byte array with
+     * all relevant synapse parameters, but no plasticity or spike responder
+     * information if it exists.
+     *
+     * This function DOES NOT create the byte array representation it only
+     * returns a reference to it.
+     *
+     * @return the representation of all synapse data (except spike responder
+     *         and learning rule) as a byte array if it exists.
+     */
+    public byte[] getFullSynapseRep() {
+        return fullSynapseRep;
+    }
+
+    /**
      * Perform operations required after opening a synapse group.
      */
     public void postUnmarshallingInit() {
@@ -2072,6 +2106,29 @@ public class SynapseGroup extends Group {
         }
     }
 
+    /**
+     *
+     * @author ztosi
+     *
+     */
+    public static class SynapseGroupDataHolder {
+        public final String srcID;
+        public final String tarID;
+        public final byte[] fullrep;
+        public final Synapse excPrototype;
+        public final Synapse inhPrototype;
+
+        public SynapseGroupDataHolder(final String srcID, final String tarID,
+                final byte[] fullrep, final Synapse excPrototype,
+                final Synapse inhPrototype) {
+            this.srcID = srcID;
+            this.tarID = tarID;
+            this.fullrep = fullrep;
+            this.excPrototype = excPrototype;
+            this.inhPrototype = inhPrototype;
+        }
+
+    }
 
 
 }
