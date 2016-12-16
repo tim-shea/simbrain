@@ -201,7 +201,7 @@ public class Synapse {
 
     /**
      * Construct a synapse using a source and target neuron, and a specified
-     * learning rule and parent network
+     * learning rule and parent network.
      *
      * @param newParent new parent network for this synapse.
      * @param source source neuron

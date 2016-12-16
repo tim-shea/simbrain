@@ -1,6 +1,7 @@
 package org.simbrain.custom;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.simbrain.custom.actor_critic.ActorCritic;
@@ -89,6 +90,7 @@ public abstract class RegisteredSimulation {
      */
     public abstract RegisteredSimulation instantiate(SimbrainDesktop desktop);
 
+
     /**
      * Add a registered simulation to this list of available registered
      * simulations.
@@ -100,10 +102,11 @@ public abstract class RegisteredSimulation {
     public static void register(RegisteredSimulation rs) {
         if (!REGISTERED_SIMS.contains(rs)) {
             REGISTERED_SIMS.add(rs);
+
             // Alphabetize
-            REGISTERED_SIMS.sort((RegisteredSimulation o1,
-                    RegisteredSimulation o2) -> o1.getName()
-                    .compareTo(o2.getName()));
+            REGISTERED_SIMS
+                    .sort(Comparator.comparing(RegisteredSimulation::getName));
+
         }
     }
 
