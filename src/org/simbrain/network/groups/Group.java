@@ -30,10 +30,10 @@ import org.simbrain.network.core.Network;
 public abstract class Group {
 
     /** Reference to the network this group is a part of. */
-    private final Network parentNetwork;
+    private Network parentNetwork;
 
     /** Name of this group. */
-    private String id;
+    protected String id;
 
     /** Name of this group. Null strings lead to default labeling conventions. */
     private String label;
@@ -51,6 +51,10 @@ public abstract class Group {
     /** Flag which prevents infinite loops when deleting composite groups. */
     private boolean markedForDeletion = false;
 
+    //TODO
+    public Group() {    
+    }
+    
     /**
      * Parent group of this group, or null if it has none. For group types which
      * have a hierarchy of groups.

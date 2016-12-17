@@ -101,10 +101,18 @@ public class SynapseGroup extends Group {
 //    private transient Set<Synapse> inTemp;
 
     /** Reference to source neuron group. */
-    private final NeuronGroup sourceNeuronGroup;
+    private NeuronGroup sourceNeuronGroup;
 
     /** Reference to target neuron group. */
-    private final NeuronGroup targetNeuronGroup;
+    private NeuronGroup targetNeuronGroup;
+    
+    //TODO
+    private String srcId;
+    private String tarId;
+
+    // TODO
+    public SynapseGroup() {
+    }
 
     /**
      * The connect neurons object associated with this group.
@@ -230,13 +238,6 @@ public class SynapseGroup extends Group {
     /** Whether or not to use the compressed rep or the full rep. */
     private boolean useFullRepOnSave = true;
 
-    // TODO
-    public SynapseGroup() {
-        super(null);
-        this.targetNeuronGroup = null;
-        this.sourceNeuronGroup = null;
-    }
-
     /**
      * Completely creates a synapse group between the two neuron groups with all
      * default parameters. This method creates the individual connections.
@@ -330,14 +331,6 @@ public class SynapseGroup extends Group {
         return synGroup;
     }
 
-    public static SynapseGroup reconstituteSynapseGroup(
-            SynapseGroupDataHolder sgdh, final NeuronGroup source,
-            final NeuronGroup target) {
-        SynapseGroup syngrp = new SynapseGroup(sgdh, source, target);
-        syngrp.postUnmarshallingInit();
-        return syngrp;
-    }
-
     /**
      * Creates a blank synapse group between a source and target neuron group
      * using the default connection manager. Until {@link #makeConnections()} is
@@ -356,12 +349,14 @@ public class SynapseGroup extends Group {
         initializeSynapseVisibility();
     }
 
-    private SynapseGroup(SynapseGroupDataHolder sgdh, final NeuronGroup source,
-            final NeuronGroup target) {
-        this(source, target);
+    //TODO
+    public SynapseGroup(SynapseGroupDataHolder sgdh) {
+        this.id = sgdh.id;
         this.fullSynapseRep = sgdh.compressedParams;
         this.excitatoryPrototype = sgdh.excPrototype;
         this.inhibitoryPrototype = sgdh.inhPrototype;
+        this.srcId = sgdh.srcID;
+        this.tarId = sgdh.tarID;
     }
 
     /**
@@ -2078,6 +2073,8 @@ public class SynapseGroup extends Group {
             ((Sparse) connectionManager).setPermitDensityEditing(false);
         }
     }
+    
+    //TODO
 
     /**
      *
@@ -2085,15 +2082,20 @@ public class SynapseGroup extends Group {
      *
      */
     public static class SynapseGroupDataHolder {
-        public final String srcID;
-        public final String tarID;
-        public final byte[] compressedParams;
-        public final Synapse excPrototype;
-        public final Synapse inhPrototype;
+        public String id;
+        public String srcID;
+        public String tarID;
+        public byte[] compressedParams;
+        public Synapse excPrototype;
+        public Synapse inhPrototype;
+        
+        public SynapseGroupDataHolder() {
+        }
 
-        public SynapseGroupDataHolder(final String srcID, final String tarID,
+        public SynapseGroupDataHolder(final String id, final String srcID, final String tarID,
                 final byte[] compressedParams, final Synapse excPrototype,
                 final Synapse inhPrototype) {
+            this.id = id;
             this.srcID = srcID;
             this.tarID = tarID;
             this.compressedParams = compressedParams;
@@ -2101,6 +2103,11 @@ public class SynapseGroup extends Group {
             this.inhPrototype = inhPrototype;
         }
 
+    }
+
+    public void initNeuronGroups(Network network) {
+        sourceNeuronGroup = (NeuronGroup) network.getGroup(srcId);
+        targetNeuronGroup = (NeuronGroup) network.getGroup(tarId);
     }
 
 }

@@ -436,13 +436,22 @@ public final class NetworkComponent extends WorkspaceComponent {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    //TODO
     public static NetworkComponent open(final InputStream input,
             final String name, final String format) {
-        Network newNetwork = (Network) Network.getXStream().fromXML(input);
-        return new NetworkComponent(name, newNetwork);
+//        Network newNetwork = (Network) Network.getXStream().fromXML(input);
+//        return new NetworkComponent(name, newNetwork);
+        Unmarshaller jaxbUnmarshaller;
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(Network.class);
+            jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            Network network = (Network) jaxbUnmarshaller.unmarshal(input);
+            System.out.println(network);
+            return new NetworkComponent(name, network);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

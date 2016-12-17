@@ -166,6 +166,7 @@ public class Network {
     @XmlTransient
     private SimpleId synapseIdGenerator = new SimpleId("Synapse", 1);
 
+    //TOOD: Separate IDs for different lists
     /** Group Id generator. */
     @XmlTransient
     private SimpleId groupIdGenerator = new SimpleId("Group", 1);
@@ -391,6 +392,7 @@ public class Network {
         return null;
     }
 
+    //TODO: Rewrite given multiple lists
     /**
      * Find a group with a given string id.
      *
@@ -1014,8 +1016,9 @@ public class Network {
         }
 
         // Uncompress compressed matrix rep if needed
-        for (SynapseGroup group : this.getSynapseGroups()) {
-            group.postUnmarshallingInit();
+        for (SynapseGroup sg : this.getSynapseGroups()) {
+            sg.initNeuronGroups(this);
+            sg.postUnmarshallingInit();
         }
 
         // Re-populate fan-in / fan-out for loose synapses
@@ -1815,14 +1818,11 @@ public class Network {
         @Override
         public List<SynapseGroup> unmarshal(SynapseGroupDataHolder[] v)
                 throws Exception {
+            List<SynapseGroup> sgl = new ArrayList<>();
             for (SynapseGroupDataHolder sgdh : v) {
-                
-                // TODO: Move to network and implement
-                // SynapseGroup syngrp =
-                // SynapseGroup.reconstituteSynapseGroup(sgdh, source, target)
+                sgl.add(new SynapseGroup(sgdh));
             }
-
-            return null;
+            return sgl;
         }
 
         @Override
@@ -1833,6 +1833,7 @@ public class Network {
             for (SynapseGroup sg : v) {
                 sg.preSaveInit();
                 ret[i] = new SynapseGroupDataHolder(
+                        sg.getId(),
                         sg.getSourceNeuronGroup().getId(),
                         sg.getTargetNeuronGroup().getId(),
                         sg.getFullSynapseRep(), sg.getExcitatoryPrototype(),
