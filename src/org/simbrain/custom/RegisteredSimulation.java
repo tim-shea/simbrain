@@ -41,9 +41,10 @@ public abstract class RegisteredSimulation {
         REGISTERED_SIMS.add(new Cerebellum());
         REGISTERED_SIMS.add(new AgentTrails());
         REGISTERED_SIMS.add(new ActorCritic());
-        REGISTERED_SIMS.sort((RegisteredSimulation o1,
-                RegisteredSimulation o2) -> o1.getName()
-                .compareTo(o2.getName()));
+        // Alphabetize
+        REGISTERED_SIMS
+                .sort(Comparator.comparing(RegisteredSimulation::getName));
+
     }
 
     /** The main simulation object. */
