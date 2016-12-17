@@ -74,9 +74,9 @@ public class Coupling2<T> {
         nc.getNetwork().addGroup(group1);
         nc.getNetwork().addGroup(group2);
 
-        Producer2 group1Producer = WorkspaceComponent.getProducers(group1)
+        Producer2 group1Producer = nc.getProducers(group1)
                 .get(0);
-        Consumer2 group2Consumer = WorkspaceComponent.getConsumers(group2)
+        Consumer2 group2Consumer = nc.getConsumers(group2)
                 .get(0);
 
         System.out.println("Before" + Arrays.toString(group1.getActivations()));

@@ -6,7 +6,8 @@ import java.lang.reflect.Type;
 
 public class Producer2<V> extends Attribute2 {
 
-    public Producer2(Object baseObject, Method method) {
+    public Producer2(WorkspaceComponent wc, Object baseObject, Method method) {
+        this.parentComponent = wc;
         this.baseObject = baseObject;
         this.method = method;
     }

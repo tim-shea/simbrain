@@ -293,10 +293,10 @@ public class NetworkPanelDesktop extends NetworkPanel {
         Workspace workspace = component.getWorkspaceComponent().getWorkspace();
         if (getSelectedNeurons().size() == 1) {
             contextMenu.addSeparator();
-            Producer2 producer = WorkspaceComponent.getProducer(neuron,
-                    "getActivation");
-            Consumer2 consumer = NetworkComponent.getConsumer(neuron,
-                    "setInputValue");
+            Producer2 producer = component.getWorkspaceComponent()
+                    .getProducer(neuron, "getActivation");
+            Consumer2 consumer = component.getWorkspaceComponent()
+                    .getConsumer(neuron, "setInputValue");
             JMenu producerMenu = new CouplingMenuProducer(
                     "Send Scalar Coupling to", workspace, producer);
             contextMenu.add(producerMenu);

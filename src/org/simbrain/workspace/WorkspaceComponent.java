@@ -888,11 +888,11 @@ public abstract class WorkspaceComponent {
 
     // Helper
     // TODO: Rename to getProduersOnObject... to clarify it's a service / helper
-    public static final List<Producer2<?>> getProducers(Object object) {
+    public final List<Producer2<?>> getProducers(Object object) {
         List<Producer2<?>> returnList = new ArrayList<>();
         for (Method method : object.getClass().getMethods()) {
             if (method.getAnnotation(Producible.class) != null) {
-                Producer2<?> producer = new Producer2<>(object, method);
+                Producer2<?> producer = new Producer2<>(this, object, method);
                 setCustomDescription(producer);
                 returnList.add(producer);
             }
@@ -900,11 +900,11 @@ public abstract class WorkspaceComponent {
         return returnList;
     }
 
-    public static final List<Consumer2<?>> getConsumers(Object object) {
+    public final List<Consumer2<?>> getConsumers(Object object) {
         List<Consumer2<?>> returnList = new ArrayList<>();
         for (Method method : object.getClass().getMethods()) {
             if (method.getAnnotation(Consumible.class) != null) {
-                Consumer2<?> consumer = new Consumer2<>(object, method);
+                Consumer2<?> consumer = new Consumer2<>(this, object, method);
                 setCustomDescription(consumer);
                 returnList.add(consumer);
             }
@@ -944,22 +944,23 @@ public abstract class WorkspaceComponent {
     }
 
     // Helpers to make consumers and producers
+    // TODO: Change names to not overlap get/setconusmers?
 
     // Create a consumer that using a method name and a parameter signature
-    public static Consumer2<?> getConsumer(Object object, String methodName) {
+    public Consumer2<?> getConsumer(Object object, String methodName) {
         return getConsumers(object).stream().filter(
                 c -> c.getMethod().getName().equalsIgnoreCase(methodName))
                 .findFirst().get();
     }
 
-    public static Producer2<?> getProducer(Object object, String methodName) {
+    public Producer2<?> getProducer(Object object, String methodName) {
         return getProducers(object).stream().filter(
                 p -> p.getMethod().getName().equalsIgnoreCase(methodName))
                 .findFirst().get();
     }
 
     // Get a consumer that uses parameters and a fixed key.
-    public static Consumer2<?> getConsumer(Object object, String methodName,
+    public Consumer2<?> getConsumer(Object object, String methodName,
             Object key) {
         Consumer2<?> consumer = getConsumer(object, methodName);
         consumer.key = key;
@@ -967,11 +968,23 @@ public abstract class WorkspaceComponent {
     }
 
     // TODO: This one not tested yet
-    public static Producer2<?> getProducer(Object object, String methodName,
+    public Producer2<?> getProducer(Object object, String methodName,
             Object key) {
         Producer2<?> producer = getProducer(object, methodName);
         producer.key = key;
         return producer;
+    }
+
+    public Consumer2<?> findConsumer(String description) {
+        return getConsumers().stream()
+                .filter(p -> p.toString().equalsIgnoreCase(description))
+                .findAny().get();
+    }
+
+    public Producer2<?> findProducer(String description) {
+        return getProducers().stream()
+                .filter(p -> p.toString().equalsIgnoreCase(description))
+                .findAny().get();
     }
 
 }

@@ -29,7 +29,6 @@ import org.simbrain.workspace.updater.UpdateAction;
 import org.simbrain.workspace.updater.UpdateActionCustom;
 import org.simbrain.workspace.updater.UpdateAllBuffered;
 import org.simbrain.workspace.updater.UpdateComponent;
-import org.simbrain.workspace.updater.WorkspaceUpdater;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -455,11 +454,11 @@ class ArchiveContents {
      */
     static final class ArchivedCoupling {
 
-//        /** The source attribute for the coupling. */
-//        private final ArchivedAttribute archivedProducer;
-//
-//        /** The target attribute for the coupling. */
-//        private final ArchivedAttribute archivedConsumer;
+        /** The source attribute for the coupling. */
+        private final ArchivedAttribute archivedProducer;
+
+        /** The target attribute for the coupling. */
+        private final ArchivedAttribute archivedConsumer;
 
         /**
          * Creates a new instance.
@@ -467,28 +466,28 @@ class ArchiveContents {
          * @param parent The parent archive.
          * @param coupling The coupling this instance represents.
          */
-//        ArchivedCoupling(final ArchiveContents parent,
-//                final org.simbrain.workspace.Coupling<?> coupling) {
-//
-//            this.archivedProducer = new ArchivedAttribute(parent,
-//                    coupling.getProducer());
-//            this.archivedConsumer = new ArchivedAttribute(parent,
-//                    coupling.getConsumer());
-//        }
+        ArchivedCoupling(final ArchiveContents parent,
+                final Coupling2<?> coupling) {
 
-//        /**
-//         * @return the archivedProducer
-//         */
-//        public ArchivedAttribute getArchivedProducer() {
-//            return archivedProducer;
-//        }
-//
-//        /**
-//         * @return the archivedConsumer
-//         */
-//        public ArchivedAttribute getArchivedConsumer() {
-//            return archivedConsumer;
-//        }
+            this.archivedProducer = new ArchivedAttribute(parent,
+                    coupling.producer);
+            this.archivedConsumer = new ArchivedAttribute(parent,
+                    coupling.consumer);
+        }
+
+        /**
+         * @return the archivedProducer
+         */
+        public ArchivedAttribute getArchivedProducer() {
+            return archivedProducer;
+        }
+
+        /**
+         * @return the archivedConsumer
+         */
+        public ArchivedAttribute getArchivedConsumer() {
+            return archivedConsumer;
+        }
 
     }
 
@@ -502,24 +501,26 @@ class ArchiveContents {
 
         /** The uri for the parent component of this attribute. */
         private final String parentComponentRef;
+        
+        private final String attributeId;
 
-        /** The key that the component uses to identify the base object. */
-        private final String baseObjectKey;
-
-        /** The key that the component uses to identify the method name. */
-        private final String methodBaseName;
-
-        /** Key for data type. */
-        private final Class<?> dataType;
-
-        /** Argument data types. */
-        private Class<?>[] argumentDataTypes;
-
-        /** Argument values. */
-        private Object[] argumentValues;
-
-        /** Description. */
-        private final String description;
+//        /** The key that the component uses to identify the base object. */
+//        private final String baseObjectKey;
+//
+//        /** The key that the component uses to identify the method name. */
+//        private final String methodBaseName;
+//
+//        /** Key for data type. */
+//        private final Class<?> dataType;
+//
+//        /** Argument data types. */
+//        private Class<?>[] argumentDataTypes;
+//
+//        /** Argument values. */
+//        private Object[] argumentValues;
+//
+//        /** Description. */
+//        private final String description;
 
         /**
          * Creates a new instance.
@@ -528,17 +529,21 @@ class ArchiveContents {
          * @param attribute The attribute this instance represents.
          */
         ArchivedAttribute(final ArchiveContents parent,
-                final Attribute attribute) {
+                final Attribute2 attribute) {
 
-            WorkspaceComponent comp = attribute.getParentComponent();
-            this.parentComponentRef = parent.componentUris.get(comp);
-            this.baseObjectKey = comp.getKeyFromObject(attribute
-                    .getBaseObject());
-            this.methodBaseName = attribute.getMethodName();
-            this.argumentDataTypes = attribute.getArgumentDataTypes();
-            this.argumentValues = attribute.getArgumentValues();
-            this.dataType = attribute.getDataType();
-            this.description = attribute.getDescription();
+            this.parentComponentRef = parent.componentUris
+                    .get(attribute.parentComponent);
+            this.attributeId = attribute.getId();
+
+//            WorkspaceComponent comp = attribute.getParentComponent();
+//            this.parentComponentRef = parent.componentUris.get(comp);
+//            this.baseObjectKey = comp.getKeyFromObject(attribute
+//                    .getBaseObject());
+//            this.methodBaseName = attribute.getMethodName();
+//            this.argumentDataTypes = attribute.getArgumentDataTypes();
+//            this.argumentValues = attribute.getArgumentValues();
+//            this.dataType = attribute.getDataType();
+//            this.description = attribute.getDescription();
 
         }
 
@@ -556,47 +561,48 @@ class ArchiveContents {
             return parentComponentRef;
         }
 
-        /**
-         * @return the baseObjectKey
-         */
-        public String getBaseObjectKey() {
-            return baseObjectKey;
-        }
-
-        /**
-         * @return the methodBaseName
-         */
-        public String getMethodBaseName() {
-            return methodBaseName;
-        }
-
-        /**
-         * @return the dataType
-         */
-        public Class<?> getDataType() {
-            return dataType;
-        }
-
-        /**
-         * @return the description
-         */
-        public String getDescription() {
-            return description;
-        }
-
-        /**
-         * @return the argumentDataTypes
-         */
-        public Class<?>[] getArgumentDataTypes() {
-            return argumentDataTypes;
-        }
-
-        /**
-         * @return the argumentValues
-         */
-        public Object[] getArgumentValues() {
-            return argumentValues;
-        }
+        //TODO
+//        /**
+//         * @return the baseObjectKey
+//         */
+//        public String getBaseObjectKey() {
+//            return baseObjectKey;
+//        }
+//
+//        /**
+//         * @return the methodBaseName
+//         */
+//        public String getMethodBaseName() {
+//            return methodBaseName;
+//        }
+//
+//        /**
+//         * @return the dataType
+//         */
+//        public Class<?> getDataType() {
+//            return dataType;
+//        }
+//
+//        /**
+//         * @return the description
+//         */
+//        public String getDescription() {
+//            return description;
+//        }
+//
+//        /**
+//         * @return the argumentDataTypes
+//         */
+//        public Class<?>[] getArgumentDataTypes() {
+//            return argumentDataTypes;
+//        }
+//
+//        /**
+//         * @return the argumentValues
+//         */
+//        public Object[] getArgumentValues() {
+//            return argumentValues;
+//        }
     }
 
     /**

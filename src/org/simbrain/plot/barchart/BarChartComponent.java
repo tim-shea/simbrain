@@ -154,10 +154,10 @@ public class BarChartComponent extends WorkspaceComponent {
     public List<Consumer2<?>> getConsumers() {
         List<Consumer2<?>> retList = new ArrayList<>();
         // Vector coupling
-        retList.add(WorkspaceComponent.getConsumer(model, "setBars"));
+        retList.add(super.getConsumer(model, "setBars"));
         // Scalar couplings
         for (int i = 0; i < model.getDataset().getColumnCount(); i++) {
-            Consumer2<?> consumer = WorkspaceComponent.getConsumer(model,
+            Consumer2<?> consumer = super.getConsumer(model,
                     "setValue", i);
             consumer.setDescription("Bar " + (i + 1));
             retList.add(consumer);

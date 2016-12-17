@@ -7,7 +7,8 @@ import java.util.Arrays;
 
 public class Consumer2<V> extends Attribute2 {
 
-    public Consumer2(Object baseObject, Method method) {
+    public Consumer2(WorkspaceComponent wc, Object baseObject, Method method) {
+        this.parentComponent = wc;
         this.baseObject = baseObject;
         this.method = method;
     }

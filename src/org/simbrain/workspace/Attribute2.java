@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 
 public abstract class Attribute2 {
 
+    public WorkspaceComponent parentComponent;
     protected Object baseObject;
     protected Method method;
     private String description = "";
@@ -16,6 +17,15 @@ public abstract class Attribute2 {
     protected Object key;
 
     public abstract Type getType();
+
+    // This must uniquely identify the attribute within the component.
+    //  up to the person annotating to obey this contract. 
+    public String getId() {
+        if (description.isEmpty()) {
+            description = baseObject.getClass().getSimpleName();
+        }
+        return description + ":" + method.getName() ;
+    }
 
     @Override
     public String toString() {
@@ -32,7 +42,7 @@ public abstract class Attribute2 {
             description = baseObject.getClass().getSimpleName();
         }
 
-        return description + ":" + method.getName() + "<" + typeName + ">";
+        return getId() + "<" + typeName + ">";
     }
 
     // TODO: Not tested yet
