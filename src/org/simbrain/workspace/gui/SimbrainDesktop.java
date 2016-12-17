@@ -40,7 +40,6 @@ import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Stack;
@@ -132,6 +131,7 @@ import bsh.util.JConsole;
  * @author Matt Watson
  * @author Jeff Yoshimi
  */
+// CHECKSTYLE:OFF
 public class SimbrainDesktop {
 
     /** The x offset for popup menus. */
@@ -217,6 +217,7 @@ public class SimbrainDesktop {
         /**
          * Clear the Simbrain desktop.
          */
+        @Override
         public void workspaceCleared() {
             desktop.removeAll();
             desktop.repaint();
@@ -227,12 +228,14 @@ public class SimbrainDesktop {
         /**
          * Add a new <c>SimbrainComponent</c>.
          */
+        @Override
         @SuppressWarnings("unchecked")
         public void componentAdded(
                 final WorkspaceComponent workspaceComponent) {
             addDesktopComponent(workspaceComponent);
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         public void componentRemoved(
                 final WorkspaceComponent workspaceComponent) {
@@ -251,6 +254,7 @@ public class SimbrainDesktop {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void newWorkspaceOpened() {
             frame.setTitle(workspace.getCurrentFile().getName());
             updateTimeLabel();
@@ -264,24 +268,28 @@ public class SimbrainDesktop {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void changeNumThreads() {
         }
 
         /**
          * {@inheritDoc}
          */
+        @Override
         public void changedUpdateController() {
         }
 
         /**
          * {@inheritDoc}
          */
+        @Override
         public void updatedCouplings(int update) {
         }
 
         /**
          * {@inheritDoc}
          */
+        @Override
         public void updatingStarted() {
             StandardDialog.setSimulationRunning(true);
         }
@@ -289,6 +297,7 @@ public class SimbrainDesktop {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void updatingFinished() {
             StandardDialog.setSimulationRunning(false);
         }
@@ -296,6 +305,7 @@ public class SimbrainDesktop {
         /**
          * {@inheritDoc}
          */
+        @Override
         public void workspaceUpdated() {
             updateTimeLabel();
         }
@@ -349,11 +359,11 @@ public class SimbrainDesktop {
                 "Show workspace components");
 
         // List of current couplings for populating couplings panel.
-//        Vector<Coupling<?>> couplings = new Vector<Coupling<?>>(
-//                workspace.getCouplingManager().getCouplings());
-//        bottomDock.addTab("Couplings", null,
-//                new CouplingListPanel(this, couplings),
-//                "Show current couplings");
+        //        Vector<Coupling<?>> couplings = new Vector<Coupling<?>>(
+        //                workspace.getCouplingManager().getCouplings());
+        //        bottomDock.addTab("Couplings", null,
+        //                new CouplingListPanel(this, couplings),
+        //                "Show current couplings");
         bottomDock.addTab("Terminal", null, this.getTerminalPanel(),
                 "Simbrain terminal");
         bottomDock.addTab("Updater", null,
@@ -428,6 +438,7 @@ public class SimbrainDesktop {
          *
          * @param event SimbrainComponent event
          */
+        @Override
         public void componentMoved(final ComponentEvent event) {
 
             // Prevent window from being moved outside of visible area
@@ -451,6 +462,7 @@ public class SimbrainDesktop {
          *
          * @param arg0 SimbrainComponent event
          */
+        @Override
         public void componentResized(final ComponentEvent arg0) {
             // System.out.println("Component resized");
             workspace.setWorkspaceChanged(true);
@@ -467,7 +479,7 @@ public class SimbrainDesktop {
             if (lastFocused != null) {
                 try {
                     ((JInternalFrame) lastFocused.getParentFrame())
-                            .setSelected(true);
+                    .setSelected(true);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -546,6 +558,7 @@ public class SimbrainDesktop {
             worldMenu.add(action);
         }
         button.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 JButton button = (JButton) e.getSource();
                 worldMenu.show(button, 0, button.getHeight());
@@ -562,6 +575,7 @@ public class SimbrainDesktop {
             gaugeMenu.add(action);
         }
         button.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 JButton button = (JButton) e.getSource();
                 gaugeMenu.show(button, 0, button.getHeight());
@@ -575,6 +589,7 @@ public class SimbrainDesktop {
         timeLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
         timeLabel.addMouseListener(new MouseAdapter() {
             // Reset time if user double clicks on label.
+            @Override
             public void mousePressed(final MouseEvent event) {
                 if (event.getClickCount() == 2) {
                     workspace.getUpdater().resetTime();
@@ -978,11 +993,11 @@ public class SimbrainDesktop {
                     (int) ((highestComponentNumber * DEFAULT_WINDOW_OFFSET)
                             % (desktop.getWidth() - guiComponent
                                     .getPreferredSize().getWidth())),
-                    (int) ((highestComponentNumber * DEFAULT_WINDOW_OFFSET)
-                            % (desktop.getHeight() - guiComponent
-                                    .getPreferredSize().getHeight())),
-                    (int) guiComponent.getPreferredSize().getWidth(),
-                    (int) guiComponent.getPreferredSize().getHeight());
+                                    (int) ((highestComponentNumber * DEFAULT_WINDOW_OFFSET)
+                                            % (desktop.getHeight() - guiComponent
+                                                    .getPreferredSize().getHeight())),
+                                                    (int) guiComponent.getPreferredSize().getWidth(),
+                                                    (int) guiComponent.getPreferredSize().getHeight());
         }
 
         // Other initialization
@@ -1197,6 +1212,7 @@ public class SimbrainDesktop {
         Toolkit.getDefaultToolkit().getSystemEventQueue().push(eventQueue);
 
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new SimbrainDesktop(workspace).createAndShowGUI();
             }
@@ -1213,8 +1229,8 @@ public class SimbrainDesktop {
         return JOptionPane.showOptionDialog(frame,
                 "The workspace has changed since last save,"
                         + "\nWould you like to save these changes?",
-                "Workspace Has Changed", JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+                        "Workspace Has Changed", JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE, null, options, options[0]);
     }
 
     /**
@@ -1248,6 +1264,7 @@ public class SimbrainDesktop {
          *
          * @param mouseEvent Mouse Event
          */
+        @Override
         public void mousePressed(final MouseEvent mouseEvent) {
             Point lastClickedPoint = mouseEvent.getPoint();
             // System.out.println("desktop-->" + lastClickedPoint); //TODO: Make
@@ -1268,6 +1285,7 @@ public class SimbrainDesktop {
          *
          * @param arg0 Window event
          */
+        @Override
         public void windowClosing(final WindowEvent arg0) {
             quit(false);
         }
@@ -1280,6 +1298,7 @@ public class SimbrainDesktop {
          *
          * @param arg0 Menu event
          */
+        @Override
         public void menuSelected(final MenuEvent arg0) {
             if (workspace.changesExist()) {
                 actionManager.getSaveWorkspaceAction().setEnabled(true);
@@ -1293,6 +1312,7 @@ public class SimbrainDesktop {
          *
          * @param arg0 Menu event
          */
+        @Override
         public void menuDeselected(final MenuEvent arg0) {
             /* no implementation */
         }
@@ -1302,6 +1322,7 @@ public class SimbrainDesktop {
          *
          * @param arg0 Menu event
          */
+        @Override
         public void menuCanceled(final MenuEvent arg0) {
             /* no implementation */
         }

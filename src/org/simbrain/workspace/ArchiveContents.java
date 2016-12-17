@@ -29,7 +29,6 @@ import org.simbrain.workspace.updater.UpdateAction;
 import org.simbrain.workspace.updater.UpdateActionCustom;
 import org.simbrain.workspace.updater.UpdateAllBuffered;
 import org.simbrain.workspace.updater.UpdateComponent;
-import org.simbrain.workspace.updater.WorkspaceUpdater;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -114,16 +113,16 @@ class ArchiveContents {
                     .getComponent());
         }
         // Get a coupling id, if this is coupling action
-//        if (action instanceof UpdateCoupling) {
-//            Coupling<?> coupling = ((UpdateCoupling) action).getCoupling();
-//            if (coupling != null) {
-//                coupling_id = coupling.getId();
-//            } else {
-//                System.err
-//                        .println("Invalid coupling action found while saving:"
-//                                + action.getDescription());
-//            }
-//        }
+        //        if (action instanceof UpdateCoupling) {
+        //            Coupling<?> coupling = ((UpdateCoupling) action).getCoupling();
+        //            if (coupling != null) {
+        //                coupling_id = coupling.getId();
+        //            } else {
+        //                System.err
+        //                        .println("Invalid coupling action found while saving:"
+        //                                + action.getDescription());
+        //            }
+        //        }
 
         // Create and return the archived action
         return new ArchivedUpdateAction(action, component_id, coupling_id);
@@ -188,54 +187,54 @@ class ArchiveContents {
         // components or couplings, the archived ids are used to find the
         // component or coupling.
         UpdateAction retAction = null;
-//        if (archivedAction.getUpdateAction() instanceof UpdateComponent) {
-//            try {
-//                WorkspaceComponent comp = componentDeserializer
-//                        .getComponent(archivedAction.getComponentId());
-//                retAction = archivedAction
-//                        .getUpdateAction()
-//                        .getClass()
-//                        .getConstructor(
-//                                new Class[] { WorkspaceUpdater.class,
-//                                        WorkspaceComponent.class })
-//                        .newInstance(workspace.getUpdater(), comp);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        } else if (archivedAction.getUpdateAction() instanceof UpdateAllBuffered) {
-//            try {
-//                retAction = archivedAction.getUpdateAction().getClass()
-//                        .getConstructor(new Class[] { WorkspaceUpdater.class })
-//                        .newInstance(workspace.getUpdater());
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        } else if (archivedAction.getUpdateAction() instanceof UpdateActionCustom) {
-//            try {
-//                String script = ((UpdateActionCustom) archivedAction
-//                        .getUpdateAction()).getScriptString();
-//                retAction = archivedAction
-//                        .getUpdateAction()
-//                        .getClass()
-//                        .getConstructor(
-//                                new Class[] { WorkspaceUpdater.class,
-//                                        String.class })
-//                        .newInstance(workspace.getUpdater(), script);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        } else if (archivedAction.getUpdateAction() instanceof UpdateCoupling) {
-//            try {
-//                String id = archivedAction.getCouplingId();
-//                Coupling<?> coupling = workspace.getCoupling(id);
-//                retAction = archivedAction.getUpdateAction().getClass()
-//                        .getConstructor(new Class[] { Coupling.class })
-//                        .newInstance(coupling);
-//
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
+        //        if (archivedAction.getUpdateAction() instanceof UpdateComponent) {
+        //            try {
+        //                WorkspaceComponent comp = componentDeserializer
+        //                        .getComponent(archivedAction.getComponentId());
+        //                retAction = archivedAction
+        //                        .getUpdateAction()
+        //                        .getClass()
+        //                        .getConstructor(
+        //                                new Class[] { WorkspaceUpdater.class,
+        //                                        WorkspaceComponent.class })
+        //                        .newInstance(workspace.getUpdater(), comp);
+        //            } catch (Exception e) {
+        //                e.printStackTrace();
+        //            }
+        //        } else if (archivedAction.getUpdateAction() instanceof UpdateAllBuffered) {
+        //            try {
+        //                retAction = archivedAction.getUpdateAction().getClass()
+        //                        .getConstructor(new Class[] { WorkspaceUpdater.class })
+        //                        .newInstance(workspace.getUpdater());
+        //            } catch (Exception e) {
+        //                e.printStackTrace();
+        //            }
+        //        } else if (archivedAction.getUpdateAction() instanceof UpdateActionCustom) {
+        //            try {
+        //                String script = ((UpdateActionCustom) archivedAction
+        //                        .getUpdateAction()).getScriptString();
+        //                retAction = archivedAction
+        //                        .getUpdateAction()
+        //                        .getClass()
+        //                        .getConstructor(
+        //                                new Class[] { WorkspaceUpdater.class,
+        //                                        String.class })
+        //                        .newInstance(workspace.getUpdater(), script);
+        //            } catch (Exception e) {
+        //                e.printStackTrace();
+        //            }
+        //        } else if (archivedAction.getUpdateAction() instanceof UpdateCoupling) {
+        //            try {
+        //                String id = archivedAction.getCouplingId();
+        //                Coupling<?> coupling = workspace.getCoupling(id);
+        //                retAction = archivedAction.getUpdateAction().getClass()
+        //                        .getConstructor(new Class[] { Coupling.class })
+        //                        .newInstance(coupling);
+        //
+        //            } catch (Exception e) {
+        //                e.printStackTrace();
+        //            }
+        //        }
 
         return retAction;
     }
@@ -246,11 +245,11 @@ class ArchiveContents {
      * @param coupling The coupling to add.
      * @return The coupling entry in the archive.
      */
-//    ArchivedCoupling addCoupling(final Coupling<?> coupling) {
-//        ArchivedCoupling c = new ArchivedCoupling(this, coupling);
-//        archivedCouplings.add(c);
-//        return c;
-//    }
+    //    ArchivedCoupling addCoupling(final Coupling<?> coupling) {
+    //        ArchivedCoupling c = new ArchivedCoupling(this, coupling);
+    //        archivedCouplings.add(c);
+    //        return c;
+    //    }
 
     /**
      * A persistable form of update action that can be used to recreate the
@@ -455,11 +454,11 @@ class ArchiveContents {
      */
     static final class ArchivedCoupling {
 
-//        /** The source attribute for the coupling. */
-//        private final ArchivedAttribute archivedProducer;
-//
-//        /** The target attribute for the coupling. */
-//        private final ArchivedAttribute archivedConsumer;
+        //        /** The source attribute for the coupling. */
+        //        private final ArchivedAttribute archivedProducer;
+        //
+        //        /** The target attribute for the coupling. */
+        //        private final ArchivedAttribute archivedConsumer;
 
         /**
          * Creates a new instance.
@@ -467,28 +466,28 @@ class ArchiveContents {
          * @param parent The parent archive.
          * @param coupling The coupling this instance represents.
          */
-//        ArchivedCoupling(final ArchiveContents parent,
-//                final org.simbrain.workspace.Coupling<?> coupling) {
-//
-//            this.archivedProducer = new ArchivedAttribute(parent,
-//                    coupling.getProducer());
-//            this.archivedConsumer = new ArchivedAttribute(parent,
-//                    coupling.getConsumer());
-//        }
+        //        ArchivedCoupling(final ArchiveContents parent,
+        //                final org.simbrain.workspace.Coupling<?> coupling) {
+        //
+        //            this.archivedProducer = new ArchivedAttribute(parent,
+        //                    coupling.getProducer());
+        //            this.archivedConsumer = new ArchivedAttribute(parent,
+        //                    coupling.getConsumer());
+        //        }
 
-//        /**
-//         * @return the archivedProducer
-//         */
-//        public ArchivedAttribute getArchivedProducer() {
-//            return archivedProducer;
-//        }
-//
-//        /**
-//         * @return the archivedConsumer
-//         */
-//        public ArchivedAttribute getArchivedConsumer() {
-//            return archivedConsumer;
-//        }
+        //        /**
+        //         * @return the archivedProducer
+        //         */
+        //        public ArchivedAttribute getArchivedProducer() {
+        //            return archivedProducer;
+        //        }
+        //
+        //        /**
+        //         * @return the archivedConsumer
+        //         */
+        //        public ArchivedAttribute getArchivedConsumer() {
+        //            return archivedConsumer;
+        //        }
 
     }
 
@@ -641,7 +640,7 @@ class ArchiveContents {
 
         xstream.omitField(UpdateComponent.class, "component");
         xstream.omitField(UpdateComponent.class, "updater");
-//        xstream.omitField(UpdateCoupling.class, "coupling");
+        //        xstream.omitField(UpdateCoupling.class, "coupling");
         xstream.omitField(UpdateActionCustom.class, "interpreter");
         xstream.omitField(UpdateActionCustom.class, "theAction");
         xstream.omitField(UpdateActionCustom.class, "updater");

@@ -20,8 +20,6 @@ package org.simbrain.workspace;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.simbrain.workspace.gui.GuiComponent;
 
@@ -32,18 +30,22 @@ import org.simbrain.workspace.gui.GuiComponent;
  */
 public class WorkspaceComponentDeserializer {
 
+    // TODO: Seems to do nothing... Make sure no one relies on me for real...
+    // keep as comment for a
+    // while...
     /** A map of keys to their components. */
-    private final Map<String, WorkspaceComponent> componentKeys = new HashMap<String, WorkspaceComponent>();
+    // private final Map<String, WorkspaceComponent> componentKeys = new
+    // HashMap<String, WorkspaceComponent>();
 
-    /**
-     * Returns the workspace component associated with the given uri.
-     *
-     * @param uri The uri for the component to retrieve.
-     * @return The component for the uri.
-     */
-    WorkspaceComponent getComponent(final String uri) {
-        return componentKeys.get(uri);
-    }
+    // /**
+    // * Returns the workspace component associated with the given uri.
+    // *
+    // * @param uri The uri for the component to retrieve.
+    // * @return The component for the uri.
+    // */
+    // WorkspaceComponent getComponent(final String uri) {
+    // return componentKeys.get(uri);
+    // }
 
     /**
      * Deserializes a workspace component using the information from the
@@ -64,7 +66,7 @@ public class WorkspaceComponentDeserializer {
             WorkspaceComponent wc = deserializeWorkspaceComponent(clazz,
                     archivedComponent.getName(), input, null);
 
-            componentKeys.put(archivedComponent.getUri(), wc);
+            // componentKeys.put(archivedComponent.getUri(), wc);
             wc.setChangedSinceLastSave(false);
             return wc;
         } catch (ClassNotFoundException e) {
