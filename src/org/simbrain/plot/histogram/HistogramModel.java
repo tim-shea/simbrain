@@ -17,6 +17,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.jfree.data.xy.IntervalXYDataset;
 import org.simbrain.plot.ChartModel;
 import org.simbrain.plot.histogram.OverwritableHistogramDataset.ColoredDataSeries;
@@ -31,6 +35,8 @@ import org.simbrain.workspace.Consumible;
  * @author Jeff Yoshimi
  *
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class HistogramModel extends ChartModel {
 
     /** The default number of bins. **/
@@ -76,8 +82,8 @@ public class HistogramModel extends ChartModel {
     }
 
     public HistogramModel(int numSources, int bins) {
-    	this(numSources);
-    	this.bins = bins;
+        this(numSources);
+        this.bins = bins;
     }
 
     /**
@@ -152,7 +158,7 @@ public class HistogramModel extends ChartModel {
 
         for (int i = 0, n = data.size(); i < n; i++) {
             if (data.get(i).length != 0) {
-                ((OverwritableHistogramDataset) dataSet).overwriteSeries(
+                dataSet.overwriteSeries(
                         dataNames.get(i), data.get(i), getBins());
             }
 

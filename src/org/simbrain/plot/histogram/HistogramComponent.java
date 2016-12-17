@@ -18,17 +18,17 @@
  */
 package org.simbrain.plot.histogram;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
-import org.simbrain.network.core.Neuron;
-import org.simbrain.network.groups.Group;
 import org.simbrain.plot.ChartListener;
 import org.simbrain.workspace.Consumer2;
 import org.simbrain.workspace.WorkspaceComponent;
@@ -48,7 +48,8 @@ public class HistogramComponent extends WorkspaceComponent {
     /**
      * Create new Histogram Component.
      *
-     * @param name chart name
+     * @param name
+     *            chart name
      */
     public HistogramComponent(final String name) {
         super(name);
@@ -61,8 +62,10 @@ public class HistogramComponent extends WorkspaceComponent {
      * Create new Histogram Component from a specified model. Used in
      * deserializing.
      *
-     * @param name chart name
-     * @param model chart model
+     * @param name
+     *            chart name
+     * @param model
+     *            chart model
      */
     public HistogramComponent(final String name, final HistogramModel model) {
         super(name);
@@ -92,6 +95,7 @@ public class HistogramComponent extends WorkspaceComponent {
             /**
              * {@inheritDoc}
              */
+            @Override
             public void dataSourceAdded(final int index) {
                 firePotentialAttributesChanged();
             }
@@ -99,6 +103,7 @@ public class HistogramComponent extends WorkspaceComponent {
             /**
              * {@inheritDoc}
              */
+            @Override
             public void dataSourceRemoved(final int index) {
                 firePotentialAttributesChanged();
             }
@@ -106,6 +111,7 @@ public class HistogramComponent extends WorkspaceComponent {
             /**
              * {@inheritDoc}
              */
+            @Override
             public void chartInitialized(int numSources) {
                 // No implementation yet (not used in this component thus far).
             }
@@ -126,24 +132,76 @@ public class HistogramComponent extends WorkspaceComponent {
         return model;
     }
 
-    /**
-     * Opens a saved bar chart.
-     *
-     * @param input stream
-     * @param name name of file
-     * @param format format
-     * @return bar chart component to be opened
-     */
+    // /**
+    // * Opens a saved bar chart.
+    // *
+    // * @param input
+    // * stream
+    // * @param name
+    // * name of file
+    // * @param format
+    // * format
+    // * @return bar chart component to be opened
+    // */
+    // public static HistogramComponent open(final InputStream input,
+    // final String name, final String format) {
+    // HistogramModel dataModel = (HistogramModel) HistogramModel.getXStream()
+    // .fromXML(input);
+    // return new HistogramComponent(name, dataModel);
+    // }
+
     public static HistogramComponent open(final InputStream input,
             final String name, final String format) {
-        HistogramModel dataModel = (HistogramModel) HistogramModel.getXStream()
-                .fromXML(input);
-        return new HistogramComponent(name, dataModel);
+        // Network newNetwork = (Network) Network.getXStream().fromXML(input);
+        // return new NetworkComponent(name, newNetwork);
+        Unmarshaller jaxbUnmarshaller;
+        try {
+            JAXBContext jaxbContext = JAXBContext
+                    .newInstance(HistogramModel.class);
+            jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            HistogramModel hist = (HistogramModel) jaxbUnmarshaller
+                    .unmarshal(input);
+            System.out.println(hist);
+            return new HistogramComponent(name, hist);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public void open2() {
+        // TODO: Hard-coded test for now
+        File file = new File("jaxb_test.xml");
+        Unmarshaller jaxbUnmarshaller;
+        try {
+            JAXBContext jaxbContext = JAXBContext
+                    .newInstance(HistogramModel.class);
+            jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            HistogramModel hist = (HistogramModel) jaxbUnmarshaller
+                    .unmarshal(file);
+            System.out.println(hist);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void save(final OutputStream output, final String format) {
         HistogramModel.getXStream().toXML(model, output);
+    }
+
+    @Override
+    public void save2(final OutputStream output, final String format) {
+        JAXBContext jc;
+        try {
+            jc = JAXBContext.newInstance(HistogramModel.class);
+            Marshaller marshaller = jc.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(model, System.out);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -163,9 +221,10 @@ public class HistogramComponent extends WorkspaceComponent {
     @Override
     public List<Consumer2<?>> getConsumers() {
         List<Consumer2<?>> retList = new ArrayList<>();
-        retList.addAll(WorkspaceComponent.getConsumers(model)); // vector coupling
+        retList.addAll(WorkspaceComponent.getConsumers(model)); // vector
+        // coupling
         // for (int i = 0; i < model.getData().size(); i++) {
-        //// String description = "Histogram " + (i + 1);
+        // // String description = "Histogram " + (i + 1);
         // }
         return retList;
     }
