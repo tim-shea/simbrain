@@ -79,7 +79,7 @@ public class Network {
     private final Set<Synapse> synapseList = new LinkedHashSet<Synapse>();
 
     //TODO
-    
+
     @XmlJavaTypeAdapter(SynapseGroupAdapter.class)
     private final List<SynapseGroup> sgList = new ArrayList<>();
     private final List<NeuronGroup> ngList = new ArrayList<>();
@@ -801,11 +801,11 @@ public class Network {
     public void removeGroup(final Group toDelete) {
 
         if (toDelete instanceof NeuronGroup) {
-            ngList.remove((NeuronGroup) toDelete);
+            ngList.remove(toDelete);
         } else if (toDelete instanceof SynapseGroup) {
-            sgList.remove((SynapseGroup) toDelete);
+            sgList.remove(toDelete);
         } else if (toDelete instanceof Subnetwork) {
-            subnetList.remove((Subnetwork) toDelete);
+            subnetList.remove(toDelete);
         }
 
         // Call delete method on this group being deleted
@@ -1813,7 +1813,7 @@ public class Network {
     }
 
     static class SynapseGroupAdapter extends
-            XmlAdapter<SynapseGroupDataHolder[], List<SynapseGroup>> {
+    XmlAdapter<SynapseGroupDataHolder[], List<SynapseGroup>> {
 
         @Override
         public List<SynapseGroup> unmarshal(SynapseGroupDataHolder[] v)
@@ -1837,7 +1837,10 @@ public class Network {
                         sg.getSourceNeuronGroup().getId(),
                         sg.getTargetNeuronGroup().getId(),
                         sg.getFullSynapseRep(), sg.getExcitatoryPrototype(),
-                        sg.getInhibitoryPrototype());
+                        sg.getInhibitoryPrototype(),
+                        sg.isDisplaySynapses(),
+                        sg.getExcitatoryRandomizer(),
+                        sg.getInhibitoryRandomizer());
                 i++;
             }
             return ret;

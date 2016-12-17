@@ -18,6 +18,9 @@
  */
 package org.simbrain.util.randomizer;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
 import org.simbrain.util.SimbrainConstants.Polarity;
 import org.simbrain.util.math.ProbDistribution;
 
@@ -32,6 +35,7 @@ import org.simbrain.util.math.ProbDistribution;
  * @author Zach Tosi
  *
  */
+@XmlAccessorType(XmlAccessType.FIELD)
 public class PolarizedRandomizer extends Randomizer {
 
     public static final Polarity DEFAULT_POLARITY = Polarity.EXCITATORY;
@@ -56,16 +60,16 @@ public class PolarizedRandomizer extends Randomizer {
     }
 
     /**
-     * 
+     *
      * @param polarity
      * @param pdf
      */
     public PolarizedRandomizer(Polarity polarity, ProbDistribution pdf) {
-    	super();
-    	this.pdf = pdf;
-    	this.polarity = polarity;
+        super();
+        this.pdf = pdf;
+        this.polarity = polarity;
     }
-    
+
     /**
      * Copy constructor.
      *
@@ -106,6 +110,7 @@ public class PolarizedRandomizer extends Randomizer {
      *
      * @return the next random number
      */
+    @Override
     public double getRandom() {
         if (clipping) {
             return clip(pdf.nextRand(param1, param2));
@@ -135,6 +140,7 @@ public class PolarizedRandomizer extends Randomizer {
     /**
      * @return Returns the clipping.
      */
+    @Override
     public boolean getClipping() {
         return clipping;
     }
@@ -142,6 +148,7 @@ public class PolarizedRandomizer extends Randomizer {
     /**
      * @param clipping The useBounds to set.
      */
+    @Override
     public void setClipping(final boolean clipping) {
         this.clipping = clipping;
     }
@@ -151,6 +158,7 @@ public class PolarizedRandomizer extends Randomizer {
      *
      * @return the distribution name.
      */
+    @Override
     public String getDistributionName() {
         return pdf.toString();
     }
@@ -158,6 +166,7 @@ public class PolarizedRandomizer extends Randomizer {
     /**
      * @return the pdf
      */
+    @Override
     public ProbDistribution getPdf() {
         return pdf;
     }
@@ -165,6 +174,7 @@ public class PolarizedRandomizer extends Randomizer {
     /**
      * @return the param1
      */
+    @Override
     public double getParam1() {
         return param1;
     }
@@ -172,6 +182,7 @@ public class PolarizedRandomizer extends Randomizer {
     /**
      * @return the param2
      */
+    @Override
     public double getParam2() {
         return param2;
     }

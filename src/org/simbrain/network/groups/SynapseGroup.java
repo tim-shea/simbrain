@@ -83,29 +83,29 @@ public class SynapseGroup extends Group {
     /** A set containing all the inhibitory (wt < 0) synapses in the group. */
     private Set<Synapse> inSynapseSet = new HashSet<Synapse>();
 
-//
-//    /**
-//     * A temporary set containing all the excitatory synapses in the group. Used
-//     * when saving synapse groups since the regular set is destroyed. If the
-//     * group is going to continue being used after saving the values in this
-//     * temporary holder are used to repopulate the excitatory synapse set.
-//     */
-//    private transient Set<Synapse> exTemp;
-//
-//    /**
-//     * A temporary set containing all the inhibitory synapses in the group. Used
-//     * when saving synapse groups since the regular set is destroyed. If the
-//     * group is going to continue being used after saving the values in this
-//     * temporary holder are used to repopulate the inhibitory synapse set.
-//     */
-//    private transient Set<Synapse> inTemp;
+    //
+    //    /**
+    //     * A temporary set containing all the excitatory synapses in the group. Used
+    //     * when saving synapse groups since the regular set is destroyed. If the
+    //     * group is going to continue being used after saving the values in this
+    //     * temporary holder are used to repopulate the excitatory synapse set.
+    //     */
+    //    private transient Set<Synapse> exTemp;
+    //
+    //    /**
+    //     * A temporary set containing all the inhibitory synapses in the group. Used
+    //     * when saving synapse groups since the regular set is destroyed. If the
+    //     * group is going to continue being used after saving the values in this
+    //     * temporary holder are used to repopulate the inhibitory synapse set.
+    //     */
+    //    private transient Set<Synapse> inTemp;
 
     /** Reference to source neuron group. */
     private NeuronGroup sourceNeuronGroup;
 
     /** Reference to target neuron group. */
     private NeuronGroup targetNeuronGroup;
-    
+
     //TODO
     private String srcId;
     private String tarId;
@@ -197,7 +197,7 @@ public class SynapseGroup extends Group {
      * <b>true</b> this flag will be dominant over the actual state of synapses
      * for the purpose of updating.
      */
-    private boolean exStatic = false;
+    private boolean exStatic = true;
 
     /**
      * Whether or not group level settings i.e. : those stored in
@@ -357,6 +357,9 @@ public class SynapseGroup extends Group {
         this.inhibitoryPrototype = sgdh.inhPrototype;
         this.srcId = sgdh.srcID;
         this.tarId = sgdh.tarID;
+        this.exciteRand = sgdh.exRand;
+        this.inhibRand = sgdh.inRand;
+        this.displaySynapses = sgdh.visible;
     }
 
     /**
@@ -991,7 +994,7 @@ public class SynapseGroup extends Group {
      */
     public double[][] getWeightMatrix() {
         double[][] weightMatrix = new double[getSourceNeurons()
-                .size()][getTargetNeurons().size()];
+                                             .size()][getTargetNeurons().size()];
         int i = 0;
         int j = 0;
         // Create numbers for neurons... less expensive than constant
@@ -1022,7 +1025,7 @@ public class SynapseGroup extends Group {
      * A more compressed version of a weight matrix for cases where a weight
      * matrix is needed, but may cause memory issues if fully instantiated. Eg,
      * for very sparse synapse groups between very large neuron groups.
-     * 
+     *
      * @return a 2D array with a number of rows equal to the total number of
      *         synapses and a number of columns equal to 3. Each row contains
      *         the the source index number, the target index number, and the
@@ -1085,7 +1088,7 @@ public class SynapseGroup extends Group {
      * A more compressed version of a weight matrix for cases where a weight
      * matrix is needed, but may cause memory issues if fully instantiated. Eg,
      * for very sparse synapse groups between very large neuron groups.
-     * 
+     *
      * @return a 2D array with a number of rows equal to the total number of
      *         synapses and a number of columns equal to 3. Each row contains
      *         the the source index number, the target index number, and the
@@ -1215,7 +1218,7 @@ public class SynapseGroup extends Group {
 
     /**
      * Saves the weight matrix represented by this synapse group to a file.
-     * 
+     *
      * @param filename the name of the file to be used
      * @throws OutOfMemoryError if {@link #getWeightMatrix()} causes an out of
      *             memory error for being to large.
@@ -1560,7 +1563,7 @@ public class SynapseGroup extends Group {
     /**
      * Freeze / unfreeze the synapses in this group so learning can occur or
      * not.
-     * 
+     *
      * @param frozen if true, synapses can't learn.
      * @param polarity freeze both, excitatory, or inhibitory synapses
      */
@@ -1969,19 +1972,19 @@ public class SynapseGroup extends Group {
         // exSynapseSet = null;
     }
 
-//    /**
-//     * A post initialization which must be done if the user wants to save the
-//     * network, but continue using the network after saving (since the saving
-//     * process sets the synapse sets to null.
-//     */
-//    public void postSaveReInit() {
-//        if (isUseGroupLevelSettings()) {
-//            inSynapseSet = inTemp;
-//            exSynapseSet = exTemp;
-//            inTemp = null;
-//            exTemp = null;
-//        }
-//    }
+    //    /**
+    //     * A post initialization which must be done if the user wants to save the
+    //     * network, but continue using the network after saving (since the saving
+    //     * process sets the synapse sets to null.
+    //     */
+    //    public void postSaveReInit() {
+    //        if (isUseGroupLevelSettings()) {
+    //            inSynapseSet = inTemp;
+    //            exSynapseSet = exTemp;
+    //            inTemp = null;
+    //            exTemp = null;
+    //        }
+    //    }
 
     /**
      * Returns the full representation of the synapse group as a byte array with
@@ -2072,8 +2075,9 @@ public class SynapseGroup extends Group {
         if (connectionManager instanceof Sparse) {
             ((Sparse) connectionManager).setPermitDensityEditing(false);
         }
+        calculateExcitatoryRatio();
     }
-    
+
     //TODO
 
     /**
@@ -2088,19 +2092,39 @@ public class SynapseGroup extends Group {
         public byte[] compressedParams;
         public Synapse excPrototype;
         public Synapse inhPrototype;
-        
+        public boolean visible;
+        public PolarizedRandomizer exRand;
+        public PolarizedRandomizer inRand;
+
         public SynapseGroupDataHolder() {
+        }
+
+        public SynapseGroupDataHolder(SynapseGroup synG) {
+            synG.preSaveInit();
+            this.id = synG.getId();
+            this.srcID = synG.getSourceNeuronGroup().getId();
+            this.tarID = synG.getTargetNeuronGroup().getId();
+            this.compressedParams = synG.fullSynapseRep;
+            this.excPrototype = synG.excitatoryPrototype;
+            this.inhPrototype = synG.inhibitoryPrototype;
+            this.visible = synG.displaySynapses;
+            this.exRand = synG.getExcitatoryRandomizer();
+            this.inRand = synG.getInhibitoryRandomizer();
         }
 
         public SynapseGroupDataHolder(final String id, final String srcID, final String tarID,
                 final byte[] compressedParams, final Synapse excPrototype,
-                final Synapse inhPrototype) {
+                final Synapse inhPrototype, boolean visible,
+                PolarizedRandomizer exRand, PolarizedRandomizer inRand) {
             this.id = id;
             this.srcID = srcID;
             this.tarID = tarID;
             this.compressedParams = compressedParams;
             this.excPrototype = excPrototype;
             this.inhPrototype = inhPrototype;
+            this.visible = visible;
+            this.exRand = exRand;
+            this.inRand = inRand;
         }
 
     }
@@ -2108,6 +2132,7 @@ public class SynapseGroup extends Group {
     public void initNeuronGroups(Network network) {
         sourceNeuronGroup = (NeuronGroup) network.getGroup(srcId);
         targetNeuronGroup = (NeuronGroup) network.getGroup(tarId);
+        recurrent = testRecurrent();
     }
 
 }
