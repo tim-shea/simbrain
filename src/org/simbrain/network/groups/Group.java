@@ -52,9 +52,14 @@ public abstract class Group {
     private boolean markedForDeletion = false;
 
     //TODO
-    public Group() {    
+    public Group() {
     }
-    
+    //TODO: Use?
+//  public void postUnmarshallingInit(Network network) {
+//      parentNetwork = network;
+//  }
+
+
     /**
      * Parent group of this group, or null if it has none. For group types which
      * have a hierarchy of groups.

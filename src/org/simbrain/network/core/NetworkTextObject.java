@@ -62,6 +62,11 @@ public class NetworkTextObject {
         this.y = y;
     }
 
+    //TODO
+    public NetworkTextObject() {
+        parent = null;
+    }
+
     /**
      * Construct the text object with initial text.
      *

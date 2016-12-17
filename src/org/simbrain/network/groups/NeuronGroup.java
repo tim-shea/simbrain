@@ -163,6 +163,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
     private int fileNum = 0;
 
     //TODO
+    // No-argument constructor for jaxb
     public NeuronGroup() {
         super(null);
     }

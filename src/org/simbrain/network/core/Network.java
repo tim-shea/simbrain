@@ -78,7 +78,7 @@ public class Network {
     /** Array list of synapses. */
     private final Set<Synapse> synapseList = new LinkedHashSet<Synapse>();
 
-    //TODO
+    // TODO
 
     @XmlJavaTypeAdapter(SynapseGroupAdapter.class)
     private final List<SynapseGroup> sgList = new ArrayList<>();
@@ -166,7 +166,7 @@ public class Network {
     @XmlTransient
     private SimpleId synapseIdGenerator = new SimpleId("Synapse", 1);
 
-    //TOOD: Separate IDs for different lists
+    // TOOD: Separate IDs for different lists
     /** Group Id generator. */
     @XmlTransient
     private SimpleId groupIdGenerator = new SimpleId("Group", 1);
@@ -392,7 +392,7 @@ public class Network {
         return null;
     }
 
-    //TODO: Rewrite given multiple lists
+    // TODO: Rewrite given multiple lists
     /**
      * Find a group with a given string id.
      *
@@ -986,49 +986,6 @@ public class Network {
 
         return xstream;
     }
-
-    //TODO: Rename or move to afterUnmarshall
-    /**
-     * Standard method call made to objects after they are deserialized. See:
-     * http://java.sun.com/developer/JDCTechTips/2002/tt0205.html#tip2
-     * http://xstream.codehaus.org/faq.html
-     *
-     * @return Initialized object.
-     */
-    private Object readResolve() {
-
-        fireUpdates = true;
-
-        // Initialize listener lists
-        networkListeners = new ArrayList<NetworkListener>();
-        neuronListeners = new ArrayList<NeuronListener>();
-        synapseListeners = new ArrayList<SynapseListener>();
-        textListeners = new ArrayList<TextListener>();
-        groupListeners = new ArrayList<GroupListener>();
-
-        // Initialize update manager
-        updateManager.postUnmarshallingInit();
-
-        // Initialize neurons
-        for (Neuron neuron : this.getFlatNeuronList()) {
-            neuron.postUnmarshallingInit();
-            // TODO: set parent ref?
-        }
-
-        // Uncompress compressed matrix rep if needed
-        for (SynapseGroup sg : this.getSynapseGroups()) {
-            sg.initNeuronGroups(this);
-            sg.postUnmarshallingInit();
-        }
-
-        // Re-populate fan-in / fan-out for loose synapses
-        for (Synapse synapse : this.getLooseSynapses()) {
-            synapse.postUnmarshallingInit();
-        }
-        updateCompleted = new AtomicBoolean(false);
-        return this;
-    }
-
 
     /**
      * @return Units by which to count.
@@ -1812,8 +1769,8 @@ public class Network {
         return retList;
     }
 
-    static class SynapseGroupAdapter extends
-    XmlAdapter<SynapseGroupDataHolder[], List<SynapseGroup>> {
+    static class SynapseGroupAdapter
+            extends XmlAdapter<SynapseGroupDataHolder[], List<SynapseGroup>> {
 
         @Override
         public List<SynapseGroup> unmarshal(SynapseGroupDataHolder[] v)
@@ -1832,13 +1789,11 @@ public class Network {
             int i = 0;
             for (SynapseGroup sg : v) {
                 sg.preSaveInit();
-                ret[i] = new SynapseGroupDataHolder(
-                        sg.getId(),
+                ret[i] = new SynapseGroupDataHolder(sg.getId(),
                         sg.getSourceNeuronGroup().getId(),
                         sg.getTargetNeuronGroup().getId(),
                         sg.getFullSynapseRep(), sg.getExcitatoryPrototype(),
-                        sg.getInhibitoryPrototype(),
-                        sg.isDisplaySynapses(),
+                        sg.getInhibitoryPrototype(), sg.isDisplaySynapses(),
                         sg.getExcitatoryRandomizer(),
                         sg.getInhibitoryRandomizer());
                 i++;
@@ -1848,13 +1803,44 @@ public class Network {
     }
 
     void beforeUnmarshal(Unmarshaller u, Object network) {
-        // network is null
         System.out.println("Before");
     }
 
     void afterUnmarshal(Unmarshaller u, Object network) {
-        // network is not null
-        readResolve();
+        fireUpdates = true;
+
+        // Initialize listener lists
+        networkListeners = new ArrayList<NetworkListener>();
+        neuronListeners = new ArrayList<NeuronListener>();
+        synapseListeners = new ArrayList<SynapseListener>();
+        textListeners = new ArrayList<TextListener>();
+        groupListeners = new ArrayList<GroupListener>();
+
+        // Initialize update manager
+        updateManager.postUnmarshallingInit();
+
+        //TODO: Can use this to set parent refs if it ends up being necessary
+        // Initialize neurons
+        //for (Neuron neuron : this.getFlatNeuronList()) {
+        //    neuron.postUnmarshallingInit(this);
+        //}
+        // Initialize groups.
+        //for (Group group: this.getGroupList()) {
+        //    group.postUnmarshallingInit(this);
+        //}
+
+        // Uncompress compressed matrix rep if needed
+        for (SynapseGroup sg : this.getSynapseGroups()) {
+            sg.initNeuronGroups(this);
+            sg.postUnmarshallingInit();
+        }
+
+        // Re-populate fan-in / fan-out for loose synapses
+        for (Synapse synapse : this.getLooseSynapses()) {
+            synapse.postUnmarshallingInit();
+        }
+        updateCompleted = new AtomicBoolean(false);
+
         System.out.println("After");
     }
 
