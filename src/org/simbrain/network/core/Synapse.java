@@ -26,7 +26,6 @@ import java.util.Properties;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -35,6 +34,8 @@ import org.simbrain.network.synapse_update_rules.StaticSynapseRule;
 import org.simbrain.network.synapse_update_rules.spikeresponders.JumpAndDecay;
 import org.simbrain.network.synapse_update_rules.spikeresponders.SpikeResponder;
 import org.simbrain.util.Utils;
+import org.simbrain.workspace.Consumible;
+import org.simbrain.workspace.Producible;
 
 /**
  * <b>Synapse</b> objects represent "connections" between neurons, which learn
@@ -440,6 +441,7 @@ public class Synapse {
     /**
      * @return Strength of synapse.
      */
+    @Producible(customDescriptionMethod = "getId", visible = false)
     public final double getStrength() {
         return strength;
     }
@@ -449,6 +451,7 @@ public class Synapse {
      *
      * @param wt Strength value
      */
+    @Consumible(customDescriptionMethod = "getId", visible = false)
     public void setStrength(final double wt) {
         if (isTemplate) {
             forceSetStrength(wt);

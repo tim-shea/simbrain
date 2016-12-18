@@ -975,15 +975,15 @@ public abstract class WorkspaceComponent {
         return producer;
     }
 
-    public Consumer2<?> findConsumer(String description) {
+    public Consumer2<?> getConsumer(String id) {
         return getConsumers().stream()
-                .filter(p -> p.toString().equalsIgnoreCase(description))
+                .filter(p -> p.toString().equalsIgnoreCase(id))
                 .findAny().get();
     }
 
-    public Producer2<?> findProducer(String description) {
+    public Producer2<?> getProducer(String id) {
         return getProducers().stream()
-                .filter(p -> p.toString().equalsIgnoreCase(description))
+                .filter(p -> p.toString().equalsIgnoreCase(id))
                 .findAny().get();
     }
 

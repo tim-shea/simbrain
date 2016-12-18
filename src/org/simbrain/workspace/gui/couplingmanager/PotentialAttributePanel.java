@@ -35,6 +35,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.simbrain.workspace.Attribute2;
 import org.simbrain.workspace.AttributeListener;
 import org.simbrain.workspace.Consumer2;
 import org.simbrain.workspace.Producer2;
@@ -303,9 +304,10 @@ public class PotentialAttributePanel extends JPanel
                     list, object, index, isSelected, cellHasFocus);
             // TODO
             // PotentialAttribute id = (PotentialAttribute) object;
-            //
-            // // Set text color based on data type
-            // renderer.setForeground(CouplingManager.getColor(id.getDataType()));
+            // Set text color based on data type
+            Attribute2 atttribute = (Attribute2) object;
+            renderer.setForeground(
+                    DesktopCouplingManager.getColor(atttribute.getType()));
             //
             // renderer.setText(id.getDescription() + "<"
             // + CouplingManager.getTypeDescriptor(id.getDataType()) + ">");

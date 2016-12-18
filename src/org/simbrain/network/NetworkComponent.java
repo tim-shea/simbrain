@@ -454,10 +454,10 @@ public final class NetworkComponent extends WorkspaceComponent {
         return null;
     }
 
-    @Override
-    public void save(final OutputStream output, final String format) {
-        Network.getXStream().toXML(network, output);
-    }
+//    @Override
+//    public void save(final OutputStream output, final String format) {
+//        Network.getXStream().toXML(network, output);
+//    }
 
     /**
      * Returns the root network.
@@ -489,6 +489,9 @@ public final class NetworkComponent extends WorkspaceComponent {
         for (Neuron neuron : network.getLooseNeurons()) {
             retList.addAll(super.getProducers(neuron));
         }
+        for (Synapse synapse: network.getLooseSynapses()) {
+            retList.addAll(super.getProducers(synapse));
+        }
         for (Group group : network.getFlatGroupList()) {
             retList.addAll(super.getProducers(group));
         }
@@ -501,22 +504,24 @@ public final class NetworkComponent extends WorkspaceComponent {
         for (Neuron neuron : network.getLooseNeurons()) {
             retList.addAll(super.getConsumers(neuron));
         }
+        for (Synapse synapse: network.getLooseSynapses()) {
+            retList.addAll(super.getConsumers(synapse));
+        }
         for (Group group : network.getFlatGroupList()) {
             retList.addAll(super.getConsumers(group));
         }
         return retList;
     }
 
-    //TODO: Temp
     @Override
-    public void save2(OutputStream output, String format) {
+    public void save(OutputStream output, String format) {
         JAXBContext jc;
         try {
             jc = JAXBContext.newInstance(Network.class);
             Marshaller marshaller = jc.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(this.getNetwork(), new File("jaxb_test.xml"));
-            marshaller.marshal(this.getNetwork(), System.out);
+            marshaller.marshal(this.getNetwork(), output);
+            //marshaller.marshal(this.getNetwork(), System.out);
         } catch (JAXBException e) {
             e.printStackTrace();
         }

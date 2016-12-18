@@ -44,6 +44,7 @@ import org.simbrain.util.SimbrainConstants;
 import org.simbrain.util.SimbrainConstants.Polarity;
 import org.simbrain.util.Utils;
 import org.simbrain.util.randomizer.PolarizedRandomizer;
+import org.simbrain.workspace.Producible;
 
 /**
  *
@@ -945,6 +946,7 @@ public class SynapseGroup extends Group {
      *
      * @return weights
      */
+    @Producible(customDescriptionMethod="getId")
     public double[] getWeightVector() {
         double[] retArray = new double[size()];
         int i = 0;
@@ -992,6 +994,7 @@ public class SynapseGroup extends Group {
      *         as a weight matrix between two activation vectors (neuron
      *         groups).
      */
+    @Producible(customDescriptionMethod="getId")
     public double[][] getWeightMatrix() {
         double[][] weightMatrix = new double[getSourceNeurons()
                                              .size()][getTargetNeurons().size()];

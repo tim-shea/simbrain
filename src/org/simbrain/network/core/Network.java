@@ -1769,6 +1769,10 @@ public class Network {
         return retList;
     }
 
+    /**
+     * Convert between lists of synapse groups and arrays of synapse group
+     * holders that are easily converted to xml.
+     */
     static class SynapseGroupAdapter
             extends XmlAdapter<SynapseGroupDataHolder[], List<SynapseGroup>> {
 

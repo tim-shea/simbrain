@@ -25,6 +25,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.simbrain.workspace.updater.UpdateAction;
 import org.simbrain.workspace.updater.UpdateActionCustom;
 import org.simbrain.workspace.updater.UpdateAllBuffered;
@@ -42,6 +49,8 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
  * @author Matt Watson
  * @author Jeff Yoshimi
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 class ArchiveContents {
 
     /** A map of all the components to their uris. */
@@ -57,10 +66,17 @@ class ArchiveContents {
     private List<ArchivedUpdateAction> archivedActions = new ArrayList<ArchivedUpdateAction>();
 
     /** The serializer for this archive. */
-    private final WorkspaceComponentSerializer serializer;
+    private WorkspaceComponentSerializer serializer;
 
     /** Reference to workspace used to serialize parameters in workspace. */
-    private final Workspace workspaceParameters;
+    private Workspace workspaceParameters;
+
+    //TODO
+    /**
+     * No-argument consructor for JAXB.
+     */
+    ArchiveContents() {
+    }
 
     /**
      * The component serializer for this archive.
@@ -80,7 +96,8 @@ class ArchiveContents {
      * @param workspaceComponent The workspace component to add.
      * @return The component created for this WorkspaceComponent.
      */
-    ArchivedComponent addComponent(final WorkspaceComponent workspaceComponent) {
+    ArchivedComponent addComponent(
+            final WorkspaceComponent workspaceComponent) {
         ArchivedComponent component = new ArchivedComponent(serializer,
                 workspaceComponent);
         archivedComponents.add(component);
@@ -109,20 +126,20 @@ class ArchiveContents {
 
         // Get a component id if this is an update component action
         if (action instanceof UpdateComponent) {
-            component_id = componentUris.get(((UpdateComponent) action)
-                    .getComponent());
+            component_id = componentUris
+                    .get(((UpdateComponent) action).getComponent());
         }
         // Get a coupling id, if this is coupling action
-        //        if (action instanceof UpdateCoupling) {
-        //            Coupling<?> coupling = ((UpdateCoupling) action).getCoupling();
-        //            if (coupling != null) {
-        //                coupling_id = coupling.getId();
-        //            } else {
-        //                System.err
-        //                        .println("Invalid coupling action found while saving:"
-        //                                + action.getDescription());
-        //            }
-        //        }
+        // if (action instanceof UpdateCoupling) {
+        // Coupling<?> coupling = ((UpdateCoupling) action).getCoupling();
+        // if (coupling != null) {
+        // coupling_id = coupling.getId();
+        // } else {
+        // System.err
+        // .println("Invalid coupling action found while saving:"
+        // + action.getDescription());
+        // }
+        // }
 
         // Create and return the archived action
         return new ArchivedUpdateAction(action, component_id, coupling_id);
@@ -187,54 +204,57 @@ class ArchiveContents {
         // components or couplings, the archived ids are used to find the
         // component or coupling.
         UpdateAction retAction = null;
-        //        if (archivedAction.getUpdateAction() instanceof UpdateComponent) {
-        //            try {
-        //                WorkspaceComponent comp = componentDeserializer
-        //                        .getComponent(archivedAction.getComponentId());
-        //                retAction = archivedAction
-        //                        .getUpdateAction()
-        //                        .getClass()
-        //                        .getConstructor(
-        //                                new Class[] { WorkspaceUpdater.class,
-        //                                        WorkspaceComponent.class })
-        //                        .newInstance(workspace.getUpdater(), comp);
-        //            } catch (Exception e) {
-        //                e.printStackTrace();
-        //            }
-        //        } else if (archivedAction.getUpdateAction() instanceof UpdateAllBuffered) {
-        //            try {
-        //                retAction = archivedAction.getUpdateAction().getClass()
-        //                        .getConstructor(new Class[] { WorkspaceUpdater.class })
-        //                        .newInstance(workspace.getUpdater());
-        //            } catch (Exception e) {
-        //                e.printStackTrace();
-        //            }
-        //        } else if (archivedAction.getUpdateAction() instanceof UpdateActionCustom) {
-        //            try {
-        //                String script = ((UpdateActionCustom) archivedAction
-        //                        .getUpdateAction()).getScriptString();
-        //                retAction = archivedAction
-        //                        .getUpdateAction()
-        //                        .getClass()
-        //                        .getConstructor(
-        //                                new Class[] { WorkspaceUpdater.class,
-        //                                        String.class })
-        //                        .newInstance(workspace.getUpdater(), script);
-        //            } catch (Exception e) {
-        //                e.printStackTrace();
-        //            }
-        //        } else if (archivedAction.getUpdateAction() instanceof UpdateCoupling) {
-        //            try {
-        //                String id = archivedAction.getCouplingId();
-        //                Coupling<?> coupling = workspace.getCoupling(id);
-        //                retAction = archivedAction.getUpdateAction().getClass()
-        //                        .getConstructor(new Class[] { Coupling.class })
-        //                        .newInstance(coupling);
+        // if (archivedAction.getUpdateAction() instanceof UpdateComponent) {
+        // try {
+        // WorkspaceComponent comp = componentDeserializer
+        // .getComponent(archivedAction.getComponentId());
+        // retAction = archivedAction
+        // .getUpdateAction()
+        // .getClass()
+        // .getConstructor(
+        // new Class[] { WorkspaceUpdater.class,
+        // WorkspaceComponent.class })
+        // .newInstance(workspace.getUpdater(), comp);
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        // }
+        // } else if (archivedAction.getUpdateAction() instanceof
+        // UpdateAllBuffered) {
+        // try {
+        // retAction = archivedAction.getUpdateAction().getClass()
+        // .getConstructor(new Class[] { WorkspaceUpdater.class })
+        // .newInstance(workspace.getUpdater());
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        // }
+        // } else if (archivedAction.getUpdateAction() instanceof
+        // UpdateActionCustom) {
+        // try {
+        // String script = ((UpdateActionCustom) archivedAction
+        // .getUpdateAction()).getScriptString();
+        // retAction = archivedAction
+        // .getUpdateAction()
+        // .getClass()
+        // .getConstructor(
+        // new Class[] { WorkspaceUpdater.class,
+        // String.class })
+        // .newInstance(workspace.getUpdater(), script);
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        // }
+        // } else if (archivedAction.getUpdateAction() instanceof
+        // UpdateCoupling) {
+        // try {
+        // String id = archivedAction.getCouplingId();
+        // Coupling<?> coupling = workspace.getCoupling(id);
+        // retAction = archivedAction.getUpdateAction().getClass()
+        // .getConstructor(new Class[] { Coupling.class })
+        // .newInstance(coupling);
         //
-        //            } catch (Exception e) {
-        //                e.printStackTrace();
-        //            }
-        //        }
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        // }
+        // }
 
         return retAction;
     }
@@ -245,11 +265,11 @@ class ArchiveContents {
      * @param coupling The coupling to add.
      * @return The coupling entry in the archive.
      */
-    //    ArchivedCoupling addCoupling(final Coupling<?> coupling) {
-    //        ArchivedCoupling c = new ArchivedCoupling(this, coupling);
-    //        archivedCouplings.add(c);
-    //        return c;
-    //    }
+    ArchivedCoupling addCoupling(final Coupling2<?> coupling) {
+        ArchivedCoupling c = new ArchivedCoupling(this, coupling);
+        archivedCouplings.add(c);
+        return c;
+    }
 
     /**
      * A persistable form of update action that can be used to recreate the
@@ -257,18 +277,28 @@ class ArchiveContents {
      *
      * @author Jeff Yoshimi
      */
+    @XmlRootElement
     static final class ArchivedUpdateAction {
 
         /** Reference to the action itself. */
-        private final UpdateAction updateAction;
+        private UpdateAction updateAction;
 
         /**
          * Reference to the component id for this action, or null if not needed.
          */
-        private final String componentId;
+        private String componentId;
 
-        /** Reference to the coupling id for this action, or null if not needed. */
-        private final String couplingId;
+        /**
+         * Reference to the coupling id for this action, or null if not needed.
+         */
+        private String couplingId;
+
+        //TODO
+        /**
+         * No-argument consructor for JAXB.
+         */
+        ArchivedUpdateAction() {
+        }
 
         /**
          * Construct the archived update action.
@@ -312,25 +342,26 @@ class ArchiveContents {
      *
      * @author Matt Watson
      */
+    @XmlRootElement
     static final class ArchivedComponent {
 
         /** The name of the class for the component. */
-        private final String className;
+        private String className;
 
         /** The name of the Component. */
-        private final String name;
+        private String name;
 
         /** The uri for the serialized component. */
-        private final String uri;
+        private String uri;
 
         /** A unique id for the component in the archive. */
-        private final int id;
+        private int id;
 
         /**
          * A short String used to signify the format of the serialized
          * component.
          */
-        private final String format;
+        private String format;
 
         /**
          * The desktop component associated with the component (if there is
@@ -338,14 +369,21 @@ class ArchiveContents {
          */
         private ArchivedDesktopComponent desktopComponent;
 
+
+        //TODO
+        /**
+         * No-argument consructor for JAXB.
+         */
+        ArchivedComponent() {
+        } 
+
         /**
          * Creates a new Component entry.
          *
          * @param serializer The component serializer for the archive.
          * @param component The workspace component this entry represents.
          */
-        private ArchivedComponent(
-                final WorkspaceComponentSerializer serializer,
+        private ArchivedComponent(final WorkspaceComponentSerializer serializer,
                 final WorkspaceComponent component) {
             this.className = component.getClass().getCanonicalName();
             this.id = serializer.getId(component);
@@ -452,14 +490,17 @@ class ArchiveContents {
      *
      * @author Matt Watson
      */
+    @XmlRootElement
     static final class ArchivedCoupling {
 
         /** The source attribute for the coupling. */
-        private final ArchivedAttribute archivedProducer;
+        private ArchivedAttribute archivedProducer;
 
         /** The target attribute for the coupling. */
-        private final ArchivedAttribute archivedConsumer;
-        
+        private ArchivedAttribute archivedConsumer;
+
+        public ArchivedCoupling() {
+        }
 
         /**
          * Creates a new instance.
@@ -501,27 +542,30 @@ class ArchiveContents {
     public static final class ArchivedAttribute {
 
         /** The uri for the parent component of this attribute. */
-        private final String parentComponentRef;
-        
-        private final String attributeId;
+        private String parentComponentRef;
 
-//        /** The key that the component uses to identify the base object. */
-//        private final String baseObjectKey;
-//
-//        /** The key that the component uses to identify the method name. */
-//        private final String methodBaseName;
-//
-//        /** Key for data type. */
-//        private final Class<?> dataType;
-//
-//        /** Argument data types. */
-//        private Class<?>[] argumentDataTypes;
-//
-//        /** Argument values. */
-//        private Object[] argumentValues;
-//
-//        /** Description. */
-//        private final String description;
+        private String attributeId;
+        
+        public ArchivedAttribute() {
+        }
+
+        // /** The key that the component uses to identify the base object. */
+        // private final String baseObjectKey;
+        //
+        // /** The key that the component uses to identify the method name. */
+        // private final String methodBaseName;
+        //
+        // /** Key for data type. */
+        // private final Class<?> dataType;
+        //
+        // /** Argument data types. */
+        // private Class<?>[] argumentDataTypes;
+        //
+        // /** Argument values. */
+        // private Object[] argumentValues;
+        //
+        // /** Description. */
+        // private final String description;
 
         /**
          * Creates a new instance.
@@ -536,15 +580,15 @@ class ArchiveContents {
                     .get(attribute.parentComponent);
             this.attributeId = attribute.getId();
 
-//            WorkspaceComponent comp = attribute.getParentComponent();
-//            this.parentComponentRef = parent.componentUris.get(comp);
-//            this.baseObjectKey = comp.getKeyFromObject(attribute
-//                    .getBaseObject());
-//            this.methodBaseName = attribute.getMethodName();
-//            this.argumentDataTypes = attribute.getArgumentDataTypes();
-//            this.argumentValues = attribute.getArgumentValues();
-//            this.dataType = attribute.getDataType();
-//            this.description = attribute.getDescription();
+            // WorkspaceComponent comp = attribute.getParentComponent();
+            // this.parentComponentRef = parent.componentUris.get(comp);
+            // this.baseObjectKey = comp.getKeyFromObject(attribute
+            // .getBaseObject());
+            // this.methodBaseName = attribute.getMethodName();
+            // this.argumentDataTypes = attribute.getArgumentDataTypes();
+            // this.argumentValues = attribute.getArgumentValues();
+            // this.dataType = attribute.getDataType();
+            // this.description = attribute.getDescription();
 
         }
 
@@ -562,48 +606,48 @@ class ArchiveContents {
             return parentComponentRef;
         }
 
-        //TODO
-//        /**
-//         * @return the baseObjectKey
-//         */
-//        public String getBaseObjectKey() {
-//            return baseObjectKey;
-//        }
-//
-//        /**
-//         * @return the methodBaseName
-//         */
-//        public String getMethodBaseName() {
-//            return methodBaseName;
-//        }
-//
-//        /**
-//         * @return the dataType
-//         */
-//        public Class<?> getDataType() {
-//            return dataType;
-//        }
-//
-//        /**
-//         * @return the description
-//         */
-//        public String getDescription() {
-//            return description;
-//        }
-//
-//        /**
-//         * @return the argumentDataTypes
-//         */
-//        public Class<?>[] getArgumentDataTypes() {
-//            return argumentDataTypes;
-//        }
-//
-//        /**
-//         * @return the argumentValues
-//         */
-//        public Object[] getArgumentValues() {
-//            return argumentValues;
-//        }
+        // TODO
+        // /**
+        // * @return the baseObjectKey
+        // */
+        // public String getBaseObjectKey() {
+        // return baseObjectKey;
+        // }
+        //
+        // /**
+        // * @return the methodBaseName
+        // */
+        // public String getMethodBaseName() {
+        // return methodBaseName;
+        // }
+        //
+        // /**
+        // * @return the dataType
+        // */
+        // public Class<?> getDataType() {
+        // return dataType;
+        // }
+        //
+        // /**
+        // * @return the description
+        // */
+        // public String getDescription() {
+        // return description;
+        // }
+        //
+        // /**
+        // * @return the argumentDataTypes
+        // */
+        // public Class<?>[] getArgumentDataTypes() {
+        // return argumentDataTypes;
+        // }
+        //
+        // /**
+        // * @return the argumentValues
+        // */
+        // public Object[] getArgumentValues() {
+        // return argumentValues;
+        // }
     }
 
     /**
@@ -612,7 +656,17 @@ class ArchiveContents {
      * @param stream The stream to write to.
      */
     void toXml(final OutputStream stream) {
-        xstream().toXML(this, stream);
+        // xstream().toXML(this, stream);
+        JAXBContext jc;
+        try {
+            jc = JAXBContext.newInstance(ArchiveContents.class);
+            Marshaller marshaller = jc.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(this, stream);
+            marshaller.marshal(this, System.out);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -648,7 +702,7 @@ class ArchiveContents {
 
         xstream.omitField(UpdateComponent.class, "component");
         xstream.omitField(UpdateComponent.class, "updater");
-        //        xstream.omitField(UpdateCoupling.class, "coupling");
+        // xstream.omitField(UpdateCoupling.class, "coupling");
         xstream.omitField(UpdateActionCustom.class, "interpreter");
         xstream.omitField(UpdateActionCustom.class, "theAction");
         xstream.omitField(UpdateActionCustom.class, "updater");

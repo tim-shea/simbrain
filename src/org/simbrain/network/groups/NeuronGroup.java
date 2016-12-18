@@ -723,6 +723,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
      * @param inputs
      *            the input vector as a double array.
      */
+    @Consumible(customDescriptionMethod="getId")
     public void setInputValues(double[] inputs) {
         for (int i = 0, n = size(); i < n; i++) {
             if (i >= inputs.length) {
@@ -742,7 +743,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
      * @param inputs
      *            the input vector as a double array.
      */
-    @Consumible
+    @Consumible(customDescriptionMethod="getId")
     public void setActivations(double[] inputs) {
         for (int i = 0, n = size(); i < n; i++) {
             if (i >= inputs.length) {
@@ -763,7 +764,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
      * @param inputs
      *            the input vector as a double array.
      */
-    @Consumible
+    @Consumible(customDescriptionMethod="getId")
     public void forceSetActivations(double[] inputs) {
         for (int i = 0, n = size(); i < n; i++) {
             if (i >= inputs.length) {
@@ -795,6 +796,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
      *
      * @return the spike index array
      */
+    @Producible(customDescriptionMethod="getId")
     public double[] getSpikeIndexes() {
         List<Double> inds = new ArrayList<Double>(size());
         int i = 0;
@@ -1591,6 +1593,7 @@ public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
      *
      * @return the vector of external activations.
      */
+    @Producible(customDescriptionMethod="getId")
     public double[] getExternalActivations() {
         if (!useSubSampling) {
             return getActivations();
