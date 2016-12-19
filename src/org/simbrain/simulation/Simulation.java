@@ -1,8 +1,6 @@
 package org.simbrain.simulation;
 
 import java.io.File;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Hashtable;
 import java.util.concurrent.CountDownLatch;
 
@@ -48,8 +46,8 @@ public class Simulation {
      */
     public Simulation(SimbrainDesktop desktop) {
         super();
-        // this.desktop = desktop;
-        // this.workspace = desktop.getWorkspace();
+        this.desktop = desktop;
+        this.workspace = desktop.getWorkspace();
     }
 
     /**
@@ -81,7 +79,7 @@ public class Simulation {
         NetworkComponent networkComponent = new NetworkComponent(name);
         workspace.addWorkspaceComponent(networkComponent);
         desktop.getDesktopComponent(networkComponent).getParentFrame()
-                .setBounds(x, y, width, height);
+        .setBounds(x, y, width, height);
         netMap.put(networkComponent.getNetwork(), networkComponent);
         return new NetBuilder(networkComponent);
     }
@@ -125,7 +123,7 @@ public class Simulation {
                 name);
         workspace.addWorkspaceComponent(timeSeriesComponent);
         desktop.getDesktopComponent(timeSeriesComponent).getParentFrame()
-                .setBounds(x, y, width, height);
+        .setBounds(x, y, width, height);
         return new PlotBuilder(timeSeriesComponent);
     }
 
@@ -144,7 +142,7 @@ public class Simulation {
         ProjectionComponent projectionComponent = new ProjectionComponent(name);
         workspace.addWorkspaceComponent(projectionComponent);
         desktop.getDesktopComponent(projectionComponent).getParentFrame()
-                .setBounds(x, y, width, height);
+        .setBounds(x, y, width, height);
         return new PlotBuilder(projectionComponent);
     }
 
@@ -163,7 +161,7 @@ public class Simulation {
         OdorWorldComponent odorWorldComponent = new OdorWorldComponent(name);
         workspace.addWorkspaceComponent(odorWorldComponent);
         desktop.getDesktopComponent(odorWorldComponent).getParentFrame()
-                .setBounds(x, y, width, height);
+        .setBounds(x, y, width, height);
         odorMap.put(odorWorldComponent.getWorld(), odorWorldComponent);
         return new OdorWorldBuilder(odorWorldComponent);
     }
