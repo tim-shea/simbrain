@@ -37,13 +37,12 @@ import javax.swing.JScrollPane;
 
 import org.simbrain.workspace.Attribute2;
 import org.simbrain.workspace.AttributeListener;
+import org.simbrain.workspace.AttributeType;
 import org.simbrain.workspace.Consumer2;
 import org.simbrain.workspace.Producer2;
 import org.simbrain.workspace.Workspace;
 import org.simbrain.workspace.WorkspaceComponent;
 import org.simbrain.workspace.WorkspaceListener;
-
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.AttributeType;
 
 /**
  * Displays a panel with a JComboBox, which the user uses to select a component,
