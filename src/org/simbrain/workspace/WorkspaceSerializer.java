@@ -36,6 +36,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
 import org.simbrain.workspace.gui.GuiComponent;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 import org.simbrain.workspace.updater.UpdateAction;
@@ -158,6 +162,7 @@ public class WorkspaceSerializer {
         deserialize(stream, empty);
     }
 
+    //TODO: Remove exclude thing?
     /**
      * Creates a workspace from a zip compressed input stream.
      *
@@ -198,8 +203,15 @@ public class WorkspaceSerializer {
         }
 
         // Get the archived contents file.
-        contents = (ArchiveContents) ArchiveContents.xstream().fromXML(
-                new ByteArrayInputStream(entries.get("contents.xml")));
+        Unmarshaller jaxbUnmarshaller;
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(ArchiveContents.class);
+            jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            contents = (ArchiveContents) jaxbUnmarshaller.unmarshal(
+                    new ByteArrayInputStream(entries.get("contents.xml")));
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
 
         // Add Components
         if (contents.getArchivedComponents() != null) {
@@ -243,45 +255,23 @@ public class WorkspaceSerializer {
 //                }
 
                 // Get workspace components from references
-//                WorkspaceComponent sourceComponent = componentDeserializer
-//                        .getComponent(couplingRef.getArchivedProducer()
-//                                .getParentRef());
-//                WorkspaceComponent targetComponent = componentDeserializer
-//                        .getComponent(couplingRef.getArchivedConsumer()
-//                                .getParentRef());
+                WorkspaceComponent sourceComponent = componentDeserializer
+                        .getComponent(couplingRef.getArchivedProducer()
+                                .getParentRef());
+                WorkspaceComponent targetComponent = componentDeserializer
+                        .getComponent(couplingRef.getArchivedConsumer()
+                                .getParentRef());
 
-                // Get attributes from references
-//                Producer<?> producer = sourceComponent
-//                        .getAttributeManager()
-//                        .createProducer(
-//                                sourceComponent.getObjectFromKey(couplingRef
-//                                        .getArchivedProducer()
-//                                        .getBaseObjectKey()),
-//                                couplingRef.getArchivedProducer()
-//                                        .getMethodBaseName(),
-//                                couplingRef.getArchivedProducer().getDataType(),
-//                                couplingRef.getArchivedProducer()
-//                                        .getArgumentDataTypes(),
-//                                couplingRef.getArchivedProducer()
-//                                        .getArgumentValues(),
-//                                couplingRef.getArchivedProducer()
-//                                        .getDescription());
+                Producer2<?> producer = sourceComponent.getProducer(
+                        couplingRef.getArchivedProducer().getAttributeId());
+                Consumer2<?> consumer = targetComponent.getConsumer(
+                        couplingRef.getArchivedConsumer().getAttributeId());
 
-//                Class[] argDataTypes = couplingRef.getArchivedConsumer()
-//                        .getArgumentDataTypes();
-//                Consumer<?> consumer = targetComponent.getAttributeManager()
-//                        .createConsumer(
-//                                targetComponent.getObjectFromKey(couplingRef
-//                                        .getArchivedConsumer()
-//                                        .getBaseObjectKey()),
-//                                couplingRef.getArchivedConsumer()
-//                                        .getMethodBaseName(),
-//                                argDataTypes,
-//                                couplingRef.getArchivedConsumer()
-//                                        .getArgumentValues(),
-//                                couplingRef.getArchivedConsumer()
-//                                        .getDescription());
-//                workspace.addCoupling(new Coupling(producer, consumer));
+                try {
+                    workspace.addCoupling(new Coupling2(producer, consumer));
+                } catch (MismatchedAttributesException e) {
+                    e.printStackTrace();
+                }
 
             }
         }

@@ -977,13 +977,13 @@ public abstract class WorkspaceComponent {
 
     public Consumer2<?> getConsumer(String id) {
         return getConsumers().stream()
-                .filter(p -> p.toString().equalsIgnoreCase(id))
+                .filter(p -> p.getId().equalsIgnoreCase(id))
                 .findAny().get();
     }
 
     public Producer2<?> getProducer(String id) {
         return getProducers().stream()
-                .filter(p -> p.toString().equalsIgnoreCase(id))
+                .filter(p -> p.getId().equalsIgnoreCase(id))
                 .findAny().get();
     }
 

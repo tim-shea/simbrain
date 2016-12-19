@@ -68,6 +68,7 @@ class ArchiveContents {
     private List<ArchivedUpdateAction> archivedActions = new ArrayList<ArchivedUpdateAction>();
 
     /** The serializer for this archive. */
+    @XmlTransient
     private WorkspaceComponentSerializer serializer;
 
     //TODO: Below is saving currentFile and Directory, which it shouldn't
@@ -381,7 +382,7 @@ class ArchiveContents {
          * No-argument consructor for JAXB.
          */
         ArchivedComponent() {
-        } 
+        }
 
         /**
          * Creates a new Component entry.
@@ -419,13 +420,20 @@ class ArchiveContents {
         static final class ArchivedDesktopComponent {
 
             /** The class for the desktop component. */
-            private final String className;
+            private String className;
 
             /** The uri for the serialized data. */
-            private final String uri;
+            private String uri;
 
             /** The format for the serialized data. */
-            private final String format;
+            private String format;
+
+            //TODO
+            /**
+             * No-argument constructor for JAXB.
+             */
+            public ArchivedDesktopComponent() {
+            }
 
             /**
              * Creates a new instance.
@@ -506,6 +514,10 @@ class ArchiveContents {
         /** The target attribute for the coupling. */
         private ArchivedAttribute archivedConsumer;
 
+        //TODO
+        /**
+         * No-argument constructor for JAXB.
+         */
         public ArchivedCoupling() {
         }
 
@@ -552,28 +564,15 @@ class ArchiveContents {
         /** The uri for the parent component of this attribute. */
         private String parentComponentRef;
 
+        //TODO
         private String attributeId;
-        
+
+        //TODO
+        /**
+         * No-argument constructor for JAXB.
+         */
         public ArchivedAttribute() {
         }
-
-        // /** The key that the component uses to identify the base object. */
-        // private final String baseObjectKey;
-        //
-        // /** The key that the component uses to identify the method name. */
-        // private final String methodBaseName;
-        //
-        // /** Key for data type. */
-        // private final Class<?> dataType;
-        //
-        // /** Argument data types. */
-        // private Class<?>[] argumentDataTypes;
-        //
-        // /** Argument values. */
-        // private Object[] argumentValues;
-        //
-        // /** Description. */
-        // private final String description;
 
         /**
          * Creates a new instance.
@@ -614,48 +613,13 @@ class ArchiveContents {
             return parentComponentRef;
         }
 
-        // TODO
-        // /**
-        // * @return the baseObjectKey
-        // */
-        // public String getBaseObjectKey() {
-        // return baseObjectKey;
-        // }
-        //
-        // /**
-        // * @return the methodBaseName
-        // */
-        // public String getMethodBaseName() {
-        // return methodBaseName;
-        // }
-        //
-        // /**
-        // * @return the dataType
-        // */
-        // public Class<?> getDataType() {
-        // return dataType;
-        // }
-        //
-        // /**
-        // * @return the description
-        // */
-        // public String getDescription() {
-        // return description;
-        // }
-        //
-        // /**
-        // * @return the argumentDataTypes
-        // */
-        // public Class<?>[] getArgumentDataTypes() {
-        // return argumentDataTypes;
-        // }
-        //
-        // /**
-        // * @return the argumentValues
-        // */
-        // public Object[] getArgumentValues() {
-        // return argumentValues;
-        // }
+        /**
+         * @return the attributeId
+         */
+        public String getAttributeId() {
+            return attributeId;
+        }
+
     }
 
     /**

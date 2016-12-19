@@ -446,7 +446,7 @@ public final class NetworkComponent extends WorkspaceComponent {
             JAXBContext jaxbContext = JAXBContext.newInstance(Network.class);
             jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             Network network = (Network) jaxbUnmarshaller.unmarshal(input);
-            System.out.println(network);
+            //System.out.println(network);
             return new NetworkComponent(name, network);
         } catch (JAXBException e) {
             e.printStackTrace();
@@ -537,7 +537,7 @@ public final class NetworkComponent extends WorkspaceComponent {
             JAXBContext jaxbContext = JAXBContext.newInstance(Network.class);
             jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             Network network = (Network) jaxbUnmarshaller.unmarshal(file);
-            System.out.println(network);
+            //System.out.println(network);
         } catch (JAXBException e) {
             e.printStackTrace();
         }
