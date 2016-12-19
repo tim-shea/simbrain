@@ -28,9 +28,11 @@ import java.util.Map;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.simbrain.workspace.updater.UpdateAction;
 import org.simbrain.workspace.updater.UpdateActionCustom;
@@ -68,6 +70,7 @@ class ArchiveContents {
     /** The serializer for this archive. */
     private WorkspaceComponentSerializer serializer;
 
+    //TODO: Below is saving currentFile and Directory, which it shouldn't
     /** Reference to workspace used to serialize parameters in workspace. */
     private Workspace workspaceParameters;
 
@@ -277,10 +280,11 @@ class ArchiveContents {
      *
      * @author Jeff Yoshimi
      */
-    @XmlRootElement
+    @XmlAccessorType(XmlAccessType.FIELD)
     static final class ArchivedUpdateAction {
 
         /** Reference to the action itself. */
+        @XmlTransient
         private UpdateAction updateAction;
 
         /**
@@ -342,7 +346,7 @@ class ArchiveContents {
      *
      * @author Matt Watson
      */
-    @XmlRootElement
+    @XmlAccessorType(XmlAccessType.FIELD)
     static final class ArchivedComponent {
 
         /** The name of the class for the component. */
@@ -354,9 +358,11 @@ class ArchiveContents {
         /** The uri for the serialized component. */
         private String uri;
 
+        //TODO Does this need to be persisted?
         /** A unique id for the component in the archive. */
         private int id;
 
+        //TODO Does this need to be persisted?
         /**
          * A short String used to signify the format of the serialized
          * component.
@@ -409,6 +415,7 @@ class ArchiveContents {
          *
          * @author Matt Watson
          */
+        @XmlAccessorType(XmlAccessType.FIELD)
         static final class ArchivedDesktopComponent {
 
             /** The class for the desktop component. */
@@ -490,7 +497,7 @@ class ArchiveContents {
      *
      * @author Matt Watson
      */
-    @XmlRootElement
+    @XmlAccessorType(XmlAccessType.FIELD)
     static final class ArchivedCoupling {
 
         /** The source attribute for the coupling. */
@@ -539,7 +546,8 @@ class ArchiveContents {
      * @author Matt Watson
      * @author Jeff Yoshimi
      */
-    public static final class ArchivedAttribute {
+    @XmlAccessorType(XmlAccessType.FIELD)
+    static final class ArchivedAttribute {
 
         /** The uri for the parent component of this attribute. */
         private String parentComponentRef;
@@ -739,4 +747,12 @@ class ArchiveContents {
         return archivedActions;
     }
 
+    //TODO
+    void beforeUnmarshal(Unmarshaller u, Object network) {
+        System.out.println("Before");
+    }
+
+    void afterUnmarshal(Unmarshaller u, Object network) {
+        System.out.println("Before");
+    }
 }
