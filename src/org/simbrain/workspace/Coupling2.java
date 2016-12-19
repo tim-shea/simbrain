@@ -9,8 +9,8 @@ import org.simbrain.network.groups.NeuronGroup;
 
 public class Coupling2<T> {
 
-    Producer2<T> producer;
-    Consumer2<T> consumer;
+    final Producer2<T> producer;
+    final Consumer2<T> consumer;
 
     public Coupling2(Producer2<T> producer, Consumer2<T> consumer)
             throws MismatchedAttributesException {
@@ -91,6 +91,26 @@ public class Coupling2<T> {
         System.out.println("After" + Arrays.toString(group1.getActivations()));
         System.out.println("After" + Arrays.toString(group2.getActivations()));
 
+    }
+
+    //TODO.  Currently used for coupling action de-serializtion, which does not yet
+    // work.  If not used, get rid of this.
+    public String getId() {
+        return producer.getId() + ">" + consumer.getId();
+    }
+
+    /**
+     * @return the producer
+     */
+    public Producer2<T> getProducer() {
+        return producer;
+    }
+
+    /**
+     * @return the consumer
+     */
+    public Consumer2<T> getConsumer() {
+        return consumer;
     }
 
 }

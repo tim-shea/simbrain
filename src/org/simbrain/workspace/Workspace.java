@@ -762,6 +762,12 @@ public class Workspace {
         this.fireCouplingsRemoved();
     }
 
+    //TODO: If not used by the time update actions are re-implemented, remove
+    public Coupling2<?> getCoupling(String id) {
+        return couplings.stream().filter(c -> c.getId().equalsIgnoreCase(id))
+                .findFirst().get();
+    }
+
 
 
 }

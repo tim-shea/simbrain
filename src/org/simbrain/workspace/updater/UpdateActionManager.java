@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.simbrain.workspace.Coupling2;
+import org.simbrain.workspace.CouplingListener;
 import org.simbrain.workspace.WorkspaceComponent;
 import org.simbrain.workspace.WorkspaceListener;
 
@@ -58,7 +60,7 @@ public class UpdateActionManager {
      * Keep track of relations between coupling and coupling actions so they can
      * be cleaned up.
      */
-//    private HashMap<Coupling<?>, UpdateCoupling> couplingActionMap = new HashMap<Coupling<?>, UpdateCoupling>();
+    private HashMap<Coupling2<?>, UpdateCoupling> couplingActionMap = new HashMap<>();
 
     /**
      * Keep track of relations between component and component actions so they
@@ -83,10 +85,9 @@ public class UpdateActionManager {
      * Perform initialization after deserializing.
      */
     public void postAddInit() {
-        // addListeners();
+        addListeners();
         for (UpdateAction action : actionList) {
             System.out.println(action.getLongDescription());
-
         }
     }
 
@@ -125,26 +126,38 @@ public class UpdateActionManager {
         });
 
         // Add / remove coupling actions as needed
-//        workspaceUpdater.getWorkspace().getCouplingManager()
-//                .addCouplingListener(new CouplingListener() {
-//
-//                    @Override
-//                    public void couplingAdded(Coupling<?> coupling) {
-//                        UpdateCoupling couplingAction = new UpdateCoupling(
-//                                coupling);
-//                        couplingActionMap.put(coupling, couplingAction);
-//                        // System.out.println("Added coupling " +
-//                        // couplingActionMap.size());
-//                    }
-//
-//                    @Override
-//                    public void couplingRemoved(Coupling<?> coupling) {
-//                        removeAction(couplingActionMap.remove(coupling));
-//                        // System.out.println("Removed coupling " +
-//                        // couplingActionMap.size());
-//                    }
-//
-//                });
+        workspaceUpdater.getWorkspace()
+                .addCouplingListener(new CouplingListener() {
+
+                    @Override
+                    public void couplingAdded(Coupling2<?> coupling) {
+                        UpdateCoupling couplingAction = new UpdateCoupling(
+                                coupling);
+                        couplingActionMap.put(coupling, couplingAction);
+                        // System.out.println("Added coupling " +
+                        // couplingActionMap.size());
+                    }
+
+                    @Override
+                    public void couplingRemoved(Coupling2<?> coupling) {
+                        removeAction(couplingActionMap.remove(coupling));
+                        // System.out.println("Removed coupling " +
+                        // couplingActionMap.size());
+                    }
+
+                    @Override
+                    public void couplingsAdded() {
+                        // TODO Auto-generated method stub
+
+                    }
+
+                    @Override
+                    public void couplingsRemoved() {
+                        // TODO Auto-generated method stub
+
+                    }
+
+                });
     }
 
     /**
@@ -215,12 +228,16 @@ public class UpdateActionManager {
      */
     public interface UpdateManagerListener {
 
-        /** An action was added. 
+        /**
+         * An action was added.
+         *
          * @param action
          */
         public void actionAdded(UpdateAction action);
 
-        /** An action was removed. 
+        /**
+         * An action was removed.
+         *
          * @param action
          */
         public void actionRemoved(UpdateAction action);
@@ -247,16 +264,16 @@ public class UpdateActionManager {
         addAction(new UpdateAllBuffered(workspaceUpdater));
     }
 
-
     /**
-     * Returns an update action matching the provided name, or null if none is found.
-     * 
+     * Returns an update action matching the provided name, or null if none is
+     * found.
+     *
      * @param toFind name of action to find
      * @return the matching update action, or null if none found
      */
     public UpdateAction getAction(String toFind) {
-        for(UpdateAction action : getAvailableActionList()) {
-            if(action.getDescription().equalsIgnoreCase(toFind)) {
+        for (UpdateAction action : getAvailableActionList()) {
+            if (action.getDescription().equalsIgnoreCase(toFind)) {
                 return action;
             }
         }
@@ -267,10 +284,10 @@ public class UpdateActionManager {
      * Returns an update action whose description corresponds to the provided
      * string (case is ignored).
      *
-     * TODO: This facilitates access to update actions, but not in a very
-     * pretty way. It is used by ElmanPhonemes.bsh and ElmanSentences.bsh.
-     * Probably need to add some kind of id field or something to
-     * UpdateAction so that it's easier to retrieve the update actions.
+     * TODO: This facilitates access to update actions, but not in a very pretty
+     * way. It is used by ElmanPhonemes.bsh and ElmanSentences.bsh. Probably
+     * need to add some kind of id field or something to UpdateAction so that
+     * it's easier to retrieve the update actions.
      *
      * @param toFind the string to match
      * @return matching update action or null if no match found
@@ -297,15 +314,14 @@ public class UpdateActionManager {
 
         // Add update actions for all components available
         for (WorkspaceComponent component : workspaceUpdater.getComponents()) {
-            availableActionList.add(new UpdateComponent(workspaceUpdater,
-                    component));
+            availableActionList
+                    .add(new UpdateComponent(workspaceUpdater, component));
         }
 
         // Add update actions for all components available
-//        for (Coupling coupling : workspaceUpdater.getWorkspace()
-//                .getCouplingManager().getCouplings()) {
-//            availableActionList.add(new UpdateCoupling(coupling));
-//        }
+        for (Coupling2<?> coupling : workspaceUpdater.getWorkspace().getCouplings()) {
+            availableActionList.add(new UpdateCoupling(coupling));
+        }
 
         return availableActionList;
     }

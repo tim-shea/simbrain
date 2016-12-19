@@ -31,6 +31,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -38,6 +39,8 @@ import org.simbrain.workspace.updater.UpdateAction;
 import org.simbrain.workspace.updater.UpdateActionCustom;
 import org.simbrain.workspace.updater.UpdateAllBuffered;
 import org.simbrain.workspace.updater.UpdateComponent;
+import org.simbrain.workspace.updater.UpdateCoupling;
+import org.simbrain.workspace.updater.WorkspaceUpdater;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -71,11 +74,11 @@ class ArchiveContents {
     @XmlTransient
     private WorkspaceComponentSerializer serializer;
 
-    //TODO: Below is saving currentFile and Directory, which it shouldn't
+    // TODO: Below is saving currentFile and Directory, which it shouldn't
     /** Reference to workspace used to serialize parameters in workspace. */
     private Workspace workspaceParameters;
 
-    //TODO
+    // TODO
     /**
      * No-argument consructor for JAXB.
      */
@@ -134,16 +137,15 @@ class ArchiveContents {
                     .get(((UpdateComponent) action).getComponent());
         }
         // Get a coupling id, if this is coupling action
-        // if (action instanceof UpdateCoupling) {
-        // Coupling<?> coupling = ((UpdateCoupling) action).getCoupling();
-        // if (coupling != null) {
-        // coupling_id = coupling.getId();
-        // } else {
-        // System.err
-        // .println("Invalid coupling action found while saving:"
-        // + action.getDescription());
-        // }
-        // }
+        if (action instanceof UpdateCoupling) {
+            Coupling2<?> coupling = ((UpdateCoupling) action).getCoupling();
+            if (coupling != null) {
+                coupling_id = coupling.getId();
+            } else {
+                System.err.println("Invalid coupling action found while saving:"
+                        + action.getDescription());
+            }
+        }
 
         // Create and return the archived action
         return new ArchivedUpdateAction(action, component_id, coupling_id);
@@ -202,63 +204,59 @@ class ArchiveContents {
     UpdateAction createUpdateAction(final Workspace workspace,
             final WorkspaceComponentDeserializer componentDeserializer,
             final ArchivedUpdateAction archivedAction) {
-
+        
+        // TODO: Something fishy here.   
+        // Maybe try  http://blog.bdoughan.com/2012/12/jaxbs-xmlanyelementlaxtrue-explained.html
+        
         // Use reflection to create the update action, based on what type of
         // action was archived. For actions whose constructors require
         // components or couplings, the archived ids are used to find the
         // component or coupling.
         UpdateAction retAction = null;
-        // if (archivedAction.getUpdateAction() instanceof UpdateComponent) {
-        // try {
-        // WorkspaceComponent comp = componentDeserializer
-        // .getComponent(archivedAction.getComponentId());
-        // retAction = archivedAction
-        // .getUpdateAction()
-        // .getClass()
-        // .getConstructor(
-        // new Class[] { WorkspaceUpdater.class,
-        // WorkspaceComponent.class })
-        // .newInstance(workspace.getUpdater(), comp);
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // }
-        // } else if (archivedAction.getUpdateAction() instanceof
-        // UpdateAllBuffered) {
-        // try {
-        // retAction = archivedAction.getUpdateAction().getClass()
-        // .getConstructor(new Class[] { WorkspaceUpdater.class })
-        // .newInstance(workspace.getUpdater());
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // }
-        // } else if (archivedAction.getUpdateAction() instanceof
-        // UpdateActionCustom) {
-        // try {
-        // String script = ((UpdateActionCustom) archivedAction
-        // .getUpdateAction()).getScriptString();
-        // retAction = archivedAction
-        // .getUpdateAction()
-        // .getClass()
-        // .getConstructor(
-        // new Class[] { WorkspaceUpdater.class,
-        // String.class })
-        // .newInstance(workspace.getUpdater(), script);
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // }
-        // } else if (archivedAction.getUpdateAction() instanceof
-        // UpdateCoupling) {
-        // try {
-        // String id = archivedAction.getCouplingId();
-        // Coupling<?> coupling = workspace.getCoupling(id);
-        // retAction = archivedAction.getUpdateAction().getClass()
-        // .getConstructor(new Class[] { Coupling.class })
-        // .newInstance(coupling);
-        //
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // }
-        // }
+        if (archivedAction.getUpdateAction() instanceof UpdateComponent) {
+            try {
+                WorkspaceComponent comp = componentDeserializer
+                        .getComponent(archivedAction.getComponentId());
+                retAction = archivedAction.getUpdateAction().getClass()
+                        .getConstructor(new Class[] { WorkspaceUpdater.class,
+                                WorkspaceComponent.class })
+                        .newInstance(workspace.getUpdater(), comp);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (archivedAction
+                .getUpdateAction() instanceof UpdateAllBuffered) {
+            try {
+                retAction = archivedAction.getUpdateAction().getClass()
+                        .getConstructor(new Class[] { WorkspaceUpdater.class })
+                        .newInstance(workspace.getUpdater());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (archivedAction
+                .getUpdateAction() instanceof UpdateActionCustom) {
+            try {
+                String script = ((UpdateActionCustom) archivedAction
+                        .getUpdateAction()).getScriptString();
+                retAction = archivedAction.getUpdateAction().getClass()
+                        .getConstructor(new Class[] { WorkspaceUpdater.class,
+                                String.class })
+                        .newInstance(workspace.getUpdater(), script);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (archivedAction.getUpdateAction() instanceof UpdateCoupling) {
+            try {
+                String id = archivedAction.getCouplingId();
+                Coupling2<?> coupling = workspace.getCoupling(id);
+                retAction = archivedAction.getUpdateAction().getClass()
+                        .getConstructor(new Class[] { Coupling2.class })
+                        .newInstance(coupling);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         return retAction;
     }
@@ -285,7 +283,7 @@ class ArchiveContents {
     static final class ArchivedUpdateAction {
 
         /** Reference to the action itself. */
-        @XmlTransient
+        @XmlAnyElement
         private UpdateAction updateAction;
 
         /**
@@ -298,7 +296,7 @@ class ArchiveContents {
          */
         private String couplingId;
 
-        //TODO
+        // TODO
         /**
          * No-argument consructor for JAXB.
          */
@@ -359,11 +357,11 @@ class ArchiveContents {
         /** The uri for the serialized component. */
         private String uri;
 
-        //TODO Does this need to be persisted?
+        // TODO Does this need to be persisted?
         /** A unique id for the component in the archive. */
         private int id;
 
-        //TODO Does this need to be persisted?
+        // TODO Does this need to be persisted?
         /**
          * A short String used to signify the format of the serialized
          * component.
@@ -376,8 +374,7 @@ class ArchiveContents {
          */
         private ArchivedDesktopComponent desktopComponent;
 
-
-        //TODO
+        // TODO
         /**
          * No-argument consructor for JAXB.
          */
@@ -428,7 +425,7 @@ class ArchiveContents {
             /** The format for the serialized data. */
             private String format;
 
-            //TODO
+            // TODO
             /**
              * No-argument constructor for JAXB.
              */
@@ -514,7 +511,7 @@ class ArchiveContents {
         /** The target attribute for the coupling. */
         private ArchivedAttribute archivedConsumer;
 
-        //TODO
+        // TODO
         /**
          * No-argument constructor for JAXB.
          */
@@ -564,10 +561,10 @@ class ArchiveContents {
         /** The uri for the parent component of this attribute. */
         private String parentComponentRef;
 
-        //TODO
+        // TODO
         private String attributeId;
 
-        //TODO
+        // TODO
         /**
          * No-argument constructor for JAXB.
          */
@@ -631,7 +628,7 @@ class ArchiveContents {
         // xstream().toXML(this, stream);
         JAXBContext jc;
         try {
-            jc = JAXBContext.newInstance(ArchiveContents.class);
+            jc = JAXBContext.newInstance(ArchiveContents.class, UpdateAllBuffered.class);
             Marshaller marshaller = jc.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(this, stream);
@@ -711,7 +708,7 @@ class ArchiveContents {
         return archivedActions;
     }
 
-    //TODO
+    // TODO
     void beforeUnmarshal(Unmarshaller u, Object network) {
         System.out.println("Before");
     }

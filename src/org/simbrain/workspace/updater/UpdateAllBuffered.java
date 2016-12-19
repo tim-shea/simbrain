@@ -23,6 +23,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.apache.log4j.Logger;
 import org.simbrain.workspace.WorkspaceComponent;
 
@@ -43,16 +48,26 @@ import org.simbrain.workspace.WorkspaceComponent;
  *
  * @author jyoshimi
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class UpdateAllBuffered implements UpdateAction {
 
     /** Provides access to workspace updater. */
-    private final WorkspaceUpdater updater;
+    private WorkspaceUpdater updater;
 
     /** The static logger for the class. */
-    static final Logger LOGGER = Logger.getLogger(UpdateAllBuffered.class);
+    static Logger LOGGER = Logger.getLogger(UpdateAllBuffered.class);
 
     /** The executor service for doing the component updates. */
+    @XmlTransient
     private ExecutorService componentUpdateExecutor;
+
+    //TODO
+    /**
+     * No-argument constructor for jaxb.
+     */
+    public UpdateAllBuffered() {
+    }
 
     /**
      * Construct the action.
