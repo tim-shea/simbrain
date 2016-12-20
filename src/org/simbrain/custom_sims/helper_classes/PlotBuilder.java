@@ -1,4 +1,4 @@
-package org.simbrain.simulation;
+package org.simbrain.custom_sims.helper_classes;
 
 import org.simbrain.plot.projection.ProjectionComponent;
 import org.simbrain.plot.projection.ProjectionModel;

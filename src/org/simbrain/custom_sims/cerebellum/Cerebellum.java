@@ -1,4 +1,4 @@
-package org.simbrain.custom.cerebellum;
+package org.simbrain.custom_sims.cerebellum;
 
 import java.util.List;
 
@@ -7,7 +7,10 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.simbrain.custom.RegisteredSimulation;
+import org.simbrain.custom_sims.RegisteredSimulation;
+import org.simbrain.custom_sims.helper_classes.ControlPanel;
+import org.simbrain.custom_sims.helper_classes.NetBuilder;
+import org.simbrain.custom_sims.helper_classes.PlotBuilder;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.NetworkTextObject;
 import org.simbrain.network.core.NetworkUpdateAction;
@@ -15,10 +18,6 @@ import org.simbrain.network.core.Neuron;
 import org.simbrain.network.core.Synapse;
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.network.neuron_update_rules.DecayRule;
-import org.simbrain.simulation.ControlPanel;
-import org.simbrain.simulation.NetBuilder;
-import org.simbrain.simulation.PlotBuilder;
-import org.simbrain.simulation.Simulation;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 
 /**

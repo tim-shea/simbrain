@@ -5,4 +5,4 @@
  * an IDE has to offer.  Support for custom simulations is provided in the
  * {@link org.simbrain.simulation.Simulation} package.
  */
-package org.simbrain.custom;
+package org.simbrain.custom_sims;

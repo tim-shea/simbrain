@@ -1,4 +1,4 @@
-package org.simbrain.custom.hippocampus;
+package org.simbrain.custom_sims.hippocampus;
 
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;

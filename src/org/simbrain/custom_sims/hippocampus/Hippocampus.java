@@ -1,8 +1,7 @@
-package org.simbrain.custom.hippocampus;
+package org.simbrain.custom_sims.hippocampus;
 
 import java.awt.FlowLayout;
 import java.util.Random;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
 import javax.swing.JButton;
@@ -10,14 +9,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.simbrain.custom.RegisteredSimulation;
+import org.simbrain.custom_sims.RegisteredSimulation;
+import org.simbrain.custom_sims.helper_classes.ControlPanel;
+import org.simbrain.custom_sims.helper_classes.NetBuilder;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Synapse;
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.network.groups.SynapseGroup;
-import org.simbrain.simulation.ControlPanel;
-import org.simbrain.simulation.NetBuilder;
-import org.simbrain.simulation.Simulation;
 import org.simbrain.util.SimbrainConstants.Polarity;
 import org.simbrain.util.math.SimbrainMath;
 import org.simbrain.util.randomizer.PolarizedRandomizer;

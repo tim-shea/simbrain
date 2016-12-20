@@ -1,4 +1,4 @@
-package org.simbrain.custom.actor_critic;
+package org.simbrain.custom_sims.actor_critic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,16 +7,16 @@ import java.util.concurrent.Executors;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
-import org.simbrain.custom.RegisteredSimulation;
+import org.simbrain.custom_sims.RegisteredSimulation;
+import org.simbrain.custom_sims.helper_classes.ControlPanel;
+import org.simbrain.custom_sims.helper_classes.NetBuilder;
+import org.simbrain.custom_sims.helper_classes.OdorWorldBuilder;
+import org.simbrain.custom_sims.helper_classes.PlotBuilder;
 import org.simbrain.network.NetworkComponent;
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.layouts.LineLayout;
 import org.simbrain.network.subnetworks.WinnerTakeAll;
-import org.simbrain.simulation.ControlPanel;
-import org.simbrain.simulation.NetBuilder;
-import org.simbrain.simulation.OdorWorldBuilder;
-import org.simbrain.simulation.PlotBuilder;
 import org.simbrain.util.environment.SmellSource;
 import org.simbrain.util.math.SimbrainMath;
 import org.simbrain.workspace.gui.SimbrainDesktop;

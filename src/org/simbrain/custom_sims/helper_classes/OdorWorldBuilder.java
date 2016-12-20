@@ -1,4 +1,4 @@
-package org.simbrain.simulation;
+package org.simbrain.custom_sims.helper_classes;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -8,7 +8,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.simbrain.simulation.OdorWorldXML.EntityDescription;
+import org.simbrain.custom_sims.helper_classes.OdorWorldXML.EntityDescription;
 import org.simbrain.util.environment.SmellSource;
 import org.simbrain.world.odorworld.OdorWorld;
 import org.simbrain.world.odorworld.OdorWorldComponent;

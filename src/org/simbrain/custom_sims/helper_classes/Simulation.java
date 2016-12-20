@@ -1,4 +1,4 @@
-package org.simbrain.simulation;
+package org.simbrain.custom_sims.helper_classes;
 
 import java.io.File;
 import java.util.Hashtable;

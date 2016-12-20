@@ -1,4 +1,4 @@
-package org.simbrain.simulation;
+package org.simbrain.custom_sims.helper_classes;
 
 import org.simbrain.network.core.Neuron;
 import org.simbrain.network.groups.NeuronGroup;

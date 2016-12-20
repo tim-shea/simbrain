@@ -1,4 +1,4 @@
-package org.simbrain.custom.actor_critic;
+package org.simbrain.custom_sims.actor_critic;
 
 import java.util.Collections;
 import java.util.HashMap;

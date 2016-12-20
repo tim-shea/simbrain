@@ -1,16 +1,14 @@
-package org.simbrain.custom;
+package org.simbrain.custom_sims;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.simbrain.custom.actor_critic.ActorCritic;
-import org.simbrain.custom.agent_trails.AgentTrails;
-import org.simbrain.custom.cerebellum.Cerebellum;
-import org.simbrain.custom.hippocampus.Hippocampus;
-import org.simbrain.custom.rl_sim.RL_Sim_Main;
-import org.simbrain.custom.test.TestSim;
-import org.simbrain.simulation.Simulation;
+import org.simbrain.custom_sims.actor_critic.ActorCritic;
+import org.simbrain.custom_sims.agent_trails.AgentTrails;
+import org.simbrain.custom_sims.cerebellum.Cerebellum;
+import org.simbrain.custom_sims.helper_classes.Simulation;
+import org.simbrain.custom_sims.hippocampus.Hippocampus;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 
 /**
@@ -35,9 +33,9 @@ public abstract class RegisteredSimulation {
     public static final List<RegisteredSimulation> REGISTERED_SIMS =
             new ArrayList<>();
     static {
-        REGISTERED_SIMS.add(new TestSim());
+//        REGISTERED_SIMS.add(new TestSim());
         REGISTERED_SIMS.add(new Hippocampus());
-        REGISTERED_SIMS.add(new RL_Sim_Main());
+//        REGISTERED_SIMS.add(new RL_Sim_Main());
         REGISTERED_SIMS.add(new Cerebellum());
         REGISTERED_SIMS.add(new AgentTrails());
         REGISTERED_SIMS.add(new ActorCritic());

@@ -1,4 +1,4 @@
-package org.simbrain.simulation;
+package org.simbrain.custom_sims.helper_classes;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;

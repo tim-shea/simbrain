@@ -1,4 +1,4 @@
-package org.simbrain.custom.agent_trails;
+package org.simbrain.custom_sims.agent_trails;
 
 import org.simbrain.network.core.NetworkUpdateAction;
 import org.simbrain.util.Utils;
