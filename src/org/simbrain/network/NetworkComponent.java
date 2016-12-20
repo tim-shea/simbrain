@@ -543,5 +543,19 @@ public final class NetworkComponent extends WorkspaceComponent {
         }
     }
 
+    @Override
+    public void start() {
+        network.setRunning(true);
+//        network.setFireUpdates(false);
+    }
+
+    @Override
+    public void stop() {
+        network.setRunning(false);
+        // Use below for only seeing updates at beginning and end of play / stop
+//        network.setFireUpdates(true);
+//        network.fireNeuronsUpdated();
+    }
+
 
 }

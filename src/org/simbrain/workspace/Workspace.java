@@ -298,7 +298,10 @@ public class Workspace {
     /**
      * Iterates all couplings on all components until halted by user.
      */
-    public void run() {
+    public void run() {        
+        for (WorkspaceComponent wc : getComponentList()) {
+            wc.start();
+        }
         synchronized (updaterLock) {
             updater.run();
         }
@@ -308,6 +311,9 @@ public class Workspace {
      * Stops iteration of all couplings on all components.
      */
     public void stop() {
+        for (WorkspaceComponent wc : getComponentList()) {
+            wc.stop();
+        }
         synchronized (updaterLock) {
             updater.stop();
         }

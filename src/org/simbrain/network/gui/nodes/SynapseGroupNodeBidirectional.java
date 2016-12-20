@@ -267,7 +267,7 @@ public class SynapseGroupNodeBidirectional extends PNode implements
      */
     @Override
     public void layoutChildren() {
-    	if (networkPanel.isRunning()) {
+    	if (networkPanel.getNetwork().isRunning()) {
     		return;
     	}
         if (halt.get()) {
@@ -291,7 +291,7 @@ public class SynapseGroupNodeBidirectional extends PNode implements
 
     @Override
     public void layout(Point2D src, Point2D tar) {
-    	if (networkPanel.isRunning()) {
+    	if (networkPanel.getNetwork().isRunning()) {
     		return;
     	}
         float offset = (2 * DEFAULT_ARROW_THICKNESS + DEFAULT_BUFFER) / 2;
@@ -370,7 +370,7 @@ public class SynapseGroupNodeBidirectional extends PNode implements
      */
     @Override
     public synchronized void layoutChildrenQuiet(Point2D pt1, Point2D pt2) {
-    	if (networkPanel.isRunning()) {
+    	if (networkPanel.getNetwork().isRunning()) {
     		return;
     	}
         halt.getAndSet(true);

@@ -987,4 +987,20 @@ public abstract class WorkspaceComponent {
                 .findAny().get();
     }
 
+    /**
+     * Called when a simulation begins, e.g. when the "run" button is pressed.
+     * Subclasses should override this if special events need to occur at the
+     * start of a simulation.
+     */
+    public void start() {
+    }
+
+    /**
+     * Called when a simulation stops, e.g. when the "stop" button is pressed.
+     * Subclasses should override this if special events need to occur at the
+     * start of a simulation.
+     */
+    public void stop() {
+    }
+
 }

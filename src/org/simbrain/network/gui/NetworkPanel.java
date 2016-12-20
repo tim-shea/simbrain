@@ -43,7 +43,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.Action;
-import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
@@ -328,9 +327,6 @@ public class NetworkPanel extends JPanel {
     /** Groups nodes together for ease of use. */
     private ViewGroupNode vgn;
 
-    /** Local thread flag for manually starting and stopping the network. */
-    private AtomicBoolean isRunning = new AtomicBoolean();
-
     /** Toolbar panel. */
     private JPanel toolbars;
 
@@ -359,13 +355,13 @@ public class NetworkPanel extends JPanel {
     // "initial position". Cries out for some more encapsulated solution.
     private Point2D.Double whereToAdd = new Point2D.Double(0, 0);
 
-    
-    /** 
+
+    /**
      * Set to 3 since update neurons, synapses, and groups each decrement it by 1. If 0, update
      * is complete.
      */
     private AtomicInteger updateComplete = new AtomicInteger(0);
-    
+
     /**
      * Create a new Network panel.
      * @param Network the network panel being created.
@@ -450,7 +446,7 @@ public class NetworkPanel extends JPanel {
                 PCamera.PROPERTY_VIEW_TRANSFORM, zoomListener);
 
         selectionModel.addSelectionListener(new NetworkSelectionListener() {
-            /** @see NetworkSelectionListener */
+            @Override
             public void selectionChanged(final NetworkSelectionEvent e) {
                 updateSelectionHandles(e);
             }
@@ -532,7 +528,7 @@ public class NetworkPanel extends JPanel {
 
             @Override
             public void updateSynapses(final Collection<Synapse> synapses) {
-                if(!guiOn) {
+                if(!guiOn || network.isRunning()) {
                     return;
                 }
                 EventQueue.invokeLater(new Runnable() {
@@ -545,7 +541,7 @@ public class NetworkPanel extends JPanel {
 			@Override
 			public void setUpdateComplete(boolean updateComplete) {
 				NetworkPanel.this.setUpdateComplete(updateComplete);
-				
+
 			}
         });
 
@@ -577,7 +573,7 @@ public class NetworkPanel extends JPanel {
                 // and then removes and adds the appropriate pnode to the NeuronNode
                 //NeuronNode node = (NeuronNode) objectNodeMap.get(e.getObject());
                 //if  (node != null) {
-                //    node.updateShape();                    
+                //    node.updateShape();
                 //}
             }
 
@@ -662,10 +658,12 @@ public class NetworkPanel extends JPanel {
                 Group group = e.getObject();
                 PNode groupNode = objectNodeMap.get(group);
                 if (groupNode != null) {
+                    // TODO: Think about this / comment it .
+                    // Also how is this different from group parameters changed
                 	updateComplete.incrementAndGet();
-                	NetworkPanel.this.setRunning(true);
+                	network.setRunning(true);
                 	((GroupNode) groupNode).updateConstituentNodes();
-                	NetworkPanel.this.setRunning(false);
+                	network.setRunning(false);
                 	updateComplete.decrementAndGet();
                 }
                 if (description
@@ -691,9 +689,9 @@ public class NetworkPanel extends JPanel {
                 PNode groupNode = objectNodeMap.get(group);
                 if (groupNode != null) {
                 	updateComplete.incrementAndGet();
-                	NetworkPanel.this.setRunning(true);
+                	network.setRunning(true);
                 	((GroupNode) groupNode).updateConstituentNodes();
-                	NetworkPanel.this.setRunning(false);
+                	network.setRunning(false);
                 	updateComplete.decrementAndGet();
                 }
                 if (group instanceof NeuronGroup) {
@@ -726,10 +724,12 @@ public class NetworkPanel extends JPanel {
                 if (!guiOn) {
                     return;
                 }
-                PNode groupNode = objectNodeMap.get(group);
-                if (groupNode != null) {
-                    ((GroupNode) groupNode).updateConstituentNodes();
-                }
+                EventQueue.invokeLater(() -> {
+                    PNode groupNode = objectNodeMap.get(group);
+                    if (groupNode != null) {
+                        ((GroupNode) groupNode).updateConstituentNodes();
+                    }
+                });
             }
 
         });
@@ -754,7 +754,7 @@ public class NetworkPanel extends JPanel {
     public void updateTime() {
         timeLabel.update();
     }
-    
+
     /**
      * Update visible state of nodes corresponding to specified neurons.
      *
@@ -788,7 +788,7 @@ public class NetworkPanel extends JPanel {
     	}
     	updateComplete.decrementAndGet();
     }
-    
+
     /**
      * Update visible state of all synapse nodes. This is not used much
      * internally, because it is preferred to updated the specific nodes that
@@ -829,7 +829,7 @@ public class NetworkPanel extends JPanel {
 
     /**
      * Use the GUI to add a new neuron to the underlying network model.
-     * 
+     *
      * @param baseRule the neuron update rule to use for the new neuron
      */
     public void addNeuron(final NeuronUpdateRule baseRule) {
@@ -1498,7 +1498,7 @@ public class NetworkPanel extends JPanel {
 
     /**
      * Create a new context menu for this Network panel.
-     * @return the newly constructed context menu 
+     * @return the newly constructed context menu
      */
     public JPopupMenu createNetworkContextMenu() {
 
@@ -1750,7 +1750,7 @@ public class NetworkPanel extends JPanel {
         setBeginPosition(SimnetUtils
             .getUpperLeft((ArrayList) getSelectedModelElements()));
         ArrayList deepCopy = CopyPaste.getCopy(this.getNetwork(),  (ArrayList) getSelectedModelElements());
-        Clipboard.add(deepCopy);  
+        Clipboard.add(deepCopy);
     }
 
     /**
@@ -2328,8 +2328,8 @@ public class NetworkPanel extends JPanel {
     // click, but condition not fulfilled....
     // public boolean resetPasteTrail = false;
 
-    /** @see NetworkListener 
-    * @param e 
+    /** @see NetworkListener
+    * @param e
     */
 
     public void modelCleared(final NetworkEvent e) {
@@ -2457,7 +2457,7 @@ public class NetworkPanel extends JPanel {
 
     /** @see PCanvas */
     public void repaint() {
-        super.repaint();
+        //super.repaint();
         // if (timeLabel != null) {
         // timeLabel.setBounds(TIME_LABEL_H_OFFSET,
         // canvas.getCamera().getHeight() - getToolbarOffset(),
@@ -2882,7 +2882,7 @@ public class NetworkPanel extends JPanel {
 
     /**
      * Overridden so that multi-line tooltips can be used.
-     * @return 
+     * @return
      */
     public JToolTip createToolTip() {
         return new JMultiLineToolTip();
@@ -3009,7 +3009,7 @@ public class NetworkPanel extends JPanel {
         dialog.setModalityType(Dialog.ModalityType.MODELESS);
         return dialog;
     }
-    
+
     /**
      * Remove all nodes from panel.
      */
@@ -3022,20 +3022,6 @@ public class NetworkPanel extends JPanel {
      */
     public void addInternalMenuBar() {
         toolbars.add("North", NetworkMenuBar.getAppletMenuBar(this));
-    }
-
-    /**
-     * @return the isRunning
-     */
-    public boolean isRunning() {
-        return isRunning.get();
-    }
-
-    /**
-     * @param isRunning the isRunning to set
-     */
-    public void setRunning(boolean isRunning) {
-    	this.isRunning.set(isRunning);
     }
 
     /**
@@ -3200,7 +3186,7 @@ public class NetworkPanel extends JPanel {
         contextMenu.add(actionManager.getShowWeightMatrixAction());
         return contextMenu;
     }
-    
+
     public JPopupMenu getSynapseContextMenu(Synapse synapse) {
         JPopupMenu contextMenu = new JPopupMenu();
 

@@ -151,7 +151,7 @@ public class NeuronGroupNode extends PNode implements GroupNode, PropertyChangeL
 	 */
 	@Override
 	public void layoutChildren() {
-		if (this.getVisible() && !networkPanel.isRunning()) {
+		if (this.getVisible() && !networkPanel.getNetwork().isRunning()) {
 			interactionBox.setOffset(outlinedObjects.getFullBounds().getX()
 					+ OutlinedObjects.ROUNDING_WIDTH_HEIGHT / 2, outlinedObjects
 					.getFullBounds().getY()
@@ -201,7 +201,7 @@ public class NeuronGroupNode extends PNode implements GroupNode, PropertyChangeL
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (networkPanel.isRunning()) {
+		if (networkPanel.getNetwork().isRunning()) {
 			return;
 		}
 		updateSynapseNodePositions();
@@ -212,7 +212,7 @@ public class NeuronGroupNode extends PNode implements GroupNode, PropertyChangeL
 	 * Ensures synapse nodes are updated properly when this is moved.
 	 */
 	public void updateSynapseNodePositions() {
-		if (networkPanel.isRunning()) {
+		if (networkPanel.getNetwork().isRunning()) {
 			return;
 		}
 		for (Object node : outlinedObjects.getChildrenReference()) {
@@ -225,7 +225,7 @@ public class NeuronGroupNode extends PNode implements GroupNode, PropertyChangeL
 		for (Object object : outlinedObjects.getChildrenReference()) {
 			((NeuronNode) object).update();
 		}
-		if (networkPanel.isRunning()) {
+		if (networkPanel.getNetwork().isRunning()) {
 			return;
 		}
 		updateText();
@@ -233,7 +233,7 @@ public class NeuronGroupNode extends PNode implements GroupNode, PropertyChangeL
 
 	@Override
 	public void offset(double dx, double dy) {
-		if (networkPanel.isRunning()) {
+		if (networkPanel.getNetwork().isRunning()) {
 			return;
 		}
 		for (Object object : outlinedObjects.getChildrenReference()) {

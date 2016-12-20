@@ -95,7 +95,7 @@ public class SynapseGroupNodeRecurrent extends SynapseGroupNode {
 
     @Override
     public synchronized void layoutChildren() {
-    	if (networkPanel.isRunning()) {
+    	if (networkPanel.getNetwork().isRunning()) {
     		return;
     	}
         if (halt.get())

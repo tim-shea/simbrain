@@ -119,16 +119,11 @@ public class InteractionBox extends ScreenElement {
      * Update the text label bounds.
      */
     public void updateText() {
-    	SwingUtilities.invokeLater(new Runnable() {
-    		@Override
-    		public void run() {
-    			// Reset box bounds
-    			textLabel.centerFullBoundsOnPoint(getBounds().getCenter2D().getX(),
-    					getBounds().getCenter2D().getY());
-    			setBounds(textLabel.getBounds());
-    			getNetworkPanel().repaint();
-    		}
-    	});
+        // Reset box bounds
+        textLabel.centerFullBoundsOnPoint(getBounds().getCenter2D().getX(),
+                getBounds().getCenter2D().getY());
+        setBounds(textLabel.getBounds());
+        getNetworkPanel().repaint();
     }
 
     @Override
@@ -168,7 +163,7 @@ public class InteractionBox extends ScreenElement {
 
     @Override
     public boolean isDraggable() {
-        return !getNetworkPanel().isRunning();
+        return !getNetworkPanel().getNetwork().isRunning();
     }
 
     @Override

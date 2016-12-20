@@ -58,12 +58,12 @@ public final class RunNetworkAction extends AbstractAction {
      * @param event
      */
     public void actionPerformed(final ActionEvent event) {
-        networkPanel.setRunning(true);
+        networkPanel.getNetwork().setRunning(true);
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             public void run() {
                 //networkPanel.getNetwork().setFireUpdates(false);
 //                lock.lock();
-                while (networkPanel.isRunning()) {
+                while (networkPanel.getNetwork().isRunning()) {
 //                    lock.unlock();
                     networkPanel.getNetwork().setUpdateCompleted(false);
                     networkPanel.getNetwork().update();

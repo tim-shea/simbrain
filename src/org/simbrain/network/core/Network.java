@@ -104,6 +104,9 @@ public class Network {
     /** Time step. */
     private double timeStep = DEFAULT_TIME_STEP;
 
+    /** Local thread flag for manually starting and stopping the network. */
+    private AtomicBoolean isRunning = new AtomicBoolean();
+
     /**
      * Two types of time used in simulations.
      */
@@ -181,6 +184,7 @@ public class Network {
      * A variable telling the network not to fire events to any listeners during
      * update.
      */
+    //TODO: Is this being used?
     private volatile boolean fireUpdates = true;
 
     /**
@@ -1848,4 +1852,17 @@ public class Network {
         System.out.println("After");
     }
 
+    /**
+     * @return the isRunning
+     */
+    public boolean isRunning() {
+        return isRunning.get();
+    }
+
+    /**
+     * @param isRunning the isRunning to set
+     */
+    public void setRunning(boolean isRunning) {
+        this.isRunning.set(isRunning);
+    }
 }
