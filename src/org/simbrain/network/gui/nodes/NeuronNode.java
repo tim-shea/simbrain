@@ -62,11 +62,11 @@ public class NeuronNode extends ScreenElement implements PropertyChangeListener 
 
     /** Main shape. */
     private PPath mainShape;
-    
+
     /** Circle shape for representing neurons. */
     private PPath circle = PPath.createEllipse(0 - DIAMETER / 2,
             0 - DIAMETER / 2, DIAMETER, DIAMETER);
-    
+
     /** Square shape for representing activity generators. */
     private PPath square = PPath.createRectangle(0 - DIAMETER / 2,
             0 - DIAMETER / 2, DIAMETER, DIAMETER);
@@ -143,14 +143,15 @@ public class NeuronNode extends ScreenElement implements PropertyChangeListener 
     private void init() {
 
         if(neuron.getUpdateRule() instanceof ActivityGenerator) {
-            mainShape = square;           
+            mainShape = square;
         } else {
             mainShape = circle;
         }
-        
+
         addChild(mainShape);
-        
+
         priorityText.setFont(PRIORITY_FONT);
+        activationText.setFont(NEURON_FONT_BOLD);
         labelBackground.setPaint(this.getNetworkPanel().getBackground());
         labelBackground.setBounds(labelText.getBounds());
         labelBackground.addChild(labelText);
@@ -186,14 +187,14 @@ public class NeuronNode extends ScreenElement implements PropertyChangeListener 
         if (!currentTextVisibility) {
             return;
         }
-        
+
         double act = neuron.getActivation();
         activationText.setScale(1);
         setActivationTextPosition();
 
         priorityText.setScale(1);
         setPriorityTextPosition();
-        priorityText.setText("" + neuron.getUpdatePriority()); // todo: respond
+//        priorityText.setText("" + neuron.getUpdatePriority()); // todo: respond
         // to listener
 
         if (java.lang.Double.isNaN(neuron.getActivation())) {
@@ -201,7 +202,6 @@ public class NeuronNode extends ScreenElement implements PropertyChangeListener 
             activationText.scale(.7);
             activationText.translate(-4, 3);
         } else if ((act > 0) && (neuron.getActivation() < 1)) { // Between 0 and 1
-            activationText.setFont(NEURON_FONT_BOLD);
             String text = Utils.round(act, 1);
             if (text.startsWith("0.")) {
                 text = text.replaceAll("0.", ".");
@@ -213,12 +213,10 @@ public class NeuronNode extends ScreenElement implements PropertyChangeListener 
             }
             activationText.setText(text);
         } else if ((act > -1) && (act < 0)) { // Between -1 and 0
-            activationText.setFont(NEURON_FONT_BOLD);
             activationText.setText(Utils.round(act, 1).replaceAll("^-0*", "-")
                     .replaceAll(".0$", ""));
         } else {
             // greater than 1 or less than -1
-            activationText.setFont(NEURON_FONT_BOLD);
             if (Math.abs(act) < 10) {
                 activationText.scale(.9);
             } else if (Math.abs(act) < 100) {
@@ -293,12 +291,13 @@ public class NeuronNode extends ScreenElement implements PropertyChangeListener 
             mainShape.setPaint(Color.getHSBColor(coolColor, saturation, 1));
         }
 
-        if (neuron.isSpike()) {
-            mainShape.setStrokePaint(spikingColor);
-            mainShape.setPaint(spikingColor);
-        } else {
-            mainShape.setStrokePaint(SynapseNode.getLineColor());
-        }
+        //TODO: This should not be called at all for non-spiking neurons
+//        if (neuron.isSpike()) {
+//            mainShape.setStrokePaint(spikingColor);
+//            mainShape.setPaint(spikingColor);
+//        } else {
+//            mainShape.setStrokePaint(SynapseNode.getLineColor());
+//        }
     }
 
     /**
@@ -385,21 +384,21 @@ public class NeuronNode extends ScreenElement implements PropertyChangeListener 
                 .getBounds().getCenterY() + DIAMETER - 10);
     }
 
-    /** @see ScreenElement 
+    /** @see ScreenElement
      * @return screen element selectable
      */
     public boolean isSelectable() {
         return true;
     }
 
-    /** @see ScreenElement 
+    /** @see ScreenElement
      * @return screen element show a selection handle
      */
     public boolean showSelectionHandle() {
         return true;
     }
 
-    /** @see ScreenElement 
+    /** @see ScreenElement
      * @return able to drag screen element
      */
     public boolean isDraggable() {
@@ -579,7 +578,7 @@ public class NeuronNode extends ScreenElement implements PropertyChangeListener 
         this.setBounds(p.getX(), p.getY(), this.getWidth(), this.getHeight());
     }
 
-    /** @see ScreenElement */
+    @Override
     public void resetColors() {
         mainShape.setStrokePaint(SynapseNode.getLineColor());
         // TODO: Check if change only?
