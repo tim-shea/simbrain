@@ -106,7 +106,7 @@ public class AgentTrails extends RegisteredSimulation {
         mouse = world.addAgent(120, 245, "Mouse");
         mouse.setHeading(90);
         File xmlFile = new File(
-                "src/org/simbrain/custom/agent_trails/worldDescription.xml");
+                "src/org/simbrain/custom_sims/simulations/agent_trails/worldDescription.xml");
         world.loadWorld(xmlFile);
         cheese = world.getWorld().getEntity("Swiss");
         flower = world.getWorld().getEntity("Flower");

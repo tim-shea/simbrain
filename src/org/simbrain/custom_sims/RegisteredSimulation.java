@@ -9,6 +9,8 @@ import org.simbrain.custom_sims.simulations.actor_critic.ActorCritic;
 import org.simbrain.custom_sims.simulations.agent_trails.AgentTrails;
 import org.simbrain.custom_sims.simulations.cerebellum.Cerebellum;
 import org.simbrain.custom_sims.simulations.hippocampus.Hippocampus;
+import org.simbrain.custom_sims.simulations.rl_sim.RL_Sim_Main;
+import org.simbrain.custom_sims.simulations.test.TestSim;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 
 /**
@@ -33,9 +35,9 @@ public abstract class RegisteredSimulation {
     public static final List<RegisteredSimulation> REGISTERED_SIMS =
             new ArrayList<>();
     static {
-//        REGISTERED_SIMS.add(new TestSim());
+        REGISTERED_SIMS.add(new TestSim());
         REGISTERED_SIMS.add(new Hippocampus());
-//        REGISTERED_SIMS.add(new RL_Sim_Main());
+        REGISTERED_SIMS.add(new RL_Sim_Main());
         REGISTERED_SIMS.add(new Cerebellum());
         REGISTERED_SIMS.add(new AgentTrails());
         REGISTERED_SIMS.add(new ActorCritic());
