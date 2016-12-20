@@ -1,4 +1,4 @@
-package org.simbrain.custom_sims.cerebellum;
+package org.simbrain.custom_sims.simulations.cerebellum;
 
 import java.util.List;
 

@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.simbrain.custom_sims.actor_critic.ActorCritic;
-import org.simbrain.custom_sims.agent_trails.AgentTrails;
-import org.simbrain.custom_sims.cerebellum.Cerebellum;
 import org.simbrain.custom_sims.helper_classes.Simulation;
-import org.simbrain.custom_sims.hippocampus.Hippocampus;
+import org.simbrain.custom_sims.simulations.actor_critic.ActorCritic;
+import org.simbrain.custom_sims.simulations.agent_trails.AgentTrails;
+import org.simbrain.custom_sims.simulations.cerebellum.Cerebellum;
+import org.simbrain.custom_sims.simulations.hippocampus.Hippocampus;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 
 /**

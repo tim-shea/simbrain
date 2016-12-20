@@ -1,4 +1,4 @@
-package org.simbrain.custom_sims.hippocampus;
+package org.simbrain.custom_sims.simulations.hippocampus;
 
 import java.awt.FlowLayout;
 import java.util.Random;

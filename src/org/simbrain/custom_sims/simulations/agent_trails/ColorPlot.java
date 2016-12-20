@@ -1,4 +1,4 @@
-package org.simbrain.custom_sims.agent_trails;
+package org.simbrain.custom_sims.simulations.agent_trails;
 
 import org.simbrain.util.projection.Halo;
 import org.simbrain.workspace.updater.UpdateAction;
