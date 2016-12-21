@@ -103,5 +103,10 @@ public abstract class Effector {
     public void setLabel(String label) {
         this.label = label;
     }
+    
+    //TODO
+    public String getMixedId() {
+        return this.getParent().getId() + ":" + this.getId();
+    }
 
 }

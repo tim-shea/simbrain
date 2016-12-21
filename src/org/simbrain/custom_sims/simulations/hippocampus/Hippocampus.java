@@ -82,7 +82,7 @@ public class Hippocampus extends RegisteredSimulation {
 
         // Add docviewer
         sim.addDocViewer(807, 12, 307, 591, "Information",
-                "src/org/simbrain/custom/hippocampus/Hippocampus.html");
+                "src/org/simbrain/custom_sims/simulations/hippocampus/Hippocampus.html");
 
     }
 

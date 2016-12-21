@@ -76,7 +76,7 @@ public class Cerebellum extends RegisteredSimulation {
 
         // Add docviewer
         sim.addDocViewer(0, 279, 261, 325, "Information",
-                "src/org/simbrain/custom/cerebellum/cerebellum.html");
+                "src/org/simbrain/custom_sims/simulations/cerebellum/cerebellum.html");
 
     }
 
@@ -464,10 +464,10 @@ public class Cerebellum extends RegisteredSimulation {
         PlotBuilder plot = sim.addTimeSeriesPlot(768, 9, 363, 285,
                 "dopamine, output");
 
-//        sim.couple(net.getNetworkComponent(),
-//                dopamine, plot.getTimeSeriesComponent(), 0);
-//        sim.couple(net.getNetworkComponent(), output,
-//                plot.getTimeSeriesComponent(), 1);
+        sim.couple(net.getNetworkComponent(),
+                dopamine, plot.getTimeSeriesComponent(), 0);
+        sim.couple(net.getNetworkComponent(), output,
+                plot.getTimeSeriesComponent(), 1);
 
     }
 

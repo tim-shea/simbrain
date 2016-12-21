@@ -19,6 +19,7 @@ import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 import org.simbrain.world.odorworld.entities.OdorWorldEntity;
 import org.simbrain.world.odorworld.entities.RotatingEntity;
+import org.simbrain.world.odorworld.sensors.SmellSensor;
 
 /**
  * Todo Stop button.
@@ -113,17 +114,17 @@ public class AgentTrails extends RegisteredSimulation {
         fish = world.getWorld().getEntity("Fish");
 
         // Couple network to agent
-//        sim.couple(straightNeuron, mouse.getEffector("Go-straight"));
-//        sim.couple(rightNeuron, mouse.getEffector("Go-left"));
-//        sim.couple(leftNeuron, mouse.getEffector("Go-right"));
-//
-//        // Couple agent to network
-//        sim.couple((SmellSensor) mouse.getSensor("Smell-Center"), 0,
-//                cheeseNeuron);
-//        sim.couple((SmellSensor) mouse.getSensor("Smell-Center"), 1,
-//                flowerNeuron);
-//        sim.couple((SmellSensor) mouse.getSensor("Smell-Center"), 2,
-//                fishNeuron);
+        sim.couple(straightNeuron, mouse.getEffector("Go-straight"));
+        sim.couple(rightNeuron, mouse.getEffector("Go-left"));
+        sim.couple(leftNeuron, mouse.getEffector("Go-right"));
+
+        // Couple agent to network
+        sim.couple((SmellSensor) mouse.getSensor("Smell-Center"), 0,
+                cheeseNeuron);
+        sim.couple((SmellSensor) mouse.getSensor("Smell-Center"), 1,
+                flowerNeuron);
+        sim.couple((SmellSensor) mouse.getSensor("Smell-Center"), 2,
+                fishNeuron);
 
         setUpControlPanel();
 
@@ -133,8 +134,8 @@ public class AgentTrails extends RegisteredSimulation {
                 "Sensory states + Predictions");
         plot.getProjectionModel().init(3);
         plot.getProjectionModel().getProjector().setTolerance(.01);
-//        sim.couple(net.getNetworkComponent(), sensoryNet,
-//                plot.getProjectionPlotComponent());
+        sim.couple(net.getNetworkComponent(), sensoryNet,
+                plot.getProjectionPlotComponent());
 
         // Configure custom updating
         net.getNetwork().getUpdateManager().clear();

@@ -82,7 +82,7 @@ public class Turning extends Effector {
      *
      * @param amount amount to turn.
      */
-    @Consumible
+    @Consumible(customDescriptionMethod="getMixedId")
     public void addAmount(double amount) {
         this.amount += amount;
     }
@@ -91,7 +91,7 @@ public class Turning extends Effector {
     /**
      * @param amount the amount to set
      */
-    @Consumible
+    @Consumible(customDescriptionMethod="getMixedId")
     public void setAmount(double amount) {
         this.amount = amount;
     }
@@ -115,4 +115,5 @@ public class Turning extends Effector {
         return "Turning Movement";
     }
 
+    
 }

@@ -59,6 +59,7 @@ public class ReaderComponent extends WorkspaceComponent {
      * Initialize attribute types.
      */
     private void init() {
+        this.rootObject = world;
 //        addProducerType(new AttributeType(this, "TokenVectors", double[].class,
 //                true));
 //        addProducerType(new AttributeType(this, "TokenScalars", double.class, true));

@@ -18,6 +18,7 @@
  */
 package org.simbrain.world.odorworld.sensors;
 
+import org.simbrain.workspace.Consumible;
 import org.simbrain.workspace.Producible;
 import org.simbrain.world.odorworld.entities.OdorWorldEntity;
 
@@ -82,9 +83,7 @@ public class TileSensor extends Sensor {
         this.height = height;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void update() {
         double entityX = parent.getCenterLocation()[0];
         double entityY = parent.getCenterLocation()[1];
@@ -104,7 +103,7 @@ public class TileSensor extends Sensor {
     /**
      * @return value associated with this sensor, 0 if occupied,
      */
-    @Producible
+    @Producible(customDescriptionMethod = "getMixedId")
     public double getValue() {
         return value;
     }
@@ -112,6 +111,7 @@ public class TileSensor extends Sensor {
     /**
      * @param value the value to set
      */
+    @Consumible(customDescriptionMethod = "getMixedId")
     public void setValue(double value) {
         this.value = value;
     }

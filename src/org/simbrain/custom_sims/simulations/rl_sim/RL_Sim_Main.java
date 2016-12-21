@@ -24,11 +24,17 @@ import org.simbrain.network.layouts.LineLayout;
 import org.simbrain.network.subnetworks.WinnerTakeAll;
 import org.simbrain.util.SimbrainConstants.Polarity;
 import org.simbrain.util.math.SimbrainMath;
+import org.simbrain.workspace.Consumer2;
+import org.simbrain.workspace.Coupling2;
+import org.simbrain.workspace.MismatchedAttributesException;
+import org.simbrain.workspace.Producer2;
+import org.simbrain.workspace.Producible;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 import org.simbrain.world.odorworld.OdorWorld;
 import org.simbrain.world.odorworld.entities.BasicEntity;
 import org.simbrain.world.odorworld.entities.OdorWorldEntity;
 import org.simbrain.world.odorworld.entities.RotatingEntity;
+import org.simbrain.world.odorworld.sensors.SmellSensor;
 
 /**
  * Class to build RL Simulation.
@@ -183,14 +189,16 @@ public class RL_Sim_Main extends RegisteredSimulation {
                 "Sensory states + Predictions");
         plot.getProjectionModel().init(leftInputs.size() + rightInputs.size());
         plot.getProjectionModel().getProjector().setTolerance(.01);
-        // TODO: Use annotations
-//        Producer inputProducer = net.getNetworkComponent().createProducer(this,
-//                "getCombinedInputs", double[].class);
-//        Consumer plotConsumer = plot.getProjectionPlotComponent()
-//                .createConsumer(plot.getProjectionPlotComponent(), "addPoint",
-//                        double[].class);
-//
-//        sim.addCoupling(new Coupling(inputProducer, plotConsumer));
+        Producer2<?> inputProducer = net.getNetworkComponent().getProducer(this,
+                "getCombinedInputs");
+        Consumer2<?> plotConsumer = plot.getProjectionPlotComponent()
+                .getConsumer(plot.getProjectionPlotComponent(), "addPoint");
+
+        try {
+            sim.addCoupling(new Coupling2(inputProducer, plotConsumer));
+        } catch (MismatchedAttributesException e) {
+            e.printStackTrace();
+        }
 
         // Set custom network update
         updateMethod = new RL_Update(this);
@@ -206,7 +214,7 @@ public class RL_Sim_Main extends RegisteredSimulation {
      * "sub-simulation."
      */
     private void initializeWorldObjects() {
-        File xmlFile = new File("src/org/simbrain/custom/rl_sim/world.xml");
+        File xmlFile = new File("src/org/simbrain/custom_sims/simulations/rl_sim/world.xml");
         List<OdorWorldEntity> worldEntities = ob.loadWorld(xmlFile);
         // Assign these entities to references
         for (OdorWorldEntity entity : worldEntities) {
@@ -264,6 +272,7 @@ public class RL_Sim_Main extends RegisteredSimulation {
     /**
      * Helper method for "combined input" coupling.
      */
+    @Producible
     public double[] getCombinedInputs() {
         System.arraycopy(leftInputs.getActivations(), 0, combinedInputs, 0,
                 leftInputs.size() - 1);
@@ -276,6 +285,7 @@ public class RL_Sim_Main extends RegisteredSimulation {
     /**
      * Helper method for getting combined prediction.
      */
+    @Producible
     public double[] getCombinedPredicted() {
         System.arraycopy(predictionLeft.getActivations(), 0, combinedPredicted,
                 0, leftInputs.size() - 1);
@@ -291,10 +301,10 @@ public class RL_Sim_Main extends RegisteredSimulation {
         // Create a time series plot
         PlotBuilder plot = sim.addTimeSeriesPlot(0, 328, 293, 332,
                 "Reward, TD Error");
-//        sim.couple(net.getNetworkComponent(), reward,
-//                plot.getTimeSeriesComponent(), 0);
-//        sim.couple(net.getNetworkComponent(), tdError,
-//                plot.getTimeSeriesComponent(), 1);
+        sim.couple(net.getNetworkComponent(), reward,
+                plot.getTimeSeriesComponent(), 0);
+        sim.couple(net.getNetworkComponent(), tdError,
+                plot.getTimeSeriesComponent(), 1);
         plot.getTimeSeriesModel().setAutoRange(false);
         plot.getTimeSeriesModel().setRangeUpperBound(2);
         plot.getTimeSeriesModel().setRangeLowerBound(-1);
@@ -325,9 +335,9 @@ public class RL_Sim_Main extends RegisteredSimulation {
 
         // Connections
         rightInputOutput = net.addSynapseGroup(rightInputs, outputs);
-//        sim.couple((SmellSensor) mouse.getSensors().get(2), rightInputs);
+        sim.couple((SmellSensor) mouse.getSensors().get(2), rightInputs);
         leftInputOutput = net.addSynapseGroup(leftInputs, outputs);
-//        sim.couple((SmellSensor) mouse.getSensors().get(1), leftInputs);
+        sim.couple((SmellSensor) mouse.getSensors().get(1), leftInputs);
 
         // TODO: Move to a new method
         // Prediction Network
@@ -350,7 +360,7 @@ public class RL_Sim_Main extends RegisteredSimulation {
         reward = net.addNeuron(300, 0);
         reward.setClamped(true);
         reward.setLabel("Reward");
-//        sim.couple((SmellSensor) mouse.getSensor("Smell-Center"), 5, reward);
+        sim.couple((SmellSensor) mouse.getSensor("Smell-Center"), 5, reward);
         value = net.addNeuron(350, 0);
         value.setLabel("Value");
         net.connectAllToAll(rightInputs, value);
@@ -418,18 +428,18 @@ public class RL_Sim_Main extends RegisteredSimulation {
         // outputs.getNeuronList().get(5).setLabel(strAvoidCandle);
 
         // Connect output nodes to vehicle nodes
-        // net.connect(outputs.getNeuronByLabel(strPursueCheese),
-        // pursueCheese.getNeuronByLabel("Speed"), 10);
-        // net.connect(outputs.getNeuronByLabel(strAvoidCheese),
-        // avoidCheese.getNeuronByLabel("Speed"), 10);
-        // net.connect(outputs.getNeuronByLabel(strPursueFlower),
-        // pursueFlower.getNeuronByLabel("Speed"), 10);
-        // net.connect(outputs.getNeuronByLabel(strAvoidFlower),
-        // avoidFlower.getNeuronByLabel("Speed"), 10);
-        // net.connect(outputs.getNeuronByLabel(strPursueCandle),
-        // pursueCandle.getNeuronByLabel("Speed"), 10);
-        // net.connect(outputs.getNeuronByLabel(strAvoidCandle),
-        // avoidCandle.getNeuronByLabel("Speed"), 10);
+//         net.connect(outputs.getNeuronByLabel(strPursueCheese),
+//         pursueCheese.getNeuronByLabel("Speed"), 10);
+//         net.connect(outputs.getNeuronByLabel(strAvoidCheese),
+//         avoidCheese.getNeuronByLabel("Speed"), 10);
+//         net.connect(outputs.getNeuronByLabel(strPursueFlower),
+//         pursueFlower.getNeuronByLabel("Speed"), 10);
+//         net.connect(outputs.getNeuronByLabel(strAvoidFlower),
+//         avoidFlower.getNeuronByLabel("Speed"), 10);
+//         net.connect(outputs.getNeuronByLabel(strPursueCandle),
+//         pursueCandle.getNeuronByLabel("Speed"), 10);
+//         net.connect(outputs.getNeuronByLabel(strAvoidCandle),
+//         avoidCandle.getNeuronByLabel("Speed"), 10);
     }
 
     /**

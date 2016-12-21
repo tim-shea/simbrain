@@ -109,13 +109,13 @@ public class Vehicle {
         }
 
         // Couple network to agent.
-//        sim.couple((SmellSensor) agent.getSensor("Smell-Left"),
-//                stimulusDimension, leftInput);
-//        sim.couple((SmellSensor) agent.getSensor("Smell-Right"),
-//                stimulusDimension, rightInput);
-//        sim.couple(straight, agent.getEffector("Go-straight"));
-//        sim.couple(leftTurn, agent.getEffector("Go-left"));
-//        sim.couple(rightTurn, agent.getEffector("Go-right"));
+        sim.couple((SmellSensor) agent.getSensor("Smell-Left"),
+                stimulusDimension, leftInput);
+        sim.couple((SmellSensor) agent.getSensor("Smell-Right"),
+                stimulusDimension, rightInput);
+        sim.couple(straight, agent.getEffector("Go-straight"));
+        sim.couple(leftTurn, agent.getEffector("Go-left"));
+        sim.couple(rightTurn, agent.getEffector("Go-right"));
 
         return vehicle;
     }

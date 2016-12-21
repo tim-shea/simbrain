@@ -246,13 +246,17 @@ public class BarChartModel extends ChartModel {
         }
     }
 
+    //TODO
+    public int getBarCount() {
+        return getDataset().getColumnCount();
+    }
     /**
      * Set value of a specified bar.
      *
      * @param value value of bar
      * @param index which bar value to set
      */
-    @Consumible
+    @Consumible(indexMethod="getBarCount")
     public void setValue(final double value, final Integer index) {
         getDataset().setValue(value, new Integer(1), index);
     }

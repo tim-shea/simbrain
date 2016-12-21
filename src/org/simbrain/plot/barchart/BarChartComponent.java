@@ -50,6 +50,7 @@ public class BarChartComponent extends WorkspaceComponent {
         model = new BarChartModel();
         model.defaultInit();
         addListener();
+        this.rootObject = model;
     }
 
     /**
@@ -148,21 +149,6 @@ public class BarChartComponent extends WorkspaceComponent {
     @Override
     public String getXML() {
         return BarChartModel.getXStream().toXML(model);
-    }
-
-    @Override
-    public List<Consumer2<?>> getConsumers() {
-        List<Consumer2<?>> retList = new ArrayList<>();
-        // Vector coupling
-        retList.add(super.getConsumer(model, "setBars"));
-        // Scalar couplings
-        for (int i = 0; i < model.getDataset().getColumnCount(); i++) {
-            Consumer2<?> consumer = super.getConsumer(model,
-                    "setValue", i);
-            consumer.setDescription("Bar " + (i + 1));
-            retList.add(consumer);
-        }
-        return retList;
     }
 
 }

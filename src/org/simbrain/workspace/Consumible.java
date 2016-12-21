@@ -26,4 +26,5 @@ public @interface Consumible {
     //TODO
     boolean visible() default true;
 
+    String indexMethod() default "";
 }

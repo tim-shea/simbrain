@@ -789,7 +789,7 @@ public abstract class OdorWorldEntity {
      *
      * @param amount amount to move by
      */
-    @Consumible
+    @Consumible(customDescriptionMethod="getId")
     public void moveNorth(double amount) {
         if (!isBlocked() && (amount != 0)) {
             if (this instanceof RotatingEntity) {
@@ -804,7 +804,7 @@ public abstract class OdorWorldEntity {
      *
      * @param amount amount to move by
      */
-    @Consumible
+    @Consumible(customDescriptionMethod="getId")
     public void moveSouth(double amount) {
         if (!isBlocked() && (amount != 0)) {
             if (this instanceof RotatingEntity) {
@@ -819,7 +819,7 @@ public abstract class OdorWorldEntity {
      *
      * @param amount amount to move by
      */
-    @Consumible
+    @Consumible(customDescriptionMethod="getId")
     public void moveEast(double amount) {
         if (!isBlocked() && (amount != 0)) {
             if (this instanceof RotatingEntity) {
@@ -834,7 +834,7 @@ public abstract class OdorWorldEntity {
      *
      * @param amount amount to move by
      */
-    @Consumible
+    @Consumible(customDescriptionMethod="getId")
     public void moveWest(double amount) {
         if (!isBlocked() && (amount != 0)) {
             if (this instanceof RotatingEntity) {

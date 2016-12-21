@@ -19,7 +19,7 @@ public abstract class Attribute2 {
     public abstract Type getType();
 
     // This must uniquely identify the attribute within the component.
-    //  up to the person annotating to obey this contract. 
+    //  up to the person annotating to obey this contract.
     public String getId() {
         if (description.isEmpty()) {
             description = baseObject.getClass().getSimpleName();
@@ -40,6 +40,10 @@ public abstract class Attribute2 {
 
         if (description.isEmpty()) {
             description = baseObject.getClass().getSimpleName();
+        }
+
+        if(usesKey()) {
+            return  getId() + "<" + typeName + "," + key + ">";
         }
 
         return getId() + "<" + typeName + ">";

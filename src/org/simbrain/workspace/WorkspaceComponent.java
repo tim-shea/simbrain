@@ -877,24 +877,65 @@ public abstract class WorkspaceComponent {
 
     //// NEW STUFF. TODO. ////
 
-    // To override
+    // TODO
+    public Object rootObject = this;
+
+    // Default implementations get the root
     public List<Producer2<?>> getProducers() {
-        return Collections.EMPTY_LIST;
+        return getProducers(rootObject);
     }
 
     public List<Consumer2<?>> getConsumers() {
-        return Collections.EMPTY_LIST;
+        return getConsumers(rootObject);
     }
 
     // Helper
+
+    // TODO: If object is a list iterate through it
+
+    public final List<Producer2<?>> getProducersFromList(List list) {
+        List<Producer2<?>> returnList = new ArrayList<>();
+        for (Object object : list) {
+            returnList.addAll(getProducers(object));
+        }
+        return returnList;
+    }
+
+    public final List<Consumer2<?>> getConsumersFromList(List list) {
+        List<Consumer2<?>> returnList = new ArrayList<>();
+        for (Object object : list) {
+            returnList.addAll(getConsumers(object));
+        }
+        return returnList;
+    }
+
     // TODO: Rename to getProduersOnObject... to clarify it's a service / helper
     public final List<Producer2<?>> getProducers(Object object) {
         List<Producer2<?>> returnList = new ArrayList<>();
         for (Method method : object.getClass().getMethods()) {
-            if (method.getAnnotation(Producible.class) != null) {
-                Producer2<?> producer = new Producer2<>(this, object, method);
-                setCustomDescription(producer);
-                returnList.add(producer);
+            Producible annotation = method.getAnnotation(Producible.class);
+            if (annotation != null) {
+                if (!annotation.indexMethod().isEmpty()) {
+                    try {
+                        Method indexMethod = object.getClass()
+                                .getMethod(annotation.indexMethod(), null);
+                        int n = (int) indexMethod.invoke(object, null);
+                        for (int i = 0; i < n; i++) {
+                            Producer2<?> producer = new Producer2(this, object,
+                                    method);
+                            producer.key = i;
+                            returnList.add(producer);
+                        }
+                    } catch (Exception e) {
+                        // TODO: Use multicatch
+                        e.printStackTrace();
+                    }
+                }  else {
+                    Producer2<?> producer = new Producer2<>(this, object,
+                            method);
+                    setCustomDescription(producer);
+                    returnList.add(producer);
+                }
             }
         }
         return returnList;
@@ -903,10 +944,33 @@ public abstract class WorkspaceComponent {
     public final List<Consumer2<?>> getConsumers(Object object) {
         List<Consumer2<?>> returnList = new ArrayList<>();
         for (Method method : object.getClass().getMethods()) {
-            if (method.getAnnotation(Consumible.class) != null) {
-                Consumer2<?> consumer = new Consumer2<>(this, object, method);
-                setCustomDescription(consumer);
-                returnList.add(consumer);
+            // TODO: Docs; When this works do it for producers
+            // Key case
+            Consumible annotation = method.getAnnotation(Consumible.class);
+            if (annotation != null) {
+                if (!annotation.indexMethod().isEmpty()) {
+                    try {
+                        Method indexMethod = object.getClass()
+                                .getMethod(annotation.indexMethod(), null);
+                        int n = (int) indexMethod.invoke(object, null);
+                        for (int i = 0; i < n; i++) {
+                            Consumer2<?> consumer = new Consumer2<>(this,
+                                    object, method);
+                            consumer.key = i;
+                            returnList.add(consumer);
+                        }
+                    } catch (Exception e) {
+                        // TODO: Use multicatch
+                        e.printStackTrace();
+                    }
+
+                } else {
+                    // No key case
+                    Consumer2<?> consumer = new Consumer2<>(this, object,
+                            method);
+                    setCustomDescription(consumer);
+                    returnList.add(consumer);
+                }
             }
         }
         return returnList;
@@ -921,16 +985,17 @@ public abstract class WorkspaceComponent {
     private static void setCustomDescription(Attribute2 attribute) {
         String customDescriptionMethod = "";
         if (attribute instanceof Producer2) {
-            customDescriptionMethod = attribute.getMethod()
-                    .getAnnotation(Producible.class).customDescriptionMethod();
-
+            Producible annotation =  attribute.getMethod()
+                    .getAnnotation(Producible.class);
+            if (annotation != null) {
+                customDescriptionMethod = annotation.customDescriptionMethod();
+            }
         } else {
             customDescriptionMethod = attribute.getMethod()
                     .getAnnotation(Consumible.class).customDescriptionMethod();
         }
         if (!customDescriptionMethod.isEmpty()) {
             try {
-                // TODO: Think about below
                 Method descriptionMethod = attribute.getBaseObject().getClass()
                         .getMethod(customDescriptionMethod, null);
                 String customDescription = (String) descriptionMethod
@@ -975,16 +1040,16 @@ public abstract class WorkspaceComponent {
         return producer;
     }
 
+    //TODO: Misleading names? Sound like methods above but assume an id not a methodname. Maybe getById?
+    
     public Consumer2<?> getConsumer(String id) {
         return getConsumers().stream()
-                .filter(p -> p.getId().equalsIgnoreCase(id))
-                .findAny().get();
+                .filter(p -> p.getId().equalsIgnoreCase(id)).findAny().get();
     }
 
     public Producer2<?> getProducer(String id) {
         return getProducers().stream()
-                .filter(p -> p.getId().equalsIgnoreCase(id))
-                .findAny().get();
+                .filter(p -> p.getId().equalsIgnoreCase(id)).findAny().get();
     }
 
     /**

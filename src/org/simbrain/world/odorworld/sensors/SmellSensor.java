@@ -20,6 +20,7 @@ package org.simbrain.world.odorworld.sensors;
 
 import org.simbrain.util.environment.SmellSource;
 import org.simbrain.util.math.SimbrainMath;
+import org.simbrain.workspace.Consumible;
 import org.simbrain.workspace.Producible;
 import org.simbrain.world.odorworld.entities.OdorWorldEntity;
 import org.simbrain.world.odorworld.entities.RotatingEntity;
@@ -81,9 +82,7 @@ public class SmellSensor extends Sensor {
         return new double[] { x, y };
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void update() {
         double[] temp = new double[currentValue.length];
         for (OdorWorldEntity entity : parent.getParentWorld().getObjectList()) {
@@ -104,9 +103,14 @@ public class SmellSensor extends Sensor {
     /**
      * @return the currentValue
      */
-    @Producible
-    public double[] getCurrentValue() {
+    @Producible(customDescriptionMethod = "getId")
+    public double[] getCurrentValues() {
         return currentValue;
+    }
+
+    //TODO
+    public int getDims() {
+        return this.getCurrentValues().length;
     }
 
     /**
@@ -114,7 +118,7 @@ public class SmellSensor extends Sensor {
      * @param index
      * @return the currentValue
      */
-    @Producible
+    @Producible(indexMethod = "getDims")
     public double getCurrentValue(Integer index) {
         return currentValue[index];
     }

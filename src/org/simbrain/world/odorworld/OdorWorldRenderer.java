@@ -139,7 +139,7 @@ public class OdorWorldRenderer {
 
                             double val = SimbrainMath
                                     .getVectorNorm(((SmellSensor) sensor)
-                                            .getCurrentValue());
+                                            .getCurrentValues());
                             float saturation = 0;
                             if (world.getTotalSmellVectorLength() > 0) {
                                 saturation = checkValid((float) Math.abs(val

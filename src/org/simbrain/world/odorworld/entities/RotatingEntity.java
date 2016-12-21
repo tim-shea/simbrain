@@ -261,7 +261,7 @@ public class RotatingEntity extends OdorWorldEntity {
      *
      * @param amount amount to turn left. Assumes a positive number.
      */
-    @Consumible
+    @Consumible(customDescriptionMethod="getId")
     public void turnLeft(double amount) {
         turn(amount);
     }
@@ -271,7 +271,7 @@ public class RotatingEntity extends OdorWorldEntity {
      *
      * @param amount
      */
-    @Consumible
+    @Consumible(customDescriptionMethod="getId")
     public void turn(double amount) {
         if (amount == 0) {
             return;
@@ -287,7 +287,7 @@ public class RotatingEntity extends OdorWorldEntity {
      *
      * @param amount amount to turn right. Assumes a positive number.
      */
-    @Consumible
+    @Consumible(customDescriptionMethod="getId")
     public void turnRight(double amount) {
         if (amount == 0) {
             return;
@@ -302,7 +302,7 @@ public class RotatingEntity extends OdorWorldEntity {
      *
      * @param amount
      */
-    @Consumible
+    @Consumible(customDescriptionMethod="getId")
     public void goStraight(double amount) {
         if (amount == 0) {
             return;

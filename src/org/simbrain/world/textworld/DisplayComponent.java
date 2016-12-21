@@ -63,6 +63,7 @@ public class DisplayComponent extends WorkspaceComponent {
      * Initialize attribute types.
      */
     private void init() {
+        this.rootObject = world;
 //        addConsumerType(new AttributeType(this, "DisplayClosestWord",
 //                double[].class, true));
 //        addConsumerType(new AttributeType(this, "DisplayString", String.class,

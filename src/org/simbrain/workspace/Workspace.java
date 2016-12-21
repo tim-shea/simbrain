@@ -54,6 +54,10 @@ import org.simbrain.workspace.updater.WorkspaceUpdater;
  */
 public class Workspace {
 
+    
+    //TODO
+    
+    
     /** The static logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(Workspace.class);
 
@@ -774,6 +778,18 @@ public class Workspace {
                 .findFirst().get();
     }
 
-
+    /**
+     * Convenience method for updating a set of couplings.
+     *
+     * @param couplingList the list of couplings to be updated
+     */
+    public void updateCouplings(List<Coupling2<?>> couplingList) {
+        // for (Coupling2<?> coupling : couplingList) {
+        // coupling.setBuffer();
+        // }
+        for (Coupling2<?> coupling : couplingList) {
+            coupling.update();
+        }
+    }
 
 }

@@ -49,6 +49,7 @@ public class PieChartComponent extends WorkspaceComponent {
         model.defaultInit();
         initializeAttributes();
         addListener();
+        rootObject = model;
     }
 
     /**
@@ -64,6 +65,7 @@ public class PieChartComponent extends WorkspaceComponent {
         this.model = model;
         initializeAttributes();
         addListener();
+        rootObject = model;
     }
 
     /**

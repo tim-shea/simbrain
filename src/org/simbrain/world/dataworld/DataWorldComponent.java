@@ -28,6 +28,8 @@ import javax.swing.event.TableModelListener;
 
 import org.apache.log4j.Logger;
 import org.simbrain.util.table.NumericTable;
+import org.simbrain.workspace.Consumible;
+import org.simbrain.workspace.Producible;
 import org.simbrain.workspace.WorkspaceComponent;
 
 /**
@@ -384,4 +386,13 @@ public class DataWorldComponent extends WorkspaceComponent {
 //        return consumingColumnType;
 //    }
 
+    @Consumible
+    public void setRow(final double[] values) {
+        dataTable.setVectorCurrentRow(values);
+    }
+
+    @Producible
+    public double[] getRow() {
+        return dataTable.getVectorCurrentRow();
+    }
 }
