@@ -3,7 +3,7 @@ package org.simbrain.world.threedworld.engine;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 
-import org.simbrain.world.imageworld.ImagePanel;
+import org.simbrain.world.threedworld.ThreeDImagePanel;
 
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
@@ -64,7 +64,7 @@ public class ThreeDContext implements JmeContext {
     private JmeContext actualContext;
     private AppSettings settings = new AppSettings(true);
     private SystemListener listener;
-    private ImagePanel panel;
+    private ThreeDImagePanel panel;
     private AwtMouseInput mouseInput = new AwtMouseInput() {
         @Override
         public void mousePressed(MouseEvent event) {
@@ -153,8 +153,8 @@ public class ThreeDContext implements JmeContext {
         return actualContext != null && actualContext.isRenderable();
     }
     
-    public ImagePanel createPanel() {
-        panel = new ImagePanel();
+    public ThreeDImagePanel createPanel() {
+        panel = new ThreeDImagePanel();
         return panel;
     }
     

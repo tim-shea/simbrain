@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.simbrain.world.imageworld.ImageFilters;
 import org.simbrain.world.imageworld.ImageSourceAdapter;
 
 /**
@@ -42,8 +41,8 @@ public class ThreeDRenderSource extends ImageSourceAdapter implements SceneProce
      * @param height The height of the rendered images.
      */
     public ThreeDRenderSource(int width, int height) {
-        setWidth(width);
-        setHeight(height);
+        //setWidth(width);
+        //setHeight(height);
         setEnabled(false);
     }
 
@@ -64,15 +63,14 @@ public class ThreeDRenderSource extends ImageSourceAdapter implements SceneProce
     /**
      * @return Return the image rendered by the engine before any filters are applied.
      */
-    @Override
     public BufferedImage getUnfilteredImage() {
         return unfilteredImage;
     }
 
-    @Override
+    //@Override
     public void updateImage() {
         setCurrentImage(unfilteredImage);
-        super.updateImage();
+        //super.updateImage();
     }
 
     /**
@@ -99,7 +97,7 @@ public class ThreeDRenderSource extends ImageSourceAdapter implements SceneProce
         }
     }
 
-    @Override
+    //@Override
     public void resize(int width, int height) {
         byteBuffer = BufferUtils.ensureLargeEnough(byteBuffer, width * height * 4);
         intBuffer = byteBuffer.asIntBuffer();
@@ -121,10 +119,11 @@ public class ThreeDRenderSource extends ImageSourceAdapter implements SceneProce
                 sceneProcessor.reshape(viewPort, width, height);
             }
         }
-        removeFilter(flip);
+        /*removeFilter(flip);
         flip = ImageFilters.flip(height);
         addFilter(flip);
         super.resize(width, height);
+        */
     }
 
     @Override

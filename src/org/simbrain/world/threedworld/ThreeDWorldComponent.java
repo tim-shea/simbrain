@@ -9,7 +9,6 @@ import org.simbrain.workspace.AttributeType;
 import org.simbrain.workspace.PotentialConsumer;
 import org.simbrain.workspace.PotentialProducer;
 import org.simbrain.workspace.WorkspaceComponent;
-import org.simbrain.world.imageworld.ImageCoupling;
 import org.simbrain.world.threedworld.engine.ThreeDEngine;
 import org.simbrain.world.threedworld.engine.ThreeDEngineConverter;
 import org.simbrain.world.threedworld.entities.Entity;
@@ -94,7 +93,7 @@ public class ThreeDWorldComponent extends WorkspaceComponent {
         for (AttributeType type : ModelEntity.getProducerTypes(this)) {
             addProducerType(type);
         }
-        this.addAnnotatedProducers(ImageCoupling.class);
+        //this.addAnnotatedProducers(ImageCoupling.class);
         for (AttributeType type : CollisionSensor.getProducerTypes(this)) {
             addProducerType(type);
         }

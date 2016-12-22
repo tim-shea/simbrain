@@ -7,7 +7,7 @@ import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 
-import org.simbrain.world.imageworld.ImagePanel;
+import org.simbrain.world.threedworld.ThreeDImagePanel;
 
 /**
  * VisionSensorEditor provides a GUI panel for editing the properties of a VisionSensor.
@@ -21,7 +21,7 @@ public class VisionSensorEditor extends SensorEditor {
     private JFormattedTextField headOffsetYField = new JFormattedTextField(EditorDialog.floatFormat);
     private JFormattedTextField headOffsetZField = new JFormattedTextField(EditorDialog.floatFormat);
     private JComboBox<String> modeComboBox = new JComboBox<String>();
-    private ImagePanel previewPanel = new ImagePanel();
+    private ThreeDImagePanel previewPanel = new ThreeDImagePanel();
 
     {
         widthField.setColumns(5);

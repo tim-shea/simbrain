@@ -11,17 +11,14 @@ import org.simbrain.workspace.WorkspaceComponent;
 /**
  * ImageWorldComponent provides a model for building an image processing
  * pipeline and coupling inputs and outputs within a Simbrain workspace.
- *
  * @author Tim Shea
  */
 public class ImageWorldComponent extends WorkspaceComponent {
-    
     /** The image world this component displays. */
     private final ImageWorld imageWorld;
 
     /**
      * Construct a new ImageWorldComponent.
-     * 
      * @param name The name of the component.
      */
     public ImageWorldComponent(String name) {
@@ -32,11 +29,9 @@ public class ImageWorldComponent extends WorkspaceComponent {
 
     /**
      * Open a saved ImageWorldComponent from an XML input stream.
-     * 
      * @param input The input stream to read.
      * @param name The name of the new world component.
      * @param format The format of the input stream. Should be xml.
-     *
      * @return A deserialized ImageWorldComponent.
      */
     public static ImageWorldComponent open(InputStream input, String name,
@@ -56,7 +51,7 @@ public class ImageWorldComponent extends WorkspaceComponent {
     public List<PotentialProducer> getPotentialProducers() {
         //TODO: Name the couplings in an appropriate way
         List<PotentialProducer> potentialProducers = new ArrayList<PotentialProducer>();
-        for(SensorMatrix sm : this.getImageWorld().getSensorMatrices()) {
+        for (SensorMatrix sm : this.getImageWorld().getSensorMatrices()) {
             potentialProducers.addAll(getPotentialProducersForObject(sm));
         }
         return potentialProducers;

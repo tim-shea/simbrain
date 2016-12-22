@@ -1,11 +1,10 @@
 package org.simbrain.world.threedworld.entities;
 
 import java.awt.image.BufferedImageOp;
+import java.util.Collections;
 import java.util.List;
 
 import org.simbrain.workspace.PotentialProducer;
-import org.simbrain.world.imageworld.ImageCoupling;
-import org.simbrain.world.imageworld.ImageFilters;
 import org.simbrain.world.threedworld.ThreeDWorldComponent;
 import org.simbrain.world.threedworld.engine.ThreeDRenderSource;
 import com.jme3.math.Quaternion;
@@ -43,7 +42,7 @@ public class VisionSensor implements Sensor {
     private transient Camera camera;
     private transient ViewPort viewPort;
     private transient ThreeDRenderSource source;
-    private transient ImageCoupling sourceCoupling;
+    //private transient ImageCoupling sourceCoupling;
     private transient BufferedImageOp colorFilter;
 
     /**
@@ -80,7 +79,7 @@ public class VisionSensor implements Sensor {
         viewPort.attachScene(agent.getEngine().getRootNode());
         source = new ThreeDRenderSource(width, height);
         source.attach(false, viewPort);
-        sourceCoupling = new ImageCoupling(source);
+        //sourceCoupling = new ImageCoupling(source);
     }
 
     @Override
@@ -160,6 +159,7 @@ public class VisionSensor implements Sensor {
      * Update the ImageSource filter to apply the assigned color mode.
      */
     private void applyMode() {
+        /*
         if (colorFilter != null) {
             source.removeFilter(colorFilter);
         }
@@ -176,6 +176,7 @@ public class VisionSensor implements Sensor {
             break;
         }
         source.addFilter(colorFilter);
+        */
     }
 
     /**
@@ -253,7 +254,8 @@ public class VisionSensor implements Sensor {
 
     @Override
     public List<PotentialProducer> getPotentialProducers(ThreeDWorldComponent worldComponent) {
-        return worldComponent.getPotentialProducersForObject("ImageCoupling", sourceCoupling);
+        //return worldComponent.getPotentialProducersForObject("ImageCoupling", sourceCoupling);
+        return Collections.emptyList();
     }
 
     @Override

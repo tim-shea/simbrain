@@ -4,7 +4,7 @@ import java.awt.Dimension;
 import java.io.File;
 import java.util.concurrent.Future;
 
-import org.simbrain.world.imageworld.ImagePanel;
+import org.simbrain.world.threedworld.ThreeDImagePanel;
 
 import com.jme3.app.Application;
 import com.jme3.asset.plugins.FileLocator;
@@ -45,7 +45,7 @@ public class ThreeDEngine extends Application {
     }
 
     private ThreeDContext context;
-    private ImagePanel panel;
+    private ThreeDImagePanel panel;
     private ThreeDRenderSource view;
     private BulletAppState bulletAppState;
     private Node rootNode;
@@ -80,7 +80,7 @@ public class ThreeDEngine extends Application {
     /**
      * @return The AWT panel in which the engine is rendered.
      */
-    public ImagePanel getPanel() {
+    public ThreeDImagePanel getPanel() {
         return panel;
     }
 

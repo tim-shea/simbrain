@@ -1,9 +1,7 @@
 package org.simbrain.world.imageworld;
 
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
 
@@ -13,25 +11,17 @@ import javax.swing.ImageIcon;
 /**
  * StaticImageSource allows static images (JPG, BMP, PNG) to be loaded and
  * filtered using the ImageSource interface.
- * 
  * @author Tim Shea
  */
 public class StaticImageSource extends ImageSourceAdapter {
     private String filename;
-    private BufferedImage originalImage;
-    private BufferedImageOp scale;
 
     /**
      * Construct a new StaticImageSource.
-     * 
-     * @param width The width of the new source.
-     * @param height The height of the new source.
      */
-    public StaticImageSource(int width, int height) {
-        setWidth(width);
-        setHeight(height);
-        setEnabled(true);
-        // loadImage("");
+    public StaticImageSource() {
+        super();
+        filename = "";
     }
 
     /**
@@ -43,76 +33,32 @@ public class StaticImageSource extends ImageSourceAdapter {
 
     /**
      * Load an image from a file and update the current image.
-     * 
-     * @param filename The file to load.
+     * @param filename the file to load.
+     * @throws IOException upon failure to read the requested file
      */
-    public void loadImage(String filename) {
-        this.filename = filename;
+    public void loadImage(String filename) throws IOException {
         if (filename == null || filename.isEmpty()) {
-            originalImage = new BufferedImage(getWidth(), getHeight(),
-                    BufferedImage.TYPE_INT_ARGB);
+            this.filename = "";
+            setCurrentImage(new BufferedImage(10, 10,
+                    BufferedImage.TYPE_INT_RGB));
         } else {
-            try {
-                originalImage = ImageIO.read(new File(filename));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            BufferedImage image = ImageIO.read(new File(filename));
+            this.filename = filename;
+            setCurrentImage(image);
         }
-        recalculateScale();
-        updateImage();
     }
 
     /**
      * Create image from  a provided image icon.
-     *
      * @param imageIcon the image icon
      */
     public void loadImage(ImageIcon imageIcon) {
-        originalImage = new BufferedImage(imageIcon.getIconWidth(),
-                imageIcon.getIconHeight(), BufferedImage.TYPE_INT_BGR);
-        Graphics2D g = originalImage.createGraphics();
+        this.filename = "";
+        BufferedImage image = new BufferedImage(imageIcon.getIconWidth(),
+                imageIcon.getIconHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = image.createGraphics();
         g.drawImage(imageIcon.getImage(), 0, 0, null);
         g.dispose();
+        setCurrentImage(image);
     }
-
-    /**
-     * Update the scaling transform from the original image size to the output
-     * size.
-     */
-    private void recalculateScale() {
-        removeFilter(scale);
-        if (originalImage.getWidth() == getWidth()
-                && originalImage.getHeight() == getHeight()) {
-            scale = ImageFilters.identity();
-        } else {
-            scale = ImageFilters.scale(
-                    (float) getWidth() / originalImage.getWidth(),
-                    (float) getHeight() / originalImage.getHeight(), false);
-        }
-        addFilter(scale);
-    }
-
-    @Override
-    public void updateImage() {
-        if (isEnabled()) {
-            setCurrentImage(originalImage);
-            super.updateImage();
-        }
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        setWidth(width);
-        setHeight(height);
-        recalculateScale();
-        setCurrentImage(originalImage);
-        applyFilters();
-        notifyResize();
-    }
-
-    @Override
-    public BufferedImage getUnfilteredImage() {
-        return originalImage;
-    }
-
 }
