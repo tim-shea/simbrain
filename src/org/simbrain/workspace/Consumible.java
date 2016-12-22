@@ -4,6 +4,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.List;
 
 /**
  * Consumible annotation marks a method as a potential consumer for a coupling.
@@ -25,6 +26,7 @@ public @interface Consumible {
 
     //TODO
     boolean visible() default true;
+    
+    String indexListMethod() default "";
 
-    String indexMethod() default "";
 }

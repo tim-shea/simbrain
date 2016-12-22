@@ -20,6 +20,10 @@ package org.simbrain.plot.timeseries;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.simbrain.plot.ChartListener;
 import org.simbrain.workspace.Consumible;
@@ -202,11 +206,6 @@ public class TimeSeriesPlotComponent extends WorkspaceComponent {
         return TimeSeriesModel.getXStream().toXML(model);
     }
 
-    //TODO
-    public int getNumSeries() {
-        return getModel().getDataset().getSeriesCount();
-    }
-
     /**
      * Set the value of a specified data source (one curve in the time series
      * plot). This is the main method for updating the data in a time series
@@ -215,17 +214,17 @@ public class TimeSeriesPlotComponent extends WorkspaceComponent {
      * @param value the current "y-axis" value for the time series
      * @param index which time series curve to set.
      */
-    @Consumible(indexMethod = "getNumSeries")
+    @Consumible(indexListMethod = "getSeries")
     public void setValue(final double value, final Integer index) {
         // TODO: Throw exception if index out of current bounds
         model.addData(index, TimeSeriesPlotComponent.this.getWorkspace()
                 .getTime(), value);
     }
-    
-    //TODO: Name conflicts? 
-    @Consumible
-    public void setValue(final double value) {
-        setValue(value, 0);
+
+    //TODO
+    public List<Integer> getSeries() {
+        return IntStream.range(1, model.getDataset().getSeries().size()).boxed()
+                .collect(Collectors.toList());
     }
 
 }

@@ -19,7 +19,10 @@
 package org.simbrain.plot.barchart;
 
 import java.awt.Color;
-import java.awt.EventQueue;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -247,16 +250,18 @@ public class BarChartModel extends ChartModel {
     }
 
     //TODO
-    public int getBarCount() {
-        return getDataset().getColumnCount();
+    public List<Integer> getBarIndices() {
+        return IntStream.range(0, dataset.getColumnCount()).boxed()
+                .collect(Collectors.toList());
     }
+
     /**
      * Set value of a specified bar.
      *
      * @param value value of bar
      * @param index which bar value to set
      */
-    @Consumible(indexMethod="getBarCount")
+    @Consumible(indexListMethod="getBarIndices")
     public void setValue(final double value, final Integer index) {
         getDataset().setValue(value, new Integer(1), index);
     }

@@ -24,5 +24,6 @@ public @interface Producible {
     //TODO:
     boolean visible() default true;
 
-    String indexMethod() default "";
+    String indexListMethod() default "";
+
 }

@@ -18,9 +18,12 @@
  */
 package org.simbrain.world.odorworld.sensors;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import org.simbrain.util.environment.SmellSource;
 import org.simbrain.util.math.SimbrainMath;
-import org.simbrain.workspace.Consumible;
 import org.simbrain.workspace.Producible;
 import org.simbrain.world.odorworld.entities.OdorWorldEntity;
 import org.simbrain.world.odorworld.entities.RotatingEntity;
@@ -109,8 +112,9 @@ public class SmellSensor extends Sensor {
     }
 
     //TODO
-    public int getDims() {
-        return this.getCurrentValues().length;
+    public List<Integer> getDimensionList() {
+        return IntStream.range(1, this.getCurrentValues().length).boxed()
+                .collect(Collectors.toList());
     }
 
     /**
@@ -118,7 +122,7 @@ public class SmellSensor extends Sensor {
      * @param index
      * @return the currentValue
      */
-    @Producible(indexMethod = "getDims")
+    @Producible(indexListMethod = "getDimensionList")
     public double getCurrentValue(Integer index) {
         return currentValue[index];
     }

@@ -915,22 +915,24 @@ public abstract class WorkspaceComponent {
         for (Method method : object.getClass().getMethods()) {
             Producible annotation = method.getAnnotation(Producible.class);
             if (annotation != null) {
-                if (!annotation.indexMethod().isEmpty()) {
+                // A custom keyed annotation is being used
+                if (!annotation.indexListMethod().isEmpty()) {
                     try {
-                        Method indexMethod = object.getClass()
-                                .getMethod(annotation.indexMethod(), null);
-                        int n = (int) indexMethod.invoke(object, null);
-                        for (int i = 0; i < n; i++) {
-                            Producer2<?> producer = new Producer2(this, object,
-                                    method);
-                            producer.key = i;
-                            returnList.add(producer);
+                        Method indexListMethod = object.getClass()
+                                .getMethod(annotation.indexListMethod(), null);
+                        List keys = (List) indexListMethod.invoke(object, null);
+                        for (Object key: keys) {
+                            Producer2<?> consumer = new Producer2<>(this,
+                                    object, method);
+                            consumer.key = key;
+                            returnList.add(consumer);
                         }
                     } catch (Exception e) {
                         // TODO: Use multicatch
                         e.printStackTrace();
                     }
                 }  else {
+                    // Annotation has no key
                     Producer2<?> producer = new Producer2<>(this, object,
                             method);
                     setCustomDescription(producer);
@@ -948,24 +950,24 @@ public abstract class WorkspaceComponent {
             // Key case
             Consumible annotation = method.getAnnotation(Consumible.class);
             if (annotation != null) {
-                if (!annotation.indexMethod().isEmpty()) {
+                // A custom keyed annotation is being used
+                if (!annotation.indexListMethod().isEmpty()) {
                     try {
-                        Method indexMethod = object.getClass()
-                                .getMethod(annotation.indexMethod(), null);
-                        int n = (int) indexMethod.invoke(object, null);
-                        for (int i = 0; i < n; i++) {
+                        Method indexListMethod = object.getClass()
+                                .getMethod(annotation.indexListMethod(), null);
+                        List keys = (List) indexListMethod.invoke(object, null);
+                        for (Object key: keys) {
                             Consumer2<?> consumer = new Consumer2<>(this,
                                     object, method);
-                            consumer.key = i;
+                            consumer.key = key;
                             returnList.add(consumer);
                         }
                     } catch (Exception e) {
                         // TODO: Use multicatch
                         e.printStackTrace();
                     }
-
                 } else {
-                    // No key case
+                    // Annotation has no key
                     Consumer2<?> consumer = new Consumer2<>(this, object,
                             method);
                     setCustomDescription(consumer);
