@@ -221,7 +221,7 @@ public class TimeSeriesPlotComponent extends WorkspaceComponent {
                 .getTime(), value);
     }
 
-    //TODO
+    //TODO.  Rename.
     public List<Integer> getSeries() {
         return IntStream.range(1, model.getDataset().getSeries().size()).boxed()
                 .collect(Collectors.toList());

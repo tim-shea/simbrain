@@ -111,7 +111,7 @@ public class SmellSensor extends Sensor {
         return currentValue;
     }
 
-    //TODO
+    //TODO. Rename...
     public List<Integer> getDimensionList() {
         return IntStream.range(1, this.getCurrentValues().length).boxed()
                 .collect(Collectors.toList());
