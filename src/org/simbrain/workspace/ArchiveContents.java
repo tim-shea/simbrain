@@ -283,7 +283,7 @@ class ArchiveContents {
     static final class ArchivedUpdateAction {
 
         /** Reference to the action itself. */
-        @XmlAnyElement
+        @XmlAnyElement(lax=true)
         private UpdateAction updateAction;
 
         /**

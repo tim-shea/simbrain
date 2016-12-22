@@ -235,8 +235,8 @@ public class Network {
             // Fire update events for GUI update. Loose items, then groups.
             fireSynapsesUpdated(synapseList); // Loose synapses
             fireNeuronsUpdated(neuronList); // Loose neurons
-            for (int i = 0, n = getGroupList().size(); i < n; i++) {
-                fireGroupUpdated(getGroupList().get(i)); // Groups
+            for (Group group : getGroupList()) {
+                fireGroupUpdated(group);
             }
         }
 
@@ -1811,7 +1811,7 @@ public class Network {
     }
 
     void beforeUnmarshal(Unmarshaller u, Object network) {
-        System.out.println("Before");
+        //System.out.println("Before");
     }
 
     void afterUnmarshal(Unmarshaller u, Object network) {
@@ -1829,9 +1829,10 @@ public class Network {
 
         //TODO: Can use this to set parent refs if it ends up being necessary
         // Initialize neurons
-        //for (Neuron neuron : this.getFlatNeuronList()) {
-        //    neuron.postUnmarshallingInit(this);
-        //}
+        for (Neuron neuron : this.getFlatNeuronList()) {
+            neuron.postUnmarshallingInit(this);
+        }
+
         // Initialize groups.
         //for (Group group: this.getGroupList()) {
         //    group.postUnmarshallingInit(this);
@@ -1845,11 +1846,11 @@ public class Network {
 
         // Re-populate fan-in / fan-out for loose synapses
         for (Synapse synapse : this.getLooseSynapses()) {
-            synapse.postUnmarshallingInit();
+            synapse.postUnmarshallingInit(this);
         }
         updateCompleted = new AtomicBoolean(false);
 
-        System.out.println("After");
+        //System.out.println("After");
     }
 
     /**

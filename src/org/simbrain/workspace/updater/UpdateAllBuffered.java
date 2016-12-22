@@ -53,6 +53,7 @@ import org.simbrain.workspace.WorkspaceComponent;
 public class UpdateAllBuffered implements UpdateAction {
 
     /** Provides access to workspace updater. */
+    @XmlTransient
     private WorkspaceUpdater updater;
 
     /** The static logger for the class. */

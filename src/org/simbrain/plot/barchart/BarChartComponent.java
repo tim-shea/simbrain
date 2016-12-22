@@ -20,16 +20,13 @@ package org.simbrain.plot.barchart;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 import org.simbrain.plot.ChartListener;
-import org.simbrain.workspace.Consumer2;
 import org.simbrain.workspace.WorkspaceComponent;
 
 /**
@@ -47,10 +44,7 @@ public class BarChartComponent extends WorkspaceComponent {
      */
     public BarChartComponent(final String name) {
         super(name);
-        model = new BarChartModel();
-        model.defaultInit();
-        addListener();
-        this.rootObject = model;
+        init();
     }
 
     /**
@@ -149,6 +143,14 @@ public class BarChartComponent extends WorkspaceComponent {
     @Override
     public String getXML() {
         return BarChartModel.getXStream().toXML(model);
+    }
+
+    //TODO
+    void init() {
+        model = new BarChartModel();
+        model.defaultInit();
+        addListener();
+        this.rootObject = model;
     }
 
 }

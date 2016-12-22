@@ -2071,7 +2071,7 @@ public class SynapseGroup extends Group {
             fullSynapseRep = null;
         } else {
             for (Synapse synapse : this.getAllSynapses()) {
-                synapse.postUnmarshallingInit();
+                synapse.postUnmarshallingInit(this.getParentNetwork());
             }
         }
 

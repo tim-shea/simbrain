@@ -108,7 +108,7 @@ public class Neuron {
 
     /** Reference to network this neuron is part of. */
     @XmlTransient
-    private final Network parent;
+    private Network parent;
 
     /** List of synapses this neuron attaches to. */
     @XmlTransient
@@ -241,9 +241,10 @@ public class Neuron {
     /**
      * Perform any initialization required when creating a neuron, but after the
      * parent network has been added.
+     * @param network parent network
      */
-    public void postUnmarshallingInit() {
-        
+    public void postUnmarshallingInit(Network network) {
+        this.parent = network;
         fanOut = new HashMap<Neuron, Synapse>();
         fanIn = new ArrayList<Synapse>();
         if (polarity == null) {

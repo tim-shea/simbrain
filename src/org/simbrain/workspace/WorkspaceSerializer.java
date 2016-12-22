@@ -43,6 +43,7 @@ import javax.xml.bind.Unmarshaller;
 import org.simbrain.workspace.gui.GuiComponent;
 import org.simbrain.workspace.gui.SimbrainDesktop;
 import org.simbrain.workspace.updater.UpdateAction;
+import org.simbrain.workspace.updater.UpdateAllBuffered;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -205,7 +206,8 @@ public class WorkspaceSerializer {
         // Get the archived contents file.
         Unmarshaller jaxbUnmarshaller;
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(ArchiveContents.class);
+            JAXBContext jaxbContext = JAXBContext.newInstance(
+                    ArchiveContents.class, UpdateAllBuffered.class);
             jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             contents = (ArchiveContents) jaxbUnmarshaller.unmarshal(
                     new ByteArrayInputStream(entries.get("contents.xml")));

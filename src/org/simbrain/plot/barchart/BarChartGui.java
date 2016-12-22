@@ -97,6 +97,8 @@ public class BarChartGui extends GuiComponent<BarChartComponent> implements
     @Override
     public void postAddInit() {
 
+        getWorkspaceComponent().init();
+
         // Generate the graph
         chart = ChartFactory.createBarChart("", // chart title
                 "Bar", // domain axis label

@@ -1025,8 +1025,10 @@ public class Synapse {
     /**
      * Called after a synapse is de-serialized, to repopulate fan-in and fan-out
      * lists.
+     * @param network parent network
      */
-    public void postUnmarshallingInit() {
+    public void postUnmarshallingInit(Network network) {
+        parentNetwork = network;
         if (getTarget() != null) {
             if (getTarget().getFanIn() != null) {
                 getTarget().addAfferent(this);
