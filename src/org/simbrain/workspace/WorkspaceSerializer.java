@@ -31,7 +31,9 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -86,15 +88,49 @@ public class WorkspaceSerializer {
      * @throws IOException If there is an IO error.
      */
     public void serialize(final OutputStream output) throws IOException {
+
+        // Create the zip output stream. ZipStream is a sequence of
+        // ZipEntries, with extra utilities for iterating over them.
+        // Each zipentry is basically a single file in the zip archive, a
+        // String with the relative path in the archive to the entry (e.g.
+        // "gui/network.xml"), and then
+        // a bytearray for the file itself.
         ZipOutputStream zipStream = new ZipOutputStream(output);
-        WorkspaceComponentSerializer serializer = new WorkspaceComponentSerializer(
-                zipStream);
+        WorkspaceComponentSerializer serializer = new WorkspaceComponentSerializer();
         ArchiveContents archive = new ArchiveContents(workspace, serializer);
 
+        // Currently sorts components by a serialization priority
         workspace.preSerializationInit();
 
         // Serialize components
-        serializeComponents(serializer, archive, zipStream);
+        for (WorkspaceComponent component : workspace.getComponentList()) {
+
+            ArchiveContents.ArchivedComponent archiveComp = archive
+                    .addComponent(component);
+
+            // Initialize the entry with a path+name in the zip archive
+            // e.g. "components/1_Network1.xml". Unzip a workspace file to see.
+            ZipEntry entry = new ZipEntry(archiveComp.getUri());
+            zipStream.putNextEntry(entry);
+
+            // Write the data to the zipstream using the component's save function
+            // which is also used in saving individual components
+            serializer.serializeComponent(component, zipStream);
+
+            /*
+             * If there is a desktop component associated with the component
+             * it's serialized here.
+             */
+            GuiComponent<?> desktopComponent = SimbrainDesktop.getDesktop(
+                    workspace).getDesktopComponent(component);
+            if (desktopComponent != null) {
+                ArchiveContents.ArchivedComponent.ArchivedDesktopComponent dc = archiveComp
+                        .addDesktopComponent(desktopComponent);
+                entry = new ZipEntry(dc.getUri());
+                zipStream.putNextEntry(entry);
+                desktopComponent.save(zipStream);
+            }
+        }
 
         // Serialize couplings
         for (Coupling2<?> coupling : workspace.getCouplings()) {
@@ -107,49 +143,14 @@ public class WorkspaceSerializer {
             archive.addUpdateAction(action);
         }
 
+        // Create the contents.xml file, which contains all the main
+        // information about the zip archive and where the saved component files
+        // are, and the serialized couplings, actions,
+        // etc.
         ZipEntry entry = new ZipEntry("contents.xml");
         zipStream.putNextEntry(entry);
         archive.toXml(zipStream);
         zipStream.finish();
-    }
-
-    /**
-     * Serializes all the components to the given archive and zipstream.
-     *
-     * @param serializer The serializer for the components.
-     * @param archive The archive contents to update.
-     * @param zipStream The zipstream to write to.
-     * @throws IOException If there is an IO error.
-     */
-    private void serializeComponents(
-            final WorkspaceComponentSerializer serializer,
-            final ArchiveContents archive, final ZipOutputStream zipStream)
-            throws IOException {
-
-        for (WorkspaceComponent component : workspace.getComponentList()) {
-
-            ArchiveContents.ArchivedComponent archiveComp = archive
-                    .addComponent(component);
-
-            ZipEntry entry = new ZipEntry(archiveComp.getUri());
-            zipStream.putNextEntry(entry);
-            serializer.serializeComponent(component);
-
-            GuiComponent<?> desktopComponent = SimbrainDesktop.getDesktop(
-                    workspace).getDesktopComponent(component);
-
-            /*
-             * If there is a desktop component associated with the component
-             * it's serialized here.
-             */
-            if (desktopComponent != null) {
-                ArchiveContents.ArchivedComponent.ArchivedDesktopComponent dc = archiveComp
-                        .addDesktopComponent(desktopComponent);
-                entry = new ZipEntry(dc.getUri());
-                zipStream.putNextEntry(entry);
-                desktopComponent.save(zipStream);
-            }
-        }
     }
 
     /**
@@ -175,35 +176,54 @@ public class WorkspaceSerializer {
     @SuppressWarnings("unchecked")
     public void deserialize(final InputStream stream,
             final Collection<? extends String> exclude) throws IOException {
-        Map<String, byte[]> entries = new HashMap<String, byte[]>();
+
+        // Populate the byte stream on kb at a time and create a zip input stream.
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-
         byte[] buffer = new byte[BUFFER_SIZE];
-
         for (int read; (read = stream.read(buffer)) >= 0;) {
             bytes.write(buffer, 0, read);
         }
-
         ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(
                 bytes.toByteArray()));
-        ArchiveContents contents = null;
-        WorkspaceComponentDeserializer componentDeserializer = new WorkspaceComponentDeserializer();
 
+
+        // Populate a map from zip entries (path+file in zip archive) to the
+        // associated data
+        Map<String, byte[]> entries = new HashMap<String, byte[]>();
         ZipEntry entry = zip.getNextEntry();
-
         for (ZipEntry next; entry != null; entry = next) {
             next = zip.getNextEntry();
             entries.put(entry.getName(), new byte[(int) entry.getSize()]);
         }
 
+        // Todo;
         zip = new ZipInputStream(new ByteArrayInputStream(bytes.toByteArray()));
-
         while ((entry = zip.getNextEntry()) != null) {
             byte[] data = entries.get(entry.getName());
             read(zip, data);
         }
 
-        // Get the archived contents file.
+        // When a user unzips and rezips a workspace file, additional
+        // information is added to the begining of the entries which must
+        // be stripped away.
+        Set<String> badnames = new HashSet<String>(entries.keySet());
+        for (String entName : badnames) {
+            // These guys are ok
+            if (entName.startsWith("guis" + File.separator)
+                    || entName.startsWith("components" + File.separator)) {
+                break;
+            }
+            String newname = entName;
+            // TODO: improve regex to handle underscores etc...
+            newname = newname.replaceFirst("^[a-zA-Z1-9]*\\/", "");
+            if (!newname.equals(entName)) {
+                entries.put(newname, entries.get(entName));
+                entries.remove(entName);
+            }
+        }
+
+        // Populate the archived contents file.
+        ArchiveContents contents = null;
         Unmarshaller jaxbUnmarshaller;
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(
@@ -216,6 +236,7 @@ public class WorkspaceSerializer {
         }
 
         // Add Components
+        WorkspaceComponentDeserializer componentDeserializer = new WorkspaceComponentDeserializer();
         if (contents.getArchivedComponents() != null) {
             for (ArchiveContents.ArchivedComponent archivedComponent : contents
                     .getArchivedComponents()) {
