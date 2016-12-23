@@ -205,8 +205,8 @@ public class WorkspaceSerializer {
         // When a user unzips and rezips a workspace file, additional
         // information is added to the beginnings of the entries which must
         // be stripped away.
-        Set<String> zipeEntries = new HashSet<String>(entries.keySet());
-        for (String entName : zipeEntries) {
+        Set<String> zipEntries = new HashSet<String>(entries.keySet());
+        for (String entName : zipEntries) {
             // These guys are ok
             if (entName.startsWith("guis" + File.separator)
                     || entName.startsWith("components" + File.separator)) {
