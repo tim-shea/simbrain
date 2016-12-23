@@ -91,25 +91,27 @@ public class WorkspaceSerializer {
 
         // Create the zip output stream. ZipStream is a sequence of
         // ZipEntries, with extra utilities for iterating over them.
-        // Each zipentry is basically a single file in the zip archive, a
+        // Each zipentry corresponds to a single file in the zip archive, a
         // String with the relative path in the archive to the entry (e.g.
-        // "gui/network.xml"), and then
-        // a bytearray for the file itself.
+        // "gui/network.xml"), and a bytearray for the file itself.
         ZipOutputStream zipStream = new ZipOutputStream(output);
         WorkspaceComponentSerializer serializer = new WorkspaceComponentSerializer();
+        
+        // This archive object saves all the information about the workspace.  It will
+        //  be saved as a zipentry "contents.xml"
         ArchiveContents archive = new ArchiveContents(workspace, serializer);
 
         // Currently sorts components by a serialization priority
         workspace.preSerializationInit();
 
-        // Serialize components
+        // Save the component entries and adds links to them in the archive
         for (WorkspaceComponent component : workspace.getComponentList()) {
 
             ArchiveContents.ArchivedComponent archiveComp = archive
                     .addComponent(component);
 
             // Initialize the entry with a path+name in the zip archive
-            // e.g. "components/1_Network1.xml". Unzip a workspace file to see.
+            // e.g. "components/1_Network1.xml" 
             ZipEntry entry = new ZipEntry(archiveComp.getUri());
             zipStream.putNextEntry(entry);
 
@@ -132,21 +134,18 @@ public class WorkspaceSerializer {
             }
         }
 
-        // Serialize couplings
+        // Add couplings to the archive
         for (Coupling2<?> coupling : workspace.getCouplings()) {
             archive.addCoupling(coupling);
         }
 
-        // Serialize update actions
+        // Add workspace actions to the archive
         for (UpdateAction action : workspace.getUpdater().getUpdateManager()
                 .getActionList()) {
             archive.addUpdateAction(action);
         }
 
-        // Create the contents.xml file, which contains all the main
-        // information about the zip archive and where the saved component files
-        // are, and the serialized couplings, actions,
-        // etc.
+        // Save the archive as contents.xml and save the zip file
         ZipEntry entry = new ZipEntry("contents.xml");
         zipStream.putNextEntry(entry);
         archive.toXml(zipStream);
@@ -177,7 +176,7 @@ public class WorkspaceSerializer {
     public void deserialize(final InputStream stream,
             final Collection<? extends String> exclude) throws IOException {
 
-        // Populate the byte stream on kb at a time and create a zip input stream.
+        // Populate the byte stream one KB at a time and create a zip input stream.
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         byte[] buffer = new byte[BUFFER_SIZE];
         for (int read; (read = stream.read(buffer)) >= 0;) {
@@ -196,7 +195,7 @@ public class WorkspaceSerializer {
             entries.put(entry.getName(), new byte[(int) entry.getSize()]);
         }
 
-        // Todo;
+        // Todo.
         zip = new ZipInputStream(new ByteArrayInputStream(bytes.toByteArray()));
         while ((entry = zip.getNextEntry()) != null) {
             byte[] data = entries.get(entry.getName());
@@ -204,15 +203,16 @@ public class WorkspaceSerializer {
         }
 
         // When a user unzips and rezips a workspace file, additional
-        // information is added to the begining of the entries which must
+        // information is added to the beginnings of the entries which must
         // be stripped away.
-        Set<String> badnames = new HashSet<String>(entries.keySet());
-        for (String entName : badnames) {
+        Set<String> zipeEntries = new HashSet<String>(entries.keySet());
+        for (String entName : zipeEntries) {
             // These guys are ok
             if (entName.startsWith("guis" + File.separator)
                     || entName.startsWith("components" + File.separator)) {
                 break;
             }
+            // Replace the bad with the good
             String newname = entName;
             // TODO: improve regex to handle underscores etc...
             newname = newname.replaceFirst("^[a-zA-Z1-9]*\\/", "");
@@ -222,7 +222,8 @@ public class WorkspaceSerializer {
             }
         }
 
-        // Populate the archived contents file.
+        // Read contents.xml file and create a new archived contents file,
+        // which will be used to recreate the workspace
         ArchiveContents contents = null;
         Unmarshaller jaxbUnmarshaller;
         try {
