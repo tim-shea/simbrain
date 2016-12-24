@@ -32,8 +32,6 @@ import org.simbrain.workspace.actions.chart.NewTimeSeriesAction;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.Icon;
-
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -63,14 +61,8 @@ public class WorkspaceActionManager {
     /** New odor world action. */
     private final Action newOdorWorldAction;
 
-    /** New odor world action. */
-    private final Action newGameWorldAction;
-
     /** New data world action. */
     private final Action newDataWorldAction;
-
-    /** New MIDI world action. */
-    private final Action newMidiWorldAction;
 
     /** New text world action. */
     private final Action newReaderWorldAction;
@@ -79,7 +71,7 @@ public class WorkspaceActionManager {
     private final Action newDisplayWorldAction;
 
     /** New vision world action. */
-    private final Action newVisionWorldAction;
+    private final Action newImageWorldAction;
 
     /** New device interaction world action. */
     private final Action newDeviceInteractionWorldAction;
@@ -204,12 +196,10 @@ public class WorkspaceActionManager {
         newRasterPlotAction = new NewRasterPlotAction(workspace);
 
         newDataWorldAction = new NewDataWorldAction(workspace);
-        newMidiWorldAction = new NewMidiWorldAction(workspace);
         newOdorWorldAction = new NewOdorWorldAction(workspace);
-        newGameWorldAction = new NewGameWorldAction(workspace);
         newDisplayWorldAction = new NewDisplayWorldAction(workspace);
         newReaderWorldAction = new NewReaderWorldAction(workspace);
-        newVisionWorldAction = new NewVisionWorldAction(workspace);
+        newImageWorldAction = new NewImageWorldAction(workspace);
         newDeviceInteractionWorldAction = new NewDeviceInteractionWorldAction(workspace);
 
         quitWorkspaceAction = new QuitWorkspaceAction(desktop);
@@ -223,8 +213,7 @@ public class WorkspaceActionManager {
 
         openCouplingManagerAction = new OpenCouplingManagerAction(desktop);
         openCouplingListAction = new OpenCouplingListAction(desktop);
-        openWorkspaceComponentListAction = new OpenWorkspaceComponentListAction(
-                desktop);
+        openWorkspaceComponentListAction = new OpenWorkspaceComponentListAction(desktop);
 
         propertyTabAction = new PropertyTabAction(desktop);
 
@@ -262,11 +251,13 @@ public class WorkspaceActionManager {
      * @return New worlds actions.
      */
     public List<Action> getNewWorldActions() {
-        return Arrays.asList(new Action[] { newDataWorldAction,
-                newOdorWorldAction, newDisplayWorldAction,
-                newReaderWorldAction,
-                // newThreeDeeWorldAction,
-                newVisionWorldAction });
+        return Arrays.asList(new Action[] {
+                newDataWorldAction,
+                newDisplayWorldAction,
+                newImageWorldAction,
+                newOdorWorldAction,
+                newReaderWorldAction
+        });
     }
 
     /**
@@ -392,10 +383,10 @@ public class WorkspaceActionManager {
     }
 
     /**
-     * @return the newVisionWorldAction.
+     * @return the newImageWorldAction.
      */
-    public Action getNewVisionWorldAction() {
-        return newVisionWorldAction;
+    public Action getNewImageWorldAction() {
+        return newImageWorldAction;
     }
 
     /**
@@ -563,5 +554,4 @@ public class WorkspaceActionManager {
     public Action getRepositionAllWindowsAction() {
         return repositionAllWindowsAction;
     }
-
 }

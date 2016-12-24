@@ -111,14 +111,14 @@ import org.simbrain.world.deviceinteraction.DeviceInteractionComponent;
 import org.simbrain.world.deviceinteraction.DeviceInteractionDesktopComponent;
 import org.simbrain.world.game.GameComponent;
 import org.simbrain.world.game.GameDesktopComponent;
+import org.simbrain.world.imageworld.ImageDesktopComponent;
+import org.simbrain.world.imageworld.ImageWorldComponent;
 import org.simbrain.world.odorworld.OdorWorldComponent;
 import org.simbrain.world.odorworld.OdorWorldDesktopComponent;
 import org.simbrain.world.textworld.DisplayComponent;
 import org.simbrain.world.textworld.DisplayComponentDesktopGui;
 import org.simbrain.world.textworld.ReaderComponent;
 import org.simbrain.world.textworld.ReaderComponentDesktopGui;
-import org.simbrain.world.visionworld.VisionWorldComponent;
-import org.simbrain.world.visionworld.VisionWorldDesktopComponent;
 
 import bsh.Interpreter;
 import bsh.util.JConsole;
@@ -236,8 +236,7 @@ public class SimbrainDesktop {
 
         @Override
         @SuppressWarnings("unchecked")
-        public void componentRemoved(
-                final WorkspaceComponent workspaceComponent) {
+        public void componentRemoved(final WorkspaceComponent workspaceComponent) {
             GuiComponent<?> component = guiComponents.get(workspaceComponent);
             if (component == null) {
                 return;
@@ -423,8 +422,8 @@ public class SimbrainDesktop {
         registerComponent(TimeSeriesPlotComponent.class,
                 TimeSeriesPlotGui.class);
         registerComponent(RasterPlotComponent.class, RasterPlotGui.class);
-        registerComponent(VisionWorldComponent.class,
-                VisionWorldDesktopComponent.class);
+        registerComponent(ImageWorldComponent.class,
+                ImageDesktopComponent.class);
         registerComponent(GameComponent.class, GameDesktopComponent.class);
         registerComponent(DeviceInteractionComponent.class,
                 DeviceInteractionDesktopComponent.class);
@@ -987,7 +986,7 @@ public class SimbrainDesktop {
         } else {
             // This should be coordinated with the logic in
             // RepositionAllWindowsSction
-            int highestComponentNumber = guiComponents.size();
+            int highestComponentNumber = guiComponents.size() + 1;
             componentFrame.setBounds(
                     (int) ((highestComponentNumber * DEFAULT_WINDOW_OFFSET)
                             % (desktop.getWidth() - guiComponent
