@@ -2,12 +2,13 @@ package org.simbrain.world.imageworld;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
 import org.simbrain.resource.ResourceManager;
-import org.simbrain.world.imageworld.dialogs.SensorMatrixDialog;
 import org.simbrain.world.imageworld.filters.ImageFilter;
 
 /**
@@ -25,11 +26,12 @@ public class ImageWorld {
         void sensorMatricesUpdated();
     }
 
-    /** The main image source. */
-    private StaticImageSource imageSource;
+    private StaticImageSource staticSource;
+    private EmitterMatrix emitterMatrix;
+    private CompositeImageSource compositeSource;
 
     /** List of sensor matrices associated with this world. */
-    private final List<SensorMatrix> sensorMatrices = new ArrayList<SensorMatrix>();
+    private List<SensorMatrix> sensorMatrices = new ArrayList<SensorMatrix>();
 
     /** Currently selected sensor matrix. */
     private SensorMatrix currentSensorMatrix;
@@ -44,29 +46,31 @@ public class ImageWorld {
      * Construct the image world.
      */
     public ImageWorld() {
-        // Load default image
-        imageSource = new StaticImageSource();
-        imageSource.loadImage(ResourceManager.getImageIcon("bobcat.jpg"));
+        // Setup ImageSources
+        staticSource = new StaticImageSource();
+        emitterMatrix = new EmitterMatrix();
+        compositeSource = new CompositeImageSource(staticSource);
+        staticSource.loadImage(ResourceManager.getImageIcon("bobcat.jpg"));
         imagePanel = new ImagePanel();
 
         // Load default sensor matrices
-        SensorMatrix unfiltered = new SensorMatrix("Unfiltered", imageSource);
+        SensorMatrix unfiltered = new SensorMatrix("Unfiltered", compositeSource);
         sensorMatrices.add(unfiltered);
 
         SensorMatrix gray75x75 = new SensorMatrix("Gray 75x75",
-                ImageFilter.grayFilter(imageSource, 75, 75));
+                ImageFilter.grayFilter(compositeSource, 75, 75));
         sensorMatrices.add(gray75x75);
 
         SensorMatrix gray200x200 = new SensorMatrix("Gray 200x200",
-                ImageFilter.grayFilter(imageSource, 200, 200));
+                ImageFilter.grayFilter(compositeSource, 200, 200));
         sensorMatrices.add(gray200x200);
 
         SensorMatrix threshold10x10 = new SensorMatrix("Threshold 10x10",
-                ImageFilter.thresholdFilter(imageSource, 0.5f, 10, 10));
+                ImageFilter.thresholdFilter(compositeSource, 0.5f, 10, 10));
         sensorMatrices.add(threshold10x10);
 
         SensorMatrix threshold100x100 = new SensorMatrix("Threshold 100x100",
-                ImageFilter.thresholdFilter(imageSource, 0.5f, 100, 100));
+                ImageFilter.thresholdFilter(compositeSource, 0.5f, 100, 100));
         sensorMatrices.add(threshold100x100);
 
         setCurrentSensorMatrix(sensorMatrices.get(0));
@@ -78,7 +82,13 @@ public class ImageWorld {
      * @throws IOException thrown if the requested file is not available
      */
     public void loadImage(String filename) throws IOException {
-        imageSource.loadImage(filename);
+        staticSource.loadImage(filename);
+        compositeSource.selectSource(staticSource);
+    }
+
+    public void resizeEmitterMatrix(int width, int height) {
+        emitterMatrix.setSize(width, height);
+        compositeSource.selectSource(emitterMatrix);
     }
 
     /**
@@ -90,16 +100,6 @@ public class ImageWorld {
         sensorMatrices.add(matrix);
         setCurrentSensorMatrix(matrix);
         fireSensorMatricesUpdated();
-    }
-
-    /**
-     * Show the Add Sensor Matrix dialog.
-     */
-    public void showSensorMatrixDialog() {
-        SensorMatrixDialog dialog = new SensorMatrixDialog(this);
-        dialog.pack();
-        dialog.setLocationRelativeTo(null);
-        dialog.setVisible(true);
     }
 
     /**
@@ -123,7 +123,7 @@ public class ImageWorld {
             // TODO: This is bad and should be handled in SensorMatrix
             ImageSource source = sensorMatrix.getSource();
             if (source instanceof ImageFilter) {
-                imageSource.removeListener((ImageFilter) source);
+                compositeSource.removeListener((ImageFilter) source);
             }
             sensorMatrix.getSource().removeListener(sensorMatrix);
             fireSensorMatricesUpdated();
@@ -135,9 +135,22 @@ public class ImageWorld {
         return imagePanel;
     }
 
-    /** @return Returns the image source for this ImageWorld. */
-    public ImageSource getImageSource() {
-        return imageSource;
+    /**
+     * @return Returns a CompositeImageSource which allows sensors to seamlessly switch between
+     * available ImageSources
+     */
+    public ImageSource getCompositeImageSource() {
+        return compositeSource;
+    }
+
+    public List<ImageSource> getImageSources() {
+        List<ImageSource> sources = new ArrayList<ImageSource>();
+        sources.addAll(Arrays.asList(staticSource, emitterMatrix));
+        for (SensorMatrix sensorMatrix : sensorMatrices) {
+            // Add Composite (unfiltered) and ImageFilters
+            sources.add(sensorMatrix.getSource());
+        }
+        return sources;
     }
 
     /** @return the currentSensorPanel */

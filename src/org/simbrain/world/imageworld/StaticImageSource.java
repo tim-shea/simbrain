@@ -53,7 +53,7 @@ public class StaticImageSource extends ImageSourceAdapter {
      * @param imageIcon the image icon
      */
     public void loadImage(ImageIcon imageIcon) {
-        this.filename = "";
+        filename = "";
         BufferedImage image = new BufferedImage(imageIcon.getIconWidth(),
                 imageIcon.getIconHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g = image.createGraphics();

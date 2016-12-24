@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.simbrain.workspace.Consumer2;
 import org.simbrain.workspace.Producer2;
 import org.simbrain.workspace.WorkspaceComponent;
 
@@ -55,6 +56,13 @@ public class ImageWorldComponent extends WorkspaceComponent {
             producers.addAll(getProducers(sensorMatrix));
         }
         return producers;
+    }
+
+    @Override
+    public List<Consumer2<?>> getConsumers() {
+        List<Consumer2<?>> consumers = new ArrayList<Consumer2<?>>();
+        consumers.addAll(getConsumersFromList(getImageWorld().getImageSources()));
+        return consumers;
     }
 
     /**

@@ -16,7 +16,7 @@ import org.simbrain.world.imageworld.SensorMatrix;
 import org.simbrain.world.imageworld.filters.ImageFilter;
 
 /**
- * Add or edit a sensor matrix.
+ * A dialog to create a new SensorMatrix.
  */
 public class SensorMatrixDialog extends StandardDialog {
     private static final long serialVersionUID = 1L;
@@ -45,16 +45,8 @@ public class SensorMatrixDialog extends StandardDialog {
      * @param world The ImageWorld which will hold the new SensorMatrix.
      */
     public SensorMatrixDialog(ImageWorld world) {
-        init("Create sensor matrix");
         this.world = world;
-    }
-
-    /**
-     * Initialize default constructor.
-     * @param title The title of the dialog.
-     */
-    private void init(String title) {
-        setTitle(title);
+        setTitle("Create Sensor Matrix");
         ShowHelpAction helpAction = new ShowHelpAction("Pages/Worlds/ImageWorld/sensorMatrix.html");
         addButton(new JButton(helpAction));
         mainPanel.add(sensorMatrixPanel);
@@ -81,7 +73,7 @@ public class SensorMatrixDialog extends StandardDialog {
     /** Called externally when the dialog is closed, to commit any changes made. */
     public void commitChanges() {
         String name = nameField.getText();
-        ImageFilter filter = filterPanel.createFilter(world.getImageSource());
+        ImageFilter filter = filterPanel.createFilter(world.getCompositeImageSource());
         SensorMatrix matrix = new SensorMatrix(name, filter);
         world.addSensorMatrix(matrix);
     }

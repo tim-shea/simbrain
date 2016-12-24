@@ -24,6 +24,8 @@ import org.simbrain.workspace.component_actions.OpenAction;
 import org.simbrain.workspace.component_actions.SaveAction;
 import org.simbrain.workspace.component_actions.SaveAsAction;
 import org.simbrain.workspace.gui.GuiComponent;
+import org.simbrain.world.imageworld.dialogs.SensorMatrixDialog;
+import org.simbrain.world.imageworld.dialogs.ResizeEmitterMatrixDialog;
 
 /**
  * GUI Interface for vision world.
@@ -55,42 +57,40 @@ public class ImageDesktopComponent extends GuiComponent<ImageWorldComponent> {
         this.setUpMenus(menuBar);
         frame.setJMenuBar(menuBar);
 
+        JButton resizeEmitterButton = new JButton("Resize Emitter");
+        resizeEmitterButton.addActionListener((evt) -> {
+            ResizeEmitterMatrixDialog dialog = new ResizeEmitterMatrixDialog(component.getImageWorld());
+            dialog.setVisible(true);
+        });
+        toolbar.add(resizeEmitterButton);
+
         toolbar.add(sensorMatrixCombo);
-        sensorMatrixCombo.setToolTipText(
-                "Which sensor panel to view (all are always available for coupling)");
+        sensorMatrixCombo.setToolTipText("Which Sensor Matrix to View");
         updateComboBox();
         sensorMatrixCombo.setSelectedIndex(0);
         sensorMatrixCombo.setMaximumSize(new java.awt.Dimension(200, 100));
-        sensorMatrixCombo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SensorMatrix selectedSensorMatrix = (SensorMatrix) sensorMatrixCombo.getSelectedItem();
-                if (selectedSensorMatrix != null) {
-                    component.getImageWorld().setCurrentSensorMatrix(selectedSensorMatrix);
-                }
+        sensorMatrixCombo.addActionListener((evt) -> {
+            SensorMatrix selectedSensorMatrix = (SensorMatrix) sensorMatrixCombo.getSelectedItem();
+            if (selectedSensorMatrix != null) {
+                component.getImageWorld().setCurrentSensorMatrix(selectedSensorMatrix);
             }
         });
 
         JButton addSensorMatrix = new JButton(
                 ResourceManager.getImageIcon("plus.png"));
         addSensorMatrix.setToolTipText("Add sensor matrix...");
-        addSensorMatrix.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                component.getImageWorld().showSensorMatrixDialog();
-            }
+        addSensorMatrix.addActionListener((evt) -> {
+            SensorMatrixDialog dialog = new SensorMatrixDialog(component.getImageWorld());
+            dialog.setVisible(true);
         });
         toolbar.add(addSensorMatrix);
 
         JButton deleteSensorMatrix = new JButton(
                 ResourceManager.getImageIcon("minus.png"));
         deleteSensorMatrix.setToolTipText("Delete sensor matrix");
-        deleteSensorMatrix.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SensorMatrix selectedSensorMatrix = (SensorMatrix) sensorMatrixCombo.getSelectedItem();
-                component.getImageWorld().removeSensorMatrix(selectedSensorMatrix);
-            }
+        deleteSensorMatrix.addActionListener((evt) -> {
+            SensorMatrix selectedSensorMatrix = (SensorMatrix) sensorMatrixCombo.getSelectedItem();
+            component.getImageWorld().removeSensorMatrix(selectedSensorMatrix);
         });
         toolbar.add(deleteSensorMatrix);
 
