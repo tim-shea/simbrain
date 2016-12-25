@@ -40,6 +40,8 @@ public class FilterPanel extends LabelledItemPanel {
             addItem("Height", heightField);
             break;
         case "Threshold":
+            addItem("Width", widthField);
+            addItem("Height", heightField);
             addItem("Threshold", thresholdField);
             break;
         }
