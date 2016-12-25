@@ -27,6 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlIDREF;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.simbrain.network.connections.AllToAll;
 import org.simbrain.network.connections.ConnectNeurons;
 import org.simbrain.network.connections.ConnectionUtilities;
@@ -53,7 +59,17 @@ import org.simbrain.workspace.Producible;
  * @author Zach Tosi
  *
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class SynapseGroup extends Group {
+
+    /** Reference to source neuron group. */
+    @XmlIDREF
+    private NeuronGroup sourceNeuronGroup;
+
+    /** Reference to target neuron group. */
+    @XmlIDREF
+    private NeuronGroup targetNeuronGroup;
 
     /**
      * The <b>default>/b> polarized randomizer associated with excitatory.
@@ -79,10 +95,15 @@ public class SynapseGroup extends Group {
     public static final ConnectNeurons DEFAULT_CONNECTION_MANAGER = new AllToAll();
 
     /** A set containing all the excitatory (wt > 0) synapses in the group. */
+    @XmlTransient
     private Set<Synapse> exSynapseSet = new HashSet<Synapse>();
 
     /** A set containing all the inhibitory (wt < 0) synapses in the group. */
+    @XmlTransient
     private Set<Synapse> inSynapseSet = new HashSet<Synapse>();
+
+    public byte[] compressedParams;
+
 
     //
     //    /**
@@ -101,16 +122,6 @@ public class SynapseGroup extends Group {
     //     */
     //    private transient Set<Synapse> inTemp;
 
-    /** Reference to source neuron group. */
-    private NeuronGroup sourceNeuronGroup;
-
-    /** Reference to target neuron group. */
-    private NeuronGroup targetNeuronGroup;
-
-    //TODO
-    private String srcId;
-    private String tarId;
-
     // TODO
     public SynapseGroup() {
     }
@@ -119,6 +130,7 @@ public class SynapseGroup extends Group {
      * The connect neurons object associated with this group.
      */
     // TODO redesign/figure out...
+    @XmlTransient
     private ConnectNeurons connectionManager;
 
     /**
@@ -356,8 +368,6 @@ public class SynapseGroup extends Group {
         this.fullSynapseRep = sgdh.compressedParams;
         this.excitatoryPrototype = sgdh.excPrototype;
         this.inhibitoryPrototype = sgdh.inhPrototype;
-        this.srcId = sgdh.srcID;
-        this.tarId = sgdh.tarID;
         this.exciteRand = sgdh.exRand;
         this.inhibRand = sgdh.inRand;
         this.displaySynapses = sgdh.visible;
@@ -1968,6 +1978,7 @@ public class SynapseGroup extends Group {
             buff.put(synCodes);
         }
         fullSynapseRep = buff.array();
+        compressedParams = buff.array();
         //TODO
         // inTemp = inSynapseSet;
         // exTemp = exSynapseSet;
@@ -2071,7 +2082,7 @@ public class SynapseGroup extends Group {
             fullSynapseRep = null;
         } else {
             for (Synapse synapse : this.getAllSynapses()) {
-                synapse.postUnmarshallingInit(this.getParentNetwork());
+                synapse.postUnmarshallingInit();
             }
         }
 
@@ -2090,8 +2101,6 @@ public class SynapseGroup extends Group {
      */
     public static class SynapseGroupDataHolder {
         public String id;
-        public String srcID;
-        public String tarID;
         public byte[] compressedParams;
         public Synapse excPrototype;
         public Synapse inhPrototype;
@@ -2105,8 +2114,6 @@ public class SynapseGroup extends Group {
         public SynapseGroupDataHolder(SynapseGroup synG) {
             synG.preSaveInit();
             this.id = synG.getId();
-            this.srcID = synG.getSourceNeuronGroup().getId();
-            this.tarID = synG.getTargetNeuronGroup().getId();
             this.compressedParams = synG.fullSynapseRep;
             this.excPrototype = synG.excitatoryPrototype;
             this.inhPrototype = synG.inhibitoryPrototype;
@@ -2120,8 +2127,6 @@ public class SynapseGroup extends Group {
                 final Synapse inhPrototype, boolean visible,
                 PolarizedRandomizer exRand, PolarizedRandomizer inRand) {
             this.id = id;
-            this.srcID = srcID;
-            this.tarID = tarID;
             this.compressedParams = compressedParams;
             this.excPrototype = excPrototype;
             this.inhPrototype = inhPrototype;
@@ -2133,8 +2138,6 @@ public class SynapseGroup extends Group {
     }
 
     public void initNeuronGroups(Network network) {
-        sourceNeuronGroup = (NeuronGroup) network.getGroup(srcId);
-        targetNeuronGroup = (NeuronGroup) network.getGroup(tarId);
         recurrent = testRecurrent();
     }
 

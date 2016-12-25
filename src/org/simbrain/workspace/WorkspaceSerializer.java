@@ -251,8 +251,8 @@ public class WorkspaceSerializer {
                                 new ByteArrayInputStream(entries
                                         .get(archivedComponent.getUri())));
 
-                // This will cause a desktop component (GuiComponent) to be
-                // created
+                // Add the component to the workspace.
+                // (Note this causes a desktop component (GuiComponent) to be created)
                 workspace.addWorkspaceComponent(wc);
 
                 if (archivedComponent.getDesktopComponent() != null) {

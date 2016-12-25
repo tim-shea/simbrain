@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.simbrain.network.core.Network.TimeType;
@@ -67,12 +68,6 @@ public class Neuron {
     public static final int PRE_ALLOCATED_NUM_SYNAPSES = (int) Math
             .ceil(500 / 0.75);
 
-    /**
-     * The update method of this neuron, which corresponds to what kind of
-     * neuron it is.
-     */
-    private NeuronUpdateRule updateRule;
-
     /** A unique id for this neuron. */
     @XmlID
     private String id;
@@ -107,7 +102,7 @@ public class Neuron {
     private double inputValue;
 
     /** Reference to network this neuron is part of. */
-    @XmlTransient
+    @XmlIDREF
     private Network parent;
 
     /** List of synapses this neuron attaches to. */
@@ -149,7 +144,7 @@ public class Neuron {
     private double lastActivation;
 
     /** Parent group, if any (null if none). */
-    @XmlTransient
+    @XmlIDREF
     private Group parentGroup;
 
     /**
@@ -164,6 +159,12 @@ public class Neuron {
      * values can be useful in scripts.
      */
     private double auxValue;
+
+    /**
+     * The update method of this neuron, which corresponds to what kind of
+     * neuron it is.
+     */
+    private NeuronUpdateRule updateRule;
 
     //TODO
     public Neuron(){
@@ -243,8 +244,7 @@ public class Neuron {
      * parent network has been added.
      * @param network parent network
      */
-    public void postUnmarshallingInit(Network network) {
-        this.parent = network;
+    public void postUnmarshallingInit() {
         fanOut = new HashMap<Neuron, Synapse>();
         fanIn = new ArrayList<Synapse>();
         if (polarity == null) {

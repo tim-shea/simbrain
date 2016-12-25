@@ -68,7 +68,7 @@ public class Synapse {
      * Parent network. Can't just use getSouce().getParent() because synapses
      * and their parents can occur at different levels of the network hierarchy.
      */
-    @XmlTransient
+    @XmlIDREF
     private Network parentNetwork;
 
     /** Neuron activation will come from. */
@@ -1027,8 +1027,7 @@ public class Synapse {
      * lists.
      * @param network parent network
      */
-    public void postUnmarshallingInit(Network network) {
-        parentNetwork = network;
+    public void postUnmarshallingInit() {
         if (getTarget() != null) {
             if (getTarget().getFanIn() != null) {
                 getTarget().addAfferent(this);

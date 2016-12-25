@@ -18,6 +18,10 @@
  */
 package org.simbrain.network.groups;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.simbrain.network.core.Network;
@@ -27,13 +31,16 @@ import org.simbrain.network.core.Network;
  * representation is {@link org.simbrain.network.gui.nodes.GroupNode}.
  */
 @XmlSeeAlso({ NeuronGroup.class, Subnetwork.class })
+@XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Group {
 
-    /** Reference to the network this group is a part of. */
-    private Network parentNetwork;
-
-    /** Name of this group. */
+    /** Id of this group. */
+    @XmlID
     protected String id;
+
+    /** Reference to the network this group is a part of. */
+    @XmlIDREF
+    private Network parentNetwork;
 
     /** Name of this group. Null strings lead to default labeling conventions. */
     private String label;

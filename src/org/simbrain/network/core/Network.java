@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -71,6 +72,10 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Network {
 
+    /** Network id. */
+    @XmlID
+    private String id = "";
+
     // TODO: Rename to looseNeurons and looseSynapses
     /** Array list of neurons. */
     private final List<Neuron> neuronList = new ArrayList<Neuron>();
@@ -78,18 +83,20 @@ public class Network {
     /** Array list of synapses. */
     private final Set<Synapse> synapseList = new LinkedHashSet<Synapse>();
 
-    // TODO
-
-    @XmlJavaTypeAdapter(SynapseGroupAdapter.class)
-    private final List<SynapseGroup> sgList = new ArrayList<>();
+    /** List of neuron groups. */
     private final List<NeuronGroup> ngList = new ArrayList<>();
+
+    /** List of synapse groups. */
+    //@XmlJavaTypeAdapter(SynapseGroupAdapter.class)
+    private final List<SynapseGroup> sgList = new ArrayList<>();
+
+    /** List of subnetworks. */
     private final List<Subnetwork> subnetList = new ArrayList<>();
 
     /** Text objects. */
     private List<NetworkTextObject> textList = new ArrayList<NetworkTextObject>();
 
     /** The update manager for this network. */
-    @XmlTransient
     private NetworkUpdateManager updateManager;
 
     /** The initial time-step for the network. */
@@ -105,7 +112,8 @@ public class Network {
     private double timeStep = DEFAULT_TIME_STEP;
 
     /** Local thread flag for manually starting and stopping the network. */
-    private AtomicBoolean isRunning = new AtomicBoolean();
+    @XmlTransient
+    private final AtomicBoolean isRunning = new AtomicBoolean();
 
     /**
      * Two types of time used in simulations.
@@ -193,11 +201,6 @@ public class Network {
      */
     private static int current_id = 0;
 
-    /**
-     * An optional name for the network that defaults to "Network[current_id]".
-     */
-    private String name = "";
-
     /** Static initializer */
     {
         try {
@@ -212,7 +215,7 @@ public class Network {
      * Used to create an instance of network (Default constructor).
      */
     public Network() {
-        name = "Network" + current_id;
+        id = "Network_" + current_id;
         current_id++;
         updateManager = new NetworkUpdateManager(this);
         prioritySortedNeuronList = new ArrayList<Neuron>();
@@ -1754,11 +1757,11 @@ public class Network {
     }
 
     public String getName() {
-        return name;
+        return id;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.id = name;
     }
 
     // TODO:
@@ -1827,16 +1830,10 @@ public class Network {
         // Initialize update manager
         updateManager.postUnmarshallingInit();
 
-        //TODO: Can use this to set parent refs if it ends up being necessary
         // Initialize neurons
         for (Neuron neuron : this.getFlatNeuronList()) {
-            neuron.postUnmarshallingInit(this);
+            neuron.postUnmarshallingInit();
         }
-
-        // Initialize groups.
-        //for (Group group: this.getGroupList()) {
-        //    group.postUnmarshallingInit(this);
-        //}
 
         // Uncompress compressed matrix rep if needed
         for (SynapseGroup sg : this.getSynapseGroups()) {
@@ -1846,8 +1843,9 @@ public class Network {
 
         // Re-populate fan-in / fan-out for loose synapses
         for (Synapse synapse : this.getLooseSynapses()) {
-            synapse.postUnmarshallingInit(this);
+            synapse.postUnmarshallingInit();
         }
+
         updateCompleted = new AtomicBoolean(false);
 
         //System.out.println("After");
@@ -1865,5 +1863,11 @@ public class Network {
      */
     public void setRunning(boolean isRunning) {
         this.isRunning.set(isRunning);
+    }
+
+    public void preSaveInit() {
+        for (SynapseGroup sg : sgList) {
+            sg.preSaveInit();
+        }
     }
 }

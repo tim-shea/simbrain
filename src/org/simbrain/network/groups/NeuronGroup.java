@@ -32,8 +32,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.Neuron;
@@ -54,6 +54,7 @@ import org.simbrain.workspace.Producible;
  * Layers in feed-forward networks are neuron groups. Self-organizing-maps
  * subclass this class. Etc.
  */
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class NeuronGroup extends Group implements CopyableGroup<NeuronGroup> {
 

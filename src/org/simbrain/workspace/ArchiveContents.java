@@ -632,7 +632,7 @@ class ArchiveContents {
             Marshaller marshaller = jc.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(this, stream);
-            marshaller.marshal(this, System.out);
+            //marshaller.marshal(this, System.out);
         } catch (JAXBException e) {
             e.printStackTrace();
         }
