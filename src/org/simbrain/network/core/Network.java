@@ -34,8 +34,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.simbrain.network.connections.ConnectNeurons;
 import org.simbrain.network.connections.Sparse;
@@ -70,6 +70,10 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+// Order matters in the xml, in order for @XmlID and @XmlIDREF
+@XmlType(propOrder = { "id", "neuronList", "synapseList", "ngList", "sgList",
+        "subnetList", "textList", "updateManager", "time", "timeStep",
+        "timeType" })
 public class Network {
 
     /** Network id. */
@@ -193,6 +197,7 @@ public class Network {
      * update.
      */
     //TODO: Is this being used?
+    @XmlTransient
     private volatile boolean fireUpdates = true;
 
     /**
