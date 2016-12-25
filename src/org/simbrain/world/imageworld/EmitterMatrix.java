@@ -12,6 +12,11 @@ public class EmitterMatrix extends ImageSourceAdapter {
         emitterValues = new double[3][getWidth() * getHeight()];
     }
 
+    public EmitterMatrix(BufferedImage currentImage) {
+        super(currentImage);
+        emitterValues = new double[3][getWidth() * getHeight()];
+    }
+
     @Consumible
     public void setChannel1(double[] values) {
         System.arraycopy(values, 0, emitterValues[0], 0, values.length);

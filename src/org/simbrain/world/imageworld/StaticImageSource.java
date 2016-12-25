@@ -24,6 +24,11 @@ public class StaticImageSource extends ImageSourceAdapter {
         filename = "";
     }
 
+    public StaticImageSource(String filename, BufferedImage currentImage) {
+        super(currentImage);
+        this.filename = filename;
+    }
+
     /**
      * @return Get the name of the currently loaded image file.
      */

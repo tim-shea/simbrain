@@ -3,13 +3,14 @@ package org.simbrain.world.imageworld;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
 import org.simbrain.resource.ResourceManager;
 import org.simbrain.world.imageworld.filters.ImageFilter;
+import org.simbrain.world.imageworld.filters.ImageFilterFactory;
+import org.simbrain.world.imageworld.filters.ThresholdFilterFactory;
 
 /**
  * ImageWorld contains the "logical" contents of this component, the image, and
@@ -57,20 +58,20 @@ public class ImageWorld {
         SensorMatrix unfiltered = new SensorMatrix("Unfiltered", compositeSource);
         sensorMatrices.add(unfiltered);
 
-        SensorMatrix gray75x75 = new SensorMatrix("Gray 75x75",
-                ImageFilter.grayFilter(compositeSource, 75, 75));
+        SensorMatrix gray75x75 = new SensorMatrix("Color 25x25",
+                ImageFilterFactory.createColorFilter(compositeSource, 25, 25));
         sensorMatrices.add(gray75x75);
 
         SensorMatrix gray200x200 = new SensorMatrix("Gray 200x200",
-                ImageFilter.grayFilter(compositeSource, 200, 200));
+                ImageFilterFactory.createGrayFilter(compositeSource, 200, 200));
         sensorMatrices.add(gray200x200);
 
         SensorMatrix threshold10x10 = new SensorMatrix("Threshold 10x10",
-                ImageFilter.thresholdFilter(compositeSource, 0.5f, 10, 10));
+                ThresholdFilterFactory.createThresholdFilter(compositeSource, 0.5f, 10, 10));
         sensorMatrices.add(threshold10x10);
 
         SensorMatrix threshold100x100 = new SensorMatrix("Threshold 100x100",
-                ImageFilter.thresholdFilter(compositeSource, 0.5f, 100, 100));
+                ThresholdFilterFactory.createThresholdFilter(compositeSource, 0.5f, 100, 100));
         sensorMatrices.add(threshold100x100);
 
         setCurrentSensorMatrix(sensorMatrices.get(0));

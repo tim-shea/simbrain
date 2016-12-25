@@ -40,37 +40,6 @@ public class ImageFilter extends ImageSourceAdapter implements ImageSourceListen
         return new AffineTransformOp(transform, interpolation);
     }
 
-    /**
-     * @param source the ImageSource to filter
-     * @param width the horizontal resolution of output images
-     * @param height the vertical resolution of output images
-     * @return an ImageFilter with color output
-     */
-    public static ImageFilter rgbFilter(ImageSource source, int width, int height) {
-        return new ImageFilter(source, getIdentityOp(), width, height);
-    }
-
-    /**
-     * @param source the ImageSource to filter
-     * @param width the horizontal resolution of output images
-     * @param height the vertical resolution of output images
-     * @return an ImageFilter with grayscale output
-     */
-    public static ImageFilter grayFilter(ImageSource source, int width, int height) {
-        return new ImageFilter(source, getGrayOp(), width, height);
-    }
-
-    /**
-     * @param source the ImageSource to filter
-     * @param threshold pixels with a luminance greater than this cutoff will be white
-     * @param width the horizontal resolution of output images
-     * @param height the vertical resolution of output images
-     * @return an ImageFilter which applies a luminance threshold to output pixels
-     */
-    public static ImageFilter thresholdFilter(ImageSource source, float threshold, int width, int height) {
-        return new ImageFilter(source, new ThresholdOp(threshold), width, height);
-    }
-
     private final ImageSource wrappedSource;
     private final BufferedImageOp colorOp;
     private final int width;
@@ -92,6 +61,20 @@ public class ImageFilter extends ImageSourceAdapter implements ImageSourceListen
         wrappedSource.addListener(this);
     }
 
+    public BufferedImageOp getColorOp() {
+        return colorOp;
+    }
+
+    /** @return the current unfiltered image */
+    public BufferedImage getUnfilteredImage() {
+        return wrappedSource.getCurrentImage();
+    }
+
+    /** @param value the BufferedImageOp to assign */
+    protected void setScaleOp(BufferedImageOp value) {
+        scaleOp = value;
+    }
+
     @Override
     public void onImage(ImageSource source) {
         BufferedImage image = scaleOp.filter(source.getCurrentImage(), null);
@@ -105,15 +88,5 @@ public class ImageFilter extends ImageSourceAdapter implements ImageSourceListen
         float scaleY = (float) height / source.getHeight();
         scaleOp = getScaleOp(scaleX, scaleY, true);
         notifyResize();
-    }
-
-    /** @return the current unfiltered image */
-    public BufferedImage getUnfilteredImage() {
-        return wrappedSource.getCurrentImage();
-    }
-
-    /** @param value the BufferedImageOp to assign */
-    protected void setScaleOp(BufferedImageOp value) {
-        scaleOp = value;
     }
 }

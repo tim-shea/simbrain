@@ -25,7 +25,6 @@ public class ImageWorldComponent extends WorkspaceComponent {
     public ImageWorldComponent(String name) {
         super(name);
         imageWorld = new ImageWorld();
-        //addAnnotatedProducers(SensorMatrix.class);
     }
 
     /**
@@ -35,18 +34,17 @@ public class ImageWorldComponent extends WorkspaceComponent {
      * @param format The format of the input stream. Should be xml.
      * @return A deserialized ImageWorldComponent.
      */
-    public static ImageWorldComponent open(InputStream input, String name,
-            String format) {
-        return null; //TODO
+    public static ImageWorldComponent open(InputStream input, String name, String format) {
+        return null;
     }
 
     @Override
     public void save(OutputStream output, String format) {
+        
     }
 
     @Override
-    protected void closing() {
-    }
+    protected void closing() { }
 
     @Override
     public List<Producer2<?>> getProducers() {

@@ -1,8 +1,5 @@
 package org.simbrain.world.imageworld.dialogs;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -14,6 +11,7 @@ import org.simbrain.util.widgets.ShowHelpAction;
 import org.simbrain.world.imageworld.ImageWorld;
 import org.simbrain.world.imageworld.SensorMatrix;
 import org.simbrain.world.imageworld.filters.ImageFilter;
+import org.simbrain.world.imageworld.filters.ImageFilterFactory;
 
 /**
  * A dialog to create a new SensorMatrix.
@@ -21,23 +19,13 @@ import org.simbrain.world.imageworld.filters.ImageFilter;
 public class SensorMatrixDialog extends StandardDialog {
     private static final long serialVersionUID = 1L;
 
-    /** Parent image world. */
     private ImageWorld world;
-
-    /** Select filter type. */
-    private JComboBox<String> filterTypeCombo = new JComboBox<String>(FilterPanel.FILTER_TYPES);
-
-    /** Main dialog panel. */
     private Box mainPanel = Box.createVerticalBox();
-
-    /** Panel for editing the sensor matrix. */
     private LabelledItemPanel sensorMatrixPanel = new LabelledItemPanel();
-
-    /** Text field to edit name. */
     private JTextField nameField = new JTextField();
-
-    /** Panel for editing the ImageFilter. */
-    private FilterPanel filterPanel = new FilterPanel();
+    private JComboBox<String> filterTypeCombo = new JComboBox<String>();
+    private LabelledItemPanel filterPanel;
+    private ImageFilterFactory filterFactory;
 
     /**
      * Construct a new SensorMatrixDialog for selecting parameters of a new
@@ -50,12 +38,21 @@ public class SensorMatrixDialog extends StandardDialog {
         ShowHelpAction helpAction = new ShowHelpAction("Pages/Worlds/ImageWorld/sensorMatrix.html");
         addButton(new JButton(helpAction));
         mainPanel.add(sensorMatrixPanel);
-        filterTypeCombo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                filterPanel.setFilterType((String) filterTypeCombo.getSelectedItem());
+        for (String type : ImageFilterFactory.getTypes()) {
+            ImageFilterFactory.getFactory(type).setDefaultValues();
+            filterTypeCombo.addItem(type);
+        }
+        filterTypeCombo.addActionListener((evt) -> {
+            if (filterPanel != null) {
+                mainPanel.remove(filterPanel);
             }
+            filterFactory = ImageFilterFactory.getFactory((String) filterTypeCombo.getSelectedItem());
+            filterPanel = filterFactory.getEditorPanel();
+            mainPanel.add(filterPanel);
+            filterPanel.revalidate();
+            pack();
         });
+        filterTypeCombo.setSelectedIndex(0);
         sensorMatrixPanel.addItem("Name", nameField);
         sensorMatrixPanel.addItem("Filter", filterTypeCombo);
         mainPanel.add(filterPanel);
@@ -73,7 +70,7 @@ public class SensorMatrixDialog extends StandardDialog {
     /** Called externally when the dialog is closed, to commit any changes made. */
     public void commitChanges() {
         String name = nameField.getText();
-        ImageFilter filter = filterPanel.createFilter(world.getCompositeImageSource());
+        ImageFilter filter = filterFactory.create(world.getCompositeImageSource());
         SensorMatrix matrix = new SensorMatrix(name, filter);
         world.addSensorMatrix(matrix);
     }
