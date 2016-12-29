@@ -43,7 +43,6 @@ import org.simbrain.network.groups.Group;
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.network.groups.Subnetwork;
 import org.simbrain.network.groups.SynapseGroup;
-import org.simbrain.network.groups.SynapseGroup.SynapseGroupDataHolder;
 import org.simbrain.network.listeners.GroupListener;
 import org.simbrain.network.listeners.NetworkEvent;
 import org.simbrain.network.listeners.NetworkListener;
@@ -91,7 +90,6 @@ public class Network {
     private final List<NeuronGroup> ngList = new ArrayList<>();
 
     /** List of synapse groups. */
-    //@XmlJavaTypeAdapter(SynapseGroupAdapter.class)
     private final List<SynapseGroup> sgList = new ArrayList<>();
 
     /** List of subnetworks. */
@@ -1779,43 +1777,6 @@ public class Network {
         retList.addAll(sgList);
         retList.addAll(subnetList);
         return retList;
-    }
-
-    /**
-     * Convert between lists of synapse groups and arrays of synapse group
-     * holders that are easily converted to xml.
-     */
-    static class SynapseGroupAdapter
-            extends XmlAdapter<SynapseGroupDataHolder[], List<SynapseGroup>> {
-
-        @Override
-        public List<SynapseGroup> unmarshal(SynapseGroupDataHolder[] v)
-                throws Exception {
-            List<SynapseGroup> sgl = new ArrayList<>();
-            for (SynapseGroupDataHolder sgdh : v) {
-                sgl.add(new SynapseGroup(sgdh));
-            }
-            return sgl;
-        }
-
-        @Override
-        public SynapseGroupDataHolder[] marshal(List<SynapseGroup> v)
-                throws Exception {
-            SynapseGroupDataHolder[] ret = new SynapseGroupDataHolder[v.size()];
-            int i = 0;
-            for (SynapseGroup sg : v) {
-                sg.preSaveInit();
-                ret[i] = new SynapseGroupDataHolder(sg.getId(),
-                        sg.getSourceNeuronGroup().getId(),
-                        sg.getTargetNeuronGroup().getId(),
-                        sg.getFullSynapseRep(), sg.getExcitatoryPrototype(),
-                        sg.getInhibitoryPrototype(), sg.isDisplaySynapses(),
-                        sg.getExcitatoryRandomizer(),
-                        sg.getInhibitoryRandomizer());
-                i++;
-            }
-            return ret;
-        }
     }
 
     void beforeUnmarshal(Unmarshaller u, Object network) {

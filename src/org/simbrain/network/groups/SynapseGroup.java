@@ -102,27 +102,9 @@ public class SynapseGroup extends Group {
     @XmlTransient
     private Set<Synapse> inSynapseSet = new HashSet<Synapse>();
 
-    public byte[] compressedParams;
-
-
-    //
-    //    /**
-    //     * A temporary set containing all the excitatory synapses in the group. Used
-    //     * when saving synapse groups since the regular set is destroyed. If the
-    //     * group is going to continue being used after saving the values in this
-    //     * temporary holder are used to repopulate the excitatory synapse set.
-    //     */
-    //    private transient Set<Synapse> exTemp;
-    //
-    //    /**
-    //     * A temporary set containing all the inhibitory synapses in the group. Used
-    //     * when saving synapse groups since the regular set is destroyed. If the
-    //     * group is going to continue being used after saving the values in this
-    //     * temporary holder are used to repopulate the inhibitory synapse set.
-    //     */
-    //    private transient Set<Synapse> inTemp;
-
-    // TODO
+    /**
+     * No argument constructor for jaxb.
+     */
     public SynapseGroup() {
     }
 
@@ -246,7 +228,7 @@ public class SynapseGroup extends Group {
      * synapses also all have different delays, PSRs, etc. This representation
      * saves all of those.
      */
-    private byte[] fullSynapseRep = null;
+    private byte[] compressedParams = null;
 
     /** Whether or not to use the compressed rep or the full rep. */
     private boolean useFullRepOnSave = true;
@@ -360,17 +342,6 @@ public class SynapseGroup extends Group {
         this.targetNeuronGroup = target;
         recurrent = testRecurrent();
         initializeSynapseVisibility();
-    }
-
-    //TODO
-    public SynapseGroup(SynapseGroupDataHolder sgdh) {
-        this.id = sgdh.id;
-        this.fullSynapseRep = sgdh.compressedParams;
-        this.excitatoryPrototype = sgdh.excPrototype;
-        this.inhibitoryPrototype = sgdh.inhPrototype;
-        this.exciteRand = sgdh.exRand;
-        this.inhibRand = sgdh.inRand;
-        this.displaySynapses = sgdh.visible;
     }
 
     /**
@@ -1977,28 +1948,9 @@ public class SynapseGroup extends Group {
         for (byte[] synCodes : synBytes) {
             buff.put(synCodes);
         }
-        fullSynapseRep = buff.array();
         compressedParams = buff.array();
-        //TODO
-        // inTemp = inSynapseSet;
-        // exTemp = exSynapseSet;
-        // inSynapseSet = null;
-        // exSynapseSet = null;
     }
 
-    //    /**
-    //     * A post initialization which must be done if the user wants to save the
-    //     * network, but continue using the network after saving (since the saving
-    //     * process sets the synapse sets to null.
-    //     */
-    //    public void postSaveReInit() {
-    //        if (isUseGroupLevelSettings()) {
-    //            inSynapseSet = inTemp;
-    //            exSynapseSet = exTemp;
-    //            inTemp = null;
-    //            exTemp = null;
-    //        }
-    //    }
 
     /**
      * Returns the full representation of the synapse group as a byte array with
@@ -2012,7 +1964,7 @@ public class SynapseGroup extends Group {
      *         and learning rule) as a byte array if it exists.
      */
     public byte[] getFullSynapseRep() {
-        return fullSynapseRep;
+        return compressedParams;
     }
 
     /**
@@ -2029,7 +1981,7 @@ public class SynapseGroup extends Group {
             this.compressedMatrixRep = null;
             setAndConformToTemplate(excitatoryPrototype, Polarity.EXCITATORY);
             setAndConformToTemplate(inhibitoryPrototype, Polarity.INHIBITORY);
-        } else if (fullSynapseRep != null) {
+        } else if (compressedParams != null) {
             exSynapseSet = new HashSet<Synapse>();
             inSynapseSet = new HashSet<Synapse>();
             Map<Integer, Neuron> srcMap = new HashMap<Integer, Neuron>(
@@ -2044,7 +1996,7 @@ public class SynapseGroup extends Group {
             for (Neuron n : targetNeuronGroup.getNeuronList()) {
                 tarMap.put(i++, n);
             }
-            ByteBuffer bigBuff = ByteBuffer.wrap(fullSynapseRep);
+            ByteBuffer bigBuff = ByteBuffer.wrap(compressedParams);
             while (bigBuff.hasRemaining()) {
                 int delay = bigBuff.getInt();
                 int codeBuffSize = 20 + (delay * 8) + 4 + 1;
@@ -2079,7 +2031,7 @@ public class SynapseGroup extends Group {
                     Polarity.INHIBITORY);
             setUpperBound(inhibitoryPrototype.getUpperBound(),
                     Polarity.INHIBITORY);
-            fullSynapseRep = null;
+            compressedParams = null;
         } else {
             for (Synapse synapse : this.getAllSynapses()) {
                 synapse.postUnmarshallingInit();
@@ -2090,51 +2042,6 @@ public class SynapseGroup extends Group {
             ((Sparse) connectionManager).setPermitDensityEditing(false);
         }
         calculateExcitatoryRatio();
-    }
-
-    //TODO
-
-    /**
-     *
-     * @author ztosi
-     *
-     */
-    public static class SynapseGroupDataHolder {
-        public String id;
-        public byte[] compressedParams;
-        public Synapse excPrototype;
-        public Synapse inhPrototype;
-        public boolean visible;
-        public PolarizedRandomizer exRand;
-        public PolarizedRandomizer inRand;
-
-        public SynapseGroupDataHolder() {
-        }
-
-        public SynapseGroupDataHolder(SynapseGroup synG) {
-            synG.preSaveInit();
-            this.id = synG.getId();
-            this.compressedParams = synG.fullSynapseRep;
-            this.excPrototype = synG.excitatoryPrototype;
-            this.inhPrototype = synG.inhibitoryPrototype;
-            this.visible = synG.displaySynapses;
-            this.exRand = synG.getExcitatoryRandomizer();
-            this.inRand = synG.getInhibitoryRandomizer();
-        }
-
-        public SynapseGroupDataHolder(final String id, final String srcID, final String tarID,
-                final byte[] compressedParams, final Synapse excPrototype,
-                final Synapse inhPrototype, boolean visible,
-                PolarizedRandomizer exRand, PolarizedRandomizer inRand) {
-            this.id = id;
-            this.compressedParams = compressedParams;
-            this.excPrototype = excPrototype;
-            this.inhPrototype = inhPrototype;
-            this.visible = visible;
-            this.exRand = exRand;
-            this.inRand = inRand;
-        }
-
     }
 
     public void initNeuronGroups(Network network) {
