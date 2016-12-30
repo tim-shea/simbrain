@@ -17,7 +17,6 @@
  */
 package org.simbrain.network;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -39,7 +38,6 @@ import org.simbrain.network.groups.SynapseGroup;
 import org.simbrain.network.listeners.NetworkEvent;
 import org.simbrain.network.listeners.NeuronListener;
 import org.simbrain.network.listeners.SynapseListener;
-import org.simbrain.plot.barchart.BarChartModel;
 import org.simbrain.workspace.Consumer2;
 import org.simbrain.workspace.Producer2;
 import org.simbrain.workspace.WorkspaceComponent;
@@ -436,11 +434,9 @@ public final class NetworkComponent extends WorkspaceComponent {
         return null;
     }
 
-    //TODO
+    
     public static NetworkComponent open(final InputStream input,
             final String name, final String format) {
-//        Network newNetwork = (Network) Network.getXStream().fromXML(input);
-//        return new NetworkComponent(name, newNetwork);
         Unmarshaller jaxbUnmarshaller;
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(Network.class);
@@ -453,11 +449,6 @@ public final class NetworkComponent extends WorkspaceComponent {
         }
         return null;
     }
-
-//    @Override
-//    public void save(final OutputStream output, final String format) {
-//        Network.getXStream().toXML(network, output);
-//    }
 
     /**
      * Returns the root network.
@@ -520,24 +511,9 @@ public final class NetworkComponent extends WorkspaceComponent {
             jc = JAXBContext.newInstance(Network.class);
             Marshaller marshaller = jc.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            this.getNetwork().preSaveInit();
             marshaller.marshal(this.getNetwork(), output);
             //marshaller.marshal(this.getNetwork(), System.out);
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    @Override
-    public void open2() {
-        //TODO: Hard-coded test for now
-        File file = new File("jaxb_test.xml");
-        Unmarshaller jaxbUnmarshaller;
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(Network.class);
-            jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            Network network = (Network) jaxbUnmarshaller.unmarshal(file);
-            //System.out.println(network);
         } catch (JAXBException e) {
             e.printStackTrace();
         }

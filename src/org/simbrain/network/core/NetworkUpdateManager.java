@@ -23,6 +23,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlIDREF;
+import javax.xml.bind.annotation.XmlSeeAlso;
+
 import org.simbrain.network.groups.Group;
 import org.simbrain.network.listeners.GroupAdapter;
 import org.simbrain.network.listeners.NetworkEvent;
@@ -39,23 +45,32 @@ import org.simbrain.network.update_actions.UpdateGroup;
  *
  * @author Jeff Yoshimi
  */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlSeeAlso({BufferedUpdate.class, UpdateGroup.class})
 public class NetworkUpdateManager {
 
     /**
      * The list of update actions, in a specific order. One run through these
      * actions constitutes a single "update" in the network.
      */
+    @XmlAnyElement(lax=true)
     private final List<NetworkUpdateAction> actionList =
             new ArrayList<NetworkUpdateAction>();
 
     /**
      * List of listeners on this update manager.
      */
-    private List<UpdateManagerListener> listeners =
+    @XmlAnyElement(lax=true)
+    private final List<UpdateManagerListener> listeners =
             new ArrayList<UpdateManagerListener>();
 
     /** Reference to parent network. */
-    private final Network network;
+    @XmlIDREF
+    private Network network;
+
+    //TODO: For jaxb
+    public NetworkUpdateManager() {
+    }
 
     /**
      * Construct a new update manager.
@@ -76,7 +91,6 @@ public class NetworkUpdateManager {
      * constructor ands its fields populated using xstream.
      */
     public void postUnmarshallingInit() {
-        listeners = new ArrayList<UpdateManagerListener>();
         addListeners();
         Iterator<NetworkUpdateAction> actions = actionList.iterator();
         // TODO: Hack-y solution. Revisit this.

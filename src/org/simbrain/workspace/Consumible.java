@@ -27,6 +27,7 @@ public @interface Consumible {
     //TODO
     boolean visible() default true;
     
+    // TODO: Better name?  Give example.  
     String indexListMethod() default "";
 
 }

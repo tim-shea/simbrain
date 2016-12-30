@@ -96,9 +96,9 @@ public class WorkspaceSerializer {
         // "gui/network.xml"), and a bytearray for the file itself.
         ZipOutputStream zipStream = new ZipOutputStream(output);
         WorkspaceComponentSerializer serializer = new WorkspaceComponentSerializer();
-        
-        // This archive object saves all the information about the workspace.  It will
-        //  be saved as a zipentry "contents.xml"
+
+        // This archive object saves all the information about the workspace. It
+        // will be saved as a zipentry "contents.xml"
         ArchiveContents archive = new ArchiveContents(workspace, serializer);
 
         // Currently sorts components by a serialization priority
@@ -111,20 +111,20 @@ public class WorkspaceSerializer {
                     .addComponent(component);
 
             // Initialize the entry with a path+name in the zip archive
-            // e.g. "components/1_Network1.xml" 
+            // e.g. "components/1_Network1.xml"
             ZipEntry entry = new ZipEntry(archiveComp.getUri());
             zipStream.putNextEntry(entry);
 
-            // Write the data to the zipstream using the component's save function
-            // which is also used in saving individual components
+            // Write the data to the zipstream using the component's save
+            // function which is also used in saving individual components
             serializer.serializeComponent(component, zipStream);
 
             /*
              * If there is a desktop component associated with the component
              * it's serialized here.
              */
-            GuiComponent<?> desktopComponent = SimbrainDesktop.getDesktop(
-                    workspace).getDesktopComponent(component);
+            GuiComponent<?> desktopComponent = SimbrainDesktop
+                    .getDesktop(workspace).getDesktopComponent(component);
             if (desktopComponent != null) {
                 ArchiveContents.ArchivedComponent.ArchivedDesktopComponent dc = archiveComp
                         .addDesktopComponent(desktopComponent);
@@ -163,7 +163,7 @@ public class WorkspaceSerializer {
         deserialize(stream, empty);
     }
 
-    //TODO: Remove exclude thing?
+    // TODO: Remove exclude thing?
     /**
      * Creates a workspace from a zip compressed input stream.
      *
@@ -176,27 +176,27 @@ public class WorkspaceSerializer {
     public void deserialize(final InputStream stream,
             final Collection<? extends String> exclude) throws IOException {
 
-        // Populate the byte stream one KB at a time and create a zip input stream.
+        // Populate the byte stream BUFFER_SIZE at a time and create a zip input
+        // stream (currently 1 kb at a time).
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         byte[] buffer = new byte[BUFFER_SIZE];
         for (int read; (read = stream.read(buffer)) >= 0;) {
             bytes.write(buffer, 0, read);
         }
-        ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(
-                bytes.toByteArray()));
+        ZipInputStream zip = new ZipInputStream(
+                new ByteArrayInputStream(bytes.toByteArray()));
 
-
-        // Populate a map from zip entries (path+file in zip archive) to the
-        // associated data
+        // Populate a map from zip entries (strings containing path+file info in
+        // zip archive) to the associated data
         Map<String, byte[]> entries = new HashMap<String, byte[]>();
         ZipEntry entry = zip.getNextEntry();
+        // Initialize byte arrays
         for (ZipEntry next; entry != null; entry = next) {
             next = zip.getNextEntry();
             entries.put(entry.getName(), new byte[(int) entry.getSize()]);
         }
-
-        // Todo.
         zip = new ZipInputStream(new ByteArrayInputStream(bytes.toByteArray()));
+        // Populate byte arrays
         while ((entry = zip.getNextEntry()) != null) {
             byte[] data = entries.get(entry.getName());
             read(zip, data);
@@ -246,19 +246,19 @@ public class WorkspaceSerializer {
                 }
 
                 WorkspaceComponent wc = componentDeserializer
-                        .deserializeWorkspaceComponent(
-                                archivedComponent,
+                        .deserializeWorkspaceComponent(archivedComponent,
                                 new ByteArrayInputStream(entries
                                         .get(archivedComponent.getUri())));
 
-                // This will cause a desktop component (GuiComponent) to be
-                // created
+                // Add the component to the workspace.
+                // (Note this causes a desktop component (GuiComponent) to be
+                // created)
                 workspace.addWorkspaceComponent(wc);
 
                 if (archivedComponent.getDesktopComponent() != null) {
                     Rectangle bounds = (Rectangle) new XStream(new DomDriver())
-                            .fromXML(new ByteArrayInputStream(entries
-                                    .get(archivedComponent
+                            .fromXML(new ByteArrayInputStream(
+                                    entries.get(archivedComponent
                                             .getDesktopComponent().getUri())));
                     GuiComponent<?> desktopComponent = desktop
                             .getDesktopComponent(wc);
@@ -271,12 +271,13 @@ public class WorkspaceSerializer {
         if (contents.getArchivedCouplings() != null) {
             for (ArchiveContents.ArchivedCoupling couplingRef : contents
                     .getArchivedCouplings()) {
-//                if (exclude.contains(couplingRef.getArchivedProducer()
-//                        .getParentRef())
-//                        || exclude.contains(couplingRef.getArchivedProducer()
-//                                .getParentRef())) {
-//                    continue;
-//                }
+ 
+                // if (exclude.contains(couplingRef.getArchivedProducer()
+                // .getParentRef())
+                // || exclude.contains(couplingRef.getArchivedProducer()
+                // .getParentRef())) {
+                // continue;
+                // }
 
                 // Get workspace components from references
                 WorkspaceComponent sourceComponent = componentDeserializer
@@ -305,22 +306,19 @@ public class WorkspaceSerializer {
         if (contents.getArchivedActions() != null) {
             for (ArchiveContents.ArchivedUpdateAction actionRef : contents
                     .getArchivedActions()) {
-                workspace
-                        .getUpdater()
-                        .getUpdateManager()
-                        .addAction(
-                                contents.createUpdateAction(workspace,
-                                        componentDeserializer, actionRef));
+                workspace.getUpdater().getUpdateManager()
+                        .addAction(contents.createUpdateAction(workspace,
+                                componentDeserializer, actionRef));
             }
         }
 
         // Deserialize workspace parameters (serialization occurs in
         // ArchiveContents.java).
         if (contents.getWorkspaceParameters() != null) {
-            workspace.setUpdateDelay(contents.getWorkspaceParameters()
-                    .getUpdateDelay());
-            workspace.getUpdater().setTime(
-                    contents.getWorkspaceParameters().getSavedTime());
+            workspace.setUpdateDelay(
+                    contents.getWorkspaceParameters().getUpdateDelay());
+            workspace.getUpdater()
+                    .setTime(contents.getWorkspaceParameters().getSavedTime());
         }
     }
 

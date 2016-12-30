@@ -18,6 +18,10 @@
  */
 package org.simbrain.network.update_actions;
 
+import javax.xml.bind.annotation.XmlIDREF;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.simbrain.network.core.Network;
 import org.simbrain.network.core.NetworkUpdateAction;
 
@@ -27,10 +31,16 @@ import org.simbrain.network.core.NetworkUpdateAction;
  *
  * @author jyoshimi
  */
+@XmlRootElement
 public class BufferedUpdate implements NetworkUpdateAction {
 
     /** Reference to network to update. */
+    @XmlIDREF
     private Network network;
+
+    //TODO
+    public BufferedUpdate() {
+    }
 
     /**
      * @param network

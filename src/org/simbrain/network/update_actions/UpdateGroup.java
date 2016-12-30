@@ -18,6 +18,12 @@
  */
 package org.simbrain.network.update_actions;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlIDREF;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.simbrain.network.core.NetworkUpdateAction;
 import org.simbrain.network.groups.Group;
 import org.simbrain.network.groups.NeuronGroup;
@@ -30,11 +36,18 @@ import org.simbrain.network.groups.SynapseGroup;
  *
  * @author jyoshimi
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class UpdateGroup implements NetworkUpdateAction {
 
     /** Reference to group. */
-    private final Group group;
+    @XmlIDREF
+    private Group group;
 
+    //TODOs
+    public UpdateGroup() {
+    }
+    
     /**
      * @param group group to update
      */

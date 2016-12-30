@@ -31,10 +31,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.simbrain.network.connections.ConnectNeurons;
 import org.simbrain.network.connections.Sparse;
@@ -42,7 +43,6 @@ import org.simbrain.network.groups.Group;
 import org.simbrain.network.groups.NeuronGroup;
 import org.simbrain.network.groups.Subnetwork;
 import org.simbrain.network.groups.SynapseGroup;
-import org.simbrain.network.groups.SynapseGroup.SynapseGroupDataHolder;
 import org.simbrain.network.listeners.GroupListener;
 import org.simbrain.network.listeners.NetworkEvent;
 import org.simbrain.network.listeners.NetworkListener;
@@ -69,7 +69,15 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+// Order matters in the xml, in order for @XmlID and @XmlIDREF
+@XmlType(propOrder = { "id", "neuronList", "synapseList", "ngList", "sgList",
+        "subnetList", "textList", "updateManager", "time", "timeStep",
+        "timeType" })
 public class Network {
+
+    /** Network id. */
+    @XmlID
+    private String id = "";
 
     // TODO: Rename to looseNeurons and looseSynapses
     /** Array list of neurons. */
@@ -78,18 +86,19 @@ public class Network {
     /** Array list of synapses. */
     private final Set<Synapse> synapseList = new LinkedHashSet<Synapse>();
 
-    // TODO
-
-    @XmlJavaTypeAdapter(SynapseGroupAdapter.class)
-    private final List<SynapseGroup> sgList = new ArrayList<>();
+    /** List of neuron groups. */
     private final List<NeuronGroup> ngList = new ArrayList<>();
+
+    /** List of synapse groups. */
+    private final List<SynapseGroup> sgList = new ArrayList<>();
+
+    /** List of subnetworks. */
     private final List<Subnetwork> subnetList = new ArrayList<>();
 
     /** Text objects. */
     private List<NetworkTextObject> textList = new ArrayList<NetworkTextObject>();
 
     /** The update manager for this network. */
-    @XmlTransient
     private NetworkUpdateManager updateManager;
 
     /** The initial time-step for the network. */
@@ -105,7 +114,8 @@ public class Network {
     private double timeStep = DEFAULT_TIME_STEP;
 
     /** Local thread flag for manually starting and stopping the network. */
-    private AtomicBoolean isRunning = new AtomicBoolean();
+    @XmlTransient
+    private final AtomicBoolean isRunning = new AtomicBoolean();
 
     /**
      * Two types of time used in simulations.
@@ -185,6 +195,7 @@ public class Network {
      * update.
      */
     //TODO: Is this being used?
+    @XmlTransient
     private volatile boolean fireUpdates = true;
 
     /**
@@ -192,11 +203,6 @@ public class Network {
      * session.
      */
     private static int current_id = 0;
-
-    /**
-     * An optional name for the network that defaults to "Network[current_id]".
-     */
-    private String name = "";
 
     /** Static initializer */
     {
@@ -212,7 +218,7 @@ public class Network {
      * Used to create an instance of network (Default constructor).
      */
     public Network() {
-        name = "Network" + current_id;
+        id = "Network_" + current_id;
         current_id++;
         updateManager = new NetworkUpdateManager(this);
         prioritySortedNeuronList = new ArrayList<Neuron>();
@@ -1754,11 +1760,11 @@ public class Network {
     }
 
     public String getName() {
-        return name;
+        return id;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.id = name;
     }
 
     // TODO:
@@ -1771,43 +1777,6 @@ public class Network {
         retList.addAll(sgList);
         retList.addAll(subnetList);
         return retList;
-    }
-
-    /**
-     * Convert between lists of synapse groups and arrays of synapse group
-     * holders that are easily converted to xml.
-     */
-    static class SynapseGroupAdapter
-            extends XmlAdapter<SynapseGroupDataHolder[], List<SynapseGroup>> {
-
-        @Override
-        public List<SynapseGroup> unmarshal(SynapseGroupDataHolder[] v)
-                throws Exception {
-            List<SynapseGroup> sgl = new ArrayList<>();
-            for (SynapseGroupDataHolder sgdh : v) {
-                sgl.add(new SynapseGroup(sgdh));
-            }
-            return sgl;
-        }
-
-        @Override
-        public SynapseGroupDataHolder[] marshal(List<SynapseGroup> v)
-                throws Exception {
-            SynapseGroupDataHolder[] ret = new SynapseGroupDataHolder[v.size()];
-            int i = 0;
-            for (SynapseGroup sg : v) {
-                sg.preSaveInit();
-                ret[i] = new SynapseGroupDataHolder(sg.getId(),
-                        sg.getSourceNeuronGroup().getId(),
-                        sg.getTargetNeuronGroup().getId(),
-                        sg.getFullSynapseRep(), sg.getExcitatoryPrototype(),
-                        sg.getInhibitoryPrototype(), sg.isDisplaySynapses(),
-                        sg.getExcitatoryRandomizer(),
-                        sg.getInhibitoryRandomizer());
-                i++;
-            }
-            return ret;
-        }
     }
 
     void beforeUnmarshal(Unmarshaller u, Object network) {
@@ -1827,16 +1796,10 @@ public class Network {
         // Initialize update manager
         updateManager.postUnmarshallingInit();
 
-        //TODO: Can use this to set parent refs if it ends up being necessary
         // Initialize neurons
         for (Neuron neuron : this.getFlatNeuronList()) {
-            neuron.postUnmarshallingInit(this);
+            neuron.postUnmarshallingInit();
         }
-
-        // Initialize groups.
-        //for (Group group: this.getGroupList()) {
-        //    group.postUnmarshallingInit(this);
-        //}
 
         // Uncompress compressed matrix rep if needed
         for (SynapseGroup sg : this.getSynapseGroups()) {
@@ -1846,8 +1809,9 @@ public class Network {
 
         // Re-populate fan-in / fan-out for loose synapses
         for (Synapse synapse : this.getLooseSynapses()) {
-            synapse.postUnmarshallingInit(this);
+            synapse.postUnmarshallingInit();
         }
+
         updateCompleted = new AtomicBoolean(false);
 
         //System.out.println("After");
@@ -1865,5 +1829,11 @@ public class Network {
      */
     public void setRunning(boolean isRunning) {
         this.isRunning.set(isRunning);
+    }
+
+    public void preSaveInit() {
+        for (SynapseGroup sg : sgList) {
+            sg.preSaveInit();
+        }
     }
 }
