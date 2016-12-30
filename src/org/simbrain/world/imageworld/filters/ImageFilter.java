@@ -41,24 +41,31 @@ public class ImageFilter extends ImageSourceAdapter implements ImageSourceListen
     }
 
     private final ImageSource wrappedSource;
-    private final BufferedImageOp colorOp;
-    private final int width;
-    private final int height;
+    private String type;
+    private BufferedImageOp colorOp;
+    private int width;
+    private int height;
     private BufferedImageOp scaleOp;
 
     /**
      * Construct a new ImageFilter.
      * @param source the ImageSource to be filtered
+     * @param type the type of this filter
      * @param colorOp the color filter to apply
      * @param width the width of the output image
      * @param height the height of the output image
      */
-    public ImageFilter(ImageSource source, BufferedImageOp colorOp, int width, int height) {
+    public ImageFilter(ImageSource source, String type, BufferedImageOp colorOp, int width, int height) {
         wrappedSource = source;
+        this.type = type;
         this.colorOp = colorOp;
         this.width = width;
         this.height = height;
         wrappedSource.addListener(this);
+    }
+
+    public String getType() {
+        return type;
     }
 
     public BufferedImageOp getColorOp() {

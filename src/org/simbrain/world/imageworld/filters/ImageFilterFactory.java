@@ -6,10 +6,12 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JFormattedTextField;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+
 import org.simbrain.util.LabelledItemPanel;
 import org.simbrain.world.imageworld.ImageSource;
 
-public abstract class ImageFilterFactory {
+public abstract class ImageFilterFactory extends XmlAdapter<String, ImageFilter> {
     private static Map<String, ImageFilterFactory> factories = new HashMap<String, ImageFilterFactory>();
 
     static {
@@ -28,11 +30,11 @@ public abstract class ImageFilterFactory {
     }
 
     public static ImageFilter createColorFilter(ImageSource source, int width, int height) {
-        return new ImageFilter(source, ImageFilter.getIdentityOp(), width, height);
+        return new ImageFilter(source, "Color Filter", ImageFilter.getIdentityOp(), width, height);
     }
 
     public static ImageFilter createGrayFilter(ImageSource source, int width, int height) {
-        return new ImageFilter(source, ImageFilter.getGrayOp(), width, height);
+        return new ImageFilter(source, "Gray Filter", ImageFilter.getGrayOp(), width, height);
     }
 
     public static void putFactory(String type, ImageFilterFactory factory) {
@@ -76,9 +78,15 @@ public abstract class ImageFilterFactory {
         height = filter.getHeight();
     }
 
-    public void saveValues() { }
+    @Override
+    public ImageFilter unmarshal(String xml) {
+        return null;
+    }
 
-    public void loadValues() { }
+    @Override
+    public String marshal(ImageFilter filter) {
+        return null;
+    }
 
     public LabelledItemPanel getEditorPanel() {
         LabelledItemPanel panel = new LabelledItemPanel();

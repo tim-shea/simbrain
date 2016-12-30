@@ -13,7 +13,7 @@ public class ThresholdFilterFactory extends ImageFilterFactory {
     }
 
     public static ImageFilter createThresholdFilter(ImageSource source, double threshold, int width, int height) {
-        return new ImageFilter(source, new ThresholdOp(threshold), width, height); 
+        return new ImageFilter(source, "Threshold Filter", new ThresholdOp(threshold), width, height); 
     }
 
     private double threshold;
