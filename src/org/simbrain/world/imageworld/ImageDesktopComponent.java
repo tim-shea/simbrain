@@ -2,6 +2,7 @@ package org.simbrain.world.imageworld;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -13,6 +14,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
 import org.simbrain.resource.ResourceManager;
@@ -38,10 +40,28 @@ public class ImageDesktopComponent extends GuiComponent<ImageWorldComponent> {
     private JComboBox<SensorMatrix> sensorMatrixCombo = new JComboBox<SensorMatrix>();
 
     /** The image world component . */
-    private final ImageWorldComponent component;
+    private ImageWorldComponent component;
 
-    /** Main toolbar */
-    private final JToolBar toolbar = new JToolBar();
+    private JPanel toolbars = new JPanel(new FlowLayout());
+    private JToolBar sourceToolbar = new JToolBar();
+    private JToolBar sensorToolbar = new JToolBar();
+    private ActionListener loadImageListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            SFileChooser fileChooser = new SFileChooser(
+                    System.getProperty("user.home"),
+                    "Select an image to load");
+            fileChooser.setUseImagePreview(true);
+            File file = fileChooser.showOpenDialog();
+            if (file != null) {
+                try {
+                    component.getImageWorld().loadImage(file.toString());
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(null, "Unabled to load file: " + file.toString());
+                }
+            }
+        }
+    };
 
     /**
      * Construct a new ImageDesktopComponent GUI.
@@ -51,25 +71,41 @@ public class ImageDesktopComponent extends GuiComponent<ImageWorldComponent> {
     public ImageDesktopComponent(GenericFrame frame,
             ImageWorldComponent imageWorldComponent) {
         super(frame, imageWorldComponent);
-        this.component = imageWorldComponent;
+        component = imageWorldComponent;
 
         JMenuBar menuBar = new JMenuBar();
         this.setUpMenus(menuBar);
         frame.setJMenuBar(menuBar);
 
+        JButton selectEmitterButton = new JButton("View Emitter");
+        selectEmitterButton.addActionListener(evt -> {
+            component.getImageWorld().selectEmitterMatrix();
+        });
+        sourceToolbar.add(selectEmitterButton);
+
         JButton resizeEmitterButton = new JButton("Resize Emitter");
-        resizeEmitterButton.addActionListener((evt) -> {
+        resizeEmitterButton.addActionListener(evt -> {
             ResizeEmitterMatrixDialog dialog = new ResizeEmitterMatrixDialog(component.getImageWorld());
             dialog.setVisible(true);
         });
-        toolbar.add(resizeEmitterButton);
+        sourceToolbar.add(resizeEmitterButton);
 
-        toolbar.add(sensorMatrixCombo);
+        JButton viewImageButton = new JButton("View Image");
+        viewImageButton.addActionListener(evt -> {
+            component.getImageWorld().selectStaticSource();
+        });
+        sourceToolbar.add(viewImageButton);
+
+        JButton loadImageButton = new JButton("Load Image");
+        loadImageButton.addActionListener(loadImageListener);
+        sourceToolbar.add(loadImageButton);
+
+        sensorToolbar.add(sensorMatrixCombo);
         sensorMatrixCombo.setToolTipText("Which Sensor Matrix to View");
         updateComboBox();
         sensorMatrixCombo.setSelectedIndex(0);
         sensorMatrixCombo.setMaximumSize(new java.awt.Dimension(200, 100));
-        sensorMatrixCombo.addActionListener((evt) -> {
+        sensorMatrixCombo.addActionListener(evt -> {
             SensorMatrix selectedSensorMatrix = (SensorMatrix) sensorMatrixCombo.getSelectedItem();
             if (selectedSensorMatrix != null) {
                 component.getImageWorld().setCurrentSensorMatrix(selectedSensorMatrix);
@@ -79,24 +115,26 @@ public class ImageDesktopComponent extends GuiComponent<ImageWorldComponent> {
         JButton addSensorMatrix = new JButton(
                 ResourceManager.getImageIcon("plus.png"));
         addSensorMatrix.setToolTipText("Add sensor matrix...");
-        addSensorMatrix.addActionListener((evt) -> {
+        addSensorMatrix.addActionListener(evt -> {
             SensorMatrixDialog dialog = new SensorMatrixDialog(component.getImageWorld());
             dialog.setVisible(true);
         });
-        toolbar.add(addSensorMatrix);
+        sensorToolbar.add(addSensorMatrix);
 
         JButton deleteSensorMatrix = new JButton(
                 ResourceManager.getImageIcon("minus.png"));
         deleteSensorMatrix.setToolTipText("Delete sensor matrix");
-        deleteSensorMatrix.addActionListener((evt) -> {
+        deleteSensorMatrix.addActionListener(evt -> {
             SensorMatrix selectedSensorMatrix = (SensorMatrix) sensorMatrixCombo.getSelectedItem();
             component.getImageWorld().removeSensorMatrix(selectedSensorMatrix);
         });
-        toolbar.add(deleteSensorMatrix);
+        sensorToolbar.add(deleteSensorMatrix);
 
         // Lay out the whole component
         setLayout(new BorderLayout());
-        add(toolbar, BorderLayout.NORTH);
+        add(toolbars, BorderLayout.NORTH);
+        toolbars.add(sourceToolbar);
+        toolbars.add(sensorToolbar);
         add(imageWorldComponent.getImageWorld().getImagePanel(), BorderLayout.CENTER);
         imageWorldComponent.getImageWorld().getImagePanel().setPreferredSize(new Dimension(640, 480));
 
@@ -127,23 +165,7 @@ public class ImageDesktopComponent extends GuiComponent<ImageWorldComponent> {
         menuBar.add(fileMenu);
 
         JMenuItem loadImage = new JMenuItem("Load Image...");
-        loadImage.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SFileChooser fileChooser = new SFileChooser(
-                        System.getProperty("user.home"),
-                        "Select an image to load");
-                fileChooser.setUseImagePreview(true);
-                File file = fileChooser.showOpenDialog();
-                if (file != null) {
-                    try {
-                        component.getImageWorld().loadImage(file.toString());
-                    } catch (IOException ex) {
-                        JOptionPane.showMessageDialog(null, "Unabled to load file: " + file.toString());
-                    }
-                }
-            }
-        });
+        loadImage.addActionListener(loadImageListener);
         fileMenu.add(loadImage);
 
         fileMenu.addSeparator();

@@ -169,7 +169,21 @@ public final class ReaderWorld extends TextWorld {
         if (getCurrentItem() == null) {
             return new double[vectorLength];
         } else {
-            return this.getMatchingVector(this.getCurrentItem().getText());
+            return getMatchingVector(getCurrentItem().getText());
+        }
+    }
+
+    /**
+     * Returns a standard java string containing the character or characters
+     * selected by the reader world.
+     * @return the current string
+     */
+    @Producible
+    public String getCurrentString() {
+        if (getCurrentItem() == null) {
+            return "";
+        } else {
+            return getCurrentItem().getText();
         }
     }
 

@@ -84,11 +84,20 @@ public class ImageWorld {
      */
     public void loadImage(String filename) throws IOException {
         staticSource.loadImage(filename);
+    }
+
+    /** Switch the CompositeImageSource to the static image. */
+    public void selectStaticSource() {
         compositeSource.selectSource(staticSource);
     }
 
+    /** Set the size of the emitter matrix. */
     public void resizeEmitterMatrix(int width, int height) {
         emitterMatrix.setSize(width, height);
+    }
+
+    /** Switch the CompositeImageSource to the emitter matrix. */
+    public void selectEmitterMatrix() {
         compositeSource.selectSource(emitterMatrix);
     }
 

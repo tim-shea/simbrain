@@ -39,9 +39,7 @@ public class ImageWorldComponent extends WorkspaceComponent {
     }
 
     @Override
-    public void save(OutputStream output, String format) {
-        
-    }
+    public void save(OutputStream output, String format) { }
 
     @Override
     protected void closing() { }

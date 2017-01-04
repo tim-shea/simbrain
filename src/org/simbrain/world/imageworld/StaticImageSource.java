@@ -7,6 +7,10 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+
+import org.simbrain.workspace.Consumible;
+import org.simbrain.workspace.Producible;
 
 /**
  * StaticImageSource allows static images (JPG, BMP, PNG) to be loaded and
@@ -32,8 +36,23 @@ public class StaticImageSource extends ImageSourceAdapter {
     /**
      * @return Get the name of the currently loaded image file.
      */
+    @Producible
     public String getFilename() {
         return filename;
+    }
+
+    /**
+     * @return Set the name of the current image file (load the file if changed).
+     */
+    @Consumible
+    public void setFilename(String value) {
+        if (!filename.equals(value)) {
+            try {
+                loadImage(value);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(null, "Image Load Exception");
+            }
+        }
     }
 
     /**
@@ -65,5 +84,10 @@ public class StaticImageSource extends ImageSourceAdapter {
         g.drawImage(imageIcon.getImage(), 0, 0, null);
         g.dispose();
         setCurrentImage(image);
+    }
+
+    @Override
+    public void setCurrentImage(BufferedImage value) {
+        super.setCurrentImage(value);
     }
 }

@@ -20,7 +20,9 @@ package org.simbrain.world.textworld;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
+import org.simbrain.workspace.Producer2;
 import org.simbrain.workspace.WorkspaceComponent;
 
 /**
@@ -64,6 +66,11 @@ public class ReaderComponent extends WorkspaceComponent {
 //                true));
 //        addProducerType(new AttributeType(this, "TokenScalars", double.class, true));
 //        addProducerType(new AttributeType(this, "Letters", double.class, false));
+    }
+
+    @Override
+    public List<Producer2<?>> getProducers() {
+        return getProducers(world);
     }
 
 //    @Override
