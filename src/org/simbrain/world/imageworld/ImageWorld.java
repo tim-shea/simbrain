@@ -18,6 +18,7 @@ import org.simbrain.world.imageworld.filters.ThresholdFilterFactory;
  * numbers.
  */
 public class ImageWorld {
+
     /**
      * WorldListener receives notifications when the list of sensor matrices is
      * changed.
@@ -28,7 +29,10 @@ public class ImageWorld {
     }
 
     private StaticImageSource staticSource;
+
     private EmitterMatrix emitterMatrix;
+
+    /** Helper so that it's easy to switch between images sources. */
     private CompositeImageSource compositeSource;
 
     /** List of sensor matrices associated with this world. */

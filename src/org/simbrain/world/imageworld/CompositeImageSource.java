@@ -18,7 +18,7 @@ public class CompositeImageSource extends ImageSourceAdapter implements ImageSou
     }
 
     @Override
-    public void onImage(ImageSource source) {
+    public void onImageUpdate(ImageSource source) {
         setCurrentImage(source.getCurrentImage());
     }
 

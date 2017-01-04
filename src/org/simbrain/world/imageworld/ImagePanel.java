@@ -7,11 +7,18 @@ import javax.swing.JPanel;
 
 /**
  * Display images from an ImageSource.
- * @author Jeff Yoshimi, Tim Shea
+ *
+ * @author Tim Shea
+ * @author Jeff Yoshimi
  */
 public class ImagePanel extends JPanel implements ImageSourceListener {
+
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Reference to last image provided, so we don't to have reload the image
+     * every time we redraw the panel.
+     */
     private BufferedImage currentImage;
 
     @Override
@@ -21,7 +28,7 @@ public class ImagePanel extends JPanel implements ImageSourceListener {
     }
 
     @Override
-    public void onImage(ImageSource source) {
+    public void onImageUpdate(ImageSource source) {
         currentImage = source.getCurrentImage();
         repaint();
     }

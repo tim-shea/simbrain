@@ -13,9 +13,16 @@ import org.simbrain.world.imageworld.ImageSourceListener;
 
 /**
  * ImageFilter decorates an ImageSource with a color and size transform.
- * @author Jeff Yoshimi, Tim Shea
+ *
+ * The "model" that {@link ImageFilterFactory} provides a "view" on.
+ *
+ * Based on a similar pattern in awt.
+ *
+ * @author Tim Shea
+ * @author Jeff Yoshimi
  */
 public class ImageFilter extends ImageSourceAdapter implements ImageSourceListener {
+
     /** @return a BuffereImageOp which does not alter the input image */
     protected static BufferedImageOp getIdentityOp() {
         return new AffineTransformOp(new AffineTransform(),
@@ -83,7 +90,7 @@ public class ImageFilter extends ImageSourceAdapter implements ImageSourceListen
     }
 
     @Override
-    public void onImage(ImageSource source) {
+    public void onImageUpdate(ImageSource source) {
         BufferedImage image = scaleOp.filter(source.getCurrentImage(), null);
         image = colorOp.filter(image, null);
         setCurrentImage(image);

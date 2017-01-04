@@ -54,6 +54,6 @@ public class EmitterMatrix extends ImageSourceAdapter {
                 image.setRGB(x, y, color);
             }
         }
-        notifyImage();
+        notifyImageUpdate();
     }
 }

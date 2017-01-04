@@ -75,7 +75,7 @@ public class SensorMatrix implements ImageSourceListener {
     }
 
     @Override
-    public void onImage(ImageSource source) {
+    public void onImageUpdate(ImageSource source) {
         updateSensorValues(source.getCurrentImage());
     }
 

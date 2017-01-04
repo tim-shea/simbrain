@@ -5,10 +5,16 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * ImageSourceAdapter provides basic listener and image management for an ImageSource class.
+ * Abstract helper class which provides basic listener and image management for
+ * an {@link ImageSource}
+
+ * Whenever the private current image is updated, imagesourceadapter compares it to previous
+ * image and decides which events need to be called.
+ *
  * @author Tim Shea
  */
 public abstract class ImageSourceAdapter implements ImageSource {
+
     private boolean enabled = true;
     private BufferedImage currentImage;
     private List<ImageSourceListener> listeners = new CopyOnWriteArrayList<ImageSourceListener>();
@@ -37,10 +43,10 @@ public abstract class ImageSourceAdapter implements ImageSource {
     }
 
     /** Notify ImageSourceListeners that a new image is available. */
-    protected void notifyImage() {
+    protected void notifyImageUpdate() {
         if (isEnabled()) {
             for (ImageSourceListener listener : listeners) {
-                listener.onImage(this);
+                listener.onImageUpdate(this);
             }
         }
     }
@@ -58,14 +64,14 @@ public abstract class ImageSourceAdapter implements ImageSource {
         if (resized) {
             notifyResize();
         }
-        notifyImage();
+        notifyImageUpdate();
     }
 
     @Override
     public void addListener(ImageSourceListener listener) {
         listeners.add(listener);
         listener.onResize(this);
-        listener.onImage(this);
+        listener.onImageUpdate(this);
     }
 
     @Override

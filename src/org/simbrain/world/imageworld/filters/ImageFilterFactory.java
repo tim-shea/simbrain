@@ -11,9 +11,17 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import org.simbrain.util.LabelledItemPanel;
 import org.simbrain.world.imageworld.ImageSource;
 
+/**
+ * Maintains gui information (name, editor panel) relating to filters. Add
+ * custom filter types by extending this factory class, see e.g
+ * {@link ThresholdFilterFactory}
+ */
 public abstract class ImageFilterFactory extends XmlAdapter<String, ImageFilter> {
     private static Map<String, ImageFilterFactory> factories = new HashMap<String, ImageFilterFactory>();
 
+    /**
+     * The default filters.
+     */
     static {
         putFactory("Color Filter", new ImageFilterFactory() {
             @Override

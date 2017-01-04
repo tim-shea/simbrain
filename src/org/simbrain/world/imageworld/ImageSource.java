@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 /**
  * ImageSource produces BufferedImages periodically and notifies listeners of new
  * images or changes to the image size.
+ *
  * @author Tim Shea
  */
 public interface ImageSource {

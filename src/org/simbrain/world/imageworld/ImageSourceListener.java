@@ -14,7 +14,7 @@ public interface ImageSourceListener {
      *
      * @param source The image source that produced a new image.
      */
-    void onImage(ImageSource source);
+    void onImageUpdate(ImageSource source);
 
     /**
      * Called by the ImageSource when the source is resized.
