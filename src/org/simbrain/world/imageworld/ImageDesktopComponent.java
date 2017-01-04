@@ -42,7 +42,7 @@ public class ImageDesktopComponent extends GuiComponent<ImageWorldComponent> {
     /** The image world component . */
     private ImageWorldComponent component;
 
-    private JPanel toolbars = new JPanel(new FlowLayout());
+    private JPanel toolbars = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JToolBar sourceToolbar = new JToolBar();
     private JToolBar sensorToolbar = new JToolBar();
     private ActionListener loadImageListener = new ActionListener() {
@@ -77,26 +77,34 @@ public class ImageDesktopComponent extends GuiComponent<ImageWorldComponent> {
         this.setUpMenus(menuBar);
         frame.setJMenuBar(menuBar);
 
-        JButton selectEmitterButton = new JButton("View Emitter");
+        JButton selectEmitterButton = new JButton();
+        selectEmitterButton.setIcon(ResourceManager.getSmallIcon("light-bulb.png"));
+        selectEmitterButton.setToolTipText("View Emitter Matrix");
         selectEmitterButton.addActionListener(evt -> {
             component.getImageWorld().selectEmitterMatrix();
         });
         sourceToolbar.add(selectEmitterButton);
 
-        JButton resizeEmitterButton = new JButton("Resize Emitter");
+        JButton resizeEmitterButton = new JButton();
+        resizeEmitterButton.setIcon(ResourceManager.getSmallIcon("resize.png"));
+        resizeEmitterButton.setToolTipText("Resize Emitter Matrix");
         resizeEmitterButton.addActionListener(evt -> {
             ResizeEmitterMatrixDialog dialog = new ResizeEmitterMatrixDialog(component.getImageWorld());
             dialog.setVisible(true);
         });
         sourceToolbar.add(resizeEmitterButton);
 
-        JButton viewImageButton = new JButton("View Image");
+        JButton viewImageButton = new JButton();
+        viewImageButton.setIcon(ResourceManager.getSmallIcon("photo.png"));
+        viewImageButton.setToolTipText("View Static Image");
         viewImageButton.addActionListener(evt -> {
             component.getImageWorld().selectStaticSource();
         });
         sourceToolbar.add(viewImageButton);
 
-        JButton loadImageButton = new JButton("Load Image");
+        JButton loadImageButton = new JButton();
+        loadImageButton.setIcon(ResourceManager.getSmallIcon("Open.png"));
+        loadImageButton.setToolTipText("Load Static Image");
         loadImageButton.addActionListener(loadImageListener);
         sourceToolbar.add(loadImageButton);
 
